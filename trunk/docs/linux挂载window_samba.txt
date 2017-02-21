@@ -1,0 +1,33 @@
+sudo mount -t cifs -o username=blacksherry,password=cui14310531 //192.168.1.103/share  /mnt/winshare
+
+sudo mount -t cifs //192.168.1.103/share /mnt/winshare -o username=blacksherry,password=cui14310531,rw,dir_mode=0777,file_mod=0777  
+
+sudo mount -t cifs -o username=blacksherry,password=cui14310531,rw,dir_mode=0777,file_mod=0777 //192.168.1.103/share  /mnt/winshare
+
+sudo mount -t cifs -o username=blacksherry,password=cui14310531 //192.168.1.103/share  /media/winshare
+
+sudo mount -t ntfs-3g -o username=blacksherry,password=cui14310531 //192.168.1.103/share  /media/winshare
+
+sudo mount -t cifs -o username=blacksherry,password=cui14310531,rw,dir_mode=777,file_mod=777 //192.168.1.103/share  /media/winshare
+
+sudo mount -t -w cifs -o username=blacksherry,password=cui14310531,rw //192.168.1.103/share  /media/winshare
+ 
+########################################################################################################################################
+sudo mount.cifs  -o username=blacksherry,password=cui14310531,rw,dir_mode=777,file_mod=777  //192.168.1.103/share  /media/winshare
+ 
+
+sudo mount.cifs  -o username=blacksherry,password=cui14310531,rw,uid=1000  //192.168.1.103/share  /media/winshare
+ 
+#########################################################################################################################################
+#sudo mount.cifs //192.168.10.213/mount /home/gamester88/×ÀÃæ/test -o guest,dir_mode=0777
+##############################################
+id root
+id blacksherry
+id blacksherry
+uid=1000(blacksherry) gid=1000(blacksherry) ×é=1000(blacksherry),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),115(lpadmin),131(sambashare)
+
+sudo umount 
+sudo mount.cifs  -o username=blacksherry,password=cui14310531,rw,uid=1000,gid=1000,iocharset=utf8  //192.168.1.103/share  /media/winshare
+ 
+sudo mount.cifs  -o username=blacksherry,password=cui14310531,rw,uid=1000,gid=1000  //192.168.1.103/share  /media/winshare
+ 

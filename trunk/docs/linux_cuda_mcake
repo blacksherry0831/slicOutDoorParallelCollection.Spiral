@@ -1,0 +1,5 @@
+cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local ~/cuda_opencv/opencv-3.1.0
+
+make
+sudo make install
+
