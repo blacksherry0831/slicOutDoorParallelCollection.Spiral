@@ -1,0 +1,382 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="hough">
+      <UniqueIdentifier>{3faf2efa-d5d5-4c95-8b4c-fe8d9b489f4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SLIC">
+      <UniqueIdentifier>{1cfd8abd-d650-4ac8-9c72-977915377462}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Harr">
+      <UniqueIdentifier>{c28539f2-192c-49e2-a877-1c7c9eca3342}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Depth">
+      <UniqueIdentifier>{a21741f0-5d27-4e9a-9d09-8606909bb519}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="config">
+      <UniqueIdentifier>{b9e22f21-23d6-4932-aff1-a3cf57960d4d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="docs">
+      <UniqueIdentifier>{99c343dc-29d1-432b-961e-39e247c4767d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tinyxml2">
+      <UniqueIdentifier>{9d96e0ae-1851-471f-b70d-fbcaba5dbb20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules">
+      <UniqueIdentifier>{9054b8c2-8e42-4e13-b9c1-7236ae6d3491}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="CUDA_CU">
+      <UniqueIdentifier>{8eac90a7-2199-469d-9b68-4b0214b2b622}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Malloc">
+      <UniqueIdentifier>{bf5705e5-0bd2-4861-8da6-66cd3d12f271}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="SLICSuperpixels.cpp">
+      <Filter>SLIC</Filter>
+    </ClCompile>
+    <ClCompile Include="SLICSuperpixelsDlg.cpp">
+      <Filter>SLIC</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\SLIC.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\ColorAnalyzeOnLab.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\ComputeSVG.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\Cui_DrawDepth.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\cui_GeneralImgProcess.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\HsHg.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\ImageMemData.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\ImageType.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\LabColorAnalyzeCluster.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\ManhattanHistogram.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\SceneDetermine.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\SeparateSpBlock.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\SpAnalyze.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\SpectralClusterInDoor.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\SpectralClustering.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\SplitTreeandBuilding.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\Harr\CuiHarrTransformLet.cpp">
+      <Filter>Harr</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\Harr\HarrWaveletTransImg.cpp">
+      <Filter>Harr</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\tinyxml2\tinyxml2.cpp">
+      <Filter>tinyxml2</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\CuiHough\CuiHough3.cpp">
+      <Filter>hough</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\CuiHough\HoughAnalyze.cpp">
+      <Filter>hough</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\ML\Kmean\Kmean.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SVMcode\TrainImgUseSvm.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SVMcode\TrainTreeBuilding.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SVMcode\svmlight\pr_loqo.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SVMcode\svmlight\svm_common.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SVMcode\svmlight\svm_learn.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SVMcode\svmlight\svm_loqo.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\FilePathName\FileNameSplit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\FilePathName\PointWithDistance.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\MallocCui.cpp">
+      <Filter>Malloc</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\slab.cpp">
+      <Filter>Malloc</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\kservice.cpp">
+      <Filter>Malloc</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\LabColorAnalyzeCluster _veins.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\ImageData.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\SpSetProperty.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\ColorBarCluster.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\SGVcode\ComputeSVG2.cpp">
+      <Filter>modules</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\cudaLib\CUDA_Code.cpp">
+      <Filter>CUDA_CU</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SLICSuperpixels.h">
+      <Filter>SLIC</Filter>
+    </ClInclude>
+    <ClInclude Include="SLICSuperpixelsDlg.h">
+      <Filter>SLIC</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\SLIC.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\ColorAnalyzeOnLab.h">
+      <Filter>modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\ComputeSVG.h">
+      <Filter>modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\Cui_DrawDepth.h">
+      <Filter>modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\cui_GeneralImgProcess.h">
+      <Filter>modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\HsHg.h">
+      <Filter>modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\ImageMemData.h">
+      <Filter>modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\ImageType.h">
+      <Filter>modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\LabColorAnalyzeCluster.h">
+      <Filter>modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\ManhattanHistogram.h">
+      <Filter>modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\SceneDetermine.h">
+      <Filter>modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\SeparateSpBlock.h">
+      <Filter>modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\SpAnalyze.h">
+      <Filter>modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\SpectralClusterInDoor.h">
+      <Filter>modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\SpectralClustering.h">
+      <Filter>modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\SplitTreeandBuilding.h">
+      <Filter>modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\Harr\CuiHarrTransformLet.h">
+      <Filter>Harr</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\Harr\DIBapi.h">
+      <Filter>Harr</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\Harr\dirent.h">
+      <Filter>Harr</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\Harr\FilterApi.h">
+      <Filter>Harr</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\Harr\HarrWaveletTransImg.h">
+      <Filter>Harr</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\Harr\WaveletApi.h">
+      <Filter>Harr</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\tinyxml2\tinyxml2.h">
+      <Filter>tinyxml2</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\CuiHough\CuiHough3.h">
+      <Filter>hough</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\CuiHough\HoughAnalyze.h">
+      <Filter>hough</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\ML\Kmean\Kmean.h">
+      <Filter>modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SVMcode\dirent.h">
+      <Filter>modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SVMcode\TrainImgUseSvm.h">
+      <Filter>modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SVMcode\TrainTreeBuilding.h">
+      <Filter>modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SVMcode\svmlight\kernel.h">
+      <Filter>modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SVMcode\svmlight\pr_loqo.h">
+      <Filter>modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SVMcode\svmlight\svm_common.h">
+      <Filter>modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SVMcode\svmlight\svm_learn.h">
+      <Filter>modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SVMcode\svmlight\svmlight.h">
+      <Filter>modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\FilePathName\FileNameSplit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\FilePathName\PointWithDistance.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mainpage.h" />
+    <ClInclude Include="CuiLib\modules.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\opencv_stl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\MallocCui.h">
+      <Filter>Malloc</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\slab.h">
+      <Filter>Malloc</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\rtdef.h">
+      <Filter>Malloc</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\rtconfig.h">
+      <Filter>Malloc</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\rtthread.h">
+      <Filter>Malloc</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\rtservice.h">
+      <Filter>Malloc</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\rtdebug.h">
+      <Filter>Malloc</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\rtm.h">
+      <Filter>Malloc</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\rthw.h">
+      <Filter>Malloc</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\LabColorAnalyzeCluster_veins.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\ImageData.h">
+      <Filter>modules</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\SpSetProperty.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\ColorBarCluster.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\ComputeSVG2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\SGVcode\cfg\cui_confg_400_CUDA_ColorBar20150319.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\cudaLib\CUDA_Code.h">
+      <Filter>CUDA_CU</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\SLICSuperpixels.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\SLICSuperpixels.rc2">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="ReadMe.txt">
+      <Filter>docs</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="SLICSuperpixels.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="CuiLib\cudaLib\fuzzy.cu">
+      <Filter>CUDA_CU</Filter>
+    </CudaCompile>
+    <CudaCompile Include="CuiLib\cudaLib\HarrWaveletKernel.cu">
+      <Filter>CUDA_CU</Filter>
+    </CudaCompile>
+    <CudaCompile Include="CuiLib\cudaLib\SlicKernel.cu">
+      <Filter>CUDA_CU</Filter>
+    </CudaCompile>
+  </ItemGroup>
+</Project>
