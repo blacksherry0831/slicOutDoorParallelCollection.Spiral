@@ -52,7 +52,10 @@ public:
 	static string  saveLocation;
 	static	vector<string> picvec;
 	static	UINT THreadSuperPixel_CUDA(LPVOID lpParam);
+	
 	static	UINT THreadSuperPixel_CUDA_CollectionMethods(LPVOID lpParam);
+	static	UINT THreadSuperPixel_CUDA_CollectionMethods_Spiral(LPVOID lpParam);
+
 	static	UINT Do400OutDoorIMG(LPVOID lpParam);
 	static	UINT Do400OutDoorIMGBuildingOrTree(LPVOID lpParam);
 	static	UINT Do120InDoorIMG(LPVOID lpParam);

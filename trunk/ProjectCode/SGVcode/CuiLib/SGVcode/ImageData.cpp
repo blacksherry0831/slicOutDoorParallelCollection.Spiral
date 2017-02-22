@@ -1,3 +1,4 @@
+_seq
 #include "StdAfx.h"
 //#include "ImageData.h"
 #include "module_all_cui.h"
@@ -817,6 +818,179 @@ if(perturbseeds)
 		PerturbSeeds(kseedsl, kseedsa, kseedsb, kseedsx, kseedsy, edgemag);
 	}
 #endif	
+}
+/*---------------------------------------------------------------------------------*/
+/**
+*使用螺旋线的方式计算种子的分布，并绘制出区域
+*
+* 1,1,2,2 ,3,3，4，4，5，5，6，6，
+*/
+/*---------------------------------------------------------------------------------*/
+void ImageData::GetThetaMLXYSeeds_ByCircle_UseSpiral(void)
+{
+	const int CircleNumber=5;//圈数
+	const int WidthHeightStep=2*CircleNumber+1;//Seed长宽
+	const int SplitNumber=WidthHeightStep*WidthHeightStep;//Seed总数
+	this->slic_current_num=SplitNumber;
+	const int numseeds=SplitNumber;
+	
+	const float X_Step=this->ImgWidth/WidthHeightStep;//Seed步长
+	const float Y_Step=this->ImgHeight/WidthHeightStep;//Seed步长
+
+	const float CenterX=this->ImgWidth/2.0;
+	const float CenterY=this->ImgHeight/2.0;
+
+	float CurrentSeedX=CenterX;
+	float CurrentSeedY=CenterY;
+
+	const int	OrientationX[4]={-1,0,1,0};
+	const int	OrientationY[4]={0,-1,0,1};
+	int   OrientationStep[4]={1,1,2,2};
+	int   CurrentCircle=0;
+	int   CurrentOrientation=0;
+
+#if  DEBUG_CUI||_DEBUG
+	kseedsl.resize(numseeds);
+	kseedsa.resize(numseeds);
+	kseedsb.resize(numseeds);
+	kseedsx.resize(numseeds);
+	kseedsy.resize(numseeds);
+#endif
+	kseedsTheta.resize(numseeds);
+	kseedsM.resize(numseeds);
+	kseedsL.resize(numseeds);
+	kseedsX.resize(numseeds);
+	kseedsY.resize(numseeds);
+	
+	int spi=0;
+	do{
+
+		//记录当前位置
+		int i = CurrentSeedY*ImgWidth +CurrentSeedX;//像素索引
+
+#if DEBUG_CUI||_DEBUG
+		kseedsl[spi] = m_lvec[i];
+		kseedsa[spi] = m_avec[i];
+		kseedsb[spi] = m_bvec[i];
+		kseedsx[spi] =CurrentSeedX;
+		kseedsy[spi] =CurrentSeedY;	
+#endif
+		kseedsTheta[spi]=sita_n[i];
+		kseedsM[spi]=m_n[i];
+		kseedsL[spi]=L_n[i];
+		kseedsX[spi]=X_n[i];
+		kseedsY[spi]=Y_n[i];
+#if 1
+
+		if(OrientationStep[CurrentOrientation]>0){
+
+			//在当前方向可以前进,下一个点可以被记录
+		
+		}else{
+			
+			CurrentOrientation++;//转到下一个方向
+				if(CurrentOrientation==4){
+					CurrentOrientation=0;//回到原点，重新开启一轮
+					CurrentCircle++;
+					OrientationStep[0]=OrientationStep[1]=2*CurrentCircle+1;
+					OrientationStep[2]=OrientationStep[3]=2*(CurrentCircle+1);
+
+				}
+
+		}
+
+		if(spi+1==SplitNumber){
+			break;
+		}
+
+		//计算next 点
+		CurrentSeedX=CurrentSeedX+OrientationX[CurrentOrientation]*X_Step;
+		CurrentSeedY=CurrentSeedY+OrientationY[CurrentOrientation]*Y_Step;
+		ASSERT(CurrentSeedX>=0);
+		ASSERT(CurrentSeedY>=0);
+		//记录步长
+		OrientationStep[CurrentOrientation]--;
+		spi++;
+
+#endif	
+
+		
+
+
+
+
+		
+
+
+
+	}while(spi<SplitNumber);
+
+
+
+}
+/*---------------------------------------------------------------------------------*/
+/**
+*
+*/
+/*---------------------------------------------------------------------------------*/
+void ImageData::Draw_Kseeds_Spiral()
+{
+		IplImage* img=cvCreateImage(cvSize(ImgWidth,ImgHeight),IPL_DEPTH_8U,4);
+		char  text_buff_t[1024];
+		
+		CvFont font;//在图像中显示文本字符串
+		cvInitFont(&font,CV_FONT_VECTOR0,0.8,0.8,0,1,8);
+
+		cvCopyImage(this->srcCv_ImgBGRA,img);
+
+		{
+			for (int spi=0;spi<this->slic_current_num;spi++){
+
+				int shift_x=this->kseedsx[spi];
+
+				int shift_y=this->kseedsy[spi];
+				
+				int shift_x1=0;
+				int shift_y1=0;
+
+				if (spi+1<this->slic_current_num)
+				{
+						shift_x1=this->kseedsx[spi+1];
+
+						shift_y1=this->kseedsy[spi+1];
+						
+						cvLine(img,cvPoint(shift_x,shift_y),cvPoint(shift_x1,shift_y1), cvScalar(0,0,255,255),3);
+
+				}
+				
+				
+				{					
+					sprintf(text_buff_t,"%d",spi);
+					cvPutText(img,text_buff_t,cvPoint(shift_x,shift_y),&font,cvScalar(255,255,0,255));
+					cvCircle(img,cvPoint(shift_x,shift_y),1, cvScalar(0,0,255,255),5);
+				} 
+				
+			}
+
+		}
+		FileNameSplit fns;
+#if Use_CString
+		fns.Parse(CString(FileReadFullPath.c_str()));
+		string filesaveimg_t=FileWritePath+FileNameSplit::ConvertCS2string(fns.filename)+"SpSeeds.jpg";
+#else
+		string path= string(FileReadFullPath);
+
+#if _MSC_VER
+		int pos = path.find_last_of('\\');
+#else
+		int pos=0;
+#endif	
+		string file_name_t(path.substr(pos + 1) );
+		string filesaveimg_t=FileWritePath+file_name_t+"SpSeeds.jpg";
+#endif
+
+		cvSaveImage(filesaveimg_t.c_str(),img);
+		cvReleaseImage(&img);
 }
 /*---------------------------------------------------------------------------------*/
 /**

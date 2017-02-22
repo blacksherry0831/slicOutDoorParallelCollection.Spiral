@@ -273,40 +273,19 @@ void CSLICSuperpixelsDlg::OnBnClickedButtonCreatesuperpixels()
 	//Uncomment the line for a Supervoxel demo
 	//------------------------------------------------- ------------------
 	// TODO: 在此添加控件通知处理程序代码
-#if 0
-	int num_devices=gpu::getCudaEnabledDeviceCount();
-	assert(num_devices>0);
-	int enable_device_id=-1;
-	for(int i=0;i<num_devices;i++){
-		cv::gpu::DeviceInfo dev_info(i);
-		if(dev_info.isCompatible()){
-			enable_device_id=i;
-			string dev_name=dev_info.name();
-			int proCount=dev_info.multiProcessorCount();
-		}
-	}
-	gpu::setDevice(enable_device_id);
-	gpu::resetDevice();
-#endif
+
 #if 1
-//	malloc(100);
 			GetPictures(picvec);//user chooses one or more pictures
 			BrowseForFolder(saveLocation);
 #else
 			picvec.push_back("C:\\Users\\Administrator\\Desktop\\img\\1024_768.jpg");
 			saveLocation="C:\\Users\\Administrator\\Desktop\\";
-#endif
-	
+#endif	
 
 #if TRUE
-	AfxBeginThread(THreadSuperPixel_CUDA_CollectionMethods,NULL);
+	AfxBeginThread(THreadSuperPixel_CUDA_CollectionMethods_Spiral,(NULL));
 #endif
-#if FALSE
-	AfxBeginThread(THreadSuperPixel_400withLabColor,NULL);
-#endif
-#if FALSE
-	AfxBeginThread(Do400OutDoorIMG,NULL);
-#endif
+
 	HANDLE hHeaps[40];
 	DWORD    dwHeapNum = GetProcessHeaps(40, hHeaps);
 	TRACE("堆总数：GetProcessHeaps()==%d\n",dwHeapNum);
@@ -898,41 +877,9 @@ UINT CSLICSuperpixelsDlg::THreadSuperPixel_CUDA_CollectionMethods(LPVOID lpParam
 	/****************************************/
 	cui_Button.EnableWindow(FALSE);
 	/****************************************/
-/*		for(int k = 0; k < numPics; k++ ){	
-			LARGE_INTEGER litmp;
-			LONGLONG QPart1,QPart2;
-			double dfMinus, dfFreq, dfTim;
-			QueryPerformanceFrequency(&litmp);
-			dfFreq = (double)litmp.QuadPart;// 获得计数器的时钟频率
-			QueryPerformanceCounter(&litmp);
-			QPart1 = litmp.QuadPart;// 获得初始值
-			/////////////////////////////////////////////
-				ImageData MemData(picvec[k],saveLocation,m_spcount,0.5);
-				
-				SLIC slic(&MemData);
-				slic.DoSuperpixelSegmentation_ForGivenNumberOfSuperpixels_sitaMLxy();//得到lable				
 
-
-				ColorBarCluster colorBarCluster(&MemData);
-				colorBarCluster.Clustering();
-
-
-				ComputeSVG2 svg(&MemData);
-				svg.separateSVG_Zlm();
-				/*聚类步骤.docx*/
-
-			///////////////////////////////////////////////
-/*			QueryPerformanceCounter(&litmp);
-			QPart2 = litmp.QuadPart;//获得中止值
-			dfMinus = (double)(QPart2-QPart1);
-			dfTim = dfMinus / dfFreq;// 获得对应的时间值，单位为秒
-			TRACE("\n 全部时间: %f（秒）",dfTim);
-			/*************************************************************/
-/*#if	!(SaveContours2Disk)
-			MemData.SaveImgWithContours();			
-#endif	}*/
-		
 	cui_GeneralImgProcess::THreadSuperPixel_CUDA_CollectionMethods(NULL,picvec,saveLocation,m_spcount);
+
 	/****************************************/
 	cui_Button.EnableWindow(TRUE);
 	return AfxMessageBox(L"Done!", 0, 0);
@@ -945,6 +892,26 @@ UINT CSLICSuperpixelsDlg::THreadSuperPixel_CUDA_CollectionMethods(LPVOID lpParam
 *
 */
 /*---------------------------------------------------------------------------*/
+UINT CSLICSuperpixelsDlg::THreadSuperPixel_CUDA_CollectionMethods_Spiral(LPVOID lpParam)
+{
+
+	vector <double>  Super_Pixel_num_f;
+	vector <double>  Do_Time_f;	
+	int numPics( picvec.size() );
+	/****************************************/
+	cui_Button.EnableWindow(FALSE);
+	/****************************************/
+
+	cui_GeneralImgProcess::THreadSuperPixel_CUDA_CollectionMethods_Spiral(
+		NULL,
+		picvec,
+		saveLocation,
+		m_spcount);
+
+	/****************************************/
+	cui_Button.EnableWindow(TRUE);
+	return AfxMessageBox(L"Done!", 0, 0);
+}
 /*---------------------------------------------------------------------------*/
 /**
 *

@@ -161,9 +161,13 @@ void initThetaMLXY(void);
 void GetMatrixE(void);
 void SetImgLabels(void);
 unsigned int GetGCD(unsigned int a, unsigned int b);
+
 void GetThetaMLXYSeeds_ForGivenStepSize_Rectangle(
 	const bool&					perturbseeds,
 	const vector<double>&		edgemag);
+
+void GetThetaMLXYSeeds_ByCircle_UseSpiral(void);
+
 void Combine2SPto1(void);
 void Combination_ImgLabs(
 	vector<vector<int>> simlarSp,
@@ -207,6 +211,7 @@ void SaveSuperpixelLabelsImagePNG();
 void _splitpath(const char *path, char *drive, char *dir, char *fname, char *ext);
 
 void Draw_Kseeds_AverageImg();
+void Draw_Kseeds_Spiral();
 
 void SlpitTreeBuilding(void);
 

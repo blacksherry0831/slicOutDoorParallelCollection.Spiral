@@ -3896,6 +3896,29 @@ unsigned cui_GeneralImgProcess::THreadSuperPixel_DoOneImage_win(LPVOID lpParam)
 *
 */
 /*-------------------------------------------------------------------------*/
+unsigned cui_GeneralImgProcess::THreadSuperPixel_DoOneImage_win_spiral(LPVOID lpParam)
+{
+	ThreadDoOneImageData* tdoid=(ThreadDoOneImageData*)lpParam;
+
+	for(int k = tdoid->start; k <tdoid->picvec.size(); k+=tdoid->step){
+
+		if(k>tdoid->picvec.size()){
+			return 0;
+		}
+		THreadSuperPixel_DoOneImage_Spiral(tdoid->picvec[k],tdoid->saveLocation,tdoid->m_spcount);
+	}
+#if __GUNC__||linux||__linux||__linux__
+
+	pthread_exit(0); 
+
+#endif
+	return 0;
+}
+/*-------------------------------------------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------------------------------------------*/
 void cui_GeneralImgProcess::THreadSuperPixel_DoOneImage(string picvec,string saveLocation,int m_spcount)
 {
 #if _MSC_VER
@@ -3932,6 +3955,7 @@ void cui_GeneralImgProcess::THreadSuperPixel_DoOneImage(string picvec,string sav
 #endif
 
 #if OUT_DOOR_400_IMAGE_STABLE
+		
 		printf("3. ColorBarCluster \n");
 		ColorBarCluster colorBarCluster(&MemData);
 		colorBarCluster.Clustering();
@@ -3939,6 +3963,7 @@ void cui_GeneralImgProcess::THreadSuperPixel_DoOneImage(string picvec,string sav
 		printf("4. ComputeSVG2 \n");
 		ComputeSVG2 svg(&MemData);
 		svg.separateSVG_Zlm();
+
 #endif
 
 		MemData.SeparateSp();
@@ -3948,6 +3973,88 @@ void cui_GeneralImgProcess::THreadSuperPixel_DoOneImage(string picvec,string sav
 //#if	!(SaveContours2Disk)
 //		MemData.SaveImgWithContours();			
 //#endif
+
+	}
+	TimeCountStop("Do One Image Cost Time :");
+
+#if _MSC_VER
+	///////////////////////////////////////////////
+	QueryPerformanceCounter(&litmp);
+	QPart2 = litmp.QuadPart;//获得中止值
+	dfMinus = (double)(QPart2-QPart1);
+	dfTim = dfMinus / dfFreq;// 获得对应的时间值，单位为秒
+	TRACE("\n 全部时间: %f（秒）",dfTim);
+#endif
+}
+/*-------------------------------------------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------------------------------------------*/
+void cui_GeneralImgProcess::THreadSuperPixel_DoOneImage_Spiral(string picvec,string saveLocation,int m_spcount)
+{
+	
+
+	//2017年2月21日13:02:40
+
+	
+
+#if _MSC_VER
+	LARGE_INTEGER litmp;
+	LONGLONG QPart1,QPart2;
+	double dfMinus, dfFreq, dfTim;
+	QueryPerformanceFrequency(&litmp);
+	dfFreq = (double)litmp.QuadPart;// 获得计数器的时钟频率
+	QueryPerformanceCounter(&litmp);
+	QPart1 = litmp.QuadPart;// 获得初始值
+	/////////////////////////////////////////////
+#endif
+
+
+
+	TimeCountStart();
+	{
+							printf("1. ImageData \n");
+							ImageData MemData(picvec,saveLocation,m_spcount,0.5);
+
+
+							MemData.GetThetaMLXYSeeds_ByCircle_UseSpiral();
+
+							MemData.Draw_Kseeds_Spiral();
+
+							
+
+							printf("2. GPU Super \n");
+							SLIC slic(&MemData);
+							//slic.DoSuperpixelSegmentation_ForGivenNumberOfSuperpixels_sitaMLxy();//得到lable				
+
+							/*	#if OUT_DOOR_HUMAN
+							printf("3. Spectral Clustering \n");
+							slic.Cui_Spectral_Clustering_B_2016_09_26();
+
+							ComputeSVG2 svg(&MemData);
+							svg.separateSVG_Zlm();
+
+							MemData.SaveImgWithContours("ColorCluster");
+							MemData.Draw_Kseeds_AverageImg();
+							#endif
+
+							#if OUT_DOOR_400_IMAGE_STABLE
+
+							printf("3. ColorBarCluster \n");
+							ColorBarCluster colorBarCluster(&MemData);
+							colorBarCluster.Clustering();
+
+							printf("4. ComputeSVG2 \n");
+							ComputeSVG2 svg(&MemData);
+							svg.separateSVG_Zlm();
+
+							#endif
+							MemData.SeparateSp();*/
+
+							//#if	!(SaveContours2Disk)
+							//		MemData.SaveImgWithContours();			
+							//#endif
 
 	}
 	TimeCountStop("Do One Image Cost Time :");
@@ -4042,7 +4149,83 @@ UINT cui_GeneralImgProcess::THreadSuperPixel_CUDA_CollectionMethods(LPVOID lpPar
 *
 */
 /*----------------------------------------------------------------*/
+UINT cui_GeneralImgProcess::THreadSuperPixel_CUDA_CollectionMethods_Spiral(LPVOID lpParam,vector<string> picvec,string saveLocation,int m_spcount)
+{
+//struct pt_sem SEM_CPU_NUMS;
+//PT_SEM_INIT(&SEM_CPU_NUMS,get_CPU_core_num()); //初始化信号量为1，即没人用
+	TimeCountStart();
+	vector <double>  Super_Pixel_num_f;
+	vector <double>  Do_Time_f;	
+	int numPics( picvec.size() );
+	/****************************************/
+	printf("Start: CUDA_CollectionMethods \n");
+	/****************************************/
+	int CPU_NUMS=get_CPU_core_num();
 
+	printf("Start: CPU nums %d \n",CPU_NUMS);
+	
+	vector<ThreadDoOneImageData *> data;
+
+
+#if _MSC_VER
+	/*if (H_SEM_CPU_NUMS==NULL){
+		H_SEM_CPU_NUMS = CreateSemaphore(NULL, 1, 10, NULL); 
+	}*/	
+	//CPU_NUMS+=CPU_NUMS;	
+	vector<HANDLE> handle;
+	
+	for(int k = 0; k <min(CPU_NUMS,picvec.size()); k++ ){	
+
+		ThreadDoOneImageData* tdoid=new ThreadDoOneImageData(picvec,saveLocation,m_spcount,k,CPU_NUMS);
+		HANDLE handle_t=::CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)THreadSuperPixel_DoOneImage_win_spiral,tdoid,0,NULL); 
+		handle.push_back(handle_t);
+		data.push_back(tdoid);
+	}
+
+	for(int i=0;i<handle.size();i++){
+		WaitForSingleObject(handle.at(i),INFINITE);
+	}
+
+	
+
+#elif	__GUNC__||linux||__linux||__linux__
+
+	vector<pthread_t> handle;
+	
+	for(int k = 0; k <std::min((int) CPU_NUMS,(int) picvec.size()); k++ ){	
+		
+		int i,ret;
+		pthread_t handle_t;
+		ThreadDoOneImageData* tdoid=new ThreadDoOneImageData(picvec,saveLocation,m_spcount,k,CPU_NUMS);
+		ret=pthread_create(&handle_t,NULL,(void *)THreadSuperPixel_DoOneImage_win,tdoid); 
+		handle.push_back(handle_t);
+		data.push_back(tdoid);
+	}
+
+	for(int i=0;i<handle.size();i++){
+		pthread_join(handle.at(i),NULL);
+	}
+#else 
+	
+	for(int k = 0; k < numPics; k++ ){	
+		THreadSuperPixel_DoOneImage(picvec[k],saveLocation,m_spcount);
+	}
+
+#endif
+
+	for (int j=0;j<data.size();j++){
+		delete data.at(j);
+	}	
+	TimeCountStop("Threads Done : ");
+	return 0;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*
+*
+*/
+/*----------------------------------------------------------------*/
 void cui_GeneralImgProcess::_splitpath(const char *path, char *drive, char *dir, char *fname, char *ext)
 {
 #if _MSC_VER

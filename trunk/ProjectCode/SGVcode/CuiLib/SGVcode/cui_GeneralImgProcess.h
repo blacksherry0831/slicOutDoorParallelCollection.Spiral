@@ -380,9 +380,32 @@ static void Cui_Combination_ImgLabsNew(
 static void  DetermineColorRank(ImageMemData* pMD,int RankNum);
 static void  ShowImgLabels(int* ImgLabels,int Width,int Height);
 
-static UINT THreadSuperPixel_CUDA_CollectionMethods(LPVOID lpParam,vector<string> picvec,string saveLocation,int m_spcount);
+
+static UINT THreadSuperPixel_CUDA_CollectionMethods(
+	LPVOID lpParam,
+	vector<string> picvec,
+	string saveLocation,
+	int m_spcount);
+
+
+
+static UINT cui_GeneralImgProcess::THreadSuperPixel_CUDA_CollectionMethods_Spiral(
+	LPVOID lpParam,
+	vector<string> picvec,
+	string saveLocation,
+	int m_spcount);
+
+
+
 static void THreadSuperPixel_DoOneImage(string picvec,string saveLocation,int m_spcount);
+static void THreadSuperPixel_DoOneImage_Spiral(string picvec,string saveLocation,int m_spcount);
+
+
+
 static unsigned THreadSuperPixel_DoOneImage_win(LPVOID lpParam);
+static unsigned THreadSuperPixel_DoOneImage_win_spiral(LPVOID lpParam);
+
+
 static int	get_CPU_core_num(); 
 
 static void _splitpath(const char *path, char *drive, char *dir, char *fname, char *ext);
