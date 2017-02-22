@@ -828,7 +828,7 @@ if(perturbseeds)
 /*---------------------------------------------------------------------------------*/
 void ImageData::GetThetaMLXYSeeds_ByCircle_UseSpiral(void)
 {
-	const int CircleNumber=5;//圈数
+	const int CircleNumber=10;//圈数
 	const int WidthHeightStep=2*CircleNumber+1;//Seed长宽
 	const int SplitNumber=WidthHeightStep*WidthHeightStep;//Seed总数
 	this->slic_current_num=SplitNumber;
@@ -967,7 +967,7 @@ void ImageData::Draw_Kseeds_Spiral()
 				{					
 					sprintf(text_buff_t,"%d",spi);
 					cvPutText(img,text_buff_t,cvPoint(shift_x,shift_y),&font,cvScalar(255,255,0,255));
-					cvCircle(img,cvPoint(shift_x,shift_y),1, cvScalar(0,0,255,255),5);
+					cvCircle(img,cvPoint(shift_x,shift_y),1, cvScalar(0,255,255,255),5);
 				} 
 				
 			}
