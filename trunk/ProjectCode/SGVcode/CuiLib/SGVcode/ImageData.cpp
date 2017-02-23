@@ -939,7 +939,21 @@ void ImageData::Draw_Kseeds_Spiral()
 		char  text_buff_t[1024];
 		
 		CvFont font;//在图像中显示文本字符串
-		cvInitFont(&font,CV_FONT_VECTOR0,0.8,0.8,0,1,8);
+		cvInitFont(&font,CV_FONT_VECTOR0,0.8,0.8,0,2,8);
+		const CvScalar LineColor_t=cvScalar(0,0,255,255);
+		const int LineThickness_t=2;
+		const CvScalar PointColor_t=cvScalar(0x9a,0xfa,0x00,0xff);
+		const CvScalar TextColor_t=cvScalar(255,0,0,255);
+		const CvScalar CenterColor_t=cvScalar(0xcd,0x52,0xbd,255);
+		const int PointSize_t=5;
+		
+		int	  Diagonal_L0=1;
+		const CvScalar PointColor_L0U=cvScalar(0x00,0xff,0xff,0xff);//黄
+		const CvScalar PointColor_L0D=cvScalar(0x00,0x00,0x00,0xff);//黑
+
+		int	  Diagonal_L1=1;
+		const CvScalar PointColor_L1U=cvScalar(0xee,0x00,0xee,0xff);//
+		const CvScalar PointColor_L1D=cvScalar(0xff,0xff,0xff,0xff);//
 
 		cvCopyImage(this->srcCv_ImgBGRA,img);
 
@@ -952,23 +966,54 @@ void ImageData::Draw_Kseeds_Spiral()
 				
 				int shift_x1=0;
 				int shift_y1=0;
+				
 
-				if (spi+1<this->slic_current_num)
-				{
+
+				if (spi+1<this->slic_current_num){
 						shift_x1=this->kseedsx[spi+1];
 
 						shift_y1=this->kseedsy[spi+1];
 						
-						cvLine(img,cvPoint(shift_x,shift_y),cvPoint(shift_x1,shift_y1), cvScalar(0,0,255,255),3);
+						cvLine(img,cvPoint(shift_x,shift_y),cvPoint(shift_x1,shift_y1),LineColor_t ,LineThickness_t);
 
 				}
-				
-				
-				{					
+
+				if (spi==0){
+					//画中心点
 					sprintf(text_buff_t,"%d",spi);
-					cvPutText(img,text_buff_t,cvPoint(shift_x,shift_y),&font,cvScalar(255,255,0,255));
-					cvCircle(img,cvPoint(shift_x,shift_y),1, cvScalar(0,255,255,255),5);
+					cvPutText(img,text_buff_t,cvPoint(shift_x,shift_y),&font,TextColor_t);
+					cvCircle(img,cvPoint(shift_x,shift_y),1,CenterColor_t,PointSize_t*2);
+				}else if(spi==Diagonal_L0*Diagonal_L0){
+					//对角线L0
+					CvScalar PointColor_L0;
+					if (Diagonal_L0%2==0){
+						PointColor_L0=PointColor_L0U;
+					}else{
+						PointColor_L0=PointColor_L0D;
+					}
+					sprintf(text_buff_t,"%d",spi);
+					cvPutText(img,text_buff_t,cvPoint(shift_x,shift_y),&font,PointColor_L0);
+					cvCircle(img,cvPoint(shift_x,shift_y),1,PointColor_L0,PointSize_t);
+					Diagonal_L0++;
+				
+				}else if(spi==Diagonal_L1*(Diagonal_L1+1)){
+					//对角线L1
+					CvScalar PointColor_L1;
+					if (Diagonal_L1%2==0){
+						PointColor_L1=PointColor_L1U;
+					}else{
+						PointColor_L1=PointColor_L1D;
+					}
+					sprintf(text_buff_t,"%d",spi);
+					cvPutText(img,text_buff_t,cvPoint(shift_x,shift_y),&font,PointColor_L1);
+					cvCircle(img,cvPoint(shift_x,shift_y),1,PointColor_L1,PointSize_t);
+					Diagonal_L1++;
+				}else{
+					sprintf(text_buff_t,"%d",spi);
+					cvPutText(img,text_buff_t,cvPoint(shift_x,shift_y),&font,TextColor_t);
+					cvCircle(img,cvPoint(shift_x,shift_y),1,PointColor_t,PointSize_t);
 				} 
+
 				
 			}
 
