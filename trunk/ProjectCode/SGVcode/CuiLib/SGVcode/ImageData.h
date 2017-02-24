@@ -67,6 +67,7 @@ public:
 	float PgOffset;/**<*/
 	float PsOffset;/**<*/
 public:
+	int slic_circle_num;
 	int slic_expect_num;
 	int slic_current_num;
 	double slic_compactness;
@@ -178,6 +179,8 @@ void CombineLabelsByCategory_and_WMatrix(INT32*	 category,const double*  matrix_
 void CombineLabelsByWMatrix(const double*  matrix_w,double matrix_w_threshold);
 ///////////////////////////////////////////////
 void SaveImgWithContours(string str_add="");
+void SaveImgWithContours(UINT32* buff,string str_add);
+///////////////////////////////////////////////
 void SaveImgWithPointsFuzzy(string str_add="");
 void SaveImgWithPointsCompute(string str_add="");
 void SaveImgSVGCompute(string str_add="");
@@ -211,7 +214,10 @@ void SaveSuperpixelLabelsImagePNG();
 void _splitpath(const char *path, char *drive, char *dir, char *fname, char *ext);
 
 void Draw_Kseeds_AverageImg();
+
 void Draw_Kseeds_Spiral();
+void Draw_Kseeds_Spiral_OnContour();
+
 
 void SlpitTreeBuilding(void);
 

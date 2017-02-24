@@ -4019,14 +4019,17 @@ void cui_GeneralImgProcess::THreadSuperPixel_DoOneImage_Spiral(string picvec,str
 
 
 							MemData.GetThetaMLXYSeeds_ByCircle_UseSpiral();
-
 							MemData.Draw_Kseeds_Spiral();
 
 							
 
 							printf("2. GPU Super \n");
 							SLIC slic(&MemData);
-							//slic.DoSuperpixelSegmentation_ForGivenNumberOfSuperpixels_sitaMLxy();//得到lable				
+							
+							slic.DoSuperpixelSegmentation_ForGivenNumberOfSuperpixels_sitaMLxy();//得到lable				
+
+							MemData.GetThetaMLXYSeeds_ByCircle_UseSpiral();
+							MemData.Draw_Kseeds_Spiral_OnContour();
 
 							/*	#if OUT_DOOR_HUMAN
 							printf("3. Spectral Clustering \n");

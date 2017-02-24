@@ -401,10 +401,21 @@ void DrawContoursAroundSegments_cuda(
 	pthread_mutex_lock(&CUDA_MUTEX);
 #else
 
-#endif	
-#if 1
-	DrawContoursAroundSegments_gpu(ubuff,labels,width,height,color,BlackColorPNG);
 #endif
+
+
+	{
+
+#if 0
+		DrawContoursAroundSegments_gpu(ubuff,labels,width,height,color,BlackColorPNG);
+#else
+		DrawContoursAroundSegments_gpu(ubuff,labels,width,height,0xffff6600,0xff33ffcc);
+#endif
+
+	}
+
+
+
 #if _MSC_VER &&  USE_CUDA_MUTEX
     QueryPerformanceCounter(&litmp);	
 	QPart2 = litmp.QuadPart;//获得中止值	

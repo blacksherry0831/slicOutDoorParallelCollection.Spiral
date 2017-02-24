@@ -124,6 +124,7 @@ void ImageData::initParam(void)
 	b_plane=NULL;
 #endif
 	this->p_SpProperty=NULL;
+	this->slic_circle_num=10;
 }
 /*----------------------------------------------------------------*/
 /**
@@ -828,7 +829,7 @@ if(perturbseeds)
 /*---------------------------------------------------------------------------------*/
 void ImageData::GetThetaMLXYSeeds_ByCircle_UseSpiral(void)
 {
-	const int CircleNumber=10;//圈数
+	const int CircleNumber=this->slic_circle_num;//圈数
 	const int WidthHeightStep=2*CircleNumber+1;//Seed长宽
 	const int SplitNumber=WidthHeightStep*WidthHeightStep;//Seed总数
 	this->slic_current_num=SplitNumber;
@@ -1036,6 +1037,121 @@ void ImageData::Draw_Kseeds_Spiral()
 
 		cvSaveImage(filesaveimg_t.c_str(),img);
 		cvReleaseImage(&img);
+}
+/*---------------------------------------------------------------------------------*/
+/**
+*
+*/
+/*---------------------------------------------------------------------------------*/
+void ImageData::Draw_Kseeds_Spiral_OnContour()
+{
+	IplImage* img=cvCreateImage(cvSize(ImgWidth,ImgHeight),IPL_DEPTH_8U,4);
+	char  text_buff_t[1024];
+
+	CvFont font;//在图像中显示文本字符串
+	cvInitFont(&font,CV_FONT_VECTOR0,0.8,0.8,0,2,8);
+	const CvScalar LineColor_t=cvScalar(0,0,255,255);
+	const int LineThickness_t=2;
+	const CvScalar PointColor_t=cvScalar(0x9a,0xfa,0x00,0xff);
+	const CvScalar TextColor_t=cvScalar(255,0,0,255);
+	const CvScalar CenterColor_t=cvScalar(0xcd,0x52,0xbd,255);
+	const int PointSize_t=5;
+
+	int	  Diagonal_L0=1;
+	const CvScalar PointColor_L0U=cvScalar(0x00,0xff,0xff,0xff);//黄
+	const CvScalar PointColor_L0D=cvScalar(0x00,0x00,0x00,0xff);//黑
+
+	int	  Diagonal_L1=1;
+	const CvScalar PointColor_L1U=cvScalar(0xee,0x00,0xee,0xff);//
+	const CvScalar PointColor_L1D=cvScalar(0xff,0xff,0xff,0xff);//
+
+	cvCopyImage(this->srcCv_ImgBGRA,img);
+
+	{
+		for (int spi=0;spi<this->slic_current_num;spi++){
+
+			int shift_x=this->kseedsx[spi];
+
+			int shift_y=this->kseedsy[spi];
+
+			int shift_x1=0;
+			int shift_y1=0;
+
+
+
+			if (spi+1<this->slic_current_num){
+				shift_x1=this->kseedsx[spi+1];
+
+				shift_y1=this->kseedsy[spi+1];
+
+				cvLine(img,cvPoint(shift_x,shift_y),cvPoint(shift_x1,shift_y1),LineColor_t ,LineThickness_t);
+
+			}
+
+			if (spi==0){
+				//画中心点
+				sprintf(text_buff_t,"%d",spi);
+				cvPutText(img,text_buff_t,cvPoint(shift_x,shift_y),&font,TextColor_t);
+				cvCircle(img,cvPoint(shift_x,shift_y),1,CenterColor_t,PointSize_t*2);
+			}else if(spi==Diagonal_L0*Diagonal_L0){
+				//对角线L0
+				CvScalar PointColor_L0;
+				if (Diagonal_L0%2==0){
+					PointColor_L0=PointColor_L0U;
+				}else{
+					PointColor_L0=PointColor_L0D;
+				}
+				sprintf(text_buff_t,"%d",spi);
+				cvPutText(img,text_buff_t,cvPoint(shift_x,shift_y),&font,PointColor_L0);
+				cvCircle(img,cvPoint(shift_x,shift_y),1,PointColor_L0,PointSize_t);
+				Diagonal_L0++;
+
+			}else if(spi==Diagonal_L1*(Diagonal_L1+1)){
+				//对角线L1
+				CvScalar PointColor_L1;
+				if (Diagonal_L1%2==0){
+					PointColor_L1=PointColor_L1U;
+				}else{
+					PointColor_L1=PointColor_L1D;
+				}
+				sprintf(text_buff_t,"%d",spi);
+				cvPutText(img,text_buff_t,cvPoint(shift_x,shift_y),&font,PointColor_L1);
+				cvCircle(img,cvPoint(shift_x,shift_y),1,PointColor_L1,PointSize_t);
+				Diagonal_L1++;
+			}else{
+				sprintf(text_buff_t,"%d",spi);
+				cvPutText(img,text_buff_t,cvPoint(shift_x,shift_y),&font,TextColor_t);
+				cvCircle(img,cvPoint(shift_x,shift_y),1,PointColor_t,PointSize_t);
+			} 
+
+
+		}
+
+	}
+	FileNameSplit fns;
+#if Use_CString
+	fns.Parse(CString(FileReadFullPath.c_str()));
+	string filesaveimg_t=FileWritePath+FileNameSplit::ConvertCS2string(fns.filename)+"SpSeeds.jpg";
+#else
+	string path= string(FileReadFullPath);
+
+#if _MSC_VER
+	int pos = path.find_last_of('\\');
+#else
+	int pos=0;
+#endif	
+	string file_name_t(path.substr(pos + 1) );
+	string filesaveimg_t=FileWritePath+file_name_t+"SpSeeds.jpg";
+
+#endif
+	{
+		
+		this->SaveImgWithContours((UINT32*)(img->imageData),"OnSeed.jpg");
+	}
+
+
+	//cvSaveImage(filesaveimg_t.c_str(),img);
+	cvReleaseImage(&img);
 }
 /*---------------------------------------------------------------------------------*/
 /**
@@ -1250,15 +1366,26 @@ void ImageData::SaveImgWithPointsFuzzy(string str_add)
 /*----------------------------------------------------------------*/
 void ImageData::SaveImgWithContours(string str_add)
 {
+	this->SaveImgWithContours(src_ImgBGRA,str_add);
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*
+*
+*/
+/*----------------------------------------------------------------*/
+void ImageData::SaveImgWithContours(UINT32* buff,string str_add)
+{
 	if(str_add==""){
 		str_add.append("__");
 		char buffer[1024];
 		sprintf_s(buffer,1024,"%03d",_seq++);
 		str_add.append(buffer);	
-
 	}
+
 	cui_GeneralImgProcess::CuiSaveImgWithContours(
-		this->src_ImgBGRA,	
+		buff,	
 		this->src_ImgLabels,
 		this->ImgWidth,
 		this->ImgHeight,
@@ -2065,10 +2192,7 @@ void ImageData::SaveSuperpixelLabelsImagePNG(
 /*----------------------------------------------------------------*/
 void ImageData::SaveSuperpixelLabelsImagePNG() 
 {
-	ASSERT(sizeof(UINT32)==sizeof(int));
-	
-	
-	
+	ASSERT(sizeof(UINT32)==sizeof(int));	
 	
 	this->SaveSuperpixelLabelsImagePNG(
 		this->src_ImgLabels,

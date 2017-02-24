@@ -227,6 +227,16 @@ private:
 		int&						numlabels,//the number of labels changes in the end if segments are removed
 		const int&					K); //the number of superpixels desired by the user
 	//============================================================================
+	// Post-processing of SLIC segmentation, to avoid stray labels.
+	//============================================================================
+	void EnforceLabelConnectivity2(
+		const int*					labels,
+		const int					width,
+		const int					height,
+		int*&						nlabels,//input labels that need to be corrected to remove stray labels
+		int&						numlabels,//the number of labels changes in the end if segments are removed
+		const int&					K); //the number of superpixels desired by the user
+	//============================================================================
 	// Post-processing of SLIC supervoxel segmentation, to avoid stray labels.
 	//============================================================================
 	void EnforceSupervoxelLabelConnectivity(

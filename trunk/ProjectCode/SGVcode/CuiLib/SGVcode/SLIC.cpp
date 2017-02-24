@@ -1331,8 +1331,115 @@ void SLIC::EnforceLabelConnectivity(
 	if(xvec) delete [] xvec;
 	if(yvec) delete [] yvec;
 }
+/*---------------------------------------------------------------------------*/
+/**
+*
+*/
+/*---------------------------------------------------------------------------*/
+	void SLIC::EnforceLabelConnectivity2(
+	const int*					labels,//input labels that need to be corrected to remove stray labels
+	const int					width,
+	const int					height,
+	int*&						nlabels,//new labels
+	int&						numlabels,//the number of labels changes in the end if segments are removed
+	const int&					K) //the number of superpixels desired by the user
+	{
+	//	const int dx8[8] = {-1, -1,  0,  1, 1, 1, 0, -1};
+	//	const int dy8[8] = { 0, -1, -1, -1, 0, 1, 1,  1};
 
+	const int dx4[4] = {-1,  0,  1,  0};
+	const int dy4[4] = { 0, -1,  0,  1};
 
+	const int sz = width*height;
+	const int SUPSZ = sz/K;
+	//nlabels.resize(sz, -1);
+	for(register int i = 0; i < sz; i++ ) nlabels[i] = -1;
+	int label(0);
+	int* xvec = new int[sz];
+	int* yvec = new int[sz];
+	int oindex(0);
+	int adjlabel(0);//adjacent label
+	for(register int j = 0; j < height; j++ )
+	{
+		for(register int k = 0; k < width; k++ )
+		{
+			if( 0 > nlabels[oindex] )
+			{
+				nlabels[oindex] = label;
+				//--------------------
+				// Start a new segment
+				//--------------------
+				xvec[0] = k;
+				yvec[0] = j;
+				//-------------------------------------------------------
+				// Quickly find an adjacent label for use later if needed
+				//-------------------------------------------------------
+				{
+					for(register int n = 0; n < 4; n++ )
+					{
+						int x = xvec[0] + dx4[n];
+						int y = yvec[0] + dy4[n];
+						if( (x >= 0 && x < width) && (y >= 0 && y < height) )
+						{
+							int nindex = y*width + x;
+							if(nlabels[nindex] >= 0) adjlabel = nlabels[nindex];
+						}
+					}
+				}
+
+				int count(1);
+				for(register int c = 0; c < count; c++ )
+				{
+					for(register int n = 0; n < 4; n++ )
+					{
+						int x = xvec[c] + dx4[n];
+						int y = yvec[c] + dy4[n];
+
+						if( (x >= 0 && x < width) && (y >= 0 && y < height) )
+						{
+							int nindex = y*width + x;
+
+							if( 0 > nlabels[nindex] && labels[oindex] == labels[nindex] )
+							{
+								xvec[count] = x;
+								yvec[count] = y;
+								nlabels[nindex] = label;
+								count++;
+							}
+						}
+
+					}
+				}
+
+	#if TRUE
+				//-------------------------------------------------------
+				// If segment size is less then a limit, assign an
+				// adjacent label found before, and decrement label count.
+				//-------------------------------------------------------
+
+				//图块尺寸小于超像素平均尺寸的二分之一
+				if(count <= SUPSZ>>2)
+				{
+					for(register int c = 0; c < count; c++ )
+					{
+						int ind = yvec[c]*width+xvec[c];
+						nlabels[ind] = adjlabel;
+					}
+					label--;
+				}
+	#endif
+
+				label++;
+			}
+			oindex++;
+		}
+	}
+	numlabels = label;
+
+	if(xvec) delete [] xvec;
+	if(yvec) delete [] yvec;
+	}
+/*---------------------------------------------------------------------------*/
 //===========================================================================
 ///	RelabelStraySupervoxels
 //===========================================================================
@@ -1727,7 +1834,7 @@ void SLIC::DoSuperpixelSegmentation_ForGivenSuperpixelSize_sitaMLxyIncompletion(
 
 #if 1
 	int* nlabels = new int[sz];
-	EnforceLabelConnectivity(
+	EnforceLabelConnectivity2(
 		klabels,
 		m_width, 
 		m_height, 
@@ -2183,7 +2290,7 @@ void SLIC::DoSuperpixelSegmentation_ForGivenNumberOfSuperpixels_sitaMLxy(int sav
 		//---------------------------------------------------------
 		//if(K < 20 || K > sz/4) K = sz/200;//i.e the default size of the superpixel is 200 pixels
 		
-	/*	if(compactness < 1.0 || compactness > 80.0) compactness = 20.0;*/
+		/*	if(compactness < 1.0 || compactness > 80.0) compactness = 20.0;*/
 		//---------------------------------------------------------		
 		
 		//CuiImgLables= new int[CuiWidth*CuiHeight];
@@ -2194,12 +2301,22 @@ void SLIC::DoSuperpixelSegmentation_ForGivenNumberOfSuperpixels_sitaMLxy(int sav
 			pIMD->slic_current_num);
 
 	}
+
 #if _DEBUG
+
 	if (savelable){
 		this->SaveSuperpixelLabels(pIMD->src_ImgLabels,CuiWidth,CuiHeight);
 	}
-#endif
 
+	{
+		const int CircleNumber=pIMD->slic_circle_num;//圈数
+		const int WidthHeightStep=2*CircleNumber+1;//Seed长宽
+		const int SplitNumber=WidthHeightStep*WidthHeightStep;//Seed总数
+		//ASSERT(pIMD->slic_current_num==SplitNumber);
+	}
+
+
+#endif
 
 	std::string str_add;
 #if _DEBUG
@@ -4386,9 +4503,9 @@ void SLIC::GetLABXYSeeds_ForGivenStepSize_Rectangle2(
 			int seedy = (y*yStep+yoff+ye);
 			int i = seedy*m_width + seedx;
 
-			kseedsl[n] = m_lvec[i];
-			kseedsa[n] = m_avec[i];
-			kseedsb[n] = m_bvec[i];
+			kseedsl[n] = (m_lvec[i-1]+m_lvec[i]+m_lvec[i+1])/3;
+			kseedsa[n] = (m_avec[i-1]+m_avec[i]+m_avec[i+1])/3;
+			kseedsb[n] = (m_bvec[i-1]+m_bvec[i]+m_bvec[i+1])/3;
 			//ASSERT(0);
 			kseedsx[n] = seedx;
 			kseedsy[n] = seedy;

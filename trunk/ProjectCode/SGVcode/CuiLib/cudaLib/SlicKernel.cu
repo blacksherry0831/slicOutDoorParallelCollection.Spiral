@@ -825,7 +825,12 @@ __inline__ __device__  void SetPixelLables(
 					{
 						dist=CalculateNewDistance(alpha,betta,gama,fai,
 							dev_sita_n[i],dev_m_n[i],dev_L_n[i],dev_X_n[i],dev_Y_n[i],
-							dev_kseeds_sita_n[ni],dev_kseeds_m_n[ni],dev_kseeds_L_n[ni],dev_kseeds_X_n[ni],dev_kseeds_Y_n[ni]);
+							dev_kseeds_sita_n[ni],
+							dev_kseeds_m_n[ni],
+							dev_kseeds_L_n[ni],
+							dev_kseeds_X_n[ni],
+							dev_kseeds_Y_n[ni]);
+
 						if( dist < distvec[i] )
 						{
 							distvec[i] = dist;
