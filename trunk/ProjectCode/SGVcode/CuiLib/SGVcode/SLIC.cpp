@@ -1832,7 +1832,7 @@ void SLIC::DoSuperpixelSegmentation_ForGivenSuperpixelSize_sitaMLxyIncompletion(
 #endif
 	
 
-#if 1
+#if 0
 	int* nlabels = new int[sz];
 	EnforceLabelConnectivity2(
 		klabels,
