@@ -108,8 +108,8 @@
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Template|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Template|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Template|x64'" />
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\opencv\build\include;C:\opencv\build\include\opencv2;C:\opencv\build\include\opencv;$(ProjectDir)CuiLib;C:\Program Files (x86)\Visual Leak Detector\include;$(IncludePath)</IncludePath>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\opencv\build\include;C:\opencv\build\include\opencv2;C:\opencv\build\include\opencv;C:\Program Files (x86)\Visual Leak Detector\include;$(ProjectDir);$(ProjectDir)CuiLib;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\opencv\build\include;C:\opencv\build\include\opencv2;C:\opencv\build\include\opencv;$(ProjectDir);$(ProjectDir)CuiLib;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\opencv\build\include;C:\opencv\build\include\opencv2;C:\opencv\build\include\opencv;$(ProjectDir);$(ProjectDir)CuiLib;$(IncludePath)</IncludePath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Program Files (x86)\Visual Leak Detector\lib\Win32;C:\OPENCV\build\x86\vc10\lib;$(LibraryPath)</LibraryPath>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\opencv\build\x64\vc10\lib;C:\Program Files %28x86%29\Visual Leak Detector\lib\Win64;$(LibraryPath)</LibraryPath>
     <EmbedManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</EmbedManifest>

@@ -8,10 +8,18 @@ SET(OpencvInclude_linux
                 /usr/local/include/opencv
                 /usr/local/include/opencv2
 	 )
+#####################################################
+if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+		message(STATUS "using  64bits")
+		SET(OpencvLink_Win64 C:/opencv/build/x64/vc10/lib)
+else( CMAKE_SIZEOF_VOID_P EQUAL 4 )
+		message(STATUS "using  32bits")
+		SET(OpencvLink_Win64 C:/opencv/build/x86/vc10/lib)
+endif( CMAKE_SIZEOF_VOID_P EQUAL 8 )
 
-SET(OpencvLink_Win64
-	  C:/opencv/build/x64/vc10/lib
-	 )
+#####################################################
+
+
 SET(OpencvLib_Win64
 		opencv_calib3d249d.lib
 		opencv_contrib249d.lib

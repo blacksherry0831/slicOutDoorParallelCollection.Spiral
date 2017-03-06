@@ -1,4 +1,3 @@
-_seq
 #include "StdAfx.h"
 //#include "ImageData.h"
 #include "module_all_cui.h"
