@@ -14,6 +14,7 @@ INCLUDE_DIRECTORIES( #相关头文件的目录
 	${SGV_cmake_SOURCE_DIR}
 )
 ADD_SUBDIRECTORY(CuiLib)
+ADD_SUBDIRECTORY(main_test)
 #ADD_SUBDIRECTORY(arpackpp-master)
 ###############################################################################
 MESSAGE(STATUS "operation system is ${CMAKE_SYSTEM}")  
@@ -76,7 +77,19 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 
 	
 	
-ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")   
+ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
+	
+	SET(HW_WIN32	
+	play_sdk.lib
+	hwclient.lib
+	ijl15l.lib)
+
+   LINK_DIRECTORIES(
+		${SGV_cmake_SOURCE_DIR}/CuiLib/HW_SDK_LIB/lib
+   )
+   
+   link_libraries(${HW_WIN32})
+   
 	ADD_EXECUTABLE(SpectralClusteringGndVSkyOutDoor main.cpp)
 	TARGET_LINK_LIBRARIES(SpectralClusteringGndVSkyOutDoor 
 									SGVcode

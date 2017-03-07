@@ -2,6 +2,10 @@
 #include "ImageProcess.h"
 #include "Base.h"
 
+#ifdef min
+#undef min
+#endif
+
 ImageProcess::ImageProcess(void)
 {
 }
