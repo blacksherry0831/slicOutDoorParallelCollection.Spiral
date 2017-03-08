@@ -79,7 +79,7 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	
-	SET(HW_WIN32	
+	SET(HW_WIN32_LIB	
 	play_sdk.lib
 	hwclient.lib
 	ijl15l.lib)
@@ -88,12 +88,22 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		${SGV_cmake_SOURCE_DIR}/CuiLib/HW_SDK_LIB/lib
    )
    
-   link_libraries(${HW_WIN32})
-   
-	ADD_EXECUTABLE(SpectralClusteringGndVSkyOutDoor main.cpp)
-	TARGET_LINK_LIBRARIES(SpectralClusteringGndVSkyOutDoor 
+   link_libraries(${HW_WIN32_LIB})
+###############################################################################   
+ADD_EXECUTABLE(SpectralClusteringGndVSkyOutDoor main.cpp)
+TARGET_LINK_LIBRARIES(SpectralClusteringGndVSkyOutDoor 
 									SGVcode
-						  )  	
+						  )						  
+###############################################################################
+ADD_EXECUTABLE(HW_Hello main_test/hw_hello.cpp)
+TARGET_LINK_LIBRARIES(HW_Hello
+	HW_SDK_LIB)  	
+##############################################################################
+ADD_EXECUTABLE(HW_AVI2IMAGE main_test/hw_avi2image.cpp)
+TARGET_LINK_LIBRARIES(HW_AVI2IMAGE
+	MY_SDK_LIB
+	HW_SDK_LIB)  
+############################################################################## 	
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
    
 ELSE ()  
