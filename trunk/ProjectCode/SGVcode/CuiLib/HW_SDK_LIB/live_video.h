@@ -31,7 +31,9 @@ public:
 	static std::string ltos(long l);
 
 	static unsigned opencv_show_image_thread(LPVOID lpParam);
+	
 	bool is_play();
+	bool init_video_writer();
 
 	static void string_replace(string&s1,const string s2,const string s3);
 
@@ -46,6 +48,9 @@ private:
 	REAL_HANDLE m_sh;
 	PLAY_HANDLE m_ph;
 	bool m_is_playing;
+public:
+	int m_width;
+	int m_height;
 public: 
 	long m_stream_len;/**<buffer size*/
 	long m_stream_count;/**<*/
@@ -53,6 +58,7 @@ public:
 	long m_stream_frame_count;/**<*/
 	long m_save_image_switch;
 	bool m_save_video_switch;
+	bool m_save_video_start;
 public:
 	clock_t m_frame_start;
 public:

@@ -63,6 +63,10 @@ int R_V_tab[256];
 //#include "highgui.h"
 //using namespace cv;
 
+#define SAVE_IMAGE FALSE
+#define SAVE_VIDEO TRUE
+#define SHOW_IMAGE TRUE
+
 void colorspace_init(void)
 {
 	int i;
@@ -96,7 +100,8 @@ live_video::live_video(const char* ip,int slot)
 //int frameH  = 480; // 480 for firewire cameras
 //writer=cvCreateVideoWriter("out.avi",CV_FOURCC('P','I','M','1'),
 //                           fps,cvSize(frameW,frameH),isColor);
-
+	m_width=0;
+	m_height=0;
 	m_writer=NULL;
 
 	this->get_directory();
@@ -243,7 +248,6 @@ void CALLBACK live_video::on_stream(long lVideoID,char*buf,int len,int videoType
 
 			
 		}
-
 #endif
 	}
 
@@ -305,7 +309,8 @@ void CALLBACK live_video::on_yuv_ex(PLAY_HANDLE handle, const unsigned char* y, 
 		if (lv->m_stream_frame_count%1==0){
 			yv12_to_rgb24_c(image_buffer,width,(unsigned char*)y,(unsigned char*)u,(unsigned char*)v,y_stride,uv_stride,width,height);
 
-#if SAVE_IMAGE	
+#ifdef SAVE_IMAGE
+#if SAVE_IMAGE
 			if(lv->m_save_image_switch>0){
 				std::string ip_addr_t=lv->m_ip;
 				
@@ -320,21 +325,68 @@ void CALLBACK live_video::on_yuv_ex(PLAY_HANDLE handle, const unsigned char* y, 
 
 				cvSaveImage( (path_t+"//"+filename_t).c_str(),lv->m_img_rgb_3);
 				lv->m_save_image_switch--;
+				printf("SAVE_IMAGE\n");
 			}
 #endif
+#endif
 
+#ifdef SAVE_VIDEO
 #if SAVE_VIDEO
 			if(lv->m_save_video_switch){
 				cvWriteFrame(lv->m_writer,lv->m_img_rgb_3);
+				lv->m_save_video_start=true;
+				printf("SAVE_VIDEO\n");
+			}else{
+				lv->init_video_writer();
 			}
+#endif
 #endif		
 		}
 
 	
 }
+/**
+*
+*
+*/
+bool live_video::init_video_writer()
+{				
+		const int fps     = 5;
+
+		if(this->m_width+this->m_height==0) return false;
+
+		if(m_writer!=NULL){
+
+			if(this->m_save_video_start==false){
+			     return true;
+			}else{
+				cvReleaseVideoWriter(&m_writer);
+				m_writer=NULL;			
+			}      
 
 
+		}
 
+	  {
+			//
+			m_writer=cvCreateVideoWriter((this->get_directory()+"//"+ this->m_ip+get_time_stamp()+".avi").c_str(),
+				CV_FOURCC_DEFAULT,
+				fps,
+				cvSize(m_width,m_height),
+				1);
+			this->m_save_video_start=false;
+			ASSERT(m_writer!=NULL);
+			//
+		}
+
+	
+
+	return false;
+}
+/**
+*
+*
+*/
 bool live_video::play(HWND hwnd)
 {
 	if(m_is_playing)
@@ -458,26 +510,20 @@ bool live_video::get_video_size(int* w,int * h)
 	BOOL return_value_t=hwplay_get_video_size(m_ph,w,h) ? true : false;;
 
 	if (*w!=0&&*h!=0){
+		this->m_width=*w;
+		this->m_height=*h;
 		if (m_img_rgb_3!=NULL){
 			cvReleaseImage(&m_img_rgb_3);		
 		}
 		m_img_rgb_3=cvCreateImage(cvSize(*w,*h),IPL_DEPTH_8U,3);
 		printf("Create Image\n");
 				
-		const int fps     = 5;
-
-		if(m_writer==NULL){
-			//
-			m_writer=cvCreateVideoWriter((this->get_directory()+"//"+ this->m_ip+get_time_stamp()+".avi").c_str(),CV_FOURCC_DEFAULT,fps,cvSize(*w,*h),1);
-			ASSERT(m_writer!=NULL);
-			//
-		}
-
+		this->init_video_writer();
+		
 	}
 
 
-	if (this->m_is_playing)
-	{
+	if (this->m_is_playing){
 #if _MSC_VER
 		HANDLE handle_t=::CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)(opencv_show_image_thread),this,0,NULL);
 #endif
@@ -606,16 +652,24 @@ unsigned live_video::opencv_show_image_thread(LPVOID lpParam)
 	ASSERT(lv->m_img_rgb_3!=NULL);
 
 
+#ifdef SHOW_IMAGE
 #if SHOW_IMAGE
 	cvNamedWindow(lv->m_ip.c_str(),0);
 	cvResizeWindow(lv->m_ip.c_str(),480,270);
 #endif
+#endif
 
 	unsigned char *image_buffer=(unsigned char *)ipl_img->imageData;
+
+		printf("Q Quit \n");
+		printf("C Cut frame \n");
+		printf("V Start save video \n");
+
 	while(lv->m_is_playing){
 
-	
+#ifdef SHOW_IMAGE	
 #if SHOW_IMAGE
+	
 		cvShowImage(lv->m_ip.c_str(),ipl_img);
 		int key=cvWaitKey(1);
 
@@ -640,6 +694,7 @@ unsigned live_video::opencv_show_image_thread(LPVOID lpParam)
 		}
 #else
 		Sleep(100);
+#endif
 #endif
 		
 	}
