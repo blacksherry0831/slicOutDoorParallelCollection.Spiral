@@ -63,7 +63,7 @@ int R_V_tab[256];
 //#include "highgui.h"
 //using namespace cv;
 
-#define SAVE_IMAGE FALSE
+#define SAVE_IMAGE TRUE
 #define SAVE_VIDEO TRUE
 #define SHOW_IMAGE TRUE
 
