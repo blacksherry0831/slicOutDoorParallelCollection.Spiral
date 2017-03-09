@@ -648,7 +648,10 @@ unsigned live_video::opencv_show_image_thread(LPVOID lpParam)
 {
 
 	live_video* lv = (live_video*)lpParam;
-	IplImage* ipl_img=lv->m_img_rgb_3;
+	
+	while(lv->m_img_rgb_3==NULL&&lv->m_is_playing);
+
+	IplImage* ipl_img=lv->m_img_rgb_3;	
 	ASSERT(lv->m_img_rgb_3!=NULL);
 
 
