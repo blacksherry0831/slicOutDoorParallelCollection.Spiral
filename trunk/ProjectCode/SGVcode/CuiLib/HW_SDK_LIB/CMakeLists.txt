@@ -8,6 +8,7 @@ ConfigOpenCv()
 
 SET(BASE_LINK_LIB 
 	         tinyxml2
+			 SGVcode
 	)
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")  

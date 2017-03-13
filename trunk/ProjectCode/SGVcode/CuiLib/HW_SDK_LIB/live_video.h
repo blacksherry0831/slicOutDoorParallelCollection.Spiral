@@ -11,6 +11,11 @@
 #include "highgui.h"
 using namespace cv;
 //#include <boost/shared_ptr.hpp>
+
+#define SAVE_IMAGE TRUE
+#define SAVE_VIDEO TRUE
+#define SHOW_IMAGE TRUE
+
 class live_video
 {
 public:
@@ -66,6 +71,12 @@ public:
 public:
 
 	IplImage * m_img_rgb_3;
+#ifdef SHOW_IMAGE
+#if SHOW_IMAGE
+	IplImage * m_img_rgb_4_for_show;
+#endif
+#endif
+
 
 	CvVideoWriter *m_writer;
 

@@ -246,7 +246,7 @@ void ImageData::ReleaseMemory(void)
 			printf("cvLoadImage: Fail %s \n",filename.c_str());
 		 }
 	}else{
-		printf("cvCreateImage: %s \n");
+		printf("cvCreateImage: %s \n",filename.c_str());
 		src_img_t=cvCreateImage(cvGetSize(img),img->depth,4);
 		if (img->nChannels==4){
 			 cvCopyImage(img,src_img_t);
@@ -933,9 +933,9 @@ void ImageData::GetThetaMLXYSeeds_ByCircle_UseSpiral(void)
 *
 */
 /*---------------------------------------------------------------------------------*/
-void ImageData::Draw_Kseeds_Spiral()
+void ImageData::Draw_Kseeds_Spiral(IplImage* img)
 {
-		IplImage* img=cvCreateImage(cvSize(ImgWidth,ImgHeight),IPL_DEPTH_8U,4);
+	
 		char  text_buff_t[1024];
 		
 		CvFont font;//在图像中显示文本字符串
@@ -954,9 +954,9 @@ void ImageData::Draw_Kseeds_Spiral()
 		int	  Diagonal_L1=1;
 		const CvScalar PointColor_L1U=cvScalar(0xee,0x00,0xee,0xff);//
 		const CvScalar PointColor_L1D=cvScalar(0xff,0xff,0xff,0xff);//
-
+#if 0
 		cvCopyImage(this->srcCv_ImgBGRA,img);
-
+#endif
 		{
 			for (int spi=0;spi<this->slic_current_num;spi++){
 
@@ -1018,6 +1018,20 @@ void ImageData::Draw_Kseeds_Spiral()
 			}
 
 		}
+
+		
+}
+/*---------------------------------------------------------------------------------*/
+/**
+*
+*/
+/*---------------------------------------------------------------------------------*/
+void ImageData::Draw_Kseeds_Spiral()
+{
+		IplImage* img=cvCreateImage(cvSize(ImgWidth,ImgHeight),IPL_DEPTH_8U,4);
+		
+		this->Draw_Kseeds_Spiral(img);
+
 		FileNameSplit fns;
 #if Use_CString
 		fns.Parse(CString(FileReadFullPath.c_str()));

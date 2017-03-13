@@ -203,12 +203,14 @@ void FillHoleOnSVGLables(
 	bool BorderSky,
 	bool BorderGnd);
 void DrawS_V_G_Lables_BorderLine(IplImage *img,UINT32 category);
+
 void SaveSuperpixelLabelsImagePNG(
 	INT32*					labels,
 	const int					width,
 	const int					height,
 	const string				filename,
 	const string				path);
+
 void SaveSuperpixelLabelsImagePNG();
 
 void _splitpath(const char *path, char *drive, char *dir, char *fname, char *ext);
@@ -216,6 +218,7 @@ void _splitpath(const char *path, char *drive, char *dir, char *fname, char *ext
 void Draw_Kseeds_AverageImg();
 
 void Draw_Kseeds_Spiral();
+void Draw_Kseeds_Spiral(IplImage* img);
 void Draw_Kseeds_Spiral_OnContour();
 
 

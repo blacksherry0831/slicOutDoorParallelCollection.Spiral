@@ -6,7 +6,7 @@
 #include <sstream>
 using namespace std;
 //#include "Convert.h"
-
+#include "modules.h"
 
 #define Y_R_IN			0.257
 #define Y_G_IN			0.504
@@ -63,9 +63,7 @@ int R_V_tab[256];
 //#include "highgui.h"
 //using namespace cv;
 
-#define SAVE_IMAGE TRUE
-#define SAVE_VIDEO TRUE
-#define SHOW_IMAGE TRUE
+
 
 void colorspace_init(void)
 {
@@ -92,6 +90,12 @@ live_video::live_video(const char* ip,int slot)
 	m_save_image_switch=0;
 	m_save_video_switch=false;
 	m_img_rgb_3=NULL;
+
+#ifdef SHOW_IMAGE
+#if SHOW_IMAGE
+	m_img_rgb_4_for_show=NULL;
+#endif
+#endif
 	m_frame_start=clock();
 //	CvVideoWriter *writer = 0;
 //int isColor = 1;
@@ -112,6 +116,11 @@ live_video::~live_video()
 {
 	close();
 	cvReleaseImage(&m_img_rgb_3);
+#ifdef SHOW_IMAGE
+#if SHOW_IMAGE
+	cvReleaseImage(&m_img_rgb_4_for_show);
+#endif
+#endif
 	cvReleaseVideoWriter(&m_writer);
 
 }
@@ -516,6 +525,13 @@ bool live_video::get_video_size(int* w,int * h)
 			cvReleaseImage(&m_img_rgb_3);		
 		}
 		m_img_rgb_3=cvCreateImage(cvSize(*w,*h),IPL_DEPTH_8U,3);
+
+#ifdef SHOW_IMAGE
+#if SHOW_IMAGE
+		 m_img_rgb_4_for_show=cvCreateImage(cvSize(*w,*h),IPL_DEPTH_8U,4);
+#endif
+#endif
+
 		printf("Create Image\n");
 				
 		this->init_video_writer();
@@ -651,8 +667,8 @@ unsigned live_video::opencv_show_image_thread(LPVOID lpParam)
 	
 	while(lv->m_img_rgb_3==NULL&&lv->m_is_playing);
 
-	IplImage* ipl_img=lv->m_img_rgb_3;	
-	ASSERT(lv->m_img_rgb_3!=NULL);
+	IplImage* ipl_img=lv->m_img_rgb_4_for_show;	
+	ASSERT(lv->m_img_rgb_4_for_show!=NULL);
 
 
 #ifdef SHOW_IMAGE
@@ -662,31 +678,44 @@ unsigned live_video::opencv_show_image_thread(LPVOID lpParam)
 #endif
 #endif
 
+
+
+
 	unsigned char *image_buffer=(unsigned char *)ipl_img->imageData;
 
 		printf("Q Quit \n");
 		printf("C Cut frame \n");
 		printf("V Start save video \n");
 
+	ImageData MemData(lv->m_img_rgb_4_for_show,
+			"",
+			1000,
+			0,
+			0.5);
+	
+	MemData.GetThetaMLXYSeeds_ByCircle_UseSpiral();
+	
 	while(lv->m_is_playing){
 
 #ifdef SHOW_IMAGE	
 #if SHOW_IMAGE
-	
-		cvShowImage(lv->m_ip.c_str(),ipl_img);
+
+		cvCvtColor(lv->m_img_rgb_3,lv->m_img_rgb_4_for_show,CV_BGR2BGRA);
+		
+		MemData.Draw_Kseeds_Spiral(lv->m_img_rgb_4_for_show);
+
+		cvShowImage(lv->m_ip.c_str(),lv->m_img_rgb_4_for_show);
+		
 		int key=cvWaitKey(1);
 
 		if(key=='q'){
 			lv->close();
 			printf("关闭视频,%s \n",lv->m_ip.c_str());
-		}
-
-		if(key=='c'){
+		}else	if(key=='c'){
 			lv->m_save_image_switch=1;
 			printf("开始截图,%s \n",lv->m_ip.c_str());
-		}
-
-		if(key=='v'){
+		}else 	if(key=='v'){
+			
 			lv->m_save_video_switch=!lv->m_save_video_switch;
 			if(lv->m_save_video_switch==true){
 				printf("开始录制视频,%s \n",lv->m_ip.c_str());
@@ -694,6 +723,8 @@ unsigned live_video::opencv_show_image_thread(LPVOID lpParam)
 				printf("结束录制视频,%s \n",lv->m_ip.c_str());
 			}
 
+		}else{
+			Sleep(1000/25);
 		}
 #else
 		Sleep(100);
