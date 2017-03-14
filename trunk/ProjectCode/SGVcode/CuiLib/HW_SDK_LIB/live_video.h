@@ -79,7 +79,7 @@ public:
 
 
 	CvVideoWriter *m_writer;
-
+	CvVideoWriter *m_writer_spiral;
 
 private:
 	static void CALLBACK on_stream(long lVideoID,char*buf,int len,int videoType,long nUser);

@@ -939,7 +939,15 @@ void ImageData::Draw_Kseeds_Spiral(IplImage* img)
 		char  text_buff_t[1024];
 		
 		CvFont font;//在图像中显示文本字符串
-		cvInitFont(&font,CV_FONT_VECTOR0,0.8,0.8,0,2,8);
+		
+		if(img->width*img->height>=3000000){
+				cvInitFont(&font,CV_FONT_VECTOR0,0.8,0.8,0,2,8);
+		}else if(img->width*img->height>=2000000){
+				cvInitFont(&font,CV_FONT_VECTOR0,0.6,0.6,0,2);
+		}else{
+				cvInitFont(&font,CV_FONT_VECTOR0,0.3,0.3);
+		}
+
 		const CvScalar LineColor_t=cvScalar(0,0,255,255);
 		const int LineThickness_t=2;
 		const CvScalar PointColor_t=cvScalar(0x9a,0xfa,0x00,0xff);
