@@ -35,6 +35,12 @@ public:
 	bool wait_for_frame();
 	static std::string ltos(long l);
 
+	void turn_up();
+	void turn_down();
+	void turn_left();
+	void turn_right();
+	void turn_stop();
+	
 	static unsigned opencv_show_image_thread(LPVOID lpParam);
 	
 	bool is_play();

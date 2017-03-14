@@ -749,10 +749,18 @@ unsigned live_video::opencv_show_image_thread(LPVOID lpParam)
 				printf("½áÊøÂ¼ÖÆÊÓÆµ,%s \n",lv->m_ip.c_str());
 			}
 
+		}else if(key=='4'){
+			lv->turn_left();
+		}else if(key=='6'){
+			lv->turn_right();
+		}else if(key=='8'){
+			lv->turn_up();
+		}else if(key=='2'){
+			lv->turn_down();
+		}else if(key=='5'){
+			lv->turn_stop();
 		}else{
-
 			Sleep(1000/25);
-
 		}
 #else
 		Sleep(100);
@@ -850,6 +858,81 @@ string live_video::get_time_stamp()
 	string time_t=pic_path;
 	return time_t;
 #endif
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+void live_video::turn_up()
+{
+		struct tPtzControl data_t;
+#if TRUE		
+		//data_t.slot=0;
+		data_t.controlType=0;//direct
+		data_t.cmd=8;//up
+		data_t.presetno=16;
+#else
+		data_t.slot=1;
+		data_t.controlType=0;
+		data_t.cmd=8;//up
+		data_t.presetno=32;
+#endif
+		HW_NET_ControlPtz(m_sh,&data_t);
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+void live_video::turn_down()
+{
+		struct tPtzControl data_t;
+		data_t.slot=0;
+		data_t.controlType=0;
+		data_t.cmd=2;//down
+		data_t.presetno=32;
+		HW_NET_ControlPtz(m_sh,&data_t);
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+void live_video::turn_left()
+{
+		struct tPtzControl data_t;
+		data_t.slot=0;
+		data_t.controlType=0;
+		data_t.cmd=4;//left
+		data_t.presetno=32;
+		HW_NET_ControlPtz(m_sh,&data_t);
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+void live_video::turn_right()
+{
+		struct tPtzControl data_t;
+		data_t.slot=0;
+		data_t.controlType=0;
+		data_t.cmd=6;//right
+		data_t.presetno=32;
+		HW_NET_ControlPtz(m_sh,&data_t);
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+void live_video::turn_stop()
+{
+		struct tPtzControl data_t;	
+		data_t.controlType=0;//direct
+		data_t.cmd=5;//stop
+		HW_NET_ControlPtz(m_sh,&data_t);
 }
 /*----------------------------------------------------*/
 /**
