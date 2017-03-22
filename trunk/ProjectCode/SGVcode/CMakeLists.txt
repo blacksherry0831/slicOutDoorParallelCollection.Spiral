@@ -102,7 +102,11 @@ TARGET_LINK_LIBRARIES(HW_Hello
 ADD_EXECUTABLE(HW_AVI2IMAGE main_test/hw_avi2image.cpp)
 TARGET_LINK_LIBRARIES(HW_AVI2IMAGE
 	MY_SDK_LIB
-	HW_SDK_LIB)  
+	HW_SDK_LIB) 
+##############################################################################
+ADD_EXECUTABLE(GPS_TEST main_test/gps_test.cpp)
+TARGET_LINK_LIBRARIES(GPS_TEST
+	SerialPort)
 ############################################################################## 	
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
    

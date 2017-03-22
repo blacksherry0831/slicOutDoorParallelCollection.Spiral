@@ -10,6 +10,8 @@ ADD_SUBDIRECTORY(SVMcode)
 ADD_SUBDIRECTORY(HW_SDK_LIB)
 ADD_SUBDIRECTORY(MY_SDK_LIB)
 
+ADD_SUBDIRECTORY(SerialPort)
+
 
 #SET(DIR_SRCS    ManhattanHistogram.cpp
 #				SeparateSpBlock.cpp

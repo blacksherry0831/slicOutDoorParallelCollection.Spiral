@@ -42,6 +42,11 @@
 #include <SGVcode/ColorBarCluster.h>
 #endif
 
+#if _MSC_VER
+#include <SerialPort/SerialPort.h>
+#endif
+
+
 #if TRUE
 #include <tinyxml2/tinyxml2.h>
 using namespace tinyxml2;

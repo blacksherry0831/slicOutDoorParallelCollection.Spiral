@@ -67,9 +67,9 @@ using namespace cv;
 #include <mbctype.h>  
 #include <io.h>
 #endif
-//#if _MSC_VER
-//#include<atlstr.h>
-//#endif
+#if _MSC_VER
+#include <tchar.h>
+#endif
 #if linux||__linux__||__linux||__GNUC__
 #include<memory>
 #include <tr1/memory>
@@ -96,6 +96,40 @@ using namespace cv;
 
 
 using namespace std;
+
+#ifndef DWORD
+typedef unsigned long       DWORD;
+#endif
+
+#ifndef BOOL
+typedef int                 BOOL;
+#endif
+
+
+#ifndef BYTE
+typedef unsigned char       BYTE;
+#endif
+
+
+//
+//typedef unsigned short      WORD;
+//
+//typedef float               FLOAT;
+//typedef FLOAT               *PFLOAT;
+//typedef BOOL near           *PBOOL;
+//typedef BOOL far            *LPBOOL;
+//typedef BYTE near           *PBYTE;
+//typedef BYTE far            *LPBYTE;
+//typedef int near            *PINT;
+//typedef int far             *LPINT;
+//typedef WORD near           *PWORD;
+//typedef WORD far            *LPWORD;
+//typedef long far            *LPLONG;
+//typedef DWORD near          *PDWORD;
+//typedef DWORD far           *LPDWORD;
+//typedef void far            *LPVOID;
+//typedef CONST void far      *LPCVOID;
+
 /*********************************************************/
 #endif
 
