@@ -1,6 +1,13 @@
 #include <stdio.h>
 
 #if 1
+#include "cv.h"
+using namespace cv;
+#endif
+
+#include "opencv_stl.h"
+
+#if 1
 #include "HW_SDK_LIB/ipc.h"
 #include "HW_SDK_LIB/live_set.h"
 #include "HW_SDK_LIB/live_video.h"
@@ -8,12 +15,7 @@
 #endif
 
 
-#if 1
-#include "cv.h"
-using namespace cv;
-#endif
 
-#include "opencv_stl.h"
 
 
 /*-------------------------------------------------------------------------*/
@@ -162,7 +164,7 @@ int main()
 
 	/*g_ips.push_back("192.168.3.1");*/
 	g_ips.push_back("192.168.3.2");
-	g_ips.push_back("192.168.3.22");
+	//g_ips.push_back("192.168.3.22");
 	/*g_ips.push_back("192.168.3.3");*/
 	/*g_ips.push_back("192.168.3.4");
 	

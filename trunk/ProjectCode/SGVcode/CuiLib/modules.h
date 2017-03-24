@@ -44,6 +44,7 @@
 
 #if _MSC_VER
 #include <SerialPort/SerialPort.h>
+#include <SerialPort/Gps_WG_8020.h>
 #endif
 
 

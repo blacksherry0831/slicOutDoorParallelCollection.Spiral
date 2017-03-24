@@ -34,6 +34,11 @@ public:
 protected:
 	GPS_WG_8020(void);
 private:
+
+#ifdef _MSC_VER
+	CMutex m_MUTEX;
+#endif
+
 	~GPS_WG_8020(void);
 public:
 		CSerialPort m_sp;
@@ -44,9 +49,11 @@ public:
 		void SendCmdEnterAT();
 		void SendCmdVERS();
 		void SendCmdGPRMC();
+		
+		string GetLatLonStr();
 
 		void ReadGpsData();
-		unsigned readGpsThread(LPVOID lpParam);
+		static DWORD readGpsThread(LPVOID lpParam);
 private:
 	void process_gps_data();
 	void Convert2Degree();
@@ -58,11 +65,12 @@ private:
 	 class CGarbo // 它的唯一工作就是在析构函数中删除CSingleton的实例      
 		  {    
 			    public:    
+
 			         ~CGarbo(){      
 								if (GPS_WG_8020::_instance){    
 										delete GPS_WG_8020::_instance;
 										GPS_WG_8020::_instance=NULL;
-										printf("Release");
+										printf("Release\n");
 								}
 					 }    
 		  };    

@@ -327,45 +327,13 @@ void CALLBACK live_video::on_yuv_ex(PLAY_HANDLE handle, const unsigned char* y, 
 
 
 		if (lv->m_stream_frame_count%1==0){
-			yv12_to_rgb24_c(image_buffer,width,(unsigned char*)y,(unsigned char*)u,(unsigned char*)v,y_stride,uv_stride,width,height);
-			//cvCvtColor(lv->m_img_rgb_3,lv->m_img_rgb_4_for_show,CV_BGR2BGRA);
-#ifdef SAVE_IMAGE
-#if SAVE_IMAGE
-			if(lv->m_save_image_switch>0){
-				
-				std::string ip_addr_t=lv->m_ip;
-				
-				std::string filename_org_t=ip_addr_t+"_"+get_time_stamp()+"hello.jpg";
-				//std::string filename_srl_t=ip_addr_t+"_"+get_time_stamp()+"spiral.jpg";
-				string path_t=lv->m_ip;
-				string_replace(path_t,".","_");
-
-				
-
-
-				cvSaveImage( (path_t+"//"+filename_org_t).c_str(),lv->m_img_rgb_3);
-				//cvSaveImage( (path_t+"//"+filename_srl_t).c_str(),lv->m_img_rgb_4_for_show);
-				
-				lv->m_save_image_switch--;
-				printf("SAVE_IMAGE\n");
-			}
-#endif
-#endif
-
-#ifdef SAVE_VIDEO
-#if SAVE_VIDEO
-			if(lv->m_save_video_switch){
-				
-				cvWriteFrame(lv->m_writer,lv->m_img_rgb_3);
-				//cvWriteFrame(lv->m_writer,lv->m_img_rgb_4_for_show);
-
-				lv->m_save_video_start=true;
-				printf("SAVE_VIDEO\n");
-			}else{
-				lv->init_video_writer();
-			}
-#endif
-#endif		
+			
+			{
+				lv->m_ImgLock.Lock();
+				yv12_to_rgb24_c(image_buffer,width,(unsigned char*)y,(unsigned char*)u,(unsigned char*)v,y_stride,uv_stride,width,height);
+				lv->m_ImgLock.Unlock();
+				//cvCvtColor(lv->m_img_rgb_3,lv->m_img_rgb_4_for_show,CV_BGR2BGRA);
+			}	
 		}
 
 	
@@ -705,7 +673,7 @@ unsigned live_video::opencv_show_image_thread(LPVOID lpParam)
 
 
 
-	IplImage *img_t=cvCloneImage(lv->m_img_rgb_3);
+	
 	unsigned char *image_buffer=(unsigned char *)ipl_img->imageData;
 
 		printf("Q Quit \n");
@@ -766,33 +734,13 @@ unsigned live_video::opencv_show_image_thread(LPVOID lpParam)
 		Sleep(100);
 #endif
 #endif
-#ifdef SAVE_IMAGE
-#if SAVE_IMAGE
-			if(lv->m_save_image_switch>0){				
-				std::string ip_addr_t=lv->m_ip;				
-				std::string filename_srl_t=ip_addr_t+"_"+get_time_stamp()+"spiral.jpg";
-				string path_t=lv->m_ip;
-				string_replace(path_t,".","_");				
-				cvSaveImage( (path_t+"//"+filename_srl_t).c_str(),lv->m_img_rgb_4_for_show);
-				printf("SAVE IMAGE SPIRAL\n");
-			}
-#endif
-#endif
-
-#ifdef SAVE_VIDEO
-#if SAVE_VIDEO
-			if(lv->m_save_video_switch){
-				cvCvtColor(lv->m_img_rgb_4_for_show,img_t,CV_BGRA2BGR);
-				cvWriteFrame(lv->m_writer_spiral,img_t);
-				printf("SAVE VIDEO SPIRAL\n");
-			}
-#endif
-#endif
 		
+		lv->SaveImage();
+		lv->SaveVideo();		
 	}
 
 	cvDestroyWindow(lv->m_ip.c_str());
-	cvReleaseImage(&img_t);
+
 
 	return 0;
 }
@@ -933,6 +881,122 @@ void live_video::turn_stop()
 		data_t.controlType=0;//direct
 		data_t.cmd=5;//stop
 		HW_NET_ControlPtz(m_sh,&data_t);
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+void  live_video::SaveImage_rgb_3()
+{
+#ifdef _MSC_VER
+	m_ImgLock.Lock();
+#endif
+
+#ifdef SAVE_IMAGE
+#if SAVE_IMAGE	
+		{
+					std::string gps_p=GPS_WG_8020::getInstance()->GetLatLonStr();
+
+					std::string ip_addr_t=this->m_ip;
+
+					std::string filename_org_t=ip_addr_t+"_"+get_time_stamp()+gps_p+"org.jpg";
+					//std::string filename_srl_t=ip_addr_t+"_"+get_time_stamp()+"spiral.jpg";
+					string path_t=this->m_ip;
+					string_replace(path_t,".","_");
+										
+					cvSaveImage( (path_t+"//"+filename_org_t).c_str(),this->m_img_rgb_3);
+					//cvSaveImage( (path_t+"//"+filename_srl_t).c_str(),lv->m_img_rgb_4_for_show);
+
+
+					printf("SAVE_IMAGE\n");
+		}
+#endif
+#endif
+
+#ifdef _MSC_VER
+	m_ImgLock.Unlock();
+#endif
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+void  live_video::SaveImage_rgb_4_for_show()
+{
+#ifdef _MSC_VER
+	m_ImgLock.Lock();
+#endif
+
+#ifdef SAVE_IMAGE
+#if SAVE_IMAGE
+		std::string gps_p=GPS_WG_8020::getInstance()->GetLatLonStr();
+
+		
+		{				
+			std::string ip_addr_t=this->m_ip;				
+			std::string filename_srl_t=ip_addr_t+"_"+get_time_stamp()+gps_p+"spiral.jpg";
+			string path_t=this->m_ip;
+			string_replace(path_t,".","_");				
+			cvSaveImage( (path_t+"//"+filename_srl_t).c_str(),this->m_img_rgb_4_for_show);
+			printf("SAVE IMAGE SPIRAL\n");
+		}
+#endif
+#endif
+
+#ifdef _MSC_VER
+		m_ImgLock.Unlock();
+#endif
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+void live_video::SaveImage()
+{
+	if(this->m_save_image_switch>0){
+		this->SaveImage_rgb_4_for_show();
+		this->SaveImage_rgb_3();
+		this->m_save_image_switch--;
+	}
+
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+void live_video::SaveVideo()
+{
+
+	if(this->m_save_video_switch){
+#ifdef SAVE_VIDEO
+#if SAVE_VIDEO
+		cvWriteFrame(this->m_writer,this->m_img_rgb_3);
+		this->m_save_video_start=true;
+		printf("SAVE_VIDEO\n");
+#endif
+#endif
+#ifdef SAVE_VIDEO
+#if SAVE_VIDEO	
+
+		IplImage *img_t=cvCreateImage(cvGetSize(this->m_img_rgb_3),IPL_DEPTH_8U,this->m_img_rgb_3->nChannels);
+
+		cvCvtColor(this->m_img_rgb_4_for_show,img_t,CV_BGRA2BGR);
+		cvWriteFrame(this->m_writer_spiral,img_t);
+		printf("SAVE VIDEO SPIRAL\n");
+
+		cvReleaseImage(&img_t);
+#endif
+#endif
+	}else{
+		this->init_video_writer();
+	}
+
+
+
 }
 /*----------------------------------------------------*/
 /**

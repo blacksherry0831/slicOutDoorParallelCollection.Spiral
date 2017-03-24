@@ -3,7 +3,7 @@
 #if 1
 #include "HW_SDK_LIB/ipc.h"
 #include "HW_SDK_LIB/live_set.h"
-#include "HW_SDK_LIB/live_video.h"`
+#include "HW_SDK_LIB/live_video.h"
 #include "HW_SDK_LIB/dc_save.h"
 #endif
 

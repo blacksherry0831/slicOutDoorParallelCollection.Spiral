@@ -9,6 +9,7 @@ ConfigOpenCv()
 SET(BASE_LINK_LIB 
 	         tinyxml2
 			 SGVcode
+			 SerialPort
 	)
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")  

@@ -1,6 +1,12 @@
 #ifndef live_video_include_h
 #define live_video_include_h
 
+
+#ifdef _MSC_VER
+#include "afxmt.h"
+#endif
+
+
 #include <string>
 #include "howellnetsdk.h"
 #include "play_def.h"
@@ -51,6 +57,10 @@ public:
 	string get_directory();
 	static string get_time_stamp();
 	
+	void  SaveImage_rgb_3();
+	void  SaveImage_rgb_4_for_show();
+	void  SaveImage();
+	void  SaveVideo();
 private:
 	std::string m_ip;
 	int m_slot;
@@ -99,6 +109,14 @@ private:
 		int height,
 		INT64 time,
 		long user);
+private:
+
+#ifdef _MSC_VER 
+#if _MSC_VER
+	CMutex m_ImgLock;
+#endif
+#endif	
+
 
 };
 

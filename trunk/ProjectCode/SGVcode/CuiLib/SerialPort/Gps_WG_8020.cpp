@@ -18,6 +18,9 @@ GPS_WG_8020 *GPS_WG_8020::_instance =new GPS_WG_8020();
 
 GPS_WG_8020::GPS_WG_8020(void)
 {
+	this->g_Lat_float=-1;
+	this->g_Lon_float=-1;
+
 	buffer_result_idx=0;
 	memset(buffer_result,0,sizeof(buffer_result));
 	this->open();
@@ -42,7 +45,9 @@ void GPS_WG_8020::open()
 {
 	if(m_sp.IsOpen()==false){
 		m_sp.Open(4,115200);
-		this->SendCmdEnterAT();
+#if _MSC_VER
+		HANDLE handle_t=::CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)readGpsThread,this,0,NULL);
+#endif
 	}
 
 }
@@ -71,10 +76,15 @@ void GPS_WG_8020::SendCmdEnterAT()
 	char CMD_PPP[]="+++\n";
 	char CMD_ATE0[]="ate0\n";
 
-	m_sp.Write(CMD_PPP,sizeof(CMD_PPP));
+	int size=strlen(CMD_PPP);
 
-	m_sp.Write(CMD_ATE0,sizeof(CMD_ATE0));
+	m_sp.Write(CMD_PPP,strlen(CMD_PPP));
+	
+	this->ReadGpsData();
 
+	m_sp.Write(CMD_ATE0,strlen(CMD_ATE0));
+	
+	this->ReadGpsData();
 }
 /*-------------------------------------*/
 /**
@@ -84,7 +94,7 @@ void GPS_WG_8020::SendCmdEnterAT()
 void GPS_WG_8020::SendCmdVERS()
 {
 	char CMD_VERS[]="AT^VERS\n";
-	m_sp.Write(CMD_VERS,sizeof(CMD_VERS));
+	m_sp.Write(CMD_VERS,strlen(CMD_VERS));
 
 }
 /*-------------------------------------*/
@@ -95,7 +105,7 @@ void GPS_WG_8020::SendCmdVERS()
 void GPS_WG_8020::SendCmdGPRMC()
 {
 	char CMD_GPRMC[]="AT^GPRMC\n";
-	m_sp.Write(CMD_GPRMC,sizeof(CMD_GPRMC));
+	m_sp.Write(CMD_GPRMC,strlen(CMD_GPRMC));
 }
 /*-------------------------------------*/
 /**
@@ -163,6 +173,11 @@ void GPS_WG_8020::ReadGpsData()
 /*-------------------------------------*/
 void GPS_WG_8020::process_gps_data()
 {
+
+#ifdef _MSC_VER
+	m_MUTEX.Lock();
+#endif
+
 	string data_t=buffer_result;
 	int idx=0;
 	vector<std::string> gps_datas_t=this->split(data_t,',');
@@ -184,14 +199,18 @@ void GPS_WG_8020::process_gps_data()
 			g_CiPianJiao=gps_datas_t.at(idx++);
 			g_CiPianJiaoFangXiang=gps_datas_t.at(idx++);
 			g_Mode=gps_datas_t.at(idx++);
-
 			this->Convert2Degree();
+		}else if (this->g_Location_status.compare("V")==0){
+			printf("无效定位\n");
+		}else{
 
 		}
-		
-		
 
 	}
+
+#ifdef _MSC_VER
+	m_MUTEX.Unlock();
+#endif
 
 }
 /*-------------------------------------*/
@@ -227,9 +246,9 @@ void GPS_WG_8020::Convert2Degree()
 	int lon_z_t=(int)(lon_t/100);
 	//
 
-	double lat_f_t=lat_t-lat_z_t;
+	double lat_f_t=lat_t-lat_z_t*100;
 
-	double lon_f_t=lon_t-lon_z_t;
+	double lon_f_t=lon_t-lon_z_t*100;
 
 	this->g_Lat_float=lat_z_t+lat_f_t/60;
 	this->g_Lon_float=lon_z_t+lon_f_t/60;
@@ -254,10 +273,50 @@ GPS_WG_8020* GPS_WG_8020::getInstance()
 *
 */
 /*----------------------------------------------------*/
-unsigned GPS_WG_8020::readGpsThread(LPVOID lpParam)
+DWORD GPS_WG_8020::readGpsThread(LPVOID lpParam)
 {
+	GPS_WG_8020 *gps_t=GPS_WG_8020::getInstance();
+		
+		gps_t->SendCmdEnterAT();
+	
+	while(GPS_WG_8020::_instance!=NULL){
+		
+		
+		gps_t->SendCmdGPRMC();
+
+		gps_t->ReadGpsData();
+
+		Sleep(1000*5);
+	
+	}
 	return 0;
 }
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+string GPS_WG_8020::GetLatLonStr()
+{
+	String LatLon_t;
+#ifdef _MSC_VER
+	m_MUTEX.Lock();
+#endif
+	
+	if (this->g_Lat_float>0
+		&&this->g_Lon_float>0)
+	{
+		char buffer_z[1024];
+			sprintf_s(buffer_z,"(%0.8f,%0.8f)",this->g_Lat_float,this->g_Lon_float);
+		LatLon_t=buffer_z;
+	}
+	
+
+#ifdef _MSC_VER
+	m_MUTEX.Unlock();
+#endif
+	return LatLon_t;
+} 
 /*----------------------------------------------------*/
 /**
 *
