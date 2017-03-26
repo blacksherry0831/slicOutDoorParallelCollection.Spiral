@@ -109,6 +109,8 @@ live_video::live_video(const char* ip,int slot)
 	m_height=0;
 	m_writer=NULL;
 	m_writer_spiral=NULL;
+	
+	this->m_video_frame_count=0;
 
 	this->get_directory();
 
@@ -345,42 +347,58 @@ void CALLBACK live_video::on_yuv_ex(PLAY_HANDLE handle, const unsigned char* y, 
 bool live_video::init_video_writer()
 {				
 		const int fps     = 5;
-
+		//static int frame_count=0;
+		static string time_stamp_t;
+		/*-----------------------------------------------------*/	
+		static string path_video_org;
+		static string path_video_spiral;
+		static string path_video_position;
+		/*-----------------------------------------------------*/
 		if(this->m_width+this->m_height==0) return false;
 
-		if(m_writer!=NULL){
-
+		/*-----------------------------------------------------*/
+		if(m_writer!=NULL&&time_stamp_t!=""){
 			if(this->m_save_video_start==false){
-			     return true;
+				return true;
 			}else{
 				cvReleaseVideoWriter(&m_writer);
 				m_writer=NULL;
 				cvReleaseVideoWriter(&m_writer_spiral);
 				m_writer_spiral=NULL;
-			}      
 
-
+				m_video_frame_count=0;
+				this->m_video_pos.SaveFile(path_video_position.c_str());
+			}
 		}
+	/*-----------------------------------------------------*/
+		time_stamp_t=get_time_stamp();
+		path_video_position=this->get_directory()+"//"+this->m_ip+"$"+time_stamp_t+"$"+".xml";
+		path_video_org=this->get_directory()+"//"+ this->m_ip+"$"+time_stamp_t+"$"+".avi";
+		path_video_spiral=this->get_directory()+"//"+ this->m_ip+"$"+time_stamp_t+"$"+"spiral$.avi";
 
-	  {
-			//
-			m_writer=cvCreateVideoWriter((this->get_directory()+"//"+ this->m_ip+get_time_stamp()+".avi").c_str(),
-				CV_FOURCC_DEFAULT,
-				fps,
-				cvSize(m_width,m_height),
-				1);
+		  {
+				//
+				m_writer=cvCreateVideoWriter(path_video_org.c_str(),
+					CV_FOURCC_DEFAULT,
+					fps,
+					cvSize(m_width,m_height),
+					1);
 
-			m_writer_spiral=cvCreateVideoWriter((this->get_directory()+"//"+ this->m_ip+get_time_stamp()+"spiral.avi").c_str(),
-				CV_FOURCC_DEFAULT,
-				fps,
-				cvSize(m_width,m_height),
-				1);
+				m_writer_spiral=cvCreateVideoWriter(path_video_spiral.c_str(),
+					CV_FOURCC_DEFAULT,
+					fps,
+					cvSize(m_width,m_height),
+					1);
+				
+				path_video_position=this->get_directory()+"//"+this->m_ip+"$"+time_stamp_t+"$"+".xml";
+			
+				this->init_xml_pos();
 
-			this->m_save_video_start=false;
-			ASSERT(m_writer!=NULL);
-			//
-		}
-
+				this->m_save_video_start=false;
+				ASSERT(m_writer!=NULL);
+				//
+			}
+	  /*-----------------------------------------------------*/
 	
 
 	return false;
@@ -736,7 +754,9 @@ unsigned live_video::opencv_show_image_thread(LPVOID lpParam)
 #endif
 		
 		lv->SaveImage();
-		lv->SaveVideo();		
+		lv->SaveVideo();
+		
+		
 	}
 
 	cvDestroyWindow(lv->m_ip.c_str());
@@ -900,7 +920,7 @@ void  live_video::SaveImage_rgb_3()
 
 					std::string ip_addr_t=this->m_ip;
 
-					std::string filename_org_t=ip_addr_t+"_"+get_time_stamp()+gps_p+"org.jpg";
+					std::string filename_org_t=ip_addr_t+"$"+get_time_stamp()+"$"+gps_p+"$"+"org.jpg";
 					//std::string filename_srl_t=ip_addr_t+"_"+get_time_stamp()+"spiral.jpg";
 					string path_t=this->m_ip;
 					string_replace(path_t,".","_");
@@ -936,7 +956,7 @@ void  live_video::SaveImage_rgb_4_for_show()
 		
 		{				
 			std::string ip_addr_t=this->m_ip;				
-			std::string filename_srl_t=ip_addr_t+"_"+get_time_stamp()+gps_p+"spiral.jpg";
+			std::string filename_srl_t=ip_addr_t+"$"+get_time_stamp()+"$"+gps_p+"$"+"spiral.jpg";
 			string path_t=this->m_ip;
 			string_replace(path_t,".","_");				
 			cvSaveImage( (path_t+"//"+filename_srl_t).c_str(),this->m_img_rgb_4_for_show);
@@ -970,8 +990,8 @@ void live_video::SaveImage()
 /*----------------------------------------------------*/
 void live_video::SaveVideo()
 {
-
 	if(this->m_save_video_switch){
+
 #ifdef SAVE_VIDEO
 #if SAVE_VIDEO
 		cvWriteFrame(this->m_writer,this->m_img_rgb_3);
@@ -979,6 +999,7 @@ void live_video::SaveVideo()
 		printf("SAVE_VIDEO\n");
 #endif
 #endif
+
 #ifdef SAVE_VIDEO
 #if SAVE_VIDEO	
 
@@ -991,12 +1012,72 @@ void live_video::SaveVideo()
 		cvReleaseImage(&img_t);
 #endif
 #endif
+		
+		this->write_xml_pos();
+		this->m_video_frame_count++;
+
 	}else{
 		this->init_video_writer();
 	}
 
 
 
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+bool live_video::init_xml_pos()
+{
+
+	const char* declaration ="<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>";
+	this->m_video_pos.Clear();
+	this->m_video_pos.Parse(declaration);//会覆盖xml所有内容
+
+	//添加申明可以使用如下两行
+	//XMLDeclaration* declaration=doc.NewDeclaration();
+	//doc.InsertFirstChild(declaration);
+
+	tinyxml2::XMLElement* root=this->m_video_pos.NewElement("Root");
+	this->m_video_pos.InsertEndChild(root);
+
+	
+
+
+	return 0;
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+bool live_video::write_xml_pos()
+{
+	char  frame_count_t[1024];
+	string lat_lon_str_t=GPS_WG_8020::getInstance()->GetLatLonStr();
+
+	itoa(this->m_video_frame_count,frame_count_t,10);
+
+	XMLElement* root=this->m_video_pos.RootElement();
+	
+	XMLElement* Node_t =this->m_video_pos.NewElement("VideoFrame");
+	{	
+		XMLElement *frame_count=this->m_video_pos.NewElement("Frame"); 
+					frame_count->InsertEndChild(this->m_video_pos.NewText(frame_count_t));
+
+		Node_t->InsertEndChild(frame_count);
+					     
+		XMLElement* lat_lon_t = this->m_video_pos.NewElement("LatLon");
+
+					lat_lon_t->InsertEndChild(this->m_video_pos.NewText(lat_lon_str_t.c_str()));
+		Node_t->InsertEndChild(lat_lon_t);
+
+	}
+	
+	root->InsertEndChild(Node_t);
+
+	return true;
 }
 /*----------------------------------------------------*/
 /**

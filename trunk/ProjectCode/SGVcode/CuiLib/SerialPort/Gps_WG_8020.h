@@ -51,6 +51,8 @@ public:
 		void SendCmdGPRMC();
 		
 		string GetLatLonStr();
+		string GetLatStr();
+		string GetLonStr();
 
 		void ReadGpsData();
 		static DWORD readGpsThread(LPVOID lpParam);

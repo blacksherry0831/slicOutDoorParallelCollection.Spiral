@@ -322,3 +322,56 @@ string GPS_WG_8020::GetLatLonStr()
 *
 */
 /*----------------------------------------------------*/
+string GPS_WG_8020::GetLatStr()
+{
+	String Lat_t;
+#ifdef _MSC_VER
+	m_MUTEX.Lock();
+#endif
+
+	if (this->g_Lat_float>0
+		&&this->g_Lon_float>0)
+	{
+		char buffer_z[1024];
+		sprintf_s(buffer_z,"%0.8f",this->g_Lat_float);
+		Lat_t=buffer_z;
+	}
+
+
+#ifdef _MSC_VER
+	m_MUTEX.Unlock();
+#endif
+	return Lat_t;
+}
+
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+string GPS_WG_8020::GetLonStr()
+{
+	String Lon_t;
+#ifdef _MSC_VER
+	m_MUTEX.Lock();
+#endif
+
+	if (this->g_Lat_float>0
+		&&this->g_Lon_float>0)
+	{
+		char buffer_z[1024];
+		sprintf_s(buffer_z,"%0.8f",this->g_Lon_float);
+		Lon_t=buffer_z;
+	}
+
+
+#ifdef _MSC_VER
+	m_MUTEX.Unlock();
+#endif
+	return Lon_t;
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/

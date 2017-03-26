@@ -16,7 +16,11 @@
 #include "cv.h"
 #include "highgui.h"
 using namespace cv;
-//#include <boost/shared_ptr.hpp>
+
+#if TRUE
+#include <tinyxml2/tinyxml2.h>
+using namespace tinyxml2;
+#endif
 
 #define SAVE_IMAGE TRUE
 #define SAVE_VIDEO TRUE
@@ -52,6 +56,9 @@ public:
 	bool is_play();
 	bool init_video_writer();
 
+	bool init_xml_pos();
+	bool write_xml_pos();
+	
 	static void string_replace(string&s1,const string s2,const string s3);
 
 	string get_directory();
@@ -93,9 +100,11 @@ public:
 #endif
 #endif
 
+	int m_video_frame_count;
 
 	CvVideoWriter *m_writer;
 	CvVideoWriter *m_writer_spiral;
+	tinyxml2::XMLDocument m_video_pos;
 
 private:
 	static void CALLBACK on_stream(long lVideoID,char*buf,int len,int videoType,long nUser);
