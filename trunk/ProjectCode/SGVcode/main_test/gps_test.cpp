@@ -4,8 +4,11 @@
 
 
 #if _MSC_VER
+
 #include <SerialPort/SerialPort.h>
 #include <SerialPort/Gps_WG_8020.h>
+#include <SerialPort/Compass_HCM365.h>
+
 #endif
 /*-------------------------------------------------------------------------*/
 /**
@@ -140,7 +143,23 @@ int Test_GPS()
 *
 */
 /*-------------------------------------------------------------------------*/
+void test_gps_class()
+{
+		GPS_WG_8020 *gps_t=GPS_WG_8020::getInstance();
 
+	/*gps_t->open();	*/
+	int i=0;
+	while(i++<10){
+
+		/*gps_t->SendCmdGPRMC();
+
+		gps_t->ReadGpsData();*/
+		gps_t->GetLatLonStr();
+
+		Sleep(5*1000);
+	}
+
+}
 /*-------------------------------------------------------------------------*/
 /**
 *
@@ -153,16 +172,13 @@ int main()
 	return Test_GPS();
 #else
 		
-	GPS_WG_8020 *gps_t=GPS_WG_8020::getInstance();
+		Compass_HCM365 *gps_t=Compass_HCM365::getInstance();
 
-	/*gps_t->open();	*/
+	
 	int i=0;
 	while(i++<10){
 
-		/*gps_t->SendCmdGPRMC();
-
-		gps_t->ReadGpsData();*/
-		gps_t->GetLatLonStr();
+		
 
 		Sleep(5*1000);
 	}

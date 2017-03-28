@@ -116,6 +116,9 @@ void GPS_WG_8020::ReadGpsData()
 {
 	DWORD read_count=0;
 	int  Timeout_t=0;
+	buffer_result_idx=0;
+	memset(buffer_result,0,sizeof(buffer_result));
+
 	TimeCountStart();
 	do{
 		read_count=m_sp.Read(&buffer_result[buffer_result_idx],1);
