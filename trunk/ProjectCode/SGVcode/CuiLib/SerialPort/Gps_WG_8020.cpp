@@ -43,12 +43,19 @@ GPS_WG_8020::~GPS_WG_8020(void)
 /*-------------------------------------*/
 void GPS_WG_8020::open()
 {
-	if(m_sp.IsOpen()==false){
-		m_sp.Open(4,115200);
+	try{
+
+		if(m_sp.IsOpen()==false){
+		m_sp.Open(5,115200);
 #if _MSC_VER
 		HANDLE handle_t=::CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)readGpsThread,this,0,NULL);
 #endif
+		}
+	
+	}catch(CSerialException e){
+		printf("%s",e.what());
 	}
+
 
 }
 /*-------------------------------------*/
