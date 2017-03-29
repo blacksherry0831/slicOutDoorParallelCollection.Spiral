@@ -46,7 +46,7 @@ void GPS_WG_8020::open()
 	try{
 
 		if(m_sp.IsOpen()==false){
-		m_sp.Open(5,115200);
+		m_sp.Open(4,115200);
 		{
 			COMMTIMEOUTS Timeouts;
 			Timeouts.ReadIntervalTimeout = 100;
@@ -174,7 +174,7 @@ void GPS_WG_8020::ReadGpsData()
 		}else if (read_count==0){
 			/*	memset(buffer_cmd,0,sizeof(buffer_cmd));
 				scanf("%s",buffer_cmd);*/
-			Sleep(100);
+			Sleep(0);
 			Timeout_t++;
 			TimeCountStop("Read Serial Port Timeout!");
 

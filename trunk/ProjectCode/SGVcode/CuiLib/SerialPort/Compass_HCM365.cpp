@@ -45,6 +45,15 @@ void Compass_HCM365::open()
 {
 	if(m_sp.IsOpen()==false){
 		m_sp.Open(7,9600);
+		{
+			COMMTIMEOUTS Timeouts;//unit ms 
+			Timeouts.ReadIntervalTimeout = 100;//ms
+			Timeouts.ReadTotalTimeoutConstant=100;
+			Timeouts.ReadTotalTimeoutMultiplier=100;
+			Timeouts.WriteTotalTimeoutConstant=100;
+			Timeouts.WriteTotalTimeoutMultiplier=100;
+			m_sp.SetTimeouts(Timeouts);
+		}
 #if _MSC_VER
 		HANDLE handle_t=::CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)readCompassThread,this,0,NULL);
 #endif
@@ -292,7 +301,7 @@ string Compass_HCM365::GetPitchRollHeadingStr()
 	
 	{
 		char buffer_z[1024];
-		sprintf_s(buffer_z,"(%0.3f,%0.3f,%0.3)",m_pitch,m_roll,m_heading);
+		sprintf_s(buffer_z,"(%0.3f,%0.3f,%0.3f)",m_pitch,m_roll,m_heading);
 		LatLon_t=buffer_z;
 	}
 	
