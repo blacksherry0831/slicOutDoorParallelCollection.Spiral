@@ -5,7 +5,7 @@
 
 class Compass_HCM365
 {
-	char	buffer_result[1024];
+	unsigned char	buffer_result[1024];
 	//char	buffer_cmd[1024];
 
 	int		buffer_result_idx;
@@ -17,7 +17,10 @@ public:
 	//double g_Lat_float;
 	//double g_Lon_float;
 
-public:
+private:
+	float m_pitch;
+	float m_roll;
+	float m_heading;
 	//string g_UtcTime_hhmmss;//UTC时间
 	//string g_Location_status;//定位状态
 	//string g_Lat;//维度
@@ -51,15 +54,15 @@ public:
 		void SendCmdGPRMC();*/
 		void SendCmdPitchRollHeading();
 		
-		/*string GetLatLonStr();
-		string GetLatStr();
+		string GetPitchRollHeadingStr();
+		/*string GetLatStr();
 		string GetLonStr();*/
 
 		void ReadCompassData();
 		static DWORD readCompassThread(LPVOID lpParam);
 private:     
 	void process_compass_data();
-	void ConvertBCD2Float(char* data_t);
+	float ConvertBCD2Float(unsigned char* data_t);
 public:
 	static vector<string> split(const string& s,char delim);
 	 static Compass_HCM365* getInstance();

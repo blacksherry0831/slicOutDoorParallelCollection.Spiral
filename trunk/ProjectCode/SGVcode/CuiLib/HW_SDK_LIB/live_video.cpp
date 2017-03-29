@@ -917,10 +917,15 @@ void  live_video::SaveImage_rgb_3()
 #if SAVE_IMAGE	
 		{
 					std::string gps_p=GPS_WG_8020::getInstance()->GetLatLonStr();
+					std::string compass_prh=Compass_HCM365::getInstance()->GetPitchRollHeadingStr();
 
 					std::string ip_addr_t=this->m_ip;
 
-					std::string filename_org_t=ip_addr_t+"$"+get_time_stamp()+"$"+gps_p+"$"+"org.jpg";
+					std::string filename_org_t=ip_addr_t+
+						"$"+get_time_stamp()+
+						"$"+gps_p+
+						"$"+compass_prh+
+						"$"+"org.jpg";
 					//std::string filename_srl_t=ip_addr_t+"_"+get_time_stamp()+"spiral.jpg";
 					string path_t=this->m_ip;
 					string_replace(path_t,".","_");
@@ -952,11 +957,15 @@ void  live_video::SaveImage_rgb_4_for_show()
 #ifdef SAVE_IMAGE
 #if SAVE_IMAGE
 		std::string gps_p=GPS_WG_8020::getInstance()->GetLatLonStr();
-
+		std::string compass_prh=Compass_HCM365::getInstance()->GetPitchRollHeadingStr();
 		
 		{				
 			std::string ip_addr_t=this->m_ip;				
-			std::string filename_srl_t=ip_addr_t+"$"+get_time_stamp()+"$"+gps_p+"$"+"spiral.jpg";
+			std::string filename_srl_t=ip_addr_t+
+				"$"+get_time_stamp()+
+				"$"+gps_p+
+				"$"+compass_prh+
+				"$"+"spiral.jpg";
 			string path_t=this->m_ip;
 			string_replace(path_t,".","_");				
 			cvSaveImage( (path_t+"//"+filename_srl_t).c_str(),this->m_img_rgb_4_for_show);
@@ -1055,24 +1064,34 @@ bool live_video::init_xml_pos()
 bool live_video::write_xml_pos()
 {
 	char  frame_count_t[1024];
-	string lat_lon_str_t=GPS_WG_8020::getInstance()->GetLatLonStr();
-
 	itoa(this->m_video_frame_count,frame_count_t,10);
+
+
+	string lat_lon_str_t=GPS_WG_8020::getInstance()->GetLatLonStr();
+	std::string compass_prh=Compass_HCM365::getInstance()->GetPitchRollHeadingStr();
+	
+
 
 	XMLElement* root=this->m_video_pos.RootElement();
 	
 	XMLElement* Node_t =this->m_video_pos.NewElement("VideoFrame");
 	{	
+		/*-----------*/
 		XMLElement *frame_count=this->m_video_pos.NewElement("Frame"); 
 					frame_count->InsertEndChild(this->m_video_pos.NewText(frame_count_t));
 
 		Node_t->InsertEndChild(frame_count);
-					     
+		/*-----------*/			     
 		XMLElement* lat_lon_t = this->m_video_pos.NewElement("LatLon");
-
 					lat_lon_t->InsertEndChild(this->m_video_pos.NewText(lat_lon_str_t.c_str()));
+		
 		Node_t->InsertEndChild(lat_lon_t);
-
+		/*-----------*/
+		XMLElement* compass_prh_e = this->m_video_pos.NewElement("Compass");
+					compass_prh_e->InsertEndChild(this->m_video_pos.NewText(compass_prh.c_str()));
+		
+		Node_t->InsertEndChild(compass_prh_e);
+		/*-----------*/
 	}
 	
 	root->InsertEndChild(Node_t);
