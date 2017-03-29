@@ -47,6 +47,15 @@ void GPS_WG_8020::open()
 
 		if(m_sp.IsOpen()==false){
 		m_sp.Open(5,115200);
+		{
+			COMMTIMEOUTS Timeouts;
+			Timeouts.ReadIntervalTimeout = 100;
+			Timeouts.ReadTotalTimeoutConstant=100;
+			Timeouts.ReadTotalTimeoutMultiplier=100;
+			Timeouts.WriteTotalTimeoutConstant=100;
+			Timeouts.WriteTotalTimeoutMultiplier=100;
+			m_sp.SetTimeouts(Timeouts);
+		}
 #if _MSC_VER
 		HANDLE handle_t=::CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)readGpsThread,this,0,NULL);
 #endif
