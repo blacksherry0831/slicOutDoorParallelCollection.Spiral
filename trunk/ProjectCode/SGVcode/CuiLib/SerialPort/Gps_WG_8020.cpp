@@ -379,7 +379,7 @@ DWORD GPS_WG_8020::readGpsThread(LPVOID lpParam)
 
 		gps_t->ReadGpsData();
 
-		Sleep(1000*5);
+		Sleep(1000*1);
 	
 	}
 	return 0;
