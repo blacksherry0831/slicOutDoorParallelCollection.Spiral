@@ -43,12 +43,13 @@ private:
 #endif
 
 	~Compass_HCM365(void);
-public:
+
+private:
 		CSerialPort m_sp;
-
-		void open();
+public:
+		void open(int com_num);
 		void close();
-
+		void init();
 		/*void SendCmdEnterAT();
 		void SendCmdVERS();
 		void SendCmdGPRMC();*/

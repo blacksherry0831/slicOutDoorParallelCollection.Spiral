@@ -23,7 +23,7 @@ Compass_HCM365::Compass_HCM365(void)
 
 	buffer_result_idx=0;
 	memset(buffer_result,0,sizeof(buffer_result));
-	this->open();
+//	this->open();
 }
 /*-------------------------------------*/
 /**
@@ -41,10 +41,10 @@ Compass_HCM365::~Compass_HCM365(void)
 *
 */
 /*-------------------------------------*/
-void Compass_HCM365::open()
+void Compass_HCM365::open(int com_num)
 {
 	if(m_sp.IsOpen()==false){
-		m_sp.Open(7,9600);
+		m_sp.Open(com_num,9600);
 		{
 			COMMTIMEOUTS Timeouts;//unit ms 
 			Timeouts.ReadIntervalTimeout = 100;//ms
@@ -59,6 +59,26 @@ void Compass_HCM365::open()
 #endif
 	}
 
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void Compass_HCM365::init()
+{
+	if (m_sp.IsOpen()==TRUE){
+		return;
+	}
+
+	int  com_num=4;
+	int  com_baud=9600;
+
+	printf("Input Compass Com:\n");
+	scanf("%d",&com_num);
+
+
+	this->open(com_num);
 }
 /*-------------------------------------*/
 /**

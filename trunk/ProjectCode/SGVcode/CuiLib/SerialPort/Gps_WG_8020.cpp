@@ -23,7 +23,7 @@ GPS_WG_8020::GPS_WG_8020(void)
 
 	buffer_result_idx=0;
 	memset(buffer_result,0,sizeof(buffer_result));
-	this->open();
+//	this->open();
 }
 /*-------------------------------------*/
 /**
@@ -41,12 +41,12 @@ GPS_WG_8020::~GPS_WG_8020(void)
 *
 */
 /*-------------------------------------*/
-void GPS_WG_8020::open()
+void GPS_WG_8020::open(int com_num)
 {
 	try{
 
 		if(m_sp.IsOpen()==false){
-		m_sp.Open(4,115200);
+		m_sp.Open(com_num,115200);
 		{
 			COMMTIMEOUTS Timeouts;
 			Timeouts.ReadIntervalTimeout = 100;
@@ -63,7 +63,31 @@ void GPS_WG_8020::open()
 	
 	}catch(CSerialException e){
 		printf("%s",e.what());
+		ASSERT(0);
 	}
+
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void GPS_WG_8020::init()
+{
+
+	if (m_sp.IsOpen()==TRUE){
+		return;
+	}
+
+	int  com_num=4;
+	int  com_baud=115200;
+
+	printf("Input Gps Com:\n");
+	scanf("%d",&com_num);
+
+	
+	this->open(com_num);
 
 
 }
@@ -87,20 +111,70 @@ void GPS_WG_8020::close()
 *
 */
 /*-------------------------------------*/
+string GPS_WG_8020::ReadString()
+{
+	DWORD read_count=0;
+	int  Timeout_t=0;
+	buffer_result_idx=0;
+	memset(buffer_result,0,sizeof(buffer_result));
+	string gps_str_t;
+	TimeCountStart();
+	do{
+		read_count=m_sp.Read(&buffer_result[buffer_result_idx],1);
+
+		if(read_count==1){
+				
+			buffer_result_idx++;
+
+		}else if (read_count==0){
+		
+			Sleep(0);
+			Timeout_t++;
+			TimeCountStop("Read Serial Port Timeout!");
+
+		}else{
+
+			ASSERT(0);
+		}
+
+	}while(Timeout_t<1*10);
+	
+	gps_str_t=buffer_result;
+	
+
+	return gps_str_t;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void GPS_WG_8020::SendCmdEnterAT()
 {
-	char CMD_PPP[]="+++\n";
-	char CMD_ATE0[]="ate0\n";
+	char CMD_PPP[]="+++";
+	//char CMD_ATE0[]="ate0\n";
+
 
 	int size=strlen(CMD_PPP);
 
-	m_sp.Write(CMD_PPP,strlen(CMD_PPP));
-	
-	this->ReadGpsData();
 
-	m_sp.Write(CMD_ATE0,strlen(CMD_ATE0));
-	
-	this->ReadGpsData();
+	string result_t;
+
+	do 
+	{
+		Sleep(2000);
+		
+		m_sp.Write(CMD_PPP,strlen(CMD_PPP));
+
+		result_t=this->ReadString();
+
+		printf("GPS>>> +++ : %s \n",result_t.c_str());
+	} while (result_t=="OK"||result_t=="+++");
+
+
+	//m_sp.Write(CMD_ATE0,strlen(CMD_ATE0));
+
+	//this->ReadGpsData();
 }
 /*-------------------------------------*/
 /**

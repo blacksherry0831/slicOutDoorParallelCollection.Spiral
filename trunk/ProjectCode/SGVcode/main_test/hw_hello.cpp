@@ -7,6 +7,10 @@ using namespace cv;
 
 #include "opencv_stl.h"
 
+//#if 1
+//#include "modules.h"
+//#endif
+
 #if 1
 #include "HW_SDK_LIB/ipc.h"
 #include "HW_SDK_LIB/live_set.h"
@@ -15,6 +19,11 @@ using namespace cv;
 #endif
 
 
+#if 1
+#include "SerialPort/Compass_HCM365.h"
+#include "SerialPort/Gps_WG_8020.h"
+
+#endif
 
 
 
@@ -158,12 +167,23 @@ int main()
 
 	HW_NET_Init(0);
 
+	{
+		int  com_num_gps=4;
+		int  com_num_compass=7;
+
+		printf("Input Gps,Compass Com:\n");
+		scanf("%d,%d",&com_num_gps,&com_num_compass);
+
+		GPS_WG_8020::getInstance()->open(com_num_gps);
+		Compass_HCM365::getInstance()->open(com_num_compass);
+	}
+
 	
 	std::vector<ipc_ptr> g_ipcs;
 	std::vector<string>  g_ips;
 
 	/*g_ips.push_back("192.168.3.1");*/
-g_ips.push_back("192.168.3.2");
+	g_ips.push_back("192.168.3.2");
 		//g_ips.push_back("192.168.3.22");
 	/*g_ips.push_back("192.168.3.3");*/
 	/*g_ips.push_back("192.168.3.4");

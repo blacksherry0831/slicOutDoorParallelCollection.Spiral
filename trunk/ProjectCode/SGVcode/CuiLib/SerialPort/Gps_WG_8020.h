@@ -43,7 +43,8 @@ private:
 public:
 		CSerialPort m_sp;
 
-		void open();
+		void open(int com_num);
+		void init();
 		void close();
 
 		void SendCmdEnterAT();
@@ -55,6 +56,7 @@ public:
 		string GetLonStr();
 
 		void ReadGpsData();
+		string ReadString();
 		static DWORD readGpsThread(LPVOID lpParam);
 private:
 	void process_gps_data();
