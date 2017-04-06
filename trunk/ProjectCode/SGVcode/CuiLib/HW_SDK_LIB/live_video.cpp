@@ -745,6 +745,8 @@ unsigned live_video::opencv_show_image_thread(LPVOID lpParam)
 			lv->turn_down();
 		}else if(key=='5'){
 			lv->turn_stop();
+		}else if(key==-1){
+			Sleep(1000/25);
 		}else{
 			Sleep(1000/25);
 		}

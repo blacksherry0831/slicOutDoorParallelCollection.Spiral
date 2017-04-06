@@ -174,8 +174,12 @@ int main()
 		printf("Input Gps,Compass Com:\n");
 		scanf("%d,%d",&com_num_gps,&com_num_compass);
 
-		GPS_WG_8020::getInstance()->open(com_num_gps);
-		Compass_HCM365::getInstance()->open(com_num_compass);
+		if(com_num_gps>=0 && com_num_compass>=0){
+			GPS_WG_8020::getInstance()->open(com_num_gps);
+			Compass_HCM365::getInstance()->open(com_num_compass);		
+		}
+
+
 	}
 
 	
@@ -183,7 +187,7 @@ int main()
 	std::vector<string>  g_ips;
 
 	/*g_ips.push_back("192.168.3.1");*/
-	g_ips.push_back("192.168.3.2");
+	g_ips.push_back("192.168.3.22");
 		//g_ips.push_back("192.168.3.22");
 	/*g_ips.push_back("192.168.3.3");*/
 	/*g_ips.push_back("192.168.3.4");
