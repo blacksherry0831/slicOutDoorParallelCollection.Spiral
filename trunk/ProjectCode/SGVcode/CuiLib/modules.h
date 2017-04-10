@@ -40,6 +40,9 @@
 #include <SGVcode/MallocCui.h>
 #include <SGVcode/LabColorAnalyzeCluster_veins.h>
 #include <SGVcode/ColorBarCluster.h>
+
+#include <libcurl/include/curl/curl.h>
+
 #endif
 
 #if _MSC_VER

@@ -12,6 +12,7 @@ ADD_SUBDIRECTORY(MY_SDK_LIB)
 
 ADD_SUBDIRECTORY(SerialPort)
 
+ADD_SUBDIRECTORY(libcurl)
 
 #SET(DIR_SRCS    ManhattanHistogram.cpp
 #				SeparateSpBlock.cpp

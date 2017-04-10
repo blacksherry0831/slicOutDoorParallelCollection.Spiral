@@ -84,11 +84,16 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	hwclient.lib
 	ijl15l.lib)
 
+	SET(LIBCURL
+		libcurl.lib)
+
    LINK_DIRECTORIES(
 		${SGV_cmake_SOURCE_DIR}/CuiLib/HW_SDK_LIB/lib
+		${SGV_cmake_SOURCE_DIR}/CuiLib/libcurl/lib
    )
    
    link_libraries(${HW_WIN32_LIB})
+    link_libraries(${LIBCURL})
 ###############################################################################   
 ADD_EXECUTABLE(SpectralClusteringGndVSkyOutDoor main.cpp)
 TARGET_LINK_LIBRARIES(SpectralClusteringGndVSkyOutDoor 
@@ -107,7 +112,11 @@ TARGET_LINK_LIBRARIES(HW_AVI2IMAGE
 ADD_EXECUTABLE(GPS_TEST main_test/gps_test.cpp)
 TARGET_LINK_LIBRARIES(GPS_TEST
 	SerialPort)
-############################################################################## 	
+##############################################################################
+ADD_EXECUTABLE(HTTP_TEST main_test/http_test.cpp)
+#TARGET_LINK_LIBRARIES(HTTP_TEST
+#	libcurl)
+##############################################################################
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
    
 ELSE ()  
