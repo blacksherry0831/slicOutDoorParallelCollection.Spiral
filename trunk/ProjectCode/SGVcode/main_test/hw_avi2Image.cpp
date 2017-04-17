@@ -827,7 +827,9 @@ void process_by_gaussian()
 
 				cvShowImage("sub",Ibinary_sub);
 
-
+#if _DEBUG	
+	SaveFrame2Disk(Ibinary,count_tmp,AviSavePath,"org");
+#endif
 
 
 				if (Ibinary!=NULL){

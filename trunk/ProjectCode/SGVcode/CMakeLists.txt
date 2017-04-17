@@ -114,8 +114,10 @@ TARGET_LINK_LIBRARIES(GPS_TEST
 	SerialPort)
 ##############################################################################
 ADD_EXECUTABLE(HTTP_TEST main_test/http_test.cpp)
-#TARGET_LINK_LIBRARIES(HTTP_TEST
-#	libcurl)
+TARGET_LINK_LIBRARIES(HTTP_TEST)
+##############################################################################
+ADD_EXECUTABLE(calibration_TEST main_test/calibration.cpp)
+TARGET_LINK_LIBRARIES(calibration_TEST)
 ##############################################################################
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
    
