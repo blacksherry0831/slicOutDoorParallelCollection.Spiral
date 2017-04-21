@@ -1001,6 +1001,10 @@ void live_video::SaveImage()
 /*----------------------------------------------------*/
 void live_video::SaveVideo()
 {
+#ifdef _MSC_VER
+	m_ImgLock.Lock();
+#endif
+
 	if(this->m_save_video_switch){
 
 #ifdef SAVE_VIDEO
@@ -1031,6 +1035,9 @@ void live_video::SaveVideo()
 		this->init_video_writer();
 	}
 
+#ifdef _MSC_VER
+		m_ImgLock.Unlock();
+#endif
 
 
 }
