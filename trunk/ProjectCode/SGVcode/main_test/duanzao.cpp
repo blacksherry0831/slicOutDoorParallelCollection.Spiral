@@ -12,8 +12,8 @@ using namespace std;
 using namespace cv;
 using namespace std;
 
-#define	USE_CANNY 1
-#define USE_Laplace 0
+#define	USE_CANNY 0
+#define USE_Laplace 1
 
 #pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")
 IplImage *g_pSrcImage, *g_pCannyImg;
@@ -51,7 +51,7 @@ void on_trackbar(int threshold)
 //利德曼
 void Laplace_test()
 {
-	const char *pstrImageName = "D:\\ImageDataBase\\duanjian\\easy.jpg";
+	const char *pstrImageName = "D:\\ImageDataBase\\duanjian\\11_.png";
 	const char *pstrWindowsSrcTitle = "原图(http://blog.csdn.net/MoreWindows)";
 	const char *pstrWindowsToolBar = "Threshold";
 
@@ -106,7 +106,7 @@ int Hough_test()
     vector<Vec3f> circles;
     //霍夫变换
 	//30-70
-	int dist=5;
+	int dist=1;
 	int canny=50;
 	int r_min=20;
 	int r_max=100;
@@ -144,9 +144,92 @@ int Hough_test()
     waitKey(0);
 }
 
+int Hough_Canny()
+{
+	Mat src, gray;
+
+	//src=imread("D:\\ImageDataBase\\duanjian\\easy.jpg");
+	//src=imread("D:\\ImageDataBase\\duanjian\\Contours.png");
+	src=imread("D:\\ImageDataBase\\duanjian\\11_.png");
+
+
+
+       Mat element = getStructuringElement(MORPH_RECT, Size(3, 3));  
+       Mat out;  
+   
+//进行腐蚀操作 
+#if 0
+	   Mat element_line_h = getStructuringElement(MORPH_RECT, Size(1, 3));
+	   Mat element_line_v = getStructuringElement(MORPH_RECT, Size(3, 1)); 
+       dilate(src,src, element);  
+	   dilate(src,src, element);  
+#endif	   
+
+	  
+#if 0	   
+	   erode(src,src, element_line_h); 
+	   erode(src,src, element_line_v); 
+	    erode(src,src, element_line_h); 
+	   erode(src,src, element_line_v); 
+#endif	
+	   //src=imread("D:\\ImageDataBase\\duanjian\\yuan.jpg");
+	
+	if( !src.data )  
+		return -1;  
+	
+	cvtColor( src, gray, CV_BGR2GRAY );
+    //高斯模糊平滑
+	GaussianBlur( gray, gray, Size(9, 9), 2, 2 );
+
+    vector<Vec3f> circles;
+    //霍夫变换
+	//30-70
+	int dist=1;
+	int canny=20;
+	int r_min=30;
+	int r_max=90;
+	int accumulator=61;
+#if 0
+    HoughCircles(gray, circles, CV_HOUGH_GRADIENT, 1, dist,
+		100, 30,		
+		0, 0 );
+#else
+    HoughCircles(gray, circles, CV_HOUGH_GRADIENT, 1,
+		dist,
+		canny, 
+		accumulator,
+		r_min,
+		r_max);
+#endif
+
+
+    //在原图中画出圆心和圆
+    for( size_t i = 0; i < circles.size(); i++ )
+    {
+        //提取出圆心坐标
+        Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+        //提取出圆半径
+        int radius = cvRound(circles[i][2]);
+        //圆心
+        circle( src, center, 3, Scalar(0,255,0), -1, 8, 0 );
+        //圆
+        circle( src, center, radius, Scalar(0,0,255), 2, 8, 0 );
+   }
+
+    namedWindow( "Circle", CV_WINDOW_AUTOSIZE );
+    imshow( "Circle", src );
+	imshow( "Gary", gray);
+
+    waitKey(0);
+}
+
+
 int main()
 {
+	Hough_Canny();
+
+	//Hough_Canny();
 	//Laplace_test();
-	Hough_test();
+	//Hough_test();
 	return 0;
 }
