@@ -12,6 +12,9 @@ using namespace std;
 using namespace cv;
 using namespace std;
 
+
+#include "MY_SDK_LIB/ImageProcess.h"
+
 #define	USE_CANNY 0
 #define USE_Laplace 1
 
@@ -141,7 +144,8 @@ int Hough_test()
     namedWindow( "Circle", CV_WINDOW_AUTOSIZE );
     imshow( "Circle", src );
 
-    waitKey(0);
+    return waitKey(0);
+
 }
 
 int Hough_Canny()
@@ -220,16 +224,149 @@ int Hough_Canny()
     imshow( "Circle", src );
 	imshow( "Gary", gray);
 
-    waitKey(0);
+   return waitKey(0);
+}
+
+void UseMyHough_edges()
+{
+	CvSeq* results;
+	CvMemStorage* storage = cvCreateMemStorage(0);
+#if 1
+	IplImage* src = cvLoadImage("D:\\ImageDataBase\\duanjian\\hough_edges.png", 0 );
+	IplImage* dst = cvLoadImage("D:\\ImageDataBase\\duanjian\\hough_edges.png");
+
+	results =ImageProcess::cvHoughCircles_Binary(  //cvHoughCircles函数需要估计每一个像素梯度的方向，
+								      //因此会在内部自动调用cvSobel,而二值边缘图像的处理是比较难的
+		src,
+		storage,
+		CV_HOUGH_GRADIENT,
+		1,  //累加器图像的分辨率
+		20,//圆心间距
+		100,//canny
+		36,//累加器
+		
+		10,//小半径
+		500//最大半径
+		
+		);
+#endif
+	for( int i = 0; i < results->total; i++ )
+	{
+		float* p = ( float* )cvGetSeqElem( results, i );
+		//霍夫圆变换
+		CvPoint pt = cvPoint( cvRound( p[0] ), cvRound( p[1] ) );
+		cvCircle(
+			dst,
+			pt,  //确定圆心
+			cvRound( p[2] ),  //确定半径
+			CV_RGB( 0xff, 0, 0 )
+		);  //画圆函数
+	}
+	cvNamedWindow( "cvHoughCircles", 0 );
+	cvShowImage( "cvHoughCircles", dst );
+}
+
+void UseMyHough_SuperPixel()
+{
+	CvSeq* results;
+	CvMemStorage* storage = cvCreateMemStorage(0);
+#if 0	
+	IplImage* src = cvLoadImage("D:\\ImageDataBase\\duanjian\\Contours.png", 0 );
+	IplImage* dst = cvLoadImage("D:\\ImageDataBase\\duanjian\\Contours.png");
+
+	//cvSmooth( src, dst, CV_GAUSSIAN, 5, 5 );  //降噪
+
+
+	results =ImageProcess::cvHoughCircles_Binary(  //cvHoughCircles函数需要估计每一个像素梯度的方向，
+								      //因此会在内部自动调用cvSobel,而二值边缘图像的处理是比较难的
+		src,
+		storage,
+		CV_HOUGH_GRADIENT,
+		1,  //累加器图像的分辨率
+		1,//圆心间距
+		30,//canny
+		61,//累加器
+		
+		20,//小半径
+		100//最大半径
+		
+		);
+#endif
+#if 1
+	IplImage* src = cvLoadImage("D:\\ImageDataBase\\duanjian\\easy.jpg", 0 );
+	IplImage* dst = cvLoadImage("D:\\ImageDataBase\\duanjian\\easy.jpg");
+
+	cvSmooth( src, src, CV_GAUSSIAN, 5, 5 );  //降噪
+
+
+	results =ImageProcess::cvHoughCircles_Binary(  //cvHoughCircles函数需要估计每一个像素梯度的方向，
+								      //因此会在内部自动调用cvSobel,而二值边缘图像的处理是比较难的
+		src,
+		storage,
+		CV_HOUGH_GRADIENT,
+		1,  //累加器图像的分辨率
+		1,//圆心间距
+		30,//canny
+		45,//累加器
+		
+		30,//小半径
+		100//最大半径
+		
+		);
+#else
+	IplImage* src = cvLoadImage("D:\\ImageDataBase\\duanjian\\easy.jpg", 0 );
+	IplImage* dst = cvLoadImage("D:\\ImageDataBase\\duanjian\\easy.jpg");
+	cvSmooth( src, src, CV_GAUSSIAN, 5, 5 );  //降噪
+	results =cvHoughCircles(  //cvHoughCircles函数需要估计每一个像素梯度的方向，
+								      //因此会在内部自动调用cvSobel,而二值边缘图像的处理是比较难的
+		src,
+		storage,
+		CV_HOUGH_GRADIENT,
+		1,  //累加器图像的分辨率
+		1,//圆心间距
+		30,//canny
+		45,//累加器
+		
+		30,//小半径
+		100//最大半径
+		
+		);
+#endif
+
+	for( int i = 0; i < results->total; i++ )
+	{
+		float* p = ( float* )cvGetSeqElem( results, i );
+		//霍夫圆变换
+		CvPoint pt = cvPoint( cvRound( p[0] ), cvRound( p[1] ) );
+		cvCircle(
+			dst,
+			pt,  //确定圆心
+			cvRound( p[2] ),  //确定半径
+			CV_RGB( 0xff, 0, 0 )
+		);  //画圆函数
+	}
+	cvNamedWindow( "cvHoughCircles", 0 );
+	cvShowImage( "cvHoughCircles", dst );
+	/*cvWaitKey(10);
+		cvWaitKey(0);*/
+
+
 }
 
 
 int main()
 {
-	Hough_Canny();
+	ImageProcess::zhangjiagang_hongbao_duanzao("D:\\ImageDataBase\\duanjian\\test.jpg");
+	//UseMyHough_edges();
+	//UseMyHough_SuperPixel();
+	//cvWaitKey(0);
+	//Hough_Canny();
 
 	//Hough_Canny();
 	//Laplace_test();
 	//Hough_test();
+
+	cvWaitKey(10);
+	cvWaitKey(0);
 	return 0;
 }

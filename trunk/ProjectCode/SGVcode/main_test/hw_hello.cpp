@@ -186,8 +186,8 @@ int main()
 	std::vector<ipc_ptr> g_ipcs;
 	std::vector<string>  g_ips;
 
-	/*g_ips.push_back("192.168.3.1");*/
-	g_ips.push_back("192.168.24.102");
+	g_ips.push_back("192.168.3.22");
+	//g_ips.push_back("192.168.24.102");
 		//g_ips.push_back("192.168.3.22");
 	/*g_ips.push_back("192.168.3.3");*/
 	/*g_ips.push_back("192.168.3.4");

@@ -120,7 +120,8 @@ ADD_EXECUTABLE(calibration_TEST main_test/calibration.cpp)
 TARGET_LINK_LIBRARIES(calibration_TEST)
 ##############################################################################
 ADD_EXECUTABLE(DUANZAO_TEST main_test/duanzao.cpp)
-TARGET_LINK_LIBRARIES(DUANZAO_TEST)
+TARGET_LINK_LIBRARIES(DUANZAO_TEST
+						MY_SDK_LIB)
 ##############################################################################
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
    
