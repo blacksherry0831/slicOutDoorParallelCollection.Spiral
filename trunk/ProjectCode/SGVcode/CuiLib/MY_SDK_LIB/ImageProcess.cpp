@@ -750,11 +750,12 @@ void ImageProcess::zhangjiagang_hongbao_duanzao_rgb(string filename)
 /*--------------------------------------------------------------*/
 void  ImageProcess::wait_for_show_image(string window_name,IplImage* img_t)
 {
+#if _DEBUG
 	cvNamedWindow( window_name.c_str(), 1 );
 	cvShowImage(window_name.c_str(), img_t );
 	cvWaitKey(10);
 	cvWaitKey(0);
-
+#endif
 }
 /*--------------------------------------------------------------*/
 /**
@@ -765,25 +766,68 @@ void  ImageProcess::wait_for_show_image(string window_name,IplImage* img_t)
 void ImageProcess::zhangjiagang_hongbao_duanzao(string filename)
 {
 	IplImage* src_color = cvLoadImage(filename.c_str());
-#if 0
-	IplImage* src_gary=cvCreateImage(cvGetSize(src_color),src_color->depth,1);  
-	IplImage* src_binary=cvCreateImage(cvGetSize(src_color),src_color->depth,1);
-#endif	
-	use_lab2binary(src_color);
-
-#if 0
-	cvCvtColor(src_color,src_gary, CV_BGR2GRAY);
-	cvThreshold(src_gary,src_binary,100,255,CV_THRESH_BINARY);
-
-
-	wait_for_show_image("src_gary",src_gary);
-	wait_for_show_image("src_binary ",src_binary); 
-
-	cvReleaseImage(&src_gary);
-	cvReleaseImage(&src_binary);
+#if _DEBUG
+	wait_for_show_image("src_color",src_color);
 #endif
-	wait_for_show_image("src_color",src_color);	
+	IplImage* src_gary=cvCreateImage(cvGetSize(src_color),src_color->depth,1); 
+	cvCvtColor(src_color,src_gary, CV_BGR2GRAY);
+#if _DEBUG
+	wait_for_show_image("src_gary ",src_gary ); 
+#endif
+	IplImage* src_binary=use_lab2binary(src_color);
+#if _DEBUG
+	//wait_for_show_image("src_binary ",src_binary); 
+#endif
+	/*------------------------*/
+	CvSeq* seq=find_max_contour_adjust_binary(src_binary);
+	{
+		CvRect mask_rect = cvBoundingRect(seq,1);
+		IplImage* src_gary_cut=cvCreateImage(cvSize(mask_rect.width,mask_rect.height),src_color->depth,1);
+		cvSetZero(src_gary_cut);
+		IplImage* src_binary_cut=cvCreateImage(cvSize(mask_rect.width,mask_rect.height),src_color->depth,1);
+		{
+			cvSetImageROI(src_binary, mask_rect);
+			cvSetImageROI(src_gary, mask_rect);
+
+			cvCopy(src_binary,src_binary_cut);
+			if(0){
+				cvCopy(src_gary,src_gary_cut,src_binary);
+			}else{
+				cvCopy(src_gary,src_gary_cut);
+			}
+
+#if _DEBUG
+wait_for_show_image("src_binary_cut",src_binary_cut); 
+wait_for_show_image("src_gary_cut ",src_gary_cut); 
+#endif
+	equalizeHist_by_mask(src_gary_cut,src_binary_cut);
+#if _DEBUG
+	wait_for_show_image("src_gary_equalizeHist_cut",src_gary_cut);
+#endif
+	threshold_binary(src_gary_cut,src_binary_cut);
+#if _DEBUG
+	wait_for_show_image("src_gary_bin2",src_gary_cut);
+#endif
+			cvResetImageROI(src_binary);
+			cvResetImageROI(src_gary);
+		}
+		cvReleaseImage(&src_gary_cut);
+		cvReleaseImage(&src_binary_cut);
+
+	}
+
+
+	
+
+
+
+
+	/*-----------------------*/
+
+	//cvReleaseImage(&src_gary_mask);
+	cvReleaseImage(&src_gary);
 	cvReleaseImage(&src_color);
+	cvReleaseImage(&src_binary);
 }
 /*--------------------------------------------------------------*/
 /**
@@ -791,33 +835,29 @@ void ImageProcess::zhangjiagang_hongbao_duanzao(string filename)
 *
 */
 /*--------------------------------------------------------------*/
-void ImageProcess::use_lab2binary(IplImage* src_color_t)
+IplImage* ImageProcess::use_lab2binary(IplImage* src_color_t)
 {
 	IplImage* src_lab=cvCreateImage(cvGetSize(src_color_t),src_color_t->depth,3);
 	IplImage* src_binary=cvCreateImage(cvGetSize(src_color_t),src_color_t->depth,1);
 	
-	cvZero(src_binary);
-
-	IplImage* src_l=cvCreateImage(cvGetSize(src_color_t),src_color_t->depth,1);
+	cvZero(src_binary);	
+	/*IplImage* src_l=cvCreateImage(cvGetSize(src_color_t),src_color_t->depth,1);
 	IplImage* src_a=cvCreateImage(cvGetSize(src_color_t),src_color_t->depth,1);
-	IplImage* src_b=cvCreateImage(cvGetSize(src_color_t),src_color_t->depth,1);
+	IplImage* src_b=cvCreateImage(cvGetSize(src_color_t),src_color_t->depth,1);*/
 	
 	cvCvtColor(src_color_t,src_lab,CV_BGR2Lab);
-
-
-	cvSplit(src_lab,src_l,src_a,src_b,0);
-
-	CvScalar value;
+	cvSmooth(src_lab,src_lab,CV_BLUR,5,5,0,0);  
+	/*cvSplit(src_lab,src_l,src_a,src_b,0);*/
+	CvScalar value;	
+	const int Delta=5;
+	const int Light=80;		
 	for(int xi=0;xi<src_color_t->width;xi++){
-		for(int yi=0;yi<src_color_t->height;yi++){
-			
+		for(int yi=0;yi<src_color_t->height;yi++){			
 			value= cvGet2D(src_lab, yi, xi);
-
 			double l=value.val[0];
 			double a=value.val[1];
 			double b=value.val[2];
-			int Delta=10;
-			int Light=100;		
+		
 #if 0
 			if(
 				((a>127-Delta)&&(a<127+Delta)&&(b<127+Delta)&&(b>127-Delta))
@@ -838,30 +878,23 @@ void ImageProcess::use_lab2binary(IplImage* src_color_t)
 #else
 			double new_a=a-255/2.0;
 			double new_b=b-255/2.0;
-			
+
 			if(new_a==new_b){
 				//灰度系列
 				if(l>Light){
 					CvScalar s_w;//彩色
 						s_w.val[0]=255;s_w.val[1]=255;s_w.val[2]=255;
 						cvSet2D(src_binary,yi,xi,s_w);
-				}
-			
+				}			
 			}else{
 				//彩色系列
 					double arc=atan2(new_b,new_a)*180/CV_PI;
-					if((arc>-49)&&(arc<-15 )&&(l>Light)){						
+					if((arc>-49-Delta)&&(arc<-15+Delta )&&(l>Light)){						
 						CvScalar s_w;//彩色
 						s_w.val[0]=255;s_w.val[1]=255;s_w.val[2]=255;
 						cvSet2D(src_binary,yi,xi,s_w);
 					}						
-			}			
-			
-			
-
-
-			
-
+			}
 #endif
 		}
 	}
@@ -876,6 +909,8 @@ void ImageProcess::use_lab2binary(IplImage* src_color_t)
 	wait_for_show_image("src_binary",src_binary); 
 
 	cvReleaseImage(&src_lab);
+
+	return src_binary;
 }
 /*--------------------------------------------------------------*/
 /**
@@ -883,3 +918,297 @@ void ImageProcess::use_lab2binary(IplImage* src_color_t)
 *
 */
 /*--------------------------------------------------------------*/
+CvSeq* ImageProcess::find_max_contour_adjust_binary(IplImage* src_binary_t)
+{
+   IplImage* src=cvCloneImage(src_binary_t);
+#if _DEBUG
+   IplImage* des=cvCreateImage(cvGetSize(src),src->depth,3);
+   cvZero(des);
+#endif
+
+   
+   CvMemStorage* memory=cvCreateMemStorage(0);
+   CvSeq* Icontour=NULL;
+   CvSeq* maxContour =NULL;
+   
+   cvFindContours(src,memory,&Icontour, sizeof(CvContour),CV_RETR_EXTERNAL,CV_CHAIN_APPROX_SIMPLE,cvPoint(0,0));
+   double area=0;
+   double maxArea=0;
+   while(Icontour)
+   {
+       area=fabs(cvContourArea(Icontour,CV_WHOLE_SEQ));
+#if _DEBUG&&0 
+	   cvDrawContours(des, Icontour,
+           CV_RGB(255,255,255), CV_RGB(255, 0,0),
+           0, 1, 8, cvPoint(0,0));
+#endif   
+       if(area>maxArea)
+       {           
+           maxContour = Icontour;
+		   maxArea=area;
+       }
+       Icontour =Icontour->h_next;
+   }
+#if _DEBUG
+    cvDrawContours(des, maxContour,
+    CV_RGB(255,255,255), CV_RGB(255, 255,255), 0, 1, 8, cvPoint(0,0));
+   //CvRect rect=cvBoundingRect(maxContour,0);
+   CvBox2D box=cvMinAreaRect2(maxContour);
+   cout<<"长度： "<<box.size.width<<endl<<"宽度： "<<box.size.height;
+   //cvRectangle(src,cvPoint((rect.x-rect.height/2),(rect.y-rect.width/2)),cvPoint((rect.x+rect.height/2),(rect.y+rect.width/2)),cvScalar(255,255,255),1,8,0);
+  // cvRectangle(src,cvPoint((rect.x-rect.height/2),(rect.y-rect.width/2)),cvPoint((rect.x-rect.height/2),(rect.y-rect.width/2)),cvScalar(255,255,255),2,8,0);
+  // cvDrawCircle(src,cvPoint(box.center.x,box.center.y),box.size.height,cvScalar(255,255,255),2,8,0);
+   
+ 
+     CvPoint2D32f p4[4];
+     cvBoxPoints(box,p4);
+     cvLine(des, cvPoint(cvRound(p4[0].x), cvRound(p4[0].y)),
+     cvPoint(cvRound(p4[1].x), cvRound(p4[1].y)), CV_RGB(0, 0, 255),2);
+       
+     cvLine(des, cvPoint(cvRound(p4[1].x), cvRound(p4[1].y)),
+     cvPoint(cvRound(p4[2].x), cvRound(p4[2].y)), CV_RGB(0, 0, 255),2);
+       
+     cvLine(des, cvPoint(cvRound(p4[3].x), cvRound(p4[3].y)),
+     cvPoint(cvRound(p4[2].x), cvRound(p4[2].y)), CV_RGB(0,0, 255),2);
+       
+     cvLine(des, cvPoint(cvRound(p4[3].x), cvRound(p4[3].y)),
+     cvPoint(cvRound(p4[0].x), cvRound(p4[0].y)), CV_RGB(0, 0,255),2);
+       
+
+	  CvRect rect = cvBoundingRect(maxContour,1);
+	  cvRectangle(des, cvPoint(rect.x, rect.y), cvPoint(rect.x + rect.width, rect.y + rect.height),CV_RGB(255, 0, 0), 2, 8, 0);
+	  	  
+		try {  
+			CvBox2D ellipse = cvFitEllipse2(maxContour);//最小二乘法的椭圆拟合    
+			cvEllipseBox(des,ellipse,CV_RGB(255,255,0),2 ); //在图上画椭圆  
+		}catch(cv::Exception& exn) {
+			printf("%s\n",exn.msg.c_str());
+		}
+	  
+	  
+
+		wait_for_show_image("max_contour",des);
+		cvReleaseImage(&des);
+
+#endif
+   
+    
+	cvZero(src_binary_t);
+	cvDrawContours(src_binary_t, maxContour,
+    CV_RGB(255,255,255), CV_RGB(255, 255,255), 0,CV_FILLED );
+
+	wait_for_show_image("src_bin_adjust",src_binary_t);
+	cvReleaseImage(&src);  
+
+   return maxContour;
+}
+/*--------------------------------------------------------------*/
+/**
+*
+*
+*/
+/*--------------------------------------------------------------*/
+//void ImageProcess::equalizeHist_by_mask(IplImage* img_gary,CvRect mask_rect)
+//{
+//	cvSetImageROI(img_gary, mask_rect);//设置ROI  
+//	{
+//		cvEqualizeHist(img_gary,img_gary);	
+//#if _DEBUG
+////		 wait_for_show_image("img_eq",img_gary);
+//#endif
+//	
+//	}
+//	cvResetImageROI(img_gary);//★释放ROI，否则，只会显示ROI区域
+//
+//#if _DEBUG
+//		 wait_for_show_image("img_eq",img_gary);
+//#endif
+//}
+/*--------------------------------------------------------------*/
+/**
+*
+*
+*/
+/*--------------------------------------------------------------*/
+void ImageProcess::equalizeHist_by_mask(IplImage* img_gary,CvRect mask_rect)
+{
+	cvSetImageROI(img_gary, mask_rect);//设置ROI  
+	{
+		cvEqualizeHist(img_gary,img_gary);	
+#if _DEBUG
+//		 wait_for_show_image("img_eq",img_gary);
+#endif
+	
+	}
+	cvResetImageROI(img_gary);//★释放ROI，否则，只会显示ROI区域
+
+#if _DEBUG
+		 wait_for_show_image("img_eq",img_gary);
+#endif
+}
+/*--------------------------------------------------------------*/
+/**
+*
+*
+*/
+/*--------------------------------------------------------------*/
+void ImageProcess::equalizeHist_by_mask(IplImage* img_gary,IplImage* mask_img)
+{
+	CV_Assert(img_gary->nChannels == 1);
+    // 计算直方图
+    int histogram[256];
+	int numberOfPixelUsed =GetHistogram(img_gary, mask_img,histogram);
+	int LUT[256];
+    LUT[0] = 1.0*histogram[0] /numberOfPixelUsed*255;
+    int sum = histogram[0];
+    for (int i = 1; i <= 255; ++i)
+    {
+        sum += histogram[i];
+
+        LUT[i] = 1.0*sum / numberOfPixelUsed * 255;
+    }
+
+ // 计算分布函数(也就是变换函数f(x))
+	int numberOfPixel = img_gary->width*img_gary->height;
+    // 灰度变换
+	uchar *dataOfSrc = (uchar*)(img_gary->imageData);
+    uchar *dataOfDst = (uchar*)(img_gary->imageData);
+	
+	uchar *maskData =NULL;
+	 
+	 if(mask_img==NULL){
+		maskData=NULL;
+	 }else{
+		maskData=(uchar *)(mask_img->imageData);
+	 }
+
+	for (int i = 0; i <= numberOfPixel - 1; ++i){
+		
+		if(maskData!=NULL && maskData[i]==0xff){
+	        dataOfDst[i] = LUT[dataOfSrc[i]];	
+		}else if(maskData==NULL){
+			dataOfDst[i] = LUT[dataOfSrc[i]];	
+		}else{
+			//无效数据
+		}
+
+	}
+
+ 
+
+}
+/*--------------------------------------------------------------*/
+/**
+*
+*
+*/
+/*--------------------------------------------------------------*/
+int ImageProcess::GetHistogram(const IplImage* img_gary,const IplImage* mask_img,int *histogram)
+{
+	 memset(histogram, 0, 256 * sizeof(int));
+    //计算直方图
+	 int pixelCount = img_gary->width*img_gary->height;
+	 int number_of_used=0;
+	 uchar *imageData = (uchar *)(img_gary->imageData);
+	 uchar *maskData =NULL;
+	 
+	 if(mask_img==NULL){
+		maskData=NULL;
+	 }else{
+		maskData=(uchar *)(mask_img->imageData);
+	 }
+
+    for (int i = 0; i <= pixelCount - 1; ++i)
+    {
+		if(maskData==NULL){
+			int gray = imageData[i];
+			histogram[gray]++;
+			number_of_used++;
+		}else	if(maskData!=NULL && maskData[i]==0xff){
+			int gray = imageData[i];
+			histogram[gray]++;
+			number_of_used++;
+		}else{
+			//无效数据
+		}
+    }
+	return number_of_used;
+}
+/*--------------------------------------------------------------*/
+/**
+*
+*
+*/
+/*--------------------------------------------------------------*/
+void ImageProcess::canny_by_mask(IplImage* img_gary,CvRect mask_rect)
+{
+ 
+}
+/*--------------------------------------------------------------*/
+/**
+*
+*
+*/
+/*--------------------------------------------------------------*/
+void ImageProcess::threshold_binary(IplImage* img_gary,IplImage* mask_img)
+{
+	 uchar *maskData =NULL;
+	 if(mask_img==NULL){
+		maskData=NULL;
+	 }else{
+		maskData=(uchar *)(mask_img->imageData);
+	 }
+	uchar *dataOfSrc = (uchar*)(img_gary->imageData);
+    uchar *dataOfDst = (uchar*)(img_gary->imageData);
+
+	int p_num=img_gary->width*img_gary->height;
+	const int light_high_threshold=235;
+	const int light_low_threshold=100;
+	for(int pi=0;pi<p_num;pi++){
+		
+		if(maskData==NULL){
+		//没有掩膜
+				dataOfDst[pi]=(dataOfSrc[pi]>light_high_threshold)?255:dataOfSrc[pi];
+				dataOfDst[pi]=(dataOfSrc[pi]<light_low_threshold)?0:dataOfSrc[pi];
+		}else{
+			if(maskData[pi]==0xff){
+				dataOfDst[pi]=(dataOfSrc[pi]>light_high_threshold)?255:dataOfSrc[pi];
+				dataOfDst[pi]=(dataOfSrc[pi]<light_low_threshold)?0:dataOfSrc[pi];
+			}
+		
+		}
+	
+	}
+	
+
+}
+/*--------------------------------------------------------------*/
+/**
+*
+*
+*/
+/*--------------------------------------------------------------*/
+
+CvPoint grayCenter(IplImage* TheImage)
+{
+	//灰度重心法求质心
+	CvPoint Center;
+	int i, j;
+	CvScalar cs = cvSum(TheImage);
+	Center.x = Center.y = 0;
+	double x = 0;
+	double y = 0;
+	for(i = 0;i < TheImage->width;i++)
+	{
+		for(j = 0; j < TheImage->height;j++)
+		{
+			CvScalar s = cvGet2D(TheImage, j,i);
+			x += i*s.val[0]/cs.val[0];
+			y += j*s.val[0]/cs.val[0];
+		}
+	}
+	Center.x = cvRound(x);
+	Center.y = cvRound(y);
+
+	return Center;
+}

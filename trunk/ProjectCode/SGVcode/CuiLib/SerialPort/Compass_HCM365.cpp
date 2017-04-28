@@ -232,7 +232,7 @@ void Compass_HCM365::process_compass_data()
 *
 */
 /*-------------------------------------*/
-std::vector<std::string>  Compass_HCM365::split(const std::string &s, char delim) {
+std::vector<std::string>  Compass_HCM365::split  (const std::string &s, char delim) {
 		
 	std::stringstream ss(s);
 	std::string item;

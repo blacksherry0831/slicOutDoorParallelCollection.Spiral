@@ -356,12 +356,16 @@ void UseMyHough_SuperPixel()
 
 int main()
 {
+
 	ImageProcess::zhangjiagang_hongbao_duanzao("D:\\ImageDataBase\\duanjian\\test.jpg");
+	
+	
+	//ImageProcess::zhangjiagang_hongbao_duanzao("D:\ImageDataBase\\duanjian\\test\\2016657.jpg");
 	//UseMyHough_edges();
 	//UseMyHough_SuperPixel();
 	//cvWaitKey(0);
 	//Hough_Canny();
-
+	 
 	//Hough_Canny();
 	//Laplace_test();
 	//Hough_test();

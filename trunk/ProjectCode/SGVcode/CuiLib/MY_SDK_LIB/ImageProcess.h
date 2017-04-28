@@ -35,7 +35,16 @@ public:
 	static void wait_for_show_image(string window_name,IplImage* img_t);
 
 
-	static void use_lab2binary(IplImage* src_color_t);
+	static IplImage* use_lab2binary(IplImage* src_color_t);
+	static  CvSeq* find_max_contour_adjust_binary(IplImage* src_binary_t);
+	
+	static void equalizeHist_by_mask(IplImage* img_gary,CvRect mask_rect);
+	static void equalizeHist_by_mask(IplImage* img_gary,IplImage* mask_img);
+	static int GetHistogram(const IplImage* img_gary,const IplImage* mask_img,int *histogram);
+	
+	static void canny_by_mask(IplImage* img_gary,CvRect mask_rect);
 
+	static void threshold_binary(IplImage* img_gary,IplImage* mask_img);
+	  
 };
 
