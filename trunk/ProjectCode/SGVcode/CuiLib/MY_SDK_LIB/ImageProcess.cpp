@@ -8,7 +8,10 @@
 #endif
 
 #define HOUGH_USE_CANNY  TRUE
-
+#define ANGLE_UP (-10)
+#define ANGLE_DOWN (-54)
+#define ANGLE_DELTA (0)
+#define ANGLE_HIST_NUM (11)
 ImageProcess::ImageProcess(void)
 {
 }
@@ -21,7 +24,7 @@ ImageProcess::~ImageProcess(void)
 
 void ImageProcess::findTestArea(void)
 {
-
+	
 }
 
 float ImageProcess::findAvgFloat(float* arr, int N)
@@ -782,36 +785,54 @@ void ImageProcess::zhangjiagang_hongbao_duanzao(string filename)
 	CvSeq* seq=find_max_contour_adjust_binary(src_binary);
 	{
 		CvRect mask_rect = cvBoundingRect(seq,1);
+		IplImage* src_color_cut=cvCreateImage(cvSize(mask_rect.width,mask_rect.height),src_color->depth,3);
+			cvSetZero(src_color_cut);
 		IplImage* src_gary_cut=cvCreateImage(cvSize(mask_rect.width,mask_rect.height),src_color->depth,1);
-		cvSetZero(src_gary_cut);
+			cvSetZero(src_gary_cut);
 		IplImage* src_binary_cut=cvCreateImage(cvSize(mask_rect.width,mask_rect.height),src_color->depth,1);
 		{
 			cvSetImageROI(src_binary, mask_rect);
 			cvSetImageROI(src_gary, mask_rect);
+			cvSetImageROI(src_color, mask_rect);
 
 			cvCopy(src_binary,src_binary_cut);
-			if(0){
+
+			if(1){
 				cvCopy(src_gary,src_gary_cut,src_binary);
+				cvCopy(src_color,src_color_cut,src_binary);
 			}else{
 				cvCopy(src_gary,src_gary_cut);
+				cvCopy(src_color,src_color_cut);
 			}
 
 #if _DEBUG
 wait_for_show_image("src_binary_cut",src_binary_cut); 
 wait_for_show_image("src_gary_cut ",src_gary_cut); 
 #endif
-	equalizeHist_by_mask(src_gary_cut,src_binary_cut);
-#if _DEBUG
-	wait_for_show_image("src_gary_equalizeHist_cut",src_gary_cut);
-#endif
-	threshold_binary(src_gary_cut,src_binary_cut);
-#if _DEBUG
-	wait_for_show_image("src_gary_bin2",src_gary_cut);
-#endif
+
+//	equalizeHist_by_mask(src_gary_cut,src_binary_cut);
+//#if _DEBUG
+//	wait_for_show_image("src_gary_equalizeHist_cut",src_gary_cut);
+//#endif
+
+
+	gary_by_angle(src_color_cut,src_gary_cut,src_binary_cut);
+
+	canny_by_mask(src_gary_cut,src_binary_cut);
+
+	//Laplace_by_mask(src_gary_cut,src_binary_cut);
+//	threshold_binary(src_gary_cut,src_binary_cut);
+//#if _DEBUG
+//	wait_for_show_image("src_gary_bin2",src_gary_cut);
+//#endif
+	//grayCenter(src_gary_cut,src_binary_cut);
+
+			cvResetImageROI(src_color);
 			cvResetImageROI(src_binary);
 			cvResetImageROI(src_gary);
 		}
 		cvReleaseImage(&src_gary_cut);
+		cvReleaseImage(&src_color_cut);
 		cvReleaseImage(&src_binary_cut);
 
 	}
@@ -889,7 +910,7 @@ IplImage* ImageProcess::use_lab2binary(IplImage* src_color_t)
 			}else{
 				//彩色系列
 					double arc=atan2(new_b,new_a)*180/CV_PI;
-					if((arc>-49-Delta)&&(arc<-15+Delta )&&(l>Light)){						
+					if((arc>ANGLE_DOWN-Delta)&&(arc<ANGLE_UP+Delta )&&(l>Light)){						
 						CvScalar s_w;//彩色
 						s_w.val[0]=255;s_w.val[1]=255;s_w.val[2]=255;
 						cvSet2D(src_binary,yi,xi,s_w);
@@ -1140,9 +1161,60 @@ int ImageProcess::GetHistogram(const IplImage* img_gary,const IplImage* mask_img
 *
 */
 /*--------------------------------------------------------------*/
-void ImageProcess::canny_by_mask(IplImage* img_gary,CvRect mask_rect)
+void ImageProcess::canny_by_mask(IplImage* img_gary,IplImage* mask_img)
 {
- 
+ IplImage* TheImage=cvCloneImage(img_gary);
+	if(mask_img!=NULL){		
+		uchar* maskData=(uchar *)(mask_img->imageData);
+		const int pixels=img_gary->width* img_gary->height;
+		for(int pi=0;pi<pixels;pi++){
+			if(maskData[pi]==0x00){
+			((uchar *)(TheImage->imageData))[pi]=0x00;
+			}
+		}
+	
+	}
+#if _DEBUG
+	wait_for_show_image("Canny org",TheImage);
+#endif
+	int threshold1=10;
+	int threshold2=20;
+	cvCanny(TheImage,TheImage , threshold1, threshold2);
+
+#if _DEBUG
+	wait_for_show_image("Canny result",TheImage);
+#endif
+	cvReleaseImage(&TheImage);
+}
+/*--------------------------------------------------------------*/
+/**
+*
+*
+*/
+/*--------------------------------------------------------------*/
+void ImageProcess::Laplace_by_mask(IplImage* img_gary,IplImage* mask_img)
+{
+	IplImage* TheImage=cvCloneImage(img_gary);
+	if(mask_img!=NULL){		
+		uchar* maskData=(uchar *)(mask_img->imageData);
+		const int pixels=img_gary->width* img_gary->height;
+		for(int pi=0;pi<pixels;pi++){
+			if(maskData[pi]==0x00){
+			((uchar *)(TheImage->imageData))[pi]=0x00;
+			}
+		}
+	
+	}
+#if _DEBUG
+	wait_for_show_image("Laplace org",TheImage);
+#endif
+	int threshold=3;
+	cvLaplace(TheImage,TheImage,2*threshold+1);
+
+#if _DEBUG
+	wait_for_show_image("Laplace result",TheImage);
+#endif
+	cvReleaseImage(&TheImage);
 }
 /*--------------------------------------------------------------*/
 /**
@@ -1189,8 +1261,19 @@ void ImageProcess::threshold_binary(IplImage* img_gary,IplImage* mask_img)
 */
 /*--------------------------------------------------------------*/
 
-CvPoint grayCenter(IplImage* TheImage)
+CvPoint ImageProcess::grayCenter(IplImage* TheImage_org,IplImage* mask_img)
 {
+	IplImage* TheImage=cvCloneImage(TheImage_org);
+	if(mask_img!=NULL){		
+		uchar* maskData=(uchar *)(mask_img->imageData);
+		const int pixels=TheImage_org->width* TheImage_org->height;
+		for(int pi=0;pi<pixels;pi++){
+			if(maskData[pi]==0x00){
+			((uchar *)(TheImage->imageData))[pi]=0x00;
+			}
+		}
+	
+	}
 	//灰度重心法求质心
 	CvPoint Center;
 	int i, j;
@@ -1209,6 +1292,216 @@ CvPoint grayCenter(IplImage* TheImage)
 	}
 	Center.x = cvRound(x);
 	Center.y = cvRound(y);
-
+#if _DEBUG
+	cvCircle(TheImage,Center,50,cvScalar(0),2);
+	wait_for_show_image("Center",TheImage);
+#endif
+	cvReleaseImage(&TheImage);
 	return Center;
 }
+/*--------------------------------------------------------------*/
+/**
+*
+*
+*/
+/*--------------------------------------------------------------*/
+void ImageProcess::gary_by_angle(IplImage* src_color_t,IplImage* src_gary_t,IplImage* mask_img)
+{
+#if 1
+	double hist_t[ANGLE_HIST_NUM+1];
+	gary_get_by_angle(src_color_t,hist_t);
+#endif
+
+	IplImage* src_lab=cvCreateImage(cvGetSize(src_color_t),src_color_t->depth,3);
+			
+	cvCvtColor(src_color_t,src_lab,CV_BGR2Lab);
+	cvSmooth(src_lab,src_lab,CV_BLUR,5,5,0,0);  
+	
+	CvScalar value;	
+	const int Delta=ANGLE_DELTA;
+	const int Light=200;		
+	for(int xi=0;xi<src_color_t->width;xi++){
+		for(int yi=0;yi<src_color_t->height;yi++){			
+			value= cvGet2D(src_lab, yi, xi);
+			double l=value.val[0];
+			double a=value.val[1];
+			double b=value.val[2];
+		
+#if 0
+	
+#else
+			double new_a=a-255/2.0;
+			double new_b=b-255/2.0;
+
+			if(new_a==new_b){
+				//灰度系列
+				if(l>Light){
+					CvScalar s_w;//高亮白
+						s_w.val[0]=255;
+						cvSet2D(src_gary_t,yi,xi,s_w);
+				}else{
+					CvScalar s_w;//黑
+						s_w.val[0]=0;
+						cvSet2D(src_gary_t,yi,xi,s_w);
+				}			
+			}else{
+				//彩色系列
+				const int a_down=ANGLE_DOWN-Delta;
+				const int a_up=ANGLE_UP+Delta;
+				const int hist_num=ANGLE_HIST_NUM;
+				const double arc=atan2(new_b,new_a)*180/CV_PI;
+
+					if((arc>a_down)&&(arc<a_up)){
+
+						int hist_pos=1.0*(a_up-arc)/(1.0*(a_up-a_down)/hist_num)+1;
+
+						int hist_light=hist_t[hist_pos];
+						
+						if(hist_light>255) hist_light=255;
+							if(hist_light<0) hist_light=0;
+
+						CvScalar s_w;//彩色
+						s_w.val[0]=hist_light;
+						cvSet2D(src_gary_t,yi,xi,s_w);
+					}						
+			}
+#endif
+		}
+	}
+
+
+
+#if _DEBUG
+	wait_for_show_image("color_cut",src_color_t);
+	wait_for_show_image("gary_level",src_gary_t);
+#endif
+	cvReleaseImage(&src_lab);
+
+	
+}
+/*--------------------------------------------------------------*/
+/**
+*
+*
+*/
+/*--------------------------------------------------------------*/
+void ImageProcess::gary_get_by_angle(IplImage* src_color_t,double* hist_gary_level)
+{
+	IplImage* src_lab=cvCreateImage(cvGetSize(src_color_t),src_color_t->depth,3);
+	
+	cvCvtColor(src_color_t,src_lab,CV_BGR2Lab);
+	cvSmooth(src_lab,src_lab,CV_BLUR,5,5,0,0);
+
+	//double hist_gary_level[1024];
+	float hist_gary_level_count[ANGLE_HIST_NUM+1];
+	memset(hist_gary_level,0,(ANGLE_HIST_NUM+1)*sizeof(double));
+	memset(hist_gary_level_count,0,(ANGLE_HIST_NUM+1)*sizeof(float));
+
+	CvScalar value;	
+	const int Delta=ANGLE_DELTA;
+	const int Light=200;		
+	
+	for(int xi=0;xi<src_color_t->width;xi++){
+		for(int yi=0;yi<src_color_t->height;yi++){			
+			value= cvGet2D(src_lab, yi, xi);
+			double l=value.val[0];
+			double a=value.val[1];
+			double b=value.val[2];		
+#if 1
+			double new_a=a-255/2.0;
+			double new_b=b-255/2.0;
+
+			if(new_a==new_b){
+				//灰度系列
+				if(l>Light){
+					CvScalar s_w;//高亮白
+						s_w.val[0]=255;
+						//cvSet2D(src_gary_t,yi,xi,s_w);
+				}else{
+					CvScalar s_w;//黑
+						s_w.val[0]=0;
+						//cvSet2D(src_gary_t,yi,xi,s_w);
+				}			
+			}else{
+				//彩色系列
+				const int a_down=ANGLE_DOWN-Delta;
+				const int a_up=ANGLE_UP+Delta;
+				const int hist_num=ANGLE_HIST_NUM;
+				const double arc=atan2(new_b,new_a)*180/CV_PI;
+					if((arc>a_down)&&(arc<a_up)){
+
+						int hist_pos=1.0*(a_up-arc)/(1.0*(a_up-a_down)/hist_num)+1;
+						ASSERT(hist_pos>0&&hist_pos<= hist_num);
+						hist_gary_level[hist_pos]+=value.val[0];
+						hist_gary_level_count[hist_pos]++;
+						
+					}						
+			}
+#endif
+		}
+	}
+
+	for(int i=0;i<ANGLE_HIST_NUM+1;i++){
+		//int index=GetMaxValueIndexdouble( hist_gary_level,ANGLE_HIST_NUM+1);
+		int index=i;
+		if((hist_gary_level[index]>=0)&&
+			(hist_gary_level_count[index]>0)){
+			//hist_gary_level[index]=1.0*-255/(i+1);	
+			hist_gary_level[index]=1.0*hist_gary_level[index]/hist_gary_level_count[index];	
+		}
+
+
+
+	}
+
+#if _DEBUG
+	wait_for_show_image("color_cut",src_color_t);
+	//wait_for_show_image("gary_level",src_gary_t);
+#endif
+	cvReleaseImage(&src_lab);
+}
+/*--------------------------------------------------------------*/
+/**
+*
+*
+*/
+/*--------------------------------------------------------------*/
+/*----------------------------------------------------------------*/
+/**
+*获得数组最大值得索引的排序
+*
+*@param [in] data 数组
+*@param size  数组长度
+*@param [out] sort 数组最大值排序
+*@param sort_num 排序数组大小
+*
+*/
+/*----------------------------------------------------------------*/
+int ImageProcess::GetMaxValueIndexdouble(
+	double* data, 
+	double size)
+{
+	double* data_t=new double[(LONGLONG)size];
+	memcpy(data_t,data,sizeof(double)*((LONGLONG)size));
+	/*****寻找最值***************************************************************/
+		float max_value=data[0];
+		int max_value_i=0;
+		/*******************************/
+		for (register int i=0;i<size;i++){
+			if (data_t[i]>max_value){
+				max_value=data_t[i];
+				max_value_i=i;
+			}
+		}
+		/*******************************/
+	
+	/*******************************************************************************/
+	delete []data_t;
+
+	return max_value_i;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/

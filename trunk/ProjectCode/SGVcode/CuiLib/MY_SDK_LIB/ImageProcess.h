@@ -42,9 +42,18 @@ public:
 	static void equalizeHist_by_mask(IplImage* img_gary,IplImage* mask_img);
 	static int GetHistogram(const IplImage* img_gary,const IplImage* mask_img,int *histogram);
 	
-	static void canny_by_mask(IplImage* img_gary,CvRect mask_rect);
+	static void canny_by_mask(IplImage* img_gary,IplImage* mask_img);
+	static void Laplace_by_mask(IplImage* img_gary,IplImage* mask_img);
 
 	static void threshold_binary(IplImage* img_gary,IplImage* mask_img);
-	  
+	 
+	static CvPoint grayCenter(IplImage* TheImage_org,IplImage* mask_img);
+
+	static void gary_by_angle(IplImage* src_color_t,IplImage* src_gary_t,IplImage* mask_img);
+	static void gary_get_by_angle(IplImage* src_color_t,double*hist_gary_level);
+
+	static int GetMaxValueIndexdouble(
+	double* data, 
+	double size);
 };
 
