@@ -756,6 +756,9 @@ void  ImageProcess::wait_for_show_image(string window_name,IplImage* img_t)
 #if _DEBUG
 	cvNamedWindow( window_name.c_str(), 1 );
 	cvShowImage(window_name.c_str(), img_t );
+
+	string file_name_t=window_name+".png";
+	cvSaveImage(file_name_t.c_str(),img_t);
 	cvWaitKey(10);
 	cvWaitKey(0);
 #endif
@@ -818,7 +821,7 @@ wait_for_show_image("src_gary_cut ",src_gary_cut);
 
 	gary_by_angle(src_color_cut,src_gary_cut,src_binary_cut);
 
-	canny_by_mask(src_gary_cut,src_binary_cut);
+	canny_by_mask(src_color_cut,src_gary_cut,src_binary_cut);
 
 	//Laplace_by_mask(src_gary_cut,src_binary_cut);
 //	threshold_binary(src_gary_cut,src_binary_cut);
@@ -1161,7 +1164,7 @@ int ImageProcess::GetHistogram(const IplImage* img_gary,const IplImage* mask_img
 *
 */
 /*--------------------------------------------------------------*/
-void ImageProcess::canny_by_mask(IplImage* img_gary,IplImage* mask_img)
+void ImageProcess::canny_by_mask(IplImage* src_color_t,IplImage* img_gary,IplImage* mask_img)
 {
  IplImage* TheImage=cvCloneImage(img_gary);
 	if(mask_img!=NULL){		
@@ -1183,6 +1186,30 @@ void ImageProcess::canny_by_mask(IplImage* img_gary,IplImage* mask_img)
 
 #if _DEBUG
 	wait_for_show_image("Canny result",TheImage);
+#endif
+#if _DEBUG
+		
+		uchar* cannyData=(uchar *)(TheImage->imageData);
+		//const int pixels=img_gary->width* img_gary->height;
+
+		for(int xi=0;xi<img_gary->width;xi++){
+			
+			for(int yi=0;yi<img_gary->height;yi++){
+				
+				CvScalar s = cvGet2D(TheImage, yi,xi);
+				int canny_t=s.val[0];
+					
+				if(canny_t>0){
+							CvScalar s_w;//高亮白
+								s_w.val[0]=0;
+									s_w.val[1]=255;
+										s_w.val[2]=255;
+								cvSet2D(src_color_t,yi,xi,s_w);
+					}			
+			}
+
+		}
+		wait_for_show_image("Canny color result",src_color_t);
 #endif
 	cvReleaseImage(&TheImage);
 }
@@ -1466,7 +1493,7 @@ void ImageProcess::gary_get_by_angle(IplImage* src_color_t,double* hist_gary_lev
 *
 */
 /*--------------------------------------------------------------*/
-/*----------------------------------------------------------------*/
+/*------------------------------ ----------------------------------*/
 /**
 *获得数组最大值得索引的排序
 *

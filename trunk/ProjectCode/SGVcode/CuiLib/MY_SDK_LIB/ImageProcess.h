@@ -42,7 +42,7 @@ public:
 	static void equalizeHist_by_mask(IplImage* img_gary,IplImage* mask_img);
 	static int GetHistogram(const IplImage* img_gary,const IplImage* mask_img,int *histogram);
 	
-	static void canny_by_mask(IplImage* img_gary,IplImage* mask_img);
+	static void canny_by_mask(IplImage* src_color_t,IplImage* img_gary,IplImage* mask_img);
 	static void Laplace_by_mask(IplImage* img_gary,IplImage* mask_img);
 
 	static void threshold_binary(IplImage* img_gary,IplImage* mask_img);
