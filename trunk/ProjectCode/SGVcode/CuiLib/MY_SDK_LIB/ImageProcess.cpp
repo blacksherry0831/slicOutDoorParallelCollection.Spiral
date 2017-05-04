@@ -832,23 +832,28 @@ wait_for_show_image("src_gary_cut ",src_gary_cut);
 	IplImage* cut_0=cut_image(canny_result,0);
 
 #if _DEBUG
+
+#if 0
+	cvCircle(cut_1,cvPoint(cut_1->width/2,cut_1->height/2),60,cvScalar(255),3);
+#endif
+
 	wait_for_show_image("cut_1",cut_1);
 	wait_for_show_image("cut_0",cut_0);
 #endif
 
 	hough_my_fast(cut_1,
 			1,
-			3,
-			15,
-			100,
-			10);
+			20,
+			65,
+			85,
+			cut_1->width);
 
 	hough_my_fast(cut_0,
 			0,
-			3,
-			15,
-			100,
-			10);
+			10,
+			60,
+			80,
+			cut_0->width);
 
 	//hough_image(cut_1,1);
 	//hough_image(cut_0,0);
@@ -1800,8 +1805,8 @@ void ImageProcess::hough_my(
 
   for(int y0 = 0; y0 < HEIGHT; y0++) {
     for(int x0 = 0; x0 < WIDTH; x0++) {
-      for(int r = minRadius; r < radiusRange; r++) {
-       H[y0][x0][r]=0;
+      for(int r = minRadius; r <  maxRadius; r++) {
+       H[y0][x0][r-minRadius]=0;
       }
     }
   }
@@ -1809,24 +1814,21 @@ void ImageProcess::hough_my(
   {  
        for(int x=0;x<WIDTH;x++)  
        {  
-		   	
+		   	double pixel_value_t=cvGetReal2D(img_data,y,x);
         // printf("data point : %f\n", img_data.at<float>(y,x));
-            if( cvGetReal2D(img_data,y,x)> 250.0 )  //threshold image  
+            if(pixel_value_t> 250.0 )  //threshold image  
             {   
-              for (int r=minRadius; r<radiusRange; r++)
-              {
+				  for (int r=minRadius; r< maxRadius; r++)
+				  {
+					  for(float ai=-180;ai<180;ai+=1){
 
-                int x0 = cvRound(x + r * cos(cvGetReal2D(dist,y,x)));
-                int x1 = cvRound(x - r * cos(cvGetReal2D(dist,y,x)));
-                int y0 = cvRound(y + r * sin(cvGetReal2D(dist,y,x)));
-                int y1 = cvRound(y - r * sin(cvGetReal2D(dist,y,x)));
+						int x0 = cvRound(x + r * cos(ai/180*CV_PI));
 
-
-                inc_if_inside(H,x0,y0,HEIGHT, WIDTH, r);
-                 // inc_if_inside(H,x0,y1,HEIGHT, WIDTH, r);
-                 // inc_if_inside(H,x1,y0,HEIGHT, WIDTH, r);
-                inc_if_inside(H,x1,y1,HEIGHT, WIDTH, r);
-              }
+						int y0 = cvRound(y + r * sin(ai/180*CV_PI));
+					
+						inc_if_inside(H,x0,y0,HEIGHT, WIDTH, r-minRadius);			  
+					  }
+				  }
             }  
        }  
   }  
@@ -1834,8 +1836,8 @@ void ImageProcess::hough_my(
   //create 2D image by summing values of the radius dimension
   for(int y0 = 0; y0 < HEIGHT; y0++) {
     for(int x0 = 0; x0 < WIDTH; x0++) {
-      for(int r = minRadius; r < radiusRange; r++) {
-		    cvSetReal2D(h_acc,y0,x0,cvGetReal2D(h_acc,y0,x0)+ H[y0][x0][r]); 
+      for(int r = minRadius; r < maxRadius; r++) {
+		    cvSetReal2D(h_acc,y0,x0,cvGetReal2D(h_acc,y0,x0)+ H[y0][x0][r-minRadius]); 
 		  
       }
     }
@@ -1846,8 +1848,8 @@ void ImageProcess::hough_my(
   //compute optimal circles
   for(int y0 = 0; y0 < HEIGHT; y0++) {
     for(int x0 = 0; x0 < WIDTH; x0++) {
-      for(int r = minRadius; r < radiusRange; r++) { 
-        if(H[y0][x0][r] >= threshold){
+      for(int r = minRadius; r < maxRadius; r++) { 
+        if(H[y0][x0][r-minRadius] >= threshold){
           Point3f circle(x0, y0, r);
           int i;
           for(i = 0; i < bestCircles.size(); i++) {
@@ -1855,7 +1857,7 @@ void ImageProcess::hough_my(
             int yCoord = bestCircles[i].y;
             int radius = bestCircles[i].z;            
             if(abs(xCoord - x0) < distance && abs(yCoord - y0) < distance) {           
-              if(H[y0][x0][r] > H[yCoord][xCoord][radius]) {
+              if(H[y0][x0][r-minRadius] > H[yCoord][xCoord][radius-minRadius]) {
                 bestCircles.erase(bestCircles.begin()+i);
                 bestCircles.insert(bestCircles.begin(), circle);
               }
@@ -1870,16 +1872,16 @@ void ImageProcess::hough_my(
     }
   }
 
-#if _DEUBUG
+#if _DEBUG
   for(int i = 0; i < bestCircles.size(); i++) {
-    int lineThickness = 4;
-    int lineType = 10;
+    int lineThickness = 2;
+    int lineType = 8;
     int shift = 0;
     int xCoord = bestCircles[i].x;
     int yCoord = bestCircles[i].y;
     int radius = bestCircles[i].z;
     Point2f center(xCoord, yCoord);      
-    cvCircle(coins, center, radius-1, Scalar(255,0,0), lineThickness, lineType, shift);
+    cvCircle(coins, center, radius-2, Scalar(255,0,0), lineThickness, lineType, shift);
   }
 #endif
 
@@ -1907,12 +1909,15 @@ void ImageProcess::hough_my_fast(IplImage *img_data,
 			double distance)
 {
 	IplImage *	dist=cvCreateImage(cvGetSize(img_data),IPL_DEPTH_32F,1);
-	IplImage *	coins=cvCreateImage(cvGetSize(img_data),IPL_DEPTH_8U,1);
-	IplImage * h_acc=cvCreateImage(cvGetSize(img_data),IPL_DEPTH_32F,1);
+	IplImage *	coins=cvCreateImage(cvGetSize(img_data),IPL_DEPTH_8U,3);
+	IplImage *  h_acc=cvCreateImage(cvGetSize(img_data),IPL_DEPTH_32F,1);
 	
 	cvZero(dist);
 	cvZero(coins);
 	cvZero(h_acc);
+
+	cvCvtColor(img_data,coins,CV_GRAY2RGB);
+
 
 	hough_my(
 	img_data,
