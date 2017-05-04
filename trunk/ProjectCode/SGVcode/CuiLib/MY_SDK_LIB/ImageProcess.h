@@ -42,18 +42,34 @@ public:
 	static void equalizeHist_by_mask(IplImage* img_gary,IplImage* mask_img);
 	static int GetHistogram(const IplImage* img_gary,const IplImage* mask_img,int *histogram);
 	
-	static void canny_by_mask(IplImage* src_color_t,IplImage* img_gary,IplImage* mask_img);
+	static IplImage* canny_by_mask(IplImage* src_color_t,IplImage* img_gary,IplImage* mask_img);
 	static void Laplace_by_mask(IplImage* img_gary,IplImage* mask_img);
 
 	static void threshold_binary(IplImage* img_gary,IplImage* mask_img);
 	 
 	static CvPoint grayCenter(IplImage* TheImage_org,IplImage* mask_img);
 
-	static void gary_by_angle(IplImage* src_color_t,IplImage* src_gary_t,IplImage* mask_img);
+	static IplImage* gary_by_angle(IplImage* src_color_t,IplImage* src_gary_t,IplImage* mask_img);
 	static void gary_get_by_angle(IplImage* src_color_t,double*hist_gary_level);
 
 	static int GetMaxValueIndexdouble(
 	double* data, 
 	double size);
+
+	static  IplImage* cut_image(IplImage* src_color_t,int method);
+	static  void hough_image(IplImage* src_color_t,int method);
+
+	static void hough_my(
+	IplImage *img_data,
+	IplImage *dist,
+	double threshold, int minRadius, int maxRadius, double distance,
+	IplImage *h_acc,
+	IplImage *coins);
+
+	static void hough_my_fast(
+	IplImage *img_data,
+	int method,
+	double threshold, int minRadius, int maxRadius, double distance);
+
 };
 

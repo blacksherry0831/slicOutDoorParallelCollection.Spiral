@@ -2,12 +2,17 @@
 #include "ImageProcess.h"
 #include "Base.h"
 #include "modules.h"
+#include <stdio.h>
+
+#include <math.h>
+
 
 #ifdef min
 #undef min
 #endif
 
-#define HOUGH_USE_CANNY  TRUE
+#define HOUGH_USE_CANNY  FALSE
+
 #define ANGLE_UP (-10)
 #define ANGLE_DOWN (-54)
 #define ANGLE_DELTA (0)
@@ -821,15 +826,40 @@ wait_for_show_image("src_gary_cut ",src_gary_cut);
 
 	gary_by_angle(src_color_cut,src_gary_cut,src_binary_cut);
 
-	canny_by_mask(src_color_cut,src_gary_cut,src_binary_cut);
+	IplImage*  canny_result=canny_by_mask(src_color_cut,src_gary_cut,src_binary_cut);
 
-	//Laplace_by_mask(src_gary_cut,src_binary_cut);
+	IplImage* cut_1=cut_image(canny_result,1);
+	IplImage* cut_0=cut_image(canny_result,0);
+
+#if _DEBUG
+	wait_for_show_image("cut_1",cut_1);
+	wait_for_show_image("cut_0",cut_0);
+#endif
+
+	hough_my_fast(cut_1,
+			1,
+			3,
+			15,
+			100,
+			10);
+
+	hough_my_fast(cut_0,
+			0,
+			3,
+			15,
+			100,
+			10);
+
+	//hough_image(cut_1,1);
+	//hough_image(cut_0,0);
+
+//Laplace_by_mask(src_gary_cut,src_binary_cut);
 //	threshold_binary(src_gary_cut,src_binary_cut);
 //#if _DEBUG
 //	wait_for_show_image("src_gary_bin2",src_gary_cut);
 //#endif
-	//grayCenter(src_gary_cut,src_binary_cut);
-
+	//grayCenter(cut_1,NULL);
+	//grayCenter(cut_0,NULL);
 			cvResetImageROI(src_color);
 			cvResetImageROI(src_binary);
 			cvResetImageROI(src_gary);
@@ -837,17 +867,10 @@ wait_for_show_image("src_gary_cut ",src_gary_cut);
 		cvReleaseImage(&src_gary_cut);
 		cvReleaseImage(&src_color_cut);
 		cvReleaseImage(&src_binary_cut);
+		cvReleaseImage(&src_binary_cut);
 
 	}
-
-
-	
-
-
-
-
 	/*-----------------------*/
-
 	//cvReleaseImage(&src_gary_mask);
 	cvReleaseImage(&src_gary);
 	cvReleaseImage(&src_color);
@@ -1164,9 +1187,11 @@ int ImageProcess::GetHistogram(const IplImage* img_gary,const IplImage* mask_img
 *
 */
 /*--------------------------------------------------------------*/
-void ImageProcess::canny_by_mask(IplImage* src_color_t,IplImage* img_gary,IplImage* mask_img)
+IplImage* ImageProcess::canny_by_mask(IplImage* src_color_t,IplImage* img_gary,IplImage* mask_img)
 {
+
  IplImage* TheImage=cvCloneImage(img_gary);
+ IplImage* src_color_tt=cvCloneImage(src_color_t);
 	if(mask_img!=NULL){		
 		uchar* maskData=(uchar *)(mask_img->imageData);
 		const int pixels=img_gary->width* img_gary->height;
@@ -1187,8 +1212,7 @@ void ImageProcess::canny_by_mask(IplImage* src_color_t,IplImage* img_gary,IplIma
 #if _DEBUG
 	wait_for_show_image("Canny result",TheImage);
 #endif
-#if _DEBUG
-		
+#if _DEBUG		
 		uchar* cannyData=(uchar *)(TheImage->imageData);
 		//const int pixels=img_gary->width* img_gary->height;
 
@@ -1204,14 +1228,17 @@ void ImageProcess::canny_by_mask(IplImage* src_color_t,IplImage* img_gary,IplIma
 								s_w.val[0]=0;
 									s_w.val[1]=255;
 										s_w.val[2]=255;
-								cvSet2D(src_color_t,yi,xi,s_w);
+								cvSet2D(src_color_tt,yi,xi,s_w);
 					}			
 			}
 
 		}
-		wait_for_show_image("Canny color result",src_color_t);
+		wait_for_show_image("Canny color result",src_color_tt);
 #endif
-	cvReleaseImage(&TheImage);
+	//cvReleaseImage(&TheImage);
+	cvReleaseImage(&src_color_tt);
+
+	return  TheImage;
 }
 /*--------------------------------------------------------------*/
 /**
@@ -1332,8 +1359,9 @@ CvPoint ImageProcess::grayCenter(IplImage* TheImage_org,IplImage* mask_img)
 *
 */
 /*--------------------------------------------------------------*/
-void ImageProcess::gary_by_angle(IplImage* src_color_t,IplImage* src_gary_t,IplImage* mask_img)
+IplImage* ImageProcess::gary_by_angle(IplImage* src_color_t,IplImage* src_gary_t,IplImage* mask_img)
 {
+	
 #if 1
 	double hist_t[ANGLE_HIST_NUM+1];
 	gary_get_by_angle(src_color_t,hist_t);
@@ -1404,7 +1432,7 @@ void ImageProcess::gary_by_angle(IplImage* src_color_t,IplImage* src_gary_t,IplI
 #endif
 	cvReleaseImage(&src_lab);
 
-	
+	return NULL;
 }
 /*--------------------------------------------------------------*/
 /**
@@ -1532,3 +1560,379 @@ int ImageProcess::GetMaxValueIndexdouble(
 *
 */
 /*----------------------------------------------------------------*/
+IplImage* ImageProcess::cut_image(IplImage* src_color_t,int method)
+{
+	CvRect cut_t;	
+	IplImage* src_t=NULL; 
+
+	if(method==1){
+
+		cut_t.x=0;
+		cut_t.y=0;
+		cut_t.height=src_color_t->height;
+		cut_t.width=cut_t.height;
+
+		src_t=cvCreateImage(cvSize(cut_t.width,cut_t.height),IPL_DEPTH_8U,1);
+
+		cvSetImageROI(src_color_t , cut_t);
+
+		cvCopyImage(src_color_t,src_t);
+
+	}else if(method==0){
+		cut_t.x=src_color_t->width-src_color_t->height;
+		cut_t.y=0;
+		cut_t.height=src_color_t->height;
+		cut_t.width=cut_t.height;
+
+		src_t=cvCreateImage(cvSize(cut_t.width,cut_t.height),IPL_DEPTH_8U,1);
+
+		cvSetImageROI(src_color_t , cut_t);
+
+		cvCopyImage(src_color_t,src_t);
+	}else{
+	
+	}
+
+
+	cvResetImageROI(src_color_t);
+
+	return src_t;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+void ImageProcess::hough_image(IplImage* src_color_t,int method)
+{
+	
+	CvSeq* results;
+	CvMemStorage* storage = cvCreateMemStorage(0);
+	
+#if 1
+	IplImage* src = cvCloneImage(src_color_t);
+	IplImage* dst = cvCreateImage(cvGetSize(src_color_t),IPL_DEPTH_8U,3);
+
+	
+	cvZero (dst);
+	cvCvtColor(src,dst,CV_GRAY2RGB);
+
+	results =ImageProcess::cvHoughCircles_Binary(  //cvHoughCircles函数需要估计每一个像素梯度的方向，
+								      //因此会在内部自动调用cvSobel,而二值边缘图像的处理是比较难的
+		src,
+		storage,
+		CV_HOUGH_GRADIENT,
+		1,  //累加器图像的分辨率
+		1,//圆心间距
+		100,//canny
+		37,//累加器		
+		10,//小半径 
+		100//最大半径
+		
+		);
+#endif
+	for( int i = 0; i < results->total; i++ )
+	{
+		float* p = ( float* )cvGetSeqElem( results, i );
+		//霍夫圆变换
+		CvPoint pt = cvPoint( cvRound( p[0] ), cvRound( p[1] ) );
+		cvCircle(
+			dst,
+			pt,  //确定圆心
+			cvRound( p[2] ),  //确定半径
+			CV_RGB( 0xff, 0, 0 )
+		);  //画圆函数
+	}
+
+	
+
+#if _DEBUG
+	ostringstream stream;
+	
+	stream<<"hough_";
+	stream<<method;
+	stream<<".png";
+	
+	wait_for_show_image(stream.str().c_str(),dst);
+#endif
+	
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+void inc_if_inside(double *** H, int x, int y, int height, int width, int r )
+{
+  if (x>0 && x<width && y> 0 && y<height)
+    H[y][x][r]++;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+void hough(Mat &img_data, Mat &dist, double threshold, int minRadius, int maxRadius, double distance, Mat &h_acc, Mat &coins){
+  int radiusRange = maxRadius - minRadius;
+  int HEIGHT = img_data.rows;
+  int WIDTH = img_data.cols;
+  int DEPTH = radiusRange;
+
+  double ***H;
+
+  // Allocate memory
+  H = new double**[HEIGHT];
+  for (int i = 0; i < HEIGHT; ++i) {
+    H[i] = new double*[WIDTH];
+
+    for (int j = 0; j < WIDTH; ++j)
+      H[i][j] = new double[DEPTH];
+  }
+
+    for(int y0 = 0; y0 < HEIGHT; y0++) {
+    for(int x0 = 0; x0 < WIDTH; x0++) {
+      for(int r = minRadius; r < radiusRange; r++) {
+       H[y0][x0][r]=0;;
+      }
+    }
+  }
+
+    for(int y=0;y<img_data.rows;y++)  
+  {  
+       for(int x=0;x<img_data.cols;x++)  
+       {  
+        // printf("data point : %f\n", img_data.at<float>(y,x));
+            if( (float) img_data.at<float>(y,x) > 250.0 )  //threshold image  
+            {   
+              for (int r=minRadius; r<radiusRange; r++)
+              {
+
+                int x0 = cvRound(x + r * cos(dist.at<float>(y,x)) );
+                int x1 = cvRound(x - r * cos(dist.at<float>(y,x)) );
+                int y0 = cvRound(y + r * sin(dist.at<float>(y,x)) );
+                int y1 = cvRound(y - r * sin(dist.at<float>(y,x)) );
+
+
+                inc_if_inside(H,x0,y0,HEIGHT, WIDTH, r);
+                 // inc_if_inside(H,x0,y1,HEIGHT, WIDTH, r);
+                 // inc_if_inside(H,x1,y0,HEIGHT, WIDTH, r);
+                inc_if_inside(H,x1,y1,HEIGHT, WIDTH, r);
+              }
+            }  
+       }  
+  }  
+
+  //create 2D image by summing values of the radius dimension
+  for(int y0 = 0; y0 < HEIGHT; y0++) {
+    for(int x0 = 0; x0 < WIDTH; x0++) {
+      for(int r = minRadius; r < radiusRange; r++) {
+        h_acc.at<float>(y0,x0) +=  H[y0][x0][r];// > 1 ? 255 : 0;
+       // printf("h : %d", H[y0][x0][r]);
+      }
+    }
+  }
+
+  std::vector<Point3f> bestCircles;
+  
+  //compute optimal circles
+  for(int y0 = 0; y0 < HEIGHT; y0++) {
+    for(int x0 = 0; x0 < WIDTH; x0++) {
+      for(int r = minRadius; r < radiusRange; r++) { 
+        if(H[y0][x0][r] > threshold){
+          Point3f circle(x0, y0, r);
+          int i;
+          for(i = 0; i < bestCircles.size(); i++) {
+            int xCoord = bestCircles[i].x;
+            int yCoord = bestCircles[i].y;
+            int radius = bestCircles[i].z;            
+            if(abs(xCoord - x0) < distance && abs(yCoord - y0) < distance) {           
+              if(H[y0][x0][r] > H[yCoord][xCoord][radius]) {
+                bestCircles.erase(bestCircles.begin()+i);
+                bestCircles.insert(bestCircles.begin(), circle);
+              }
+              break;
+            }
+          }
+          if(i == bestCircles.size()){
+            bestCircles.insert(bestCircles.begin(), circle);
+          }
+        }
+      }
+    }
+  }
+
+  for(int i = 0; i < bestCircles.size(); i++) {
+    int lineThickness = 4;
+    int lineType = 10;
+    int shift = 0;
+    int xCoord = bestCircles[i].x;
+    int yCoord = bestCircles[i].y;
+    int radius = bestCircles[i].z;
+    Point2f center(xCoord, yCoord);      
+    circle(coins, center, radius-1, Scalar(255,0,0), lineThickness, lineType, shift);
+  }
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+void ImageProcess::hough_my(
+	IplImage *img_data,
+	IplImage *dist,
+	double threshold, int minRadius, int maxRadius, double distance,
+	IplImage *h_acc,
+	IplImage *coins){
+  int radiusRange = maxRadius - minRadius;
+  int HEIGHT = img_data->width;
+  int WIDTH = img_data->height;
+  int DEPTH = radiusRange;
+
+  double ***H;
+  // Allocate memory
+  H = new double**[HEIGHT];
+  for (int i = 0; i < HEIGHT; ++i) {
+    H[i] = new double*[WIDTH];
+
+    for (int j = 0; j < WIDTH; ++j)
+      H[i][j] = new double[DEPTH];
+  }
+
+  for(int y0 = 0; y0 < HEIGHT; y0++) {
+    for(int x0 = 0; x0 < WIDTH; x0++) {
+      for(int r = minRadius; r < radiusRange; r++) {
+       H[y0][x0][r]=0;
+      }
+    }
+  }
+    for(int y=0;y<HEIGHT;y++)  
+  {  
+       for(int x=0;x<WIDTH;x++)  
+       {  
+		   	
+        // printf("data point : %f\n", img_data.at<float>(y,x));
+            if( cvGetReal2D(img_data,y,x)> 250.0 )  //threshold image  
+            {   
+              for (int r=minRadius; r<radiusRange; r++)
+              {
+
+                int x0 = cvRound(x + r * cos(cvGetReal2D(dist,y,x)));
+                int x1 = cvRound(x - r * cos(cvGetReal2D(dist,y,x)));
+                int y0 = cvRound(y + r * sin(cvGetReal2D(dist,y,x)));
+                int y1 = cvRound(y - r * sin(cvGetReal2D(dist,y,x)));
+
+
+                inc_if_inside(H,x0,y0,HEIGHT, WIDTH, r);
+                 // inc_if_inside(H,x0,y1,HEIGHT, WIDTH, r);
+                 // inc_if_inside(H,x1,y0,HEIGHT, WIDTH, r);
+                inc_if_inside(H,x1,y1,HEIGHT, WIDTH, r);
+              }
+            }  
+       }  
+  }  
+
+  //create 2D image by summing values of the radius dimension
+  for(int y0 = 0; y0 < HEIGHT; y0++) {
+    for(int x0 = 0; x0 < WIDTH; x0++) {
+      for(int r = minRadius; r < radiusRange; r++) {
+		    cvSetReal2D(h_acc,y0,x0,cvGetReal2D(h_acc,y0,x0)+ H[y0][x0][r]); 
+		  
+      }
+    }
+  }
+
+  std::vector<Point3f> bestCircles;
+  
+  //compute optimal circles
+  for(int y0 = 0; y0 < HEIGHT; y0++) {
+    for(int x0 = 0; x0 < WIDTH; x0++) {
+      for(int r = minRadius; r < radiusRange; r++) { 
+        if(H[y0][x0][r] >= threshold){
+          Point3f circle(x0, y0, r);
+          int i;
+          for(i = 0; i < bestCircles.size(); i++) {
+            int xCoord = bestCircles[i].x;
+            int yCoord = bestCircles[i].y;
+            int radius = bestCircles[i].z;            
+            if(abs(xCoord - x0) < distance && abs(yCoord - y0) < distance) {           
+              if(H[y0][x0][r] > H[yCoord][xCoord][radius]) {
+                bestCircles.erase(bestCircles.begin()+i);
+                bestCircles.insert(bestCircles.begin(), circle);
+              }
+              break;
+            }
+          }
+          if(i == bestCircles.size()){
+            bestCircles.insert(bestCircles.begin(), circle);
+          }
+        }
+      }
+    }
+  }
+
+#if _DEUBUG
+  for(int i = 0; i < bestCircles.size(); i++) {
+    int lineThickness = 4;
+    int lineType = 10;
+    int shift = 0;
+    int xCoord = bestCircles[i].x;
+    int yCoord = bestCircles[i].y;
+    int radius = bestCircles[i].z;
+    Point2f center(xCoord, yCoord);      
+    cvCircle(coins, center, radius-1, Scalar(255,0,0), lineThickness, lineType, shift);
+  }
+#endif
+
+  for (int i = 0; i < HEIGHT; ++i) 
+  for (int j = 0; j < WIDTH; ++j)
+		delete[] H[i][j];
+   
+  for (int i = 0; i < HEIGHT; ++i) 
+		delete[] H[i];
+  
+  delete[]H;
+
+
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+void ImageProcess::hough_my_fast(IplImage *img_data,
+			int method,
+			double threshold,
+			int minRadius,
+			int maxRadius,
+			double distance)
+{
+	IplImage *	dist=cvCreateImage(cvGetSize(img_data),IPL_DEPTH_32F,1);
+	IplImage *	coins=cvCreateImage(cvGetSize(img_data),IPL_DEPTH_8U,1);
+	IplImage * h_acc=cvCreateImage(cvGetSize(img_data),IPL_DEPTH_32F,1);
+	
+	cvZero(dist);
+	cvZero(coins);
+	cvZero(h_acc);
+
+	hough_my(
+	img_data,
+	dist,
+	threshold,//10
+	minRadius,//15
+	maxRadius,//100
+	distance,//45
+	h_acc,
+	coins);
+#if _DEBUG
+	ostringstream stream;
+	
+	stream<<"hough_";
+	stream<<method;
+	stream<<"_my_result";
+
+	wait_for_show_image(stream.str(),coins);
+#endif
+ 	cvReleaseImage(&dist);
+	cvReleaseImage(&coins);
+	cvReleaseImage(&h_acc);
+}

@@ -370,7 +370,8 @@ int main()
 	//Laplace_test();
 	//Hough_test();
 
-	cvWaitKey(10);
-	cvWaitKey(0);
+	/*cvWaitKey(10);
+	cvWaitKey(0);*/
+	destroyAllWindows();
 	return 0;
 }
