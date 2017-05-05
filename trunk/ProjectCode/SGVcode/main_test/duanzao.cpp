@@ -1,5 +1,8 @@
 //Í¼ÏñµÄCanny±ßÔµ¼ì²â
 //By MoreWindows (http://blog.csdn.net/MoreWindows)
+
+
+#include "stdafx.h"
 #include <opencv2/opencv.hpp>
 using namespace std;
 
@@ -18,7 +21,7 @@ using namespace std;
 #define	USE_CANNY 0
 #define USE_Laplace 1
 
-#pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")
+//#pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")
 IplImage *g_pSrcImage, *g_pCannyImg;
 const char *pstrWindowsCannyTitle = "±ßÔµ¼ì²âÍ¼(http://blog.csdn.net/MoreWindows)";
 //cvCreateTrackbarµÄ»Øµ÷º¯Êý
@@ -354,24 +357,22 @@ void UseMyHough_SuperPixel()
 }
 
 
-int main()
+int main(int *argc,char *argv[])
 {
-
-	ImageProcess::zhangjiagang_hongbao_duanzao("D:\\ImageDataBase\\duanjian\\test.jpg");
 	
-	
-	//ImageProcess::zhangjiagang_hongbao_duanzao("D:\ImageDataBase\\duanjian\\test\\2016657.jpg");
-	//UseMyHough_edges();
-	//UseMyHough_SuperPixel();
-	//cvWaitKey(0);
-	//Hough_Canny();
-	 
-	//Hough_Canny();
-	//Laplace_test();
-	//Hough_test();
+	TimeCountStart();
 
-	/*cvWaitKey(10);
-	cvWaitKey(0);*/
-	destroyAllWindows();
+	{
+		
+		//string path_t="D:\\ImageDataBase\\duanjian\\test.jpg";
+		string path_t="D:\\ImageDataBase\\duanjian\\suck_ohaha.jpg";
+		ImageProcess::zhangjiagang_hongbao_duanzao(path_t);
+		destroyAllWindows();
+	}
+
+	TimeCountStop("cost time:");
+	
+	/*double cost_s=dur/CLOCKS_PER_SEC;*/
+
 	return 0;
 }

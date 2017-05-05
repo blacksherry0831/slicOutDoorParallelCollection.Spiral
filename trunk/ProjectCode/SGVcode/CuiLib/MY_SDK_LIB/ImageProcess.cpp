@@ -19,6 +19,7 @@
 #define ANGLE_HIST_NUM (11)
 ImageProcess::ImageProcess(void)
 {
+
 }
 
 
@@ -759,13 +760,19 @@ void ImageProcess::zhangjiagang_hongbao_duanzao_rgb(string filename)
 void  ImageProcess::wait_for_show_image(string window_name,IplImage* img_t)
 {
 #if _DEBUG
-	cvNamedWindow( window_name.c_str(), 1 );
-	cvShowImage(window_name.c_str(), img_t );
 
-	string file_name_t=window_name+".png";
+	bool IsShow=true; 
+
+	if(false){
+		cvNamedWindow( window_name.c_str(), 1 );
+		cvShowImage(window_name.c_str(), img_t );
+		cvWaitKey(10);
+		cvWaitKey(0);
+	}
+
+	string file_name_t="done//"+window_name+".png";
 	cvSaveImage(file_name_t.c_str(),img_t);
-	cvWaitKey(10);
-	cvWaitKey(0);
+
 #endif
 }
 /*--------------------------------------------------------------*/
@@ -818,61 +825,51 @@ wait_for_show_image("src_binary_cut",src_binary_cut);
 wait_for_show_image("src_gary_cut ",src_gary_cut); 
 #endif
 
-//	equalizeHist_by_mask(src_gary_cut,src_binary_cut);
-//#if _DEBUG
-//	wait_for_show_image("src_gary_equalizeHist_cut",src_gary_cut);
-//#endif
-
 
 	gary_by_angle(src_color_cut,src_gary_cut,src_binary_cut);
 
 	IplImage*  canny_result=canny_by_mask(src_color_cut,src_gary_cut,src_binary_cut);
 
-	IplImage* cut_1=cut_image(canny_result,1);
-	IplImage* cut_0=cut_image(canny_result,0);
+	CvRect cut_1_rect;
+	CvRect cut_0_rect;
+	IplImage* cut_1=cut_image(canny_result,1,cut_1_rect);
+	IplImage* cut_0=cut_image(canny_result,0,cut_0_rect);
 
 #if _DEBUG
-
-#if 0
-	cvCircle(cut_1,cvPoint(cut_1->width/2,cut_1->height/2),60,cvScalar(255),3);
-#endif
-
 	wait_for_show_image("cut_1",cut_1);
 	wait_for_show_image("cut_0",cut_0);
 #endif
 
-	hough_my_fast(cut_1,
+Point3f circle1=hough_my_fast(cut_1,
 			1,
 			20,
 			65,
 			85,
 			cut_1->width);
 
-	hough_my_fast(cut_0,
+Point3f circle0=hough_my_fast(cut_0,
 			0,
 			10,
 			60,
 			80,
 			cut_0->width);
-
-	//hough_image(cut_1,1);
-	//hough_image(cut_0,0);
-
-//Laplace_by_mask(src_gary_cut,src_binary_cut);
-//	threshold_binary(src_gary_cut,src_binary_cut);
-//#if _DEBUG
-//	wait_for_show_image("src_gary_bin2",src_gary_cut);
-//#endif
-	//grayCenter(cut_1,NULL);
-	//grayCenter(cut_0,NULL);
 			cvResetImageROI(src_color);
 			cvResetImageROI(src_binary);
 			cvResetImageROI(src_gary);
+
+			circle1.x+=cut_1_rect.x;
+			circle1.y+=cut_1_rect.y;
+			circle0.x+=cut_0_rect.x;
+			circle0.y+=cut_0_rect.y;
+
+			draw_duan_jian_result(src_color,seq,circle1,circle0,src_binary);
 		}
 		cvReleaseImage(&src_gary_cut);
 		cvReleaseImage(&src_color_cut);
 		cvReleaseImage(&src_binary_cut);
 		cvReleaseImage(&src_binary_cut);
+
+
 
 	}
 	/*-----------------------*/
@@ -887,6 +884,102 @@ wait_for_show_image("src_gary_cut ",src_gary_cut);
 *
 */
 /*--------------------------------------------------------------*/
+void ImageProcess::draw_duan_jian_result(IplImage* src_color,CvSeq* seq,Point3f circle1,Point3f circle0,IplImage* mask_img)
+{
+#if _DEBUG
+	CvRect mask_rect = cvBoundingRect(seq,1);
+	circle1.x=mask_rect.x+circle1.x;
+	circle0.x=mask_rect.x+circle0.x;
+	//
+	circle1.y=mask_rect.y+circle1.y;
+	circle0.y=mask_rect.y+circle0.y;
+	//
+	int lineThickness = 2;
+    int lineType = 8;
+    int shift = 0;
+    int xCoord1 = circle1.x;
+    int yCoord1 = circle1.y;
+    int radius1 = circle1.z;
+    Point2f center1(xCoord1, yCoord1); 
+	 
+	int xCoord0 = circle0.x;
+    int yCoord0 = circle0.y;
+    int radius0 = circle0.z;
+    Point2f center0(xCoord0, yCoord0); 
+
+    cvCircle(src_color, center1, radius1-2, Scalar(0,255,255), lineThickness, lineType, shift);//黄色
+	cvCircle(src_color, center0, radius0-2, Scalar(0,255,255), lineThickness, lineType, shift);
+
+	//cvLine(src_color,center1,center0,Scalar(0),lineThickness);
+
+	double k=1.0*(circle1.y-circle0.y)/(circle1.x-circle0.x);
+	double b=circle1.y-k*circle1.x;
+	
+	double k1k0=-1/k;
+	double b1=circle1.y-k1k0*circle1.x;
+	double b0=circle0.y-k1k0*circle0.x;
+
+	draw_dash_line(src_color,k1k0,b1,mask_img);
+	draw_dash_line(src_color,k1k0,b0,mask_img);
+	draw_dash_line(src_color,k,b,mask_img);
+	
+
+#endif
+#if _DEBUG
+	 cvDrawContours(src_color, seq, CV_RGB(0,0,255), CV_RGB(0,0,255), 0, 1, 8, cvPoint(0,0));//蓝色
+#endif
+#if _DEBUG
+	 wait_for_show_image("done",src_color);
+#endif
+}
+/*--------------------------------------------------------------*/
+/**
+*
+*
+*/
+/*--------------------------------------------------------------*/
+void ImageProcess::draw_dash_line(IplImage* src_color,double k,double b,IplImage* mask_img)
+{
+	int lineThickness=0;
+	
+	CvRect mask_rect;
+	mask_rect.x=0;
+	mask_rect.y=0;
+	mask_rect.width=src_color->width;
+	mask_rect.height=src_color->height;
+
+	cv::Mat * pmatImage = new cv::Mat(src_color,0);
+
+	CvPoint p1=cvPoint(mask_rect.x,mask_rect.x*k+b);
+	CvPoint p2=cvPoint(mask_rect.x+mask_rect.width,(mask_rect.x+mask_rect.width)*k+b);
+
+	//Point p1(20,20);                            // start & end points 
+	//Point p2(80,50);
+	LineIterator it(src_color, p1, p2);            // get a line iterator
+	for(int i = 0; i < it.count; i++,it++){
+		const int STEP=30;
+		double pos=1.0*(i%STEP)/STEP;
+		CvPoint p_t=it.pos();
+#if 1
+		if(	(p_t.x>mask_rect.x)&&
+			(p_t.x<mask_rect.x+mask_rect.width)&&
+			(p_t.y>mask_rect.y)&&
+			(p_t.y<mask_rect.y+mask_rect.height)){
+				if(cvGetReal2D(mask_img,p_t.y,p_t.x)>250){
+							if(pos<0.6){
+								cvDrawCircle(src_color,p_t,1,CV_RGB(255,0,0),lineThickness);
+							}else if(pos>=0.6&&pos<=0.75){		
+							}else if(pos>0.75&&pos<0.85){
+								cvDrawCircle(src_color,p_t,1,CV_RGB(255,0,0),lineThickness);
+							}else if(pos>=1){
+							}else{		
+							}
+				}
+
+	}
+#endif
+	}
+}
 IplImage* ImageProcess::use_lab2binary(IplImage* src_color_t)
 {
 	IplImage* src_lab=cvCreateImage(cvGetSize(src_color_t),src_color_t->depth,3);
@@ -1001,31 +1094,54 @@ CvSeq* ImageProcess::find_max_contour_adjust_binary(IplImage* src_binary_t)
        }
        Icontour =Icontour->h_next;
    }
+	cvZero(src_binary_t);
+	cvDrawContours(src_binary_t, maxContour,
+    CV_RGB(255,255,255), CV_RGB(255, 255,255), 0,CV_FILLED );
+#if _DEBUG
+	wait_for_show_image("src_bin_adjust",src_binary_t);
+#endif
+    Point rou=find_central_line(maxContour,des);
+
+	cvReleaseImage(&src);  
+#if _DEBUG
+	cvReleaseImage(&des);
+#endif
+   return maxContour;
+}
+/*--------------------------------------------------------------*/
+/**
+*
+*
+*/
+/*--------------------------------------------------------------*/
+Point  ImageProcess::find_central_line(CvSeq* maxContour,IplImage* des)
+{
+	Point pt;
+	int thickness_min_box=1;
 #if _DEBUG
     cvDrawContours(des, maxContour,
     CV_RGB(255,255,255), CV_RGB(255, 255,255), 0, 1, 8, cvPoint(0,0));
+#endif
+#if _DEBUG;
    //CvRect rect=cvBoundingRect(maxContour,0);
    CvBox2D box=cvMinAreaRect2(maxContour);
    cout<<"长度： "<<box.size.width<<endl<<"宽度： "<<box.size.height;
-   //cvRectangle(src,cvPoint((rect.x-rect.height/2),(rect.y-rect.width/2)),cvPoint((rect.x+rect.height/2),(rect.y+rect.width/2)),cvScalar(255,255,255),1,8,0);
-  // cvRectangle(src,cvPoint((rect.x-rect.height/2),(rect.y-rect.width/2)),cvPoint((rect.x-rect.height/2),(rect.y-rect.width/2)),cvScalar(255,255,255),2,8,0);
-  // cvDrawCircle(src,cvPoint(box.center.x,box.center.y),box.size.height,cvScalar(255,255,255),2,8,0);
-   
- 
+  
      CvPoint2D32f p4[4];
      cvBoxPoints(box,p4);
      cvLine(des, cvPoint(cvRound(p4[0].x), cvRound(p4[0].y)),
-     cvPoint(cvRound(p4[1].x), cvRound(p4[1].y)), CV_RGB(0, 0, 255),2);
+     cvPoint(cvRound(p4[1].x), cvRound(p4[1].y)), CV_RGB(0, 0, 255),thickness_min_box);
        
      cvLine(des, cvPoint(cvRound(p4[1].x), cvRound(p4[1].y)),
-     cvPoint(cvRound(p4[2].x), cvRound(p4[2].y)), CV_RGB(0, 0, 255),2);
+     cvPoint(cvRound(p4[2].x), cvRound(p4[2].y)), CV_RGB(0, 0, 255),thickness_min_box);
        
      cvLine(des, cvPoint(cvRound(p4[3].x), cvRound(p4[3].y)),
-     cvPoint(cvRound(p4[2].x), cvRound(p4[2].y)), CV_RGB(0,0, 255),2);
+     cvPoint(cvRound(p4[2].x), cvRound(p4[2].y)), CV_RGB(0,0, 255),thickness_min_box);
        
      cvLine(des, cvPoint(cvRound(p4[3].x), cvRound(p4[3].y)),
-     cvPoint(cvRound(p4[0].x), cvRound(p4[0].y)), CV_RGB(0, 0,255),2);
-       
+     cvPoint(cvRound(p4[0].x), cvRound(p4[0].y)), CV_RGB(0, 0,255),thickness_min_box);
+#endif
+#if _DEBUG
 
 	  CvRect rect = cvBoundingRect(maxContour,1);
 	  cvRectangle(des, cvPoint(rect.x, rect.y), cvPoint(rect.x + rect.width, rect.y + rect.height),CV_RGB(255, 0, 0), 2, 8, 0);
@@ -1033,26 +1149,26 @@ CvSeq* ImageProcess::find_max_contour_adjust_binary(IplImage* src_binary_t)
 		try {  
 			CvBox2D ellipse = cvFitEllipse2(maxContour);//最小二乘法的椭圆拟合    
 			cvEllipseBox(des,ellipse,CV_RGB(255,255,0),2 ); //在图上画椭圆  
+
+			float k=tan((ellipse.angle-90)*CV_PI/180);
+			float b=ellipse.center.y-k*ellipse.center.x;
+			
+			Point p0,p1;
+			p0.x=0;p0.y=k*p0.x+b;
+			p1.x=des->width;p1.y=k*p1.x+b;
+			cvLine(des,p0,p1,CV_RGB(255,0,255));
+
+
 		}catch(cv::Exception& exn) {
 			printf("%s\n",exn.msg.c_str());
 		}
-	  
-	  
-
-		wait_for_show_image("max_contour",des);
-		cvReleaseImage(&des);
-
 #endif
-   
-    
-	cvZero(src_binary_t);
-	cvDrawContours(src_binary_t, maxContour,
-    CV_RGB(255,255,255), CV_RGB(255, 255,255), 0,CV_FILLED );
+	  
+#if _DEBUG
+		wait_for_show_image("max_contour",des);
+#endif
 
-	wait_for_show_image("src_bin_adjust",src_binary_t);
-	cvReleaseImage(&src);  
-
-   return maxContour;
+	return pt;
 }
 /*--------------------------------------------------------------*/
 /**
@@ -1565,9 +1681,9 @@ int ImageProcess::GetMaxValueIndexdouble(
 *
 */
 /*----------------------------------------------------------------*/
-IplImage* ImageProcess::cut_image(IplImage* src_color_t,int method)
+IplImage* ImageProcess::cut_image(IplImage* src_color_t,int method,CvRect& cut_t)
 {
-	CvRect cut_t;	
+	
 	IplImage* src_t=NULL; 
 
 	if(method==1){
@@ -1782,7 +1898,7 @@ void hough(Mat &img_data, Mat &dist, double threshold, int minRadius, int maxRad
 *
 */
 /*----------------------------------------------------------------*/
-void ImageProcess::hough_my(
+Point3f ImageProcess::hough_my(
 	IplImage *img_data,
 	IplImage *dist,
 	double threshold, int minRadius, int maxRadius, double distance,
@@ -1893,7 +2009,12 @@ void ImageProcess::hough_my(
 		delete[] H[i];
   
   delete[]H;
-
+  if(bestCircles.size()>0){
+    return bestCircles.at(0);
+  }else{
+	  Point3f null;null.x=0; null.y=0,null.z=0;
+   return null;
+  }
 
 }
 /*----------------------------------------------------------------*/
@@ -1901,7 +2022,7 @@ void ImageProcess::hough_my(
 *
 */
 /*----------------------------------------------------------------*/
-void ImageProcess::hough_my_fast(IplImage *img_data,
+Point3f ImageProcess::hough_my_fast(IplImage *img_data,
 			int method,
 			double threshold,
 			int minRadius,
@@ -1919,7 +2040,7 @@ void ImageProcess::hough_my_fast(IplImage *img_data,
 	cvCvtColor(img_data,coins,CV_GRAY2RGB);
 
 
-	hough_my(
+	Point3f xyr=hough_my(
 	img_data,
 	dist,
 	threshold,//10
@@ -1940,4 +2061,5 @@ void ImageProcess::hough_my_fast(IplImage *img_data,
  	cvReleaseImage(&dist);
 	cvReleaseImage(&coins);
 	cvReleaseImage(&h_acc);
+	return xyr;
 }

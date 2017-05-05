@@ -56,20 +56,25 @@ public:
 	double* data, 
 	double size);
 
-	static  IplImage* cut_image(IplImage* src_color_t,int method);
+	static  IplImage* cut_image(IplImage* src_color_t,int method,CvRect& cut_t);
 	static  void hough_image(IplImage* src_color_t,int method);
 
-	static void hough_my(
+	static Point3f hough_my(
 	IplImage *img_data,
 	IplImage *dist,
 	double threshold, int minRadius, int maxRadius, double distance,
 	IplImage *h_acc,
 	IplImage *coins);
 
-	static void hough_my_fast(
+	static Point3f hough_my_fast(
 	IplImage *img_data,
 	int method,
 	double threshold, int minRadius, int maxRadius, double distance);
+
+	static Point  ImageProcess::find_central_line(CvSeq* maxContour,IplImage* des);
+	
+	static void draw_duan_jian_result(IplImage* src_color,CvSeq* seq,Point3f circle1,Point3f circle0,IplImage* mask_img);
+	static void draw_dash_line(IplImage* src_color,double k,double b,IplImage* mask_img);
 
 };
 
