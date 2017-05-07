@@ -56,7 +56,10 @@ public:
 	double* data, 
 	double size);
 
-	static  IplImage* cut_image(IplImage* src_color_t,int method,CvRect& cut_t);
+
+	static  IplImage* cut_image(IplImage* src_color_t,int method,CvRect& cut_t,IplImage* src_binary_t);
+	static  IplImage* cut_image_01(IplImage* src_color_cut,IplImage* src_binary_cut_part,CvRect& cut_t);
+	
 	static  void hough_image(IplImage* src_color_t,int method);
 
 	static Point3f hough_my(
@@ -71,10 +74,19 @@ public:
 	int method,
 	double threshold, int minRadius, int maxRadius, double distance);
 
-	static Point  ImageProcess::find_central_line(CvSeq* maxContour,IplImage* des);
+	static Point  find_central_line(CvSeq* maxContour,IplImage* des);
 	
 	static void draw_duan_jian_result(IplImage* src_color,CvSeq* seq,Point3f circle1,Point3f circle0,IplImage* mask_img);
 	static void draw_dash_line(IplImage* src_color,double k,double b,IplImage* mask_img);
+
+
+	
+
+
+	static void find_circle(IplImage* src_color_cut,IplImage* src_binary_cut_part);
+
+	static void process_max_min_rect(IplImage* src_color_cut,IplImage* src_gary_cut,CvSeq* seq,IplImage* src_binary_cut,Point3f& circle0,Point3f& circle1);
+
 
 };
 
