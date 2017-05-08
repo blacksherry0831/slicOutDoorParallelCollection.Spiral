@@ -761,7 +761,7 @@ void  ImageProcess::wait_for_show_image(string window_name,IplImage* img_t)
 {
 #if _DEBUG
 
-	bool IsShow=true; 
+	bool IsShow=false; 
 
 	if(IsShow){
 		cvNamedWindow( window_name.c_str(), 1 );
@@ -815,9 +815,6 @@ void ImageProcess::zhangjiagang_hongbao_duanzao(string filename)
 			if(1){
 				cvCopy(src_gary,src_gary_cut,src_binary);
 				cvCopy(src_color,src_color_cut,src_binary);
-			}else{
-				cvCopy(src_gary,src_gary_cut);
-				cvCopy(src_color,src_color_cut);
 			}
 
 #if _DEBUG
@@ -832,7 +829,7 @@ wait_for_show_image("src_gary_cut ",src_gary_cut);
 	}
 
 
-	if(0){
+	/*if(0){
 			gary_by_angle(src_color_cut,src_gary_cut,src_binary_cut);	
 			IplImage*  canny_result=canny_by_mask(src_color_cut,src_gary_cut,src_binary_cut);
 			CvRect cut_1_rect;
@@ -862,7 +859,7 @@ Point3f circle0=hough_my_fast(cut_0,
 
 			
 	
-	}
+	}*/
 			cvResetImageROI(src_color);
 			cvResetImageROI(src_binary);
 			cvResetImageROI(src_gary);
@@ -1327,14 +1324,14 @@ int ImageProcess::GetHistogram(const IplImage* img_gary,const IplImage* mask_img
 IplImage* ImageProcess::canny_by_mask(IplImage* src_color_t,IplImage* img_gary,IplImage* mask_img)
 {
 
- IplImage* TheImage=cvCloneImage(img_gary);
- IplImage* src_color_tt=cvCloneImage(src_color_t);
+ IplImage* TheImage=cvCloneImage(img_gary);//子業
+
 	if(mask_img!=NULL){		
 		uchar* maskData=(uchar *)(mask_img->imageData);
 		const int pixels=img_gary->width* img_gary->height;
 		for(int pi=0;pi<pixels;pi++){
 			if(maskData[pi]==0x00){
-			((uchar *)(TheImage->imageData))[pi]=0x00;
+			((uchar *)(TheImage->imageData))[pi]=0x00;//子業
 			}
 		}
 	
@@ -1349,8 +1346,10 @@ IplImage* ImageProcess::canny_by_mask(IplImage* src_color_t,IplImage* img_gary,I
 #if _DEBUG
 	wait_for_show_image("Canny result",TheImage);
 #endif
-#if _DEBUG		
-		uchar* cannyData=(uchar *)(TheImage->imageData);
+
+#if _DEBUG
+ IplImage* src_color_tt=cvCloneImage(src_color_t);
+ uchar* cannyData=(uchar *)(TheImage->imageData);
 		//const int pixels=img_gary->width* img_gary->height;
 
 		for(int xi=0;xi<img_gary->width;xi++){
@@ -1371,9 +1370,9 @@ IplImage* ImageProcess::canny_by_mask(IplImage* src_color_t,IplImage* img_gary,I
 
 		}
 		wait_for_show_image("Canny color result",src_color_tt);
-#endif
-	//cvReleaseImage(&TheImage);
+
 	cvReleaseImage(&src_color_tt);
+#endif
 
 	return  TheImage;
 }
@@ -2047,6 +2046,40 @@ Point3f ImageProcess::hough_my(
 *
 */
 /*----------------------------------------------------------------*/
+Point3f ImageProcess::hough_my_fast_big(IplImage *img_data)
+{
+	double threshold=20;
+	int min_r=65;
+	int max_r=85;
+	return	hough_my_fast(img_data,
+			1,
+			threshold,
+			min_r,
+			max_r,
+ 			img_data->width);	
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+Point3f ImageProcess::hough_my_fast_small(IplImage *img_data)
+{
+	double threshold=10;
+	int min_r=60;
+	int max_r=66;
+	return	hough_my_fast(img_data,
+			0,
+			threshold,
+			min_r,
+			max_r,
+ 			img_data->width);	
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
 Point3f ImageProcess::hough_my_fast(IplImage *img_data,
 			int method,
 			double threshold,
@@ -2134,10 +2167,10 @@ void ImageProcess::process_max_min_rect(IplImage* src_color_cut,IplImage* src_ga
 				if(pixel_value_t>250){
 					float pos=A*(xi+rect_cut.x)+B*(yi+rect_cut.y)+C;
 						if(pos>0){
-							cvSetReal2D(src_binary_cut_part0,yi,xi,pixel_value_t);
+							cvSetReal2D(src_binary_cut_part0,yi,xi,255);
 							CountPart[0]++;
 						}else{
-							cvSetReal2D(src_binary_cut_part1,yi,xi,pixel_value_t);
+							cvSetReal2D(src_binary_cut_part1,yi,xi,255);
 							CountPart[1]++;
 						}
 				}
@@ -2151,49 +2184,40 @@ void ImageProcess::process_max_min_rect(IplImage* src_color_cut,IplImage* src_ga
 #if 1
 	gary_by_angle(src_color_cut,src_gary_cut,src_binary_cut);
 	IplImage*  canny_result=canny_by_mask(src_color_cut,src_gary_cut,src_binary_cut);
+
 #endif
 		/*-----------------------------------------*/
-#if 1
 		CvRect cut_1_rect;
 		CvRect cut_0_rect;
-		/*IplImage* cut_1=NULL;
-		IplImage* cut_0=NULL;*/
-
-		if(CountPart[1]>CountPart[0]){
-			
-			cut_image_01(src_color_cut,src_binary_cut_part1,cut_1_rect);
-			cut_image_01(src_color_cut,src_binary_cut_part0,cut_0_rect);
-
-		}else{
-			cut_image_01(src_color_cut,src_binary_cut_part1,cut_1_rect);
-			cut_image_01(src_color_cut,src_binary_cut_part0,cut_0_rect);
-		
-		}
-
-		/*cvReleaseImage(&cut_1);
-		cvReleaseImage(&cut_0);*/
-
+#if 1			
+		cut_image_01(src_color_cut,src_binary_cut_part1,cut_1_rect);
+		cut_image_01(src_color_cut,src_binary_cut_part0,cut_0_rect);
+#endif
+#if _DEBUG
+		wait_for_show_image("part11_cut",src_binary_cut_part1);
+		wait_for_show_image("part00_cut",src_binary_cut_part0);
 #endif
 		/*-----------------------------------------*/
 #if 1
-			IplImage* cut_1=cut_image(canny_result,-1,cut_1_rect,src_binary_cut_part1);
-			IplImage* cut_0=cut_image(canny_result,-1,cut_0_rect,src_binary_cut_part0);
+	IplImage* cut_1=cut_image(canny_result,-1,cut_1_rect,src_binary_cut_part1);
+	IplImage* cut_0=cut_image(canny_result,-1,cut_0_rect,src_binary_cut_part0);
+
 #if _DEBUG
 	wait_for_show_image("cut_1",cut_1);
 	wait_for_show_image("cut_0",cut_0);
 #endif
-circle1=hough_my_fast(cut_1,
-			1,
-			20,
-			65,
-			85,
-			cut_1->width);
-circle0=hough_my_fast(cut_0,
-			0,
-			10,
-			60,
-			80,
-			cut_0->width);
+
+		if(CountPart[1]>CountPart[0]){
+				circle1=hough_my_fast_big(cut_1);	
+				circle0=hough_my_fast_small(cut_0);
+		}else{
+				circle1=hough_my_fast_small(cut_1);	
+				circle0=hough_my_fast_big(cut_0);				
+		}
+
+
+
+
 			circle1.x+=cut_1_rect.x;
 			circle1.y+=cut_1_rect.y;
 			circle0.x+=cut_0_rect.x;
@@ -2213,14 +2237,22 @@ circle0=hough_my_fast(cut_0,
 *
 */
 /*----------------------------------------------------------------*/
- IplImage* ImageProcess::cut_image_01(IplImage* src_color_cut,IplImage* src_binary_cut_part,CvRect& cut_t)
+ IplImage* ImageProcess::cut_image_01(IplImage* src_color_cut,IplImage*& src_binary_cut_part,CvRect& cut_t)
 {
-
+//#if _DEBUG
+//	wait_for_show_image("src_bin_adjust_22b",src_binary_cut_part);
+//#endif
    CvMemStorage* memory=cvCreateMemStorage(0);
    CvSeq* Icontour=NULL;
    CvSeq* maxContour =NULL;
    
-   cvFindContours(src_binary_cut_part,memory,&Icontour, sizeof(CvContour),CV_RETR_EXTERNAL,CV_CHAIN_APPROX_SIMPLE,cvPoint(0,0));
+   cvFindContours(src_binary_cut_part,
+	   memory,
+	   &Icontour,
+	   sizeof(CvContour),
+	   CV_RETR_EXTERNAL,
+	   CV_CHAIN_APPROX_SIMPLE,
+	   cvPoint(0,0));
 
    double area=0;
    double maxArea=0;
@@ -2235,20 +2267,27 @@ circle0=hough_my_fast(cut_0,
        }
        Icontour =Icontour->h_next;
    }
-	
+
+	cut_t=cvBoundingRect(maxContour,1);	
+
+
+#if 1
+	//cvZero(src_binary_cut_part);	
+	cvDrawContours(src_binary_cut_part, maxContour,
+           Scalar(0),Scalar(255),
+           0,5);
+#endif
 
 //#if _DEBUG
-//	wait_for_show_image("src_bin_adjust_2",src_binary_t);
+//	wait_for_show_image("src_bin_adjust_22a",src_binary_cut_part);
 //#endif
-   
-   cut_t=cvBoundingRect(maxContour,1);
-  
    //IplImage* cut_img_t=cvCreateImage(cvSize(cut_t.width,cut_t.height),IPL_DEPTH_8U,1);
 
    //cvCopy(src_color_cut,cut_img_t,src_binary_cut_part);
 
 
-	return NULL;
+	cvReleaseMemStorage(&memory);
+ 	return NULL;
 }
 /*----------------------------------------------------------------*/
 /**

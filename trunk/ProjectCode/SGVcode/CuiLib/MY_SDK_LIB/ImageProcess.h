@@ -58,7 +58,7 @@ public:
 
 
 	static  IplImage* cut_image(IplImage* src_color_t,int method,CvRect& cut_t,IplImage* src_binary_t);
-	static  IplImage* cut_image_01(IplImage* src_color_cut,IplImage* src_binary_cut_part,CvRect& cut_t);
+	static  IplImage* cut_image_01(IplImage* src_color_cut,IplImage*& src_binary_cut_part,CvRect& cut_t);
 	
 	static  void hough_image(IplImage* src_color_t,int method);
 
@@ -73,6 +73,9 @@ public:
 	IplImage *img_data,
 	int method,
 	double threshold, int minRadius, int maxRadius, double distance);
+
+	static Point3f hough_my_fast_small(IplImage *img_data);
+	static Point3f hough_my_fast_big(IplImage *img_data);
 
 	static Point  find_central_line(CvSeq* maxContour,IplImage* des);
 	

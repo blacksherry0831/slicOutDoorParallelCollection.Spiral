@@ -363,11 +363,17 @@ int main(int *argc,char *argv[])
 	TimeCountStart();
 
 	{
+		vector<string> paths;
+		paths.push_back("D:\\ImageDataBase\\duanjian\\suck_ohaha.jpg");
+		paths.push_back("D:\\ImageDataBase\\duanjian\\test.jpg");
 		
-		//string path_t="D:\\ImageDataBase\\duanjian\\test.jpg";
-		string path_t="D:\\ImageDataBase\\duanjian\\suck_ohaha.jpg";
-		ImageProcess::zhangjiagang_hongbao_duanzao(path_t);
-		destroyAllWindows();
+		for(int i=0;i<paths.size();i++){
+			string path_t=paths.at(i);
+			ImageProcess::zhangjiagang_hongbao_duanzao(path_t);
+			destroyAllWindows();
+		}
+		
+
 	}
 
 	TimeCountStop("cost time:");
