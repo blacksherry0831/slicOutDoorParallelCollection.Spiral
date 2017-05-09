@@ -36,7 +36,7 @@ public:
 
 
 	static IplImage* use_lab2binary(IplImage* src_color_t);
-	static  CvSeq* find_max_contour_adjust_binary(IplImage* src_binary_t);
+	static  CvSeq* find_max_contour_adjust_binary(CvMemStorage* memory,IplImage* src_binary_t);
 	
 	static void equalizeHist_by_mask(IplImage* img_gary,CvRect mask_rect);
 	static void equalizeHist_by_mask(IplImage* img_gary,IplImage* mask_img);
@@ -58,7 +58,7 @@ public:
 
 
 	static  IplImage* cut_image(IplImage* src_color_t,int method,CvRect& cut_t,IplImage* src_binary_t);
-	static  IplImage* cut_image_01(IplImage* src_color_cut,IplImage*& src_binary_cut_part,CvRect& cut_t);
+	static  IplImage* cut_image_01(CvMemStorage* memory,IplImage* src_color_cut,IplImage* src_binary_cut_part,CvRect& cut_t);
 	
 	static  void hough_image(IplImage* src_color_t,int method);
 
@@ -88,7 +88,7 @@ public:
 
 	static void find_circle(IplImage* src_color_cut,IplImage* src_binary_cut_part);
 
-	static void process_max_min_rect(IplImage* src_color_cut,IplImage* src_gary_cut,CvSeq* seq,IplImage* src_binary_cut,Point3f& circle0,Point3f& circle1);
+	static void process_max_min_rect(CvMemStorage* memory,IplImage* src_color_cut,IplImage* src_gary_cut,CvSeq* seq,IplImage* src_binary_cut,Point3f& circle0,Point3f& circle1);
 
 
 };
