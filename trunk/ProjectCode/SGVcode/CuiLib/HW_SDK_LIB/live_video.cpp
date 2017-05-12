@@ -89,7 +89,7 @@ live_video::live_video(const char* ip,int slot)
 	m_stream_frame_count=0;
 	m_save_image_switch=0;
 	m_save_video_switch=false;
-	
+	m_is_draw_spiral=false;
 	m_img_rgb_3=NULL;
 
 #ifdef SHOW_IMAGE
@@ -320,11 +320,11 @@ void CALLBACK live_video::on_yuv_ex(PLAY_HANDLE handle, const unsigned char* y, 
 	
 	/*MemData.Draw_Kseeds_Spiral(lv->m_img_rgb_4_for_show);*/
 						
-	if (lv->m_stream_frame_count%10==0)
+	if (lv->m_stream_frame_count%50==0)
 	{
 		double dur_ms=1.0*(lv->m_frame_end-lv->m_frame_start)/CLOCKS_PER_SEC*1000;
 		double frame_snap_t=dur_ms/lv->m_stream_frame_count;
-		printf("Frame From IP :%s , Frame Snap %0.2f (ms) \n",lv->m_ip.c_str(),frame_snap_t);
+		printf("CAMERA>>>Frame From IP :%s , Frame Snap %0.2f (ms) \n",lv->m_ip.c_str(),frame_snap_t);
 	}
 
 
@@ -713,7 +713,9 @@ unsigned live_video::opencv_show_image_thread(LPVOID lpParam)
 
 		cvCvtColor(lv->m_img_rgb_3,lv->m_img_rgb_4_for_show,CV_BGR2BGRA);
 		
-		MemData.Draw_Kseeds_Spiral(lv->m_img_rgb_4_for_show);
+		if(lv->m_is_draw_spiral){
+				MemData.Draw_Kseeds_Spiral(lv->m_img_rgb_4_for_show);		
+		}
 
 		cvShowImage(lv->m_ip.c_str(),lv->m_img_rgb_4_for_show);
 		
@@ -734,7 +736,10 @@ unsigned live_video::opencv_show_image_thread(LPVOID lpParam)
 			}else{
 				printf("½áÊøÂ¼ÖÆÊÓÆµ,%s \n",lv->m_ip.c_str());
 			}
+		}else if(key=='d'){
 
+			lv->m_is_draw_spiral=!lv->m_is_draw_spiral;
+		
 		}else if(key=='4'){
 			lv->turn_left();
 		}else if(key=='6'){

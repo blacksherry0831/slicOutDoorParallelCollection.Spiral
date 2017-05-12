@@ -187,9 +187,9 @@ void Compass_HCM365::ReadCompassData()
 
 
 		}else if (read_count==0){
-			Sleep(100);
+			Sleep(1000);
 			Timeout_t++;
-			TimeCountStop("Read Serial Port Timeout!");
+			TimeCountStop("COMPASS>>>Read Serial Port Timeout!");
 		}else{
 
 			ASSERT(0);

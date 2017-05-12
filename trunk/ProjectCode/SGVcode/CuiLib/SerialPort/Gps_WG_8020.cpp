@@ -128,9 +128,9 @@ string GPS_WG_8020::ReadString()
 
 		}else if (read_count==0){
 		
-			Sleep(0);
+			Sleep(1000);
 			Timeout_t++;
-			TimeCountStop("Read Serial Port Timeout!");
+			TimeCountStop("GPS>>>Read Serial Port Timeout!");
 
 		}else{
 
@@ -248,9 +248,9 @@ void GPS_WG_8020::ReadGpsData()
 		}else if (read_count==0){
 			/*	memset(buffer_cmd,0,sizeof(buffer_cmd));
 				scanf("%s",buffer_cmd);*/
-			Sleep(0);
+			Sleep(1000);
 			Timeout_t++;
-			TimeCountStop("Read Serial Port Timeout!");
+			TimeCountStop("GPS>>>Read Serial Port Timeout!");
 
 		}else{
 

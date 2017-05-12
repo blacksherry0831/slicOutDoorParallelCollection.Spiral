@@ -77,6 +77,8 @@ private:
 	PLAY_HANDLE m_ph;
 	bool m_is_playing;
 public:
+	bool m_is_draw_spiral;
+public:
 	int m_width;
 	int m_height;
 public: 
