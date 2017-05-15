@@ -14,6 +14,8 @@ ADD_SUBDIRECTORY(SerialPort)
 
 ADD_SUBDIRECTORY(libcurl)
 
+ADD_SUBDIRECTORY(jsoncpp-master)
+
 #SET(DIR_SRCS    ManhattanHistogram.cpp
 #				SeparateSpBlock.cpp
 #				SpectralClustering.cpp
