@@ -714,7 +714,19 @@ unsigned live_video::opencv_show_image_thread(LPVOID lpParam)
 		cvCvtColor(lv->m_img_rgb_3,lv->m_img_rgb_4_for_show,CV_BGR2BGRA);
 		
 		if(lv->m_is_draw_spiral){
-				MemData.Draw_Kseeds_Spiral(lv->m_img_rgb_4_for_show);		
+
+				MemData.Draw_Kseeds_Spiral(lv->m_img_rgb_4_for_show);
+				std::string gps_p=GPS_WG_8020::getInstance()->GetLatLonStr();
+				std::string compass_prh=Compass_HCM365::getInstance()->GetPitchRollHeadingStr();
+				{
+					CvFont font;
+					CvPoint pt1=cvPoint(20,30);
+					CvPoint pt0=cvPoint(20,100);;
+					cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX, 1.0f,1.0f,2);
+					cvPutText(lv->m_img_rgb_4_for_show, gps_p.c_str(), pt1, &font,CV_RGB(0, 0, 0) );
+					cvPutText(lv->m_img_rgb_4_for_show, compass_prh.c_str(), pt0, &font,CV_RGB(0, 0, 0) );
+
+				}
 		}
 
 		cvShowImage(lv->m_ip.c_str(),lv->m_img_rgb_4_for_show);
