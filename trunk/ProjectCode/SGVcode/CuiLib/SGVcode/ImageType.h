@@ -4,7 +4,7 @@
 //#include <memory>
 //#include "cv.h"
 #ifndef ASSERT
-#include <assert.h>
+//#include <assert.h>
 #define ASSERT(x) assert(x)
 #endif
 

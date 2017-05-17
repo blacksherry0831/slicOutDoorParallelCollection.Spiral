@@ -16,16 +16,15 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	
 ConfigMFC_2() 
 ###############################################################################
-SET(LIBCURL_SRCS
-		CHttpClient.cpp
+SET(pthreads_SRCS
+
 	)
 
-ADD_LIBRARY(libcurl   STATIC    ${LIBCURL_SRCS})
+ADD_LIBRARY(pthreads   STATIC    ${pthreads_SRCS})
 
-TARGET_LINK_LIBRARIES(libcurl ${BASE_LINK_LIB})
-
-SET_TARGET_PROPERTIES(libcurl PROPERTIES LINKER_LANGUAGE CXX)
+SET_TARGET_PROPERTIES(pthreads PROPERTIES LINKER_LANGUAGE CXX)
 ###############################################################################
+
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
    
 ELSE ()  

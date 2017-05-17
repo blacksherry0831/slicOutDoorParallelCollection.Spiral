@@ -16,6 +16,10 @@ ADD_SUBDIRECTORY(libcurl)
 
 ADD_SUBDIRECTORY(jsoncpp-master)
 
+ADD_SUBDIRECTORY(pthreads-w32-2-9-1-release)
+
+#ADD_SUBDIRECTORY(libwebsockets-2-2-stable)
+
 #SET(DIR_SRCS    ManhattanHistogram.cpp
 #				SeparateSpBlock.cpp
 #				SpectralClustering.cpp

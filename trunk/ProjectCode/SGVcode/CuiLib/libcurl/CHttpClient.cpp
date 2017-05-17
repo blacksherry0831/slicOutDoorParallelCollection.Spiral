@@ -1,5 +1,5 @@
-#include "httpclient.h"
-#include "curl/curl.h"
+#include "CHttpClient.h"
+#include "include/curl/curl.h"
 #include <string>
 
 CHttpClient::CHttpClient(void) : 
@@ -91,7 +91,7 @@ int CHttpClient::Get(const std::string & strUrl, std::string & strResponse)
 		curl_easy_setopt(curl, CURLOPT_VERBOSE, 1);
 		curl_easy_setopt(curl, CURLOPT_DEBUGFUNCTION, OnDebug);
 	}
-<pre name="code" class="cpp">	curl_easy_setopt(curl, CURLOPT_URL, strUrl.c_str());
+	curl_easy_setopt(curl, CURLOPT_URL, strUrl.c_str());
 	curl_easy_setopt(curl, CURLOPT_READFUNCTION, NULL);
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, OnWriteData);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&strResponse);

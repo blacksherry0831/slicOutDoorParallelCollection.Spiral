@@ -78,22 +78,52 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	
 	
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
-	
+############################################################################### 	
+if(CMAKE_CL_64)  
+else()
 	SET(HW_WIN32_LIB	
-	play_sdk.lib
-	hwclient.lib
-	ijl15l.lib)
+		play_sdk.lib
+		hwclient.lib
+		ijl15l.lib)
 
+	LINK_DIRECTORIES(
+		${SGV_cmake_SOURCE_DIR}/CuiLib/HW_SDK_LIB/lib)
+	link_libraries(${HW_WIN32_LIB})
+endif()
+
+######################################################################
+#CMAKE的内建变量，如果是true，就说明编译器的64位的，自然可以编译64bit的程序
+if(CMAKE_CL_64)    
+	
+	SET(LIB_PTHREADS
+		pthreadVC2.lib)
+
+   LINK_DIRECTORIES(		
+		${SGV_cmake_SOURCE_DIR}/CuiLib/pthreads-w32-2-9-1-release/lib/x64)
+else()
+	SET(LIB_PTHREADS
+		pthreadVC2.lib
+		pthreadVCE2.lib
+		pthreadVSE2.lib)
+
+   LINK_DIRECTORIES(		
+		${SGV_cmake_SOURCE_DIR}/CuiLib/pthreads-w32-2-9-1-release/lib/x86)
+endif()
+
+   link_libraries(${LIB_PTHREADS})
+
+###################################################################### 
+if(CMAKE_CL_64)  
+else()
 	SET(LIBCURL
 		libcurl.lib)
 
-   LINK_DIRECTORIES(
-		${SGV_cmake_SOURCE_DIR}/CuiLib/HW_SDK_LIB/lib
-		${SGV_cmake_SOURCE_DIR}/CuiLib/libcurl/lib
-   )
-   
-   link_libraries(${HW_WIN32_LIB})
-    link_libraries(${LIBCURL})
+   LINK_DIRECTORIES(		
+		${SGV_cmake_SOURCE_DIR}/CuiLib/libcurl/lib)
+
+   link_libraries(${LIBCURL})
+endif()
+
 ###############################################################################   
 ADD_EXECUTABLE(SpectralClusteringGndVSkyOutDoor main.cpp)
 TARGET_LINK_LIBRARIES(SpectralClusteringGndVSkyOutDoor 
@@ -115,6 +145,11 @@ TARGET_LINK_LIBRARIES(GPS_TEST
 ##############################################################################
 ADD_EXECUTABLE(HTTP_TEST main_test/http_test.cpp)
 TARGET_LINK_LIBRARIES(HTTP_TEST)
+##############################################################################
+ADD_EXECUTABLE(JSON_TEST main_test/json_test.cpp)
+TARGET_LINK_LIBRARIES(JSON_TEST
+								jsoncpp_lib)
+
 ##############################################################################
 ADD_EXECUTABLE(calibration_TEST main_test/calibration.cpp)
 TARGET_LINK_LIBRARIES(calibration_TEST)
