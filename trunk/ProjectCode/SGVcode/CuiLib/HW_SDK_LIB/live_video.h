@@ -87,7 +87,7 @@ public:
 	long m_stream_ready;/**<*/
 	long m_stream_frame_count;/**<*/
 	long m_save_image_switch;
-	bool m_save_video_switch;
+	static bool m_save_video_switch;
 	bool m_save_video_start;
 public:
 	clock_t m_frame_start;

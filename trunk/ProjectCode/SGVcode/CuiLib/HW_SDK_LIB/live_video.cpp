@@ -78,6 +78,8 @@ void colorspace_init(void)
 	}
 }
 
+bool live_video::m_save_video_switch=false;
+
 live_video::live_video(const char* ip,int slot)
 	:m_ip(ip),m_slot(slot),m_uh(-1),m_sh(-1),m_ph(INVALID_HANDLE),m_hwnd(0)
 	,m_is_playing(false)
