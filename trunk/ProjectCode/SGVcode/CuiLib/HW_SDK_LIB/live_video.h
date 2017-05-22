@@ -25,7 +25,7 @@ using namespace tinyxml2;
 #define SAVE_IMAGE TRUE
 #define SAVE_VIDEO TRUE
 #define SHOW_IMAGE TRUE
-
+#define	FPS_MY (25)
 class live_video
 {
 public:

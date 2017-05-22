@@ -348,7 +348,7 @@ void CALLBACK live_video::on_yuv_ex(PLAY_HANDLE handle, const unsigned char* y, 
 */
 bool live_video::init_video_writer()
 {				
-		const int fps     = 5;
+		const int fps     = FPS_MY;
 		//static int frame_count=0;
 		static string time_stamp_t;
 		/*-----------------------------------------------------*/	
@@ -1034,7 +1034,7 @@ void live_video::SaveVideo()
 #endif
 #endif
 
-#ifdef SAVE_VIDEO
+#ifdef SAVE_VIDEO_SPIRAL
 #if SAVE_VIDEO	
 
 		IplImage *img_t=cvCreateImage(cvGetSize(this->m_img_rgb_3),IPL_DEPTH_8U,this->m_img_rgb_3->nChannels);
