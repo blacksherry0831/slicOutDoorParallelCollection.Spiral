@@ -4,17 +4,27 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT(SGV_cmake)
 ###############################################################################
 INCLUDE(cmake/LinuxPrepare.cmake)
-
 INCLUDE(cmake/SetMFC.cmake)
 INCLUDE(cmake/FindOpencv.cmake)
+INCLUDE(cmake/SetBoost.cmake)
 INCLUDE(cmake/setCUDA.cmake)
 ###############################################################################
 INCLUDE_DIRECTORIES( #相关头文件的目录
 	${SGV_cmake_SOURCE_DIR}/CuiLib
 	${SGV_cmake_SOURCE_DIR}
 )
+###############################################################################
+
+###############################################################################
+
+INCLUDE_DIRECTORIES( #相关头文件的目录
+	${SGV_cmake_SOURCE_DIR}/CuiLib/websocketpp-experimental	
+)
+
+
 ADD_SUBDIRECTORY(CuiLib)
 ADD_SUBDIRECTORY(main_test)
+
 #ADD_SUBDIRECTORY(arpackpp-master)
 ###############################################################################
 MESSAGE(STATUS "operation system is ${CMAKE_SYSTEM}")  
@@ -23,6 +33,8 @@ C11_Config()
 ConfigOpenCv()
 ############配置CUDA#########################################################
 ConfigCUDA()
+#############################################################################
+#ConfigBoost()
 #################编译器配置####################################################
 MESSAGE(STATUS "###################################")  
 
@@ -30,7 +42,7 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
  
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")   
 	 ConfigMFC_2()
-	 MESSAGE(STATUS "MFC配置")   
+	 MESSAGE(STATUS "MFC config")   
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
    
 ELSE ()  
@@ -78,6 +90,11 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	
 	
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
+############################################################################### 
+
+#FIND_PATH(WEB_SOCKET_PP_ROOT client.hpp ${SGV_cmake_SOURCE_DIR}/CuiLib/websocketpp-experimental/websocketpp)
+
+#message(${WEB_SOCKET_PP_ROOT})
 ############################################################################### 	
 if(CMAKE_CL_64)  
 else()
@@ -130,8 +147,8 @@ TARGET_LINK_LIBRARIES(SpectralClusteringGndVSkyOutDoor
 									SGVcode
 						  )						  
 ###############################################################################
-ADD_EXECUTABLE(HW_Hello main_test/hw_hello.cpp)
-TARGET_LINK_LIBRARIES(HW_Hello
+ADD_EXECUTABLE(TEST_HW_Hello main_test/hw_hello.cpp)
+TARGET_LINK_LIBRARIES(TEST_HW_Hello
 	HW_SDK_LIB)  	
 ##############################################################################
 ADD_EXECUTABLE(HW_AVI2IMAGE main_test/hw_avi2image.cpp)
@@ -139,23 +156,23 @@ TARGET_LINK_LIBRARIES(HW_AVI2IMAGE
 	MY_SDK_LIB
 	HW_SDK_LIB) 
 ##############################################################################
-ADD_EXECUTABLE(GPS_TEST main_test/gps_test.cpp)
-TARGET_LINK_LIBRARIES(GPS_TEST
+ADD_EXECUTABLE(TEST_GPS main_test/gps_test.cpp)
+TARGET_LINK_LIBRARIES(TEST_GPS
 	SerialPort)
 ##############################################################################
-ADD_EXECUTABLE(HTTP_TEST main_test/http_test.cpp)
-TARGET_LINK_LIBRARIES(HTTP_TEST)
+ADD_EXECUTABLE(TEST_HTTP main_test/http_test.cpp)
+TARGET_LINK_LIBRARIES(TEST_HTTP)
 ##############################################################################
-ADD_EXECUTABLE(JSON_TEST main_test/json_test.cpp)
-TARGET_LINK_LIBRARIES(JSON_TEST
+ADD_EXECUTABLE(TEST_JSON main_test/json_test.cpp)
+TARGET_LINK_LIBRARIES(TEST_JSON
 								jsoncpp_lib)
 
 ##############################################################################
-ADD_EXECUTABLE(calibration_TEST main_test/calibration.cpp)
-TARGET_LINK_LIBRARIES(calibration_TEST)
+ADD_EXECUTABLE(TEST_calibration main_test/calibration.cpp)
+TARGET_LINK_LIBRARIES(TEST_calibration)
 ##############################################################################
-ADD_EXECUTABLE(DUANZAO_TEST main_test/duanzao.cpp)
-TARGET_LINK_LIBRARIES(DUANZAO_TEST
+ADD_EXECUTABLE(TEST_DUANZAO main_test/duanzao.cpp)
+TARGET_LINK_LIBRARIES(TEST_DUANZAO
 						MY_SDK_LIB)
 ##############################################################################
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")

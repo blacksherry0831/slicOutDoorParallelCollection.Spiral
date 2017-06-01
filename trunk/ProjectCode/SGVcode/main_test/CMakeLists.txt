@@ -2,26 +2,31 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 #ÏîÄ¿Ãû³Æ
 ###############################################################################
-
-C11_Config()  
-ConfigOpenCv()
+FIND_PACKAGE(Boost)
+###############################################################################
   
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")  
  
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
-	ConfigMFC_2() 
-   
-	#SET(HW_WIN32	
-	#play_sdk.lib
-	#hwclient.lib
-	#ijl15l.lib)
+	
+###############################################
+IF(Boost_FOUND)
+	ConfigBoost()
 
-   #LINK_DIRECTORIES(
-   #CuiLib/HW_SDK_LIB/lib/
-   #)
+	ADD_EXECUTABLE(TEST_WEB_SOCKET_PP websocket_test.cpp)
+	TARGET_LINK_LIBRARIES(TEST_WEB_SOCKET_PP
+					)
 
-  #link_libraries(${HW_WIN32})
+ELSE(Boost_FOUND)
+
+   MESSAGE(FATAL_ERROR ¡±Boost library not found¡±)
+
+ENDIF(Boost_FOUND)
+
+
+################################################
+
 
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
    
