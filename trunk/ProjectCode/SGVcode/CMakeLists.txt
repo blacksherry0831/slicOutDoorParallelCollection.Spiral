@@ -108,7 +108,7 @@ else()
 	link_libraries(${HW_WIN32_LIB})
 endif()
 
-######################################################################
+##########################################################
 #CMAKE的内建变量，如果是true，就说明编译器的64位的，自然可以编译64bit的程序
 if(CMAKE_CL_64)    
 	
@@ -129,7 +129,7 @@ endif()
 
    link_libraries(${LIB_PTHREADS})
 
-###################################################################### 
+############################################################ 
 if(CMAKE_CL_64)  
 else()
 	SET(LIBCURL
@@ -141,40 +141,45 @@ else()
    link_libraries(${LIBCURL})
 endif()
 
-###############################################################################   
-ADD_EXECUTABLE(SpectralClusteringGndVSkyOutDoor main.cpp)
-TARGET_LINK_LIBRARIES(SpectralClusteringGndVSkyOutDoor 
+############################################################
+
+   
+ADD_EXECUTABLE(EXE_SpectralClusteringGndVSkyOutDoor main.cpp)
+TARGET_LINK_LIBRARIES(EXE_SpectralClusteringGndVSkyOutDoor 
 									SGVcode
 						  )						  
-###############################################################################
-ADD_EXECUTABLE(TEST_HW_Hello main_test/hw_hello.cpp)
-TARGET_LINK_LIBRARIES(TEST_HW_Hello
-	HW_SDK_LIB)  	
-##############################################################################
-ADD_EXECUTABLE(HW_AVI2IMAGE main_test/hw_avi2image.cpp)
-TARGET_LINK_LIBRARIES(HW_AVI2IMAGE
-	MY_SDK_LIB
-	HW_SDK_LIB) 
-##############################################################################
+
+############################################################
+################################################
 ADD_EXECUTABLE(TEST_GPS main_test/gps_test.cpp)
 TARGET_LINK_LIBRARIES(TEST_GPS
 	SerialPort)
-##############################################################################
-ADD_EXECUTABLE(TEST_HTTP main_test/http_test.cpp)
-TARGET_LINK_LIBRARIES(TEST_HTTP)
-##############################################################################
+################################################
+ADD_EXECUTABLE(EXE_HW_Hello main_test/hw_hello.cpp)
+TARGET_LINK_LIBRARIES(EXE_HW_Hello
+	HW_SDK_LIB)  
+################################################
+################################################
+ADD_EXECUTABLE(EXE_DUANZAO main_test/duanzao.cpp)
+TARGET_LINK_LIBRARIES(EXE_DUANZAO
+						MY_SDK_LIB)
+################################################
+ADD_EXECUTABLE(TEST_calibration main_test/calibration.cpp)
+TARGET_LINK_LIBRARIES(TEST_calibration)
+################################################
 ADD_EXECUTABLE(TEST_JSON main_test/json_test.cpp)
 TARGET_LINK_LIBRARIES(TEST_JSON
 								jsoncpp_lib)
-
-##############################################################################
-ADD_EXECUTABLE(TEST_calibration main_test/calibration.cpp)
-TARGET_LINK_LIBRARIES(TEST_calibration)
-##############################################################################
-ADD_EXECUTABLE(TEST_DUANZAO main_test/duanzao.cpp)
-TARGET_LINK_LIBRARIES(TEST_DUANZAO
-						MY_SDK_LIB)
-##############################################################################
+################################################
+ADD_EXECUTABLE(TEST_HTTP main_test/http_test.cpp)
+TARGET_LINK_LIBRARIES(TEST_HTTP)
+################################################
+################################################
+ADD_EXECUTABLE(EXE_HW_AVI2IMAGE main_test/hw_avi2image.cpp)
+TARGET_LINK_LIBRARIES(EXE_HW_AVI2IMAGE
+	MY_SDK_LIB
+	HW_SDK_LIB) 
+#################################################
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
    
 ELSE ()  

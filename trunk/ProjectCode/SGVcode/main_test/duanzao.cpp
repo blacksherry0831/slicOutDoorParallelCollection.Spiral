@@ -2,7 +2,11 @@
 //By MoreWindows (http://blog.csdn.net/MoreWindows)
 
 
-#include "stdafx.h"
+
+//#include "stdafx.h"
+
+#include <opencv_stl.h>
+
 #include <opencv2/opencv.hpp>
 using namespace std;
 
