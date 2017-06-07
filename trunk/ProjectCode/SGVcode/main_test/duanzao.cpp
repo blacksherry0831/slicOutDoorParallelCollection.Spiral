@@ -368,6 +368,7 @@ int main(int *argc,char *argv[])
 
 	{
 		vector<string> paths;
+		
 		paths.push_back("D:\\ImageDataBase\\duanjian\\suck_ohaha.jpg");
 		paths.push_back("D:\\ImageDataBase\\duanjian\\test.jpg");
 		

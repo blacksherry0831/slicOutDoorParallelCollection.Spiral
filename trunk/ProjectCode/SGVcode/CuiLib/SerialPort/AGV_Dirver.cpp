@@ -1,6 +1,5 @@
 #include "StdAfx.h"
 #include "AGV_Dirver.h"
-//#include "opencv_stl.h"
 /*-------------------------------------*/
 /**
 *
@@ -8,7 +7,6 @@
 */
 /*-------------------------------------*/
 AGV_Dirver* AGV_Dirver::_instance =new AGV_Dirver();
-//CGarbo CGarbo::Garbo();
 /*-------------------------------------*/
 /**
 *
@@ -18,12 +16,14 @@ AGV_Dirver* AGV_Dirver::_instance =new AGV_Dirver();
 
 AGV_Dirver::AGV_Dirver(void)
 {
-	//this->g_Lat_float=-1;
-	//this->g_Lon_float=-1;
-
 	buffer_result_idx=0;
 	memset(buffer_result,0,sizeof(buffer_result));
-//	this->open();
+
+	status_car_ready=0;
+	status_car_battery_low=0;
+	status_car_roadblock=0;
+	status_car_internal_error=0;
+	status_car_communication_error=0;
 }
 /*-------------------------------------*/
 /**
@@ -32,9 +32,7 @@ AGV_Dirver::AGV_Dirver(void)
 /*-------------------------------------*/
 AGV_Dirver::~AGV_Dirver(void)
 {
-
 	this->close();
-
 }
 /*-------------------------------------*/
 /**
@@ -79,6 +77,8 @@ void AGV_Dirver::init()
 
 
 	this->open(com_num);
+
+	this->GetCmd(cmd_current,TRUE,NO_TURN,TRUE,FALSE,40);
 }
 /*-------------------------------------*/
 /**
@@ -94,69 +94,12 @@ void AGV_Dirver::close()
 *
 */
 /*-------------------------------------*/
-//void AGV_Dirver::SendCmdPitchRollHeading()
-//{
-//	char cmd_t[]={0x68,0x04,0x00,0x04,0x08};
-//	
-//	if (m_sp.IsOpen())
-//	{
-//		m_sp.Write(cmd_t,sizeof(cmd_t));
-//	}
-//
-//	
-//
-//}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-//void AGV_Dirver::SendCmdEnterAT()
-//{
-//	char CMD_PPP[]="+++\n";
-//	char CMD_ATE0[]="ate0\n";
-//
-//	int size=strlen(CMD_PPP);
-//
-//	m_sp.Write(CMD_PPP,strlen(CMD_PPP));
-//	
-//	this->ReadGpsData();
-//
-//	m_sp.Write(CMD_ATE0,strlen(CMD_ATE0));
-//	
-//	this->ReadGpsData();
-//}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-//void AGV_Dirver::SendCmdVERS()
-//{
-//	char CMD_VERS[]="AT^VERS\n";
-//	m_sp.Write(CMD_VERS,strlen(CMD_VERS));
-//
-//}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-//void AGV_Dirver::SendCmdGPRMC()
-//{
-//	char CMD_GPRMC[]="AT^GPRMC\n";
-//	m_sp.Write(CMD_GPRMC,strlen(CMD_GPRMC));
-//}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
+
 void AGV_Dirver::ReadResultData()
 {
 	DWORD read_count=0;
 	int  Timeout_t=0;
-	int read_len_t=14;
+	const int read_len_t=10;
 	buffer_result_idx=0;
 	memset(buffer_result,0,sizeof(buffer_result));
 
@@ -167,13 +110,9 @@ void AGV_Dirver::ReadResultData()
 
 		if(read_count==1){
 
-			if (buffer_result[0]==0x68)
-			{		
-				if (buffer_result[1]!=0x00){
-					read_len_t=buffer_result[1]; //读取长度
-				}
-
-				if (buffer_result_idx==read_len_t){
+			if (buffer_result[0]==0x55)
+			{				
+				if (buffer_result_idx==read_len_t&&buffer_result[9]==0xaa){
 					this->process_result_data();
 					break;
 				}
@@ -204,27 +143,37 @@ void AGV_Dirver::ReadResultData()
 /*-------------------------------------*/
 void AGV_Dirver::process_result_data()
 {
-	unsigned char cmd_t=buffer_result[3];
-	if(cmd_t==0x84){
-		//return;
+	//处理 下位机上传上来的故障信息
+
+	//Step 1 接受下位机命令，读取标志位0x00
+	buffer_result[3];
+
+	unsigned char start_b_55=buffer_result[0];//开始标志
+	unsigned char cmd_type_b=buffer_result[7];//反馈命令
+	unsigned char lrc_b_car=buffer_result[8];//校验,下位机
+	unsigned char end_b_aa=buffer_result[9];//结束标志
+
+	unsigned lrc_b_control=this->GetLRC(buffer_result);//校验，上位机
+	
+
+
+
+	//Step 2, 
+	if (lrc_b_control==lrc_b_car){
+		//校验成功
+		buffer_result[8]=0x01;
 	}else{
-		return;
+		//校验失败
+		buffer_result[8]=0x02;
 	}
-	unsigned	char *pitch_t=&this->buffer_result[4];
-	unsigned	char *roll_t=&this->buffer_result[7];
-	unsigned	char *heading_t=&this->buffer_result[10];
-
-#ifdef _MSC_VER
-	m_MUTEX.Lock();
-#endif
-
-	/*this->m_pitch=ConvertBCD2Float(pitch_t);
-	this->m_roll=ConvertBCD2Float(roll_t);
-	this->m_heading=ConvertBCD2Float(heading_t);*/
-
-#ifdef _MSC_VER
-	m_MUTEX.Unlock();
-#endif
+	
+	status_car_ready=buffer_result[1];
+	status_car_battery_low=buffer_result[2];
+	status_car_roadblock=buffer_result[3];
+	status_car_internal_error=buffer_result[4];
+	status_car_communication_error=buffer_result[5];
+	
+	this->Send2CarFeedBack();
 
 }
 /*-------------------------------------*/
@@ -241,33 +190,11 @@ std::vector<std::string>  AGV_Dirver::split(const std::string &s, char delim) {
 	while (std::getline(ss, item, delim)) {
 		
 		elems.push_back(item);
-			// elems.push_back(std::move(item)); // if C++11 (based on comment from @mchiasson)
+			// elems.push_back(std::move(item));
+			// if C++11 (based on comment from @mchiasson)
 		}
 		return elems;
 }
-/*-------------------------------------*/
-/**
-*ddmm.mmmm
-*dddmm.mmmm
-*/
-/*-------------------------------------*/
-//float AGV_Dirver::ConvertBCD2Float(unsigned char *data_t)
-//{
-//	float zhengshu=0;
-//	float xiaoshu=0;
-//	float data_float_t=0;
-//	xiaoshu=((data_t[2]>>4)*10+(data_t[2]&0x0f))/100.0;
-//	zhengshu=(data_t[0]&0x0f)*100+(data_t[1]>>4)*10+(data_t[1]&0x0f);
-//
-//	if ((data_t[0]&0xf0)==0x10){
-//		data_float_t=0-zhengshu-xiaoshu;
-//	}else if ((data_t[0]&0xf0)==0x00){
-//		data_float_t=zhengshu+xiaoshu;
-//	}else{
-//		ASSERT(0);
-//	}
-//	return data_float_t;
-//}
 /*----------------------------------------------------*/
 /**
 *
@@ -275,12 +202,7 @@ std::vector<std::string>  AGV_Dirver::split(const std::string &s, char delim) {
 /*----------------------------------------------------*/
 AGV_Dirver* AGV_Dirver::getInstance()
 {
-	/*if (_instance==NULL){
-		_instance=new AGV_Dirver();
-	}*/
-
 	return _instance;
-
 }
 
 /*----------------------------------------------------*/
@@ -292,17 +214,8 @@ DWORD AGV_Dirver::readResultThread(LPVOID lpParam)
 {
 	AGV_Dirver*gps_t=AGV_Dirver::getInstance();
 		
-	/*gps_t->SendCmdEnterAT();*/
-
 	while(AGV_Dirver::_instance!=NULL){
-		
-	//	gps_t->SendCmdPitchRollHeading();
-	///*	gps_t->SendCmdGPRMC();*/
-
-	//	gps_t->ReadCompassData();
-
-	//	Sleep(1000*1);
-	
+			
 	}
 	return 0;
 }
@@ -311,39 +224,10 @@ DWORD AGV_Dirver::readResultThread(LPVOID lpParam)
 *
 */
 /*----------------------------------------------------*/
-//string AGV_Dirver::GetPitchRollHeadingStr()
-//{
-//	String LatLon_t;
-//#ifdef _MSC_VER
-//	m_MUTEX.Lock();
-//#endif
-//	
-//	
-//	{
-//		char buffer_z[1024];
-//		sprintf_s(buffer_z,"(%0.3f,%0.3f,%0.3f)",m_pitch,m_roll,m_heading);
-//		LatLon_t=buffer_z;
-//	}
-//	
-//
-//#ifdef _MSC_VER
-//	m_MUTEX.Unlock();
-//#endif
-//	return LatLon_t;
-//} 
-/*----------------------------------------------------*/
-/**
-*
-*/
-/*----------------------------------------------------*/
 void AGV_Dirver::StartRun()
-{
-	
-	
-	this->GetCmd(cmd_current,TRUE,NO_TURN,TRUE,FALSE,40);
-
-	m_sp.Write(cmd_current,sizeof(cmd_current));
-
+{	
+	this->cmd_current[1]=0x01;
+	this->Send2Car();
 }
 /*----------------------------------------------------*/
 /**
@@ -351,13 +235,9 @@ void AGV_Dirver::StartRun()
 */
 /*----------------------------------------------------*/
 void AGV_Dirver::StopRun()
-{
-	
-	
-	this->GetCmd(cmd_current,FALSE,NO_TURN,TRUE,FALSE,40);
-
-	m_sp.Write(cmd_current,sizeof(cmd_current));
-
+{	
+	this->cmd_current[1]=0x00;
+	this->Send2Car();
 }
 /*----------------------------------------------------*/
 /**
@@ -393,13 +273,10 @@ void AGV_Dirver::GetCmd(
 	}else{
 		cmd[4]=0x00;
 	}
-
-
 	
 	cmd[5]=Speed/256;
 	cmd[6]=Speed%256;
-
-
+	
 	//FLAG
 	cmd[7]=0x55;
 	//LRC
@@ -416,15 +293,18 @@ unsigned char AGV_Dirver::GetLRC(unsigned char* cmd)
 {
 	unsigned	char cmd_lrc=0;
 
+	ASSERT(cmd[0]==0x55);
+	ASSERT(cmd[9]==0xaa);
+
 	for(int i=1;i<8;i++){
 
 		cmd_lrc+=cmd[i];
 	
 	}
 	
-	cmd[8]=cmd_lrc;
+	cmd[8]=~cmd_lrc+1;//求和，取反加1
 
-	return cmd_lrc;
+	return cmd[8];
 	
 }
 /*----------------------------------------------------*/
@@ -435,7 +315,8 @@ unsigned char AGV_Dirver::GetLRC(unsigned char* cmd)
 void AGV_Dirver::RunBack()
 {
 	this->cmd_current[3]=0x01;
-	this->GetLRC(this->cmd_current);
+	
+	this->Send2Car();
 }
 /*----------------------------------------------------*/
 /**
@@ -447,6 +328,7 @@ void AGV_Dirver::RunForward()
 	this->cmd_current[3]=0x00;
 	this->GetLRC(this->cmd_current);
 
+	this->Send2Car();
 }
 /*----------------------------------------------------*/
 /**
@@ -456,6 +338,7 @@ void AGV_Dirver::RunForward()
 void AGV_Dirver::RunLeft()
 {
 	cmd_current[0]=LEFT_TURN;
+	this->Send2Car();
 }
 /*----------------------------------------------------*/
 /**
@@ -465,6 +348,7 @@ void AGV_Dirver::RunLeft()
 void AGV_Dirver::RunRight()
 {
 	cmd_current[0]=RIGHT_TURN;
+	this->Send2Car();
 }
 /*----------------------------------------------------*/
 /**
@@ -474,6 +358,72 @@ void AGV_Dirver::RunRight()
 void AGV_Dirver::RunStraight()
 {
 	cmd_current[0]=NO_TURN;
+	this->Send2Car();
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+void AGV_Dirver::Send2Car(void)
+{
+	this->GetLRC(this->cmd_current);
+	m_sp.Write(cmd_current,sizeof(cmd_current));
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+void AGV_Dirver::Send2CarFeedBack(void)
+{
+	this->GetLRC(this->buffer_result);
+	m_sp.Write(cmd_current,sizeof(this->buffer_result));
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+int AGV_Dirver::IsCarReady(void)
+{
+	return status_car_ready;
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+int AGV_Dirver::IsCarLowPower(void)
+{
+	return status_car_battery_low;
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+int AGV_Dirver::IsRoadblock(void)
+{
+	return status_car_roadblock;
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+int AGV_Dirver::IsCarInternalError(void)
+{
+	return status_car_internal_error;
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+int AGV_Dirver::IsCarCommunicationError(void)
+{
+	return status_car_communication_error;
 }
 /*----------------------------------------------------*/
 /**

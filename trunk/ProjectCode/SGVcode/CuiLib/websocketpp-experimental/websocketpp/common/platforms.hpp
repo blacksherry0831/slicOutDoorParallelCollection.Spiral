@@ -35,7 +35,11 @@
  
 #if defined(WIN32)
     // don't define min and max macros that conflict with std::min and std::max
-    #define NOMINMAX
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif // _DEBUG
+
+
 #endif
 
 #endif // WEBSOCKETPP_COMMON_PLATFORMS_HPP

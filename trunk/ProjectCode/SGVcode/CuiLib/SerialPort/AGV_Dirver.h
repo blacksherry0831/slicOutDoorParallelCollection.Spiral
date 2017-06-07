@@ -7,20 +7,23 @@
 #define LEFT_TURN	0x01
 #define RIGHT_TURN	0x02
 
+#include "pt_mutex.h"
 
 class AGV_Dirver
 {
 	unsigned char	buffer_result[10];
 	int		buffer_result_idx;
 	unsigned char cmd_current[10];
+	
+	//unsigned char cmd_current_read[10];
 
 protected:
 	AGV_Dirver(void);
 private:
 
-#ifdef _MSC_VER
-	CMutex m_MUTEX;
-#endif
+	ThreadMutex m_mutex ;  
+	
+private:
 
 	~AGV_Dirver(void);
 
@@ -30,6 +33,13 @@ public:
 		void open(int com_num);
 		void close();
 		void init();
+private:
+	int status_car_ready;
+	int status_car_battery_low;
+	int status_car_roadblock;
+	int status_car_internal_error;
+	int status_car_communication_error;
+
 public:
 	void GetCmd(
 	unsigned char* cmd,
@@ -48,13 +58,20 @@ public:
 	void RunLeft();
 	void RunRight();
 	void RunStraight();
+	void Send2Car();
+	void Send2CarFeedBack();
 	/*	void SendCmdPitchRollHeading();
 		
-		string GetPitchRollHeadingStr();*/
-	
-		void ReadResultData();
-
-		static DWORD readResultThread(LPVOID lpParam);
+	string GetPitchRollHeadingStr();*/
+	void ReadResultData();
+	static DWORD readResultThread(LPVOID lpParam);
+	/*-------------------------------------------*/
+	int IsCarReady(void);
+	int IsCarLowPower(void);
+	int IsRoadblock(void);
+	int IsCarInternalError(void);
+	int IsCarCommunicationError(void);
+	/*-------------------------------------------*/
 private:     
 	void process_result_data();
 	
