@@ -45,7 +45,11 @@
 
 #endif
 
-#if _MSC_VER
+#if _MSC_VER && 0
+#include <pthreads-w32-2-9-1-release/include/pt_mutex.h>
+#endif
+
+#if _MSC_VER && 0
 #include <SerialPort/SerialPort.h>
 #include <SerialPort/Compass_HCM365.h>
 #include <SerialPort/Gps_WG_8020.h>
@@ -82,6 +86,7 @@ using namespace tinyxml2;
 #endif
 
 #if TRUE
+
 #include <FilePathName/FileNameSplit.h>
 #include <FilePathName/PointWithDistance.h>
 #endif

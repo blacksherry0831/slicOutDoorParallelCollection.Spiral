@@ -52,7 +52,15 @@ void AGV_Dirver::open(int com_num)
 			Timeouts.WriteTotalTimeoutMultiplier=100;
 			m_sp.SetTimeouts(Timeouts);
 		}
-#if _MSC_VER
+		 pthread_t handle_t; 
+		 int ret=0; 
+		 ret=pthread_create(&handle_t,NULL,readResultThread,NULL);  
+		 if(ret!=0)  
+		 {  
+			 printf("Create pthread error!\n");  
+			 ASSERT(ret!=0);
+		 }  
+#if _MSC_VER && 0
 		HANDLE handle_t=::CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)readResultThread,this,0,NULL);
 #endif
 	}
@@ -210,14 +218,15 @@ AGV_Dirver* AGV_Dirver::getInstance()
 *
 */
 /*----------------------------------------------------*/
-DWORD AGV_Dirver::readResultThread(LPVOID lpParam)
+void* AGV_Dirver::readResultThread(void* lpParam)
 {
 	AGV_Dirver*gps_t=AGV_Dirver::getInstance();
 		
 	while(AGV_Dirver::_instance!=NULL){
 			
 	}
-	return 0;
+
+	return (void*)NULL;
 }
 /*----------------------------------------------------*/
 /**

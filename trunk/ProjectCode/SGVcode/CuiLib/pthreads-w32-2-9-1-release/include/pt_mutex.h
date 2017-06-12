@@ -22,9 +22,17 @@ public:
 		pthread_mutex_lock( &mtx );
 	}
 
+	inline void lock()
+	{
+		Lock();
+	}
 	inline void UnLock()
 	{
 		pthread_mutex_unlock( &mtx );
+	}
+	inline void Unlock()
+	{
+		UnLock();
 	}
 
 	void Log(void);

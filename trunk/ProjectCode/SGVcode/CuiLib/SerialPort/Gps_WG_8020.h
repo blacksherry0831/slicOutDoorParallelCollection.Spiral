@@ -2,6 +2,7 @@
 
 #include "opencv_stl.h"
 #include "SerialPort.h"
+#include "pt_mutex.h"
 
 class GPS_WG_8020
 {
@@ -35,9 +36,7 @@ protected:
 	GPS_WG_8020(void);
 private:
 
-#ifdef _MSC_VER
-	CMutex m_MUTEX;
-#endif
+	ThreadMutex    m_MUTEX;
 
 	~GPS_WG_8020(void);
 public:

@@ -267,9 +267,8 @@ void GPS_WG_8020::ReadGpsData()
 void GPS_WG_8020::process_gps_data()
 {
 
-#ifdef _MSC_VER
 	m_MUTEX.Lock();
-#endif
+
 
 	string data_t=buffer_result;
 	int idx=0;
@@ -301,9 +300,9 @@ void GPS_WG_8020::process_gps_data()
 
 	}
 
-#ifdef _MSC_VER
+
 	m_MUTEX.Unlock();
-#endif
+
 
 }
 /*-------------------------------------*/
@@ -392,9 +391,9 @@ DWORD GPS_WG_8020::readGpsThread(LPVOID lpParam)
 string GPS_WG_8020::GetLatLonStr()
 {
 	String LatLon_t;
-#ifdef _MSC_VER
+
 	m_MUTEX.Lock();
-#endif
+
 	
 	if (this->g_Lat_float>0
 		&&this->g_Lon_float>0)
@@ -405,9 +404,9 @@ string GPS_WG_8020::GetLatLonStr()
 	}
 	
 
-#ifdef _MSC_VER
+
 	m_MUTEX.Unlock();
-#endif
+
 	return LatLon_t;
 } 
 /*----------------------------------------------------*/
@@ -418,9 +417,9 @@ string GPS_WG_8020::GetLatLonStr()
 string GPS_WG_8020::GetLatStr()
 {
 	String Lat_t;
-#ifdef _MSC_VER
+
 	m_MUTEX.Lock();
-#endif
+
 
 	if (this->g_Lat_float>0
 		&&this->g_Lon_float>0)
@@ -431,9 +430,9 @@ string GPS_WG_8020::GetLatStr()
 	}
 
 
-#ifdef _MSC_VER
+
 	m_MUTEX.Unlock();
-#endif
+
 	return Lat_t;
 }
 
@@ -445,9 +444,9 @@ string GPS_WG_8020::GetLatStr()
 string GPS_WG_8020::GetLonStr()
 {
 	String Lon_t;
-#ifdef _MSC_VER
+
 	m_MUTEX.Lock();
-#endif
+
 
 	if (this->g_Lat_float>0
 		&&this->g_Lon_float>0)
@@ -458,9 +457,9 @@ string GPS_WG_8020::GetLonStr()
 	}
 
 
-#ifdef _MSC_VER
+
 	m_MUTEX.Unlock();
-#endif
+
 	return Lon_t;
 }
 /*----------------------------------------------------*/

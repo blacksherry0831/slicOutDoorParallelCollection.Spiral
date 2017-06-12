@@ -64,7 +64,7 @@ public:
 		
 	string GetPitchRollHeadingStr();*/
 	void ReadResultData();
-	static DWORD readResultThread(LPVOID lpParam);
+	static void* readResultThread(void* lpParam);
 	/*-------------------------------------------*/
 	int IsCarReady(void);
 	int IsCarLowPower(void);

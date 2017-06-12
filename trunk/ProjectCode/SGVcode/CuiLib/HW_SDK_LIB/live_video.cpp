@@ -8,6 +8,9 @@ using namespace std;
 //#include "Convert.h"
 #include "modules.h"
 
+#include "../SerialPort/Compass_HCM365.h"
+#include "../SerialPort/Gps_WG_8020.h"
+
 #define Y_R_IN			0.257
 #define Y_G_IN			0.504
 #define Y_B_IN			0.098

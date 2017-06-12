@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "Compass_HCM365.h"
 //#include "opencv_stl.h"
+#include "pt_mutex.h"
 /*-------------------------------------*/
 /**
 *
@@ -213,18 +214,14 @@ void Compass_HCM365::process_compass_data()
 	unsigned	char *pitch_t=&this->buffer_result[4];
 	unsigned	char *roll_t=&this->buffer_result[7];
 	unsigned	char *heading_t=&this->buffer_result[10];
-
-#ifdef _MSC_VER
+	
 	m_MUTEX.Lock();
-#endif
-
+	
 	this->m_pitch=ConvertBCD2Float(pitch_t);
 	this->m_roll=ConvertBCD2Float(roll_t);
 	this->m_heading=ConvertBCD2Float(heading_t);
 
-#ifdef _MSC_VER
 	m_MUTEX.Unlock();
-#endif
 
 }
 /*-------------------------------------*/
@@ -314,9 +311,9 @@ DWORD Compass_HCM365::readCompassThread(LPVOID lpParam)
 string Compass_HCM365::GetPitchRollHeadingStr()
 {
 	String LatLon_t;
-#ifdef _MSC_VER
+
 	m_MUTEX.Lock();
-#endif
+
 	
 	
 	{
@@ -326,9 +323,9 @@ string Compass_HCM365::GetPitchRollHeadingStr()
 	}
 	
 
-#ifdef _MSC_VER
+
 	m_MUTEX.Unlock();
-#endif
+
 	return LatLon_t;
 } 
 /*----------------------------------------------------*/
@@ -339,9 +336,9 @@ string Compass_HCM365::GetPitchRollHeadingStr()
 //string Compass_HCM365::GetLatStr()
 //{
 //	String Lat_t;
-//#ifdef _MSC_VER
+//
 //	m_MUTEX.Lock();
-//#endif
+//
 //
 //	/*if (this->g_Lat_float>0
 //	&&this->g_Lon_float>0)
@@ -352,9 +349,9 @@ string Compass_HCM365::GetPitchRollHeadingStr()
 //	}*/
 //
 //
-//#ifdef _MSC_VER
+//
 //	m_MUTEX.Unlock();
-//#endif
+//
 //	return Lat_t;
 //}
 
@@ -366,9 +363,9 @@ string Compass_HCM365::GetPitchRollHeadingStr()
 //string Compass_HCM365::GetLonStr()
 //{
 //	String Lon_t;
-//#ifdef _MSC_VER
+
 //	m_MUTEX.Lock();
-//#endif
+
 //
 //	/*if (this->g_Lat_float>0
 //		&&this->g_Lon_float>0)
@@ -379,9 +376,9 @@ string Compass_HCM365::GetPitchRollHeadingStr()
 //	}*/
 //
 //
-//#ifdef _MSC_VER
+
 //	m_MUTEX.Unlock();
-//#endif
+
 //	return Lon_t;
 //}
 /*----------------------------------------------------*/

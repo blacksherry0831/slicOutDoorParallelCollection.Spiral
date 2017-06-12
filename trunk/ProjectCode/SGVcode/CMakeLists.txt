@@ -9,18 +9,47 @@ INCLUDE(cmake/FindOpencv.cmake)
 INCLUDE(cmake/SetBoost.cmake)
 INCLUDE(cmake/setCUDA.cmake)
 ###############################################################################
+function (CONFIGPTHREADS)
+
+#CMAKE的内建变量，如果是true，就说明编译器的64位的，自然可以编译64bit的程序
+
+INCLUDE_DIRECTORIES( #相关头文件的目录
+		${SGV_cmake_SOURCE_DIR}/CuiLib/pthreads-w32-2-9-1-release/include
+	)
+
+if(CMAKE_CL_64)    
+	
+	SET(LIB_PTHREADS
+		pthreadVC2.lib)
+
+   LINK_DIRECTORIES(		
+		${SGV_cmake_SOURCE_DIR}/CuiLib/pthreads-w32-2-9-1-release/lib/x64)
+
+else()
+	SET(LIB_PTHREADS
+		pthreadVC2.lib
+		pthreadVCE2.lib
+		pthreadVSE2.lib)
+
+  LINK_DIRECTORIES(		
+		${SGV_cmake_SOURCE_DIR}/CuiLib/pthreads-w32-2-9-1-release/lib/x86)
+
+endif()
+
+   link_libraries(${LIB_PTHREADS})  
+  
+endfunction (CONFIGPTHREADS)
+###############################################################################
 INCLUDE_DIRECTORIES( #相关头文件的目录
 	${SGV_cmake_SOURCE_DIR}/CuiLib
 	${SGV_cmake_SOURCE_DIR}
 )
 ###############################################################################
-
 ###############################################################################
 
 INCLUDE_DIRECTORIES( #相关头文件的目录
 	${SGV_cmake_SOURCE_DIR}/CuiLib/websocketpp-experimental	
 )
-
 
 ADD_SUBDIRECTORY(CuiLib)
 ADD_SUBDIRECTORY(main_test)
@@ -41,8 +70,9 @@ MESSAGE(STATUS "###################################")
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")  
  
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")   
-	 ConfigMFC_2()
-	 MESSAGE(STATUS "MFC config")   
+		ConfigMFC_2()
+		MESSAGE(STATUS "MFC config")
+		CONFIGPTHREADS()
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
    
 ELSE ()  
@@ -179,6 +209,11 @@ ADD_EXECUTABLE(EXE_HW_AVI2IMAGE main_test/hw_avi2image.cpp)
 TARGET_LINK_LIBRARIES(EXE_HW_AVI2IMAGE
 	MY_SDK_LIB
 	HW_SDK_LIB) 
+#################################################
+################################################
+ADD_EXECUTABLE(TEST_AGV_CAR main_test/agv_car_test.cpp)
+TARGET_LINK_LIBRARIES(TEST_AGV_CAR
+	SerialPort) 
 #################################################
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
    

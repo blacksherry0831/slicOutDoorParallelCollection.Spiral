@@ -3,6 +3,8 @@
 #include "opencv_stl.h"
 #include "SerialPort.h"
 
+#include "pt_mutex.h"
+
 class Compass_HCM365
 {
 	unsigned char	buffer_result[1024];
@@ -37,10 +39,8 @@ private:
 protected:
 	Compass_HCM365(void);
 private:
-
-#ifdef _MSC_VER
-	CMutex m_MUTEX;
-#endif
+	
+	ThreadMutex m_MUTEX;  
 
 	~Compass_HCM365(void);
 
