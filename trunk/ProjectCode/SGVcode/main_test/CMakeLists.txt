@@ -13,13 +13,23 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
  
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
  ConfigMFC_2()	
+ CONFIGPTHREADS()
+ CONFIGCURLHTTP()
 ###############################################
 IF(Boost_FOUND)
 	ConfigBoost()
-
+	####################################
 	ADD_EXECUTABLE(TEST_WEB_SOCKET_PP websocket_test.cpp)
 	TARGET_LINK_LIBRARIES(TEST_WEB_SOCKET_PP
 					)
+	####################################
+
+	ADD_EXECUTABLE(TEST_AGV_CAR agv_car_test.cpp)
+	TARGET_LINK_LIBRARIES(TEST_AGV_CAR
+		Comm2ServerLib
+		libcurl_http
+		SerialPort) 
+	####################################
 
 ELSE(Boost_FOUND)
 

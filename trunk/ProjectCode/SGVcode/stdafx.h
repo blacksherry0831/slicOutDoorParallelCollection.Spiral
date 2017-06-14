@@ -6,6 +6,7 @@
 #pragma once
 
 #include <platform_cui.h>
+
 #include <opencv_stl.h>
 
 #if linux||__linux||__linux__||__GNUC__

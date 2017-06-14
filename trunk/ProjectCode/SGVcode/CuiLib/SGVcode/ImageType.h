@@ -1,12 +1,17 @@
 #pragma once
 #ifndef ImageTypeCui
 #define ImageTypeCui
-//#include <memory>
-//#include "cv.h"
+
+#include <assert.h>
+#include <cv.h>
+using namespace std;
+
+
 #ifndef ASSERT
-//#include <assert.h>
-#define ASSERT(x) assert(x)
+#define ASSERT(x) (x);
 #endif
+
+
 
 /*------------------------------------------------------------------------------------------------------------*/
 /**天空分类，能量+位置+色彩。

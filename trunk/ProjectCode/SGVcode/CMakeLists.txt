@@ -3,12 +3,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 #项目名称
 PROJECT(SGV_cmake)
 ###############################################################################
-INCLUDE(cmake/LinuxPrepare.cmake)
-INCLUDE(cmake/SetMFC.cmake)
-INCLUDE(cmake/FindOpencv.cmake)
-INCLUDE(cmake/SetBoost.cmake)
-INCLUDE(cmake/setCUDA.cmake)
-###############################################################################
 function (CONFIGPTHREADS)
 
 #CMAKE的内建变量，如果是true，就说明编译器的64位的，自然可以编译64bit的程序
@@ -39,22 +33,106 @@ endif()
    link_libraries(${LIB_PTHREADS})  
   
 endfunction (CONFIGPTHREADS)
-###############################################################################
-INCLUDE_DIRECTORIES( #相关头文件的目录
-	${SGV_cmake_SOURCE_DIR}/CuiLib
-	${SGV_cmake_SOURCE_DIR}
-)
-###############################################################################
-###############################################################################
+#############################################################################
+macro(CONFIGCURLHTTP)
 
-INCLUDE_DIRECTORIES( #相关头文件的目录
-	${SGV_cmake_SOURCE_DIR}/CuiLib/websocketpp-experimental	
-)
+if(CMAKE_CL_64)  
 
+else()
+
+	SET(LIBCURL
+	libcurl.lib
+	)
+
+  
+	
+   LINK_DIRECTORIES(		
+		${SGV_cmake_SOURCE_DIR}/CuiLib/libcurl/lib)
+
+   link_libraries(${LIBCURL})
+
+endif()
+  
+endmacro(CONFIGCURLHTTP)
+#############################################################################
+#############################################################################
+function (CONFIG_HOWELL_CAMERA)
+
+if(CMAKE_CL_64)  
+else()
+	SET(HW_WIN32_LIB	
+		play_sdk.lib
+		hwclient.lib
+		ijl15l.lib)
+
+	LINK_DIRECTORIES(
+		${SGV_cmake_SOURCE_DIR}/CuiLib/HW_SDK_LIB/lib)
+	link_libraries(${HW_WIN32_LIB})
+endif()
+
+  
+endfunction (CONFIG_HOWELL_CAMERA)
+###############################################################################
+macro(CONFIG_ALL_MODULE)
+	MESSAGE(STSTUS "###################################") 
+			IF (CMAKE_SYSTEM_NAME MATCHES "Linux")  
+ 
+			ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows") 
+						#############################
+						ConfigMFC_2()
+						#############################	
+						CONFIG_HOWELL_CAMERA()
+						#############################
+						CONFIGPTHREADS()
+						############################# 
+						CONFIGCURLHTTP()
+						#############################
+						IF(Boost_FOUND)
+							#ConfigBoost()
+
+						ELSE(Boost_FOUND)
+
+						   MESSAGE(FATAL_ERROR ”Boost library not found”)
+
+						ENDIF(Boost_FOUND)
+						#############################
+			ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
+   
+			ELSE ()  
+   
+			ENDIF ()  
+	MESSAGE(STSTUS "###################################")  
+endmacro(CONFIG_ALL_MODULE)
+###############################################################################
+function (CONFIG_LOCAL_MODULE)
+	
+	#############################################
+	INCLUDE_DIRECTORIES( #相关头文件的目录
+					${SGV_cmake_SOURCE_DIR}/CuiLib
+					${SGV_cmake_SOURCE_DIR}
+					) 
+	#############################################
+	INCLUDE_DIRECTORIES( #相关头文件的目录
+					${SGV_cmake_SOURCE_DIR}/CuiLib/websocketpp-experimental
+					)
+	#############################################
+
+endfunction (CONFIG_LOCAL_MODULE)
+##################################################################################
+##################################################################################
+##################################################################################
+##################################################################################
+INCLUDE(cmake/LinuxPrepare.cmake)
+INCLUDE(cmake/SetMFC.cmake)
+INCLUDE(cmake/FindOpencv.cmake)
+INCLUDE(cmake/SetBoost.cmake)
+INCLUDE(cmake/setCUDA.cmake)
+###############################################################################
+#放在最前面
+CONFIG_LOCAL_MODULE()
+###############################################################################
 ADD_SUBDIRECTORY(CuiLib)
 ADD_SUBDIRECTORY(main_test)
-
-#ADD_SUBDIRECTORY(arpackpp-master)
 ###############################################################################
 MESSAGE(STATUS "operation system is ${CMAKE_SYSTEM}")  
 ############配置OPENCV#########################################################
@@ -63,35 +141,14 @@ ConfigOpenCv()
 ############配置CUDA#########################################################
 ConfigCUDA()
 #############################################################################
-#ConfigBoost()
+FIND_PACKAGE(Boost)
 #################编译器配置####################################################
-MESSAGE(STATUS "###################################")  
-
-IF (CMAKE_SYSTEM_NAME MATCHES "Linux")  
- 
-ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")   
-		ConfigMFC_2()
-		MESSAGE(STATUS "MFC config")
-		CONFIGPTHREADS()
-ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
-   
-ELSE ()  
-   
-ENDIF ()  
-MESSAGE(STSTUS "###################################")
-###############################################################################
-#AUX_SOURCE_DIRECTORY(. SRC_LIST) #把当前目录(.)下所有源代码文件和头文件加入变量SRC_LIST
-#生成应用程序SpectralClusteringGndVSkyOutDoor (在windows下会自动生成hello.exe)
-
-#find_package(Threads REQUIRED)
-#if(THREADS_HAVE_PTHREAD_ARG)
-#  target_compile_options(PUBLIC my_app "-pthread")
-#endif()
-#if(CMAKE_THREAD_LIBS_INIT)
-#  target_link_libraries(my_app "${CMAKE_THREAD_LIBS_INIT}")
-#endif()
+CONFIG_ALL_MODULE()
 ##################################################################################
-
+##################################################################################
+##################################################################################
+##################################################################################
+##################################################################################
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")  
 	
 	ADD_EXECUTABLE(SpectralClusteringGndVSkyOutDoor main.cpp)
@@ -120,66 +177,12 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	
 	
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
-############################################################################### 
 
-#FIND_PATH(WEB_SOCKET_PP_ROOT client.hpp ${SGV_cmake_SOURCE_DIR}/CuiLib/websocketpp-experimental/websocketpp)
-
-#message(${WEB_SOCKET_PP_ROOT})
-############################################################################### 	
-if(CMAKE_CL_64)  
-else()
-	SET(HW_WIN32_LIB	
-		play_sdk.lib
-		hwclient.lib
-		ijl15l.lib)
-
-	LINK_DIRECTORIES(
-		${SGV_cmake_SOURCE_DIR}/CuiLib/HW_SDK_LIB/lib)
-	link_libraries(${HW_WIN32_LIB})
-endif()
-
-##########################################################
-#CMAKE的内建变量，如果是true，就说明编译器的64位的，自然可以编译64bit的程序
-if(CMAKE_CL_64)    
-	
-	SET(LIB_PTHREADS
-		pthreadVC2.lib)
-
-   LINK_DIRECTORIES(		
-		${SGV_cmake_SOURCE_DIR}/CuiLib/pthreads-w32-2-9-1-release/lib/x64)
-else()
-	SET(LIB_PTHREADS
-		pthreadVC2.lib
-		pthreadVCE2.lib
-		pthreadVSE2.lib)
-
-   LINK_DIRECTORIES(		
-		${SGV_cmake_SOURCE_DIR}/CuiLib/pthreads-w32-2-9-1-release/lib/x86)
-endif()
-
-   link_libraries(${LIB_PTHREADS})
-
-############################################################ 
-if(CMAKE_CL_64)  
-else()
-	SET(LIBCURL
-		libcurl.lib)
-
-   LINK_DIRECTORIES(		
-		${SGV_cmake_SOURCE_DIR}/CuiLib/libcurl/lib)
-
-   link_libraries(${LIBCURL})
-endif()
-
-############################################################
-
-   
+############################################################   
 ADD_EXECUTABLE(EXE_SpectralClusteringGndVSkyOutDoor main.cpp)
 TARGET_LINK_LIBRARIES(EXE_SpectralClusteringGndVSkyOutDoor 
 									SGVcode
-						  )						  
-
-############################################################
+						  )
 ################################################
 ADD_EXECUTABLE(TEST_GPS main_test/gps_test.cpp)
 TARGET_LINK_LIBRARIES(TEST_GPS
@@ -211,9 +214,10 @@ TARGET_LINK_LIBRARIES(EXE_HW_AVI2IMAGE
 	HW_SDK_LIB) 
 #################################################
 ################################################
-ADD_EXECUTABLE(TEST_AGV_CAR main_test/agv_car_test.cpp)
-TARGET_LINK_LIBRARIES(TEST_AGV_CAR
-	SerialPort) 
+#ADD_EXECUTABLE(TEST_AGV_CAR main_test/agv_car_test.cpp)
+#TARGET_LINK_LIBRARIES(TEST_AGV_CAR
+#	Comm2ServerLib
+#	SerialPort) 
 #################################################
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
    

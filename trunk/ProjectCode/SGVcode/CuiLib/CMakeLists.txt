@@ -19,6 +19,7 @@ ADD_SUBDIRECTORY(jsoncpp-master)
 ADD_SUBDIRECTORY(pthreads-w32-2-9-1-release)
 
 ADD_SUBDIRECTORY(websocketpp-experimental)
+ADD_SUBDIRECTORY(communication_2_server)
 
 #SET(DIR_SRCS    ManhattanHistogram.cpp
 #				SeparateSpBlock.cpp

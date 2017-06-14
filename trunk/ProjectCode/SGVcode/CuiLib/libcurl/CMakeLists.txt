@@ -6,6 +6,8 @@ C11_Config()
 ConfigOpenCv()
 ###############################################################################
 
+###############################################################################
+
 SET(BASE_LINK_LIB 
 	         
 	)
@@ -15,16 +17,17 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	
 ConfigMFC_2() 
+CONFIGCURLHTTP()
 ###############################################################################
 SET(LIBCURL_SRCS
 		CHttpClient.cpp
 	)
 
-ADD_LIBRARY(libcurl   STATIC    ${LIBCURL_SRCS})
+ADD_LIBRARY(libcurl_http   STATIC    ${LIBCURL_SRCS})
 
-TARGET_LINK_LIBRARIES(libcurl ${BASE_LINK_LIB})
+TARGET_LINK_LIBRARIES(libcurl_http ${BASE_LINK_LIB})
 
-SET_TARGET_PROPERTIES(libcurl PROPERTIES LINKER_LANGUAGE CXX)
+SET_TARGET_PROPERTIES(libcurl_http PROPERTIES LINKER_LANGUAGE CXX)
 ###############################################################################
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
    
