@@ -68,13 +68,37 @@ void TestAGVDriver()
 int main()
 {
 
-#if 0
-	TestAGVDriver();
+	int test_num=0;
+
+	printf("Please Input Test Item:\n");
+
+	printf("1 AGVDriver Test! \n");
+	printf("2 Communication Test! \n");
+
+	cin>>test_num;
+
+	if (test_num==1){
+#if 1
+		TestAGVDriver();
 #endif
+	}else if (test_num==2){
+		
+		Comm2Server comm2server;
+		comm2server.InputCarUserId();
+		comm2server.RegisterCar();
+		comm2server.GetTaskLongitudeLatitude();
 
-	Comm2Server comm2server;
+		comm2server.StartWebSocketThread();
 
+		comm2server.Join();
+	}else{
+
+
+	}
+
+
+
+	
+	cin.get();
 	return 0;
-
-
 }

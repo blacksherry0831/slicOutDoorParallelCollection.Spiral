@@ -11,9 +11,11 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 
 ####################################### 
  ConfigMFC_2()
+ CONFIGCURLHTTP()
+ CONFIGPTHREADS()
  
  SET(BASE_LINK_LIB 
-	libcurl)
+	libcurl_http)
 
 IF(Boost_FOUND)
 	
