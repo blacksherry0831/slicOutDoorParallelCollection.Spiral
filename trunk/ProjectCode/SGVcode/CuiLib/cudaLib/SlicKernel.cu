@@ -241,6 +241,14 @@ extern "C" void cudaGetLastError_Sync_CUI(void);
 *
 */
 /*------------------------------------------------------------------------------------------*/
+extern "C" int IsCudaExist_CU();
+/*------------------------------------------------------------------------------------------*/
+/**
+*
+*
+*
+*/
+/*------------------------------------------------------------------------------------------*/
 #define  NULL_MATH    1
 #define  MATH_USE  0
 /*------------------------------------------------------------------------------------------*/
@@ -319,6 +327,44 @@ struct Lock {
 		atomicExch( mutex, 0 );
 	}
 };
+/*------------------------------------------------------------------------------------------*/
+/**
+*
+*
+*/
+/*------------------------------------------------------------------------------------------*/
+int IsCudaExist_CU()
+{
+		 int i=0;
+		 int device_count=0;
+
+		 if( cudaGetDeviceCount(&device_count) )
+		 {
+			 printf(" There is zero device beyond 1.0\n"); 
+			 return 0;
+		 }
+		 // 找到一个可用的设备
+		 for(i=0;i<device_count;i++)
+		 {
+			  struct cudaDeviceProp device_prop;
+			  if(cudaGetDeviceProperties(&device_prop,i)==cudaSuccess)
+			  {
+				break;
+			  }
+
+		 }
+		 
+		 if(i==device_count)
+		 {
+			  printf("Get the propertites of device occurred error\n");
+			  return 0;
+		 }
+		 //有可用设备
+		 
+		 return device_count;
+
+
+}
 /*------------------------------------------------------------------------------------------*/
 /**
 *

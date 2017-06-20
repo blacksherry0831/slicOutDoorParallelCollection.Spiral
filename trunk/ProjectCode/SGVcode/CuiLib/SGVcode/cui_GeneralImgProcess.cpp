@@ -1181,39 +1181,21 @@ int cui_GeneralImgProcess::CuiSetNighbour_E_matrix(
 	const string				path)
 {
 	TRACE_FUNC();
-#if 0
-	int num_devices=gpu::getCudaEnabledDeviceCount();
+
+	int num_devices=IsCudaExist();
 	if (num_devices<=0){
 #if 1
 	{
-		const int dx8[8] = {-1, -1,  0,  1, 1, 1, 0, -1};
+	const int dx8[8] = {-1, -1,  0,  1, 1, 1, 0, -1};
 	const int dy8[8] = { 0, -1, -1, -1, 0, 1, 1,  1};
 	int mainindex(0);int cind(0);
-	s****c int DoCount=0;
+	 int DoCount=0;
 	if (Cui_Matrix_E){
 	   memset(Cui_Matrix_E,0,CuiNumLabels*CuiNumLabels*sizeof(UINT32));
 	}else{
 		return DoCount;
 	}
 
-	
-
-#ifdef WINDOWS
-	char fname[256];
-	char extn[256];
-	_splitpath(filename.c_str(), NULL, NULL, fname, extn);
-	string temp = fname;
-	string finalpath = path + temp + string(".dat");
-#else
-	string nameandextension = filename;
-	size_t pos = filename.find_last_of("/");
-	if(pos != string::npos)//if a slash is found, then take the filename with extension
-	{
-		nameandextension = filename.substr(pos+1);
-	}
-	string newname = nameandextension.replace(nameandextension.rfind(".")+1, 3, "dat");//find the position of the dot and replace the 3 characters following it.
-	string finalpath = path+newname;
-#endif
 	for (register int ii=0;ii<CuiNumLabels;ii++) {
 		Cui_Matrix_E[ii*CuiNumLabels+ii]=0;
 	}
@@ -1227,7 +1209,6 @@ int cui_GeneralImgProcess::CuiSetNighbour_E_matrix(
 
 				if( (x >= 0 && x < width) && (y >= 0 && y <height) ){
 					int index = y*width + x;
-
 					//if( false == istaken[index] )//comment this to obtain internal contours
 					{
 
@@ -1248,15 +1229,8 @@ int cui_GeneralImgProcess::CuiSetNighbour_E_matrix(
 			mainindex++;
 		}
 	}
-#if 0
-	/************************************************************/
-	for(register  int i = 0; i <CuiNumLabels; i++ ){
-		for(register  int j = 0; j <CuiNumLabels; j++ ){			
-			Cui_Matrix_E[i*CuiNumLabels+j]=(Cui_Matrix_E[i*CuiNumLabels+j]+4)/6;
-		}
 
-	}
-#else
+#if 1
 	for(register  int i = 0; i <CuiNumLabels; i++ ){
 		for(register  int j = 0; j <CuiNumLabels; j++ ){			
 			Cui_Matrix_E[i*CuiNumLabels+j]=Cui_Matrix_E[i*CuiNumLabels+j]>0?1:0;
@@ -1264,7 +1238,30 @@ int cui_GeneralImgProcess::CuiSetNighbour_E_matrix(
 
 	}
 #endif
-	 
+	}
+#endif
+	}else{
+		memset(Cui_Matrix_E,0,CuiNumLabels*CuiNumLabels*sizeof(UINT32));
+		Get_Nighbour_E_matrix_cuda(labels,CuiNumLabels,Cui_Matrix_E,width,height,"","");
+	}
+
+#if _DEBUG
+#ifdef WINDOWS
+	char fname[256];
+	char extn[256];
+	_splitpath(filename.c_str(), NULL, NULL, fname, extn);
+	string temp = fname;
+	string finalpath = path + temp + string(".dat");
+#else
+	string nameandextension = filename;
+	size_t pos = filename.find_last_of("/");
+	if(pos != string::npos)//if a slash is found, then take the filename with extension
+	{
+		nameandextension = filename.substr(pos+1);
+	}
+	string newname = nameandextension.replace(nameandextension.rfind(".")+1, 3, "dat");//find the position of the dot and replace the 3 characters following it.
+	string finalpath = path+newname;
+#endif
 	{
 		char data_t[1024];
 		ofstream outfile;
@@ -1279,57 +1276,7 @@ int cui_GeneralImgProcess::CuiSetNighbour_E_matrix(
 		} 
 		outfile.close();
 	}
-
-	/*************************************************************/
-#if 0
-	{
-		double  threshold;		//计算超像素面积
-		threshold=4*sqrtl(CuiWidth*CuiHeight/CuiNumLabels);	//周长
-		threshold=threshold/8; //8分之一周长
-
-		for( int i = 0; i <CuiNumLabels; i++ ){
-			for( int j = 0; j <CuiNumLabels; j++ ){
-
-				if (Cui_Matrix_E[i*CuiNumLabels+j]<threshold){
-					Cui_Matrix_E[i*CuiNumLabels+j]=0;     
-				}else{
-					Cui_Matrix_E[i*CuiNumLabels+j]=1;    
-				}			
-			}
-
-		}
-	}
-#else
-	{
-		double  threshold;		//计算超像素面积
-		threshold=4*sqrtl(width*height/CuiNumLabels);	//周长
-		threshold=threshold/8; //8分之一周长
-
-		for(register  int i = 0; i <CuiNumLabels; i++ ){
-			for(register  int j = 0; j <CuiNumLabels; j++ ){
-
-				if (Cui_Matrix_E[i*CuiNumLabels+j]>0){
-					Cui_Matrix_E[i*CuiNumLabels+j]=TRUE;     
-				}else{
-					Cui_Matrix_E[i*CuiNumLabels+j]=FALSE;    
-				}			
-			}
-
-		}
-	}
-#endif
-	
-	/*************************************************************/
-	return DoCount++;
-	}
-#endif
-	}else{
-		Get_Nighbour_E_matrix_cuda(labels,CuiNumLabels,Cui_Matrix_E,width,height,"","");
-		return 0;
-	}
-#endif
-	memset(Cui_Matrix_E,0,CuiNumLabels*CuiNumLabels*sizeof(UINT32));
-	Get_Nighbour_E_matrix_cuda(labels,CuiNumLabels,Cui_Matrix_E,width,height,"","");
+#endif	
 	return 0;
 }
 /*----------------------------------------------------------------*/
@@ -4030,6 +3977,8 @@ void cui_GeneralImgProcess::THreadSuperPixel_DoOneImage_Spiral(string picvec,str
 
 							MemData.GetThetaMLXYSeeds_ByCircle_UseSpiral();
 							MemData.Draw_Kseeds_Spiral_OnContour();
+
+							MemData.GetMatrixE();
 
 							/*	#if OUT_DOOR_HUMAN
 							printf("3. Spectral Clustering \n");

@@ -1038,6 +1038,8 @@ void ImageData::Draw_Kseeds_Spiral()
 {
 		IplImage* img=cvCreateImage(cvSize(ImgWidth,ImgHeight),IPL_DEPTH_8U,4);
 		
+		cvZero(img);
+
 		this->Draw_Kseeds_Spiral(img);
 
 		FileNameSplit fns;
