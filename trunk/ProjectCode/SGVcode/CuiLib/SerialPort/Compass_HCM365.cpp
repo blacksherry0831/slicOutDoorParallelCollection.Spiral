@@ -19,12 +19,11 @@ Compass_HCM365* Compass_HCM365::_instance =new Compass_HCM365();
 
 Compass_HCM365::Compass_HCM365(void)
 {
-	//this->g_Lat_float=-1;
-	//this->g_Lon_float=-1;
-
+	
 	buffer_result_idx=0;
 	memset(buffer_result,0,sizeof(buffer_result));
 //	this->open();
+	this->m_heading=0;
 }
 /*-------------------------------------*/
 /**
@@ -327,6 +326,27 @@ string Compass_HCM365::GetPitchRollHeadingStr()
 	m_MUTEX.Unlock();
 
 	return LatLon_t;
+} 
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+string Compass_HCM365::GetHeadingStr()
+{
+	String head_t;
+
+	m_MUTEX.Lock();
+	
+	{
+		char buffer_z[1024];
+		sprintf_s(buffer_z,"%0.3f",m_heading);
+		head_t=buffer_z;
+	}
+
+	m_MUTEX.Unlock();
+
+	return head_t;
 } 
 /*----------------------------------------------------*/
 /**

@@ -2,6 +2,7 @@
 #include<iostream>
 #include<sstream>
 #include<string>
+#include "ResponseData.h"
 using namespace std; 
 typedef websocketpp::client<websocketpp::config::asio_client> client;
 /*----------------------------------*/
@@ -11,14 +12,9 @@ typedef websocketpp::client<websocketpp::config::asio_client> client;
 /*----------------------------------*/
 Comm2Server::Comm2Server(void)
 {
-	this->m_user_id="123456789";
-	this->m_car_id="123456";
-	this->m_current_task="task123456";
-	this->m_url="http://58.240.85.222";
-	this->m_websockets_url="ws://58.240.85.222";
-	this->m_port=10000;
-	this->m_thread_run=true;
 
+	this->m_thread_run=true;
+	this->m_sip_client_open=false;
 }
 /*----------------------------------*/
 /**
@@ -36,31 +32,29 @@ Comm2Server::~Comm2Server(void)
 /*----------------------------------*/
 int Comm2Server::RegisterCar(void)
 {
-	
-	
-	string url_path_t="/car/car/addCar";
-
-	string param0="car_id="+m_car_id;
-	string param1="userid="+m_user_id;
-
-	stringstream ss; //定义一个string流（使用s实例化） 
-
-	ss<<m_url<<":"<<m_port<<url_path_t<<"?"<<param0<<"&"<<param1;
-
-	string url_p=ss.str();
+	string url_p=m_CommData.GetUrlRegisterCar();
 	
 	string response_p;
-
-
-
-
+	
 	CHttpClient httpc_t;
 	
 	int code_r=httpc_t.Get(url_p,response_p);
 
 #if _DEBUG
-	cout<<response_p<<endl;	
+	cout<<"Register Car :"<<response_p<<endl;	
 #endif
+
+	if (code_r==0){
+		if (response_p.compare("ALREADY")==0){
+			return  code_r;
+		}else if (response_p.compare("OK")){
+			return code_r;
+		}else if (response_p.compare("NO")){
+			return -1;
+		}else{
+			return -1;
+		}
+	}
 
 	return code_r;
 }
@@ -71,32 +65,7 @@ int Comm2Server::RegisterCar(void)
 /*----------------------------------*/
 void  Comm2Server::InputCarUserId()
 {
-	char buffer_t[1024];
-	
-	cout<<"Please Input Car Id:"<<endl;	
-	fflush(stdin);
-	cin.getline(buffer_t,1024);
-	this->m_car_id=buffer_t;
-
-	cout<<"Please Input User Id:"<<endl;
-	fflush(stdin);
-	cin.getline(buffer_t,1024);
-	this->m_user_id=buffer_t;
-	/*----*/
-
-	if (this->m_user_id.compare("")==0){
-		this->m_user_id="123456789";
-	}
-
-	if (this->m_car_id.compare("")==0){
-		this->m_car_id="123456";
-	}
-
-#if _DEBUG
-	cout<<"User Name Is :"<<this->m_user_id<<endl;
-	cout<<"Car Id Is :"<<this->m_car_id<<endl;
-#endif
-
+	m_CommData.InputCarUserId();
 }
 /*----------------------------------*/
 /**
@@ -106,16 +75,7 @@ void  Comm2Server::InputCarUserId()
 int  Comm2Server::GetTaskLongitudeLatitude()
 {
 	
-	const string url_path_t="/car/car/one";
-
-	/*string param0="car_id="+m_car_id;
-	string param1="userid="+m_user_id;*/
-
-	stringstream ss; //定义一个string流（使用s实例化） 
-
-	ss<<m_url<<":"<<m_port<<url_path_t<<"?"<<"task="<<m_current_task;
-
-	string url_p=ss.str();
+	string url_p=m_CommData.GetUrlTaskLongitudeLatitude();
 
 	string response_p;
 
@@ -138,16 +98,8 @@ int  Comm2Server::GetTaskLongitudeLatitude()
 void*  Comm2Server::StartWebSocketConnection(void* pdata)
 {
 	Comm2Server* c2s=(Comm2Server*) pdata;
-
-	stringstream ss; //定义一个string流（使用s实例化） 
-	const string ws_path_t="/car/websocket";
-
-	ss<<c2s->m_websockets_url<<":"<<c2s->m_port<<ws_path_t<<"?"<<"car="<<c2s->m_car_id;
-
-	const string ws_path_full=ss.str();
-
-
-	c2s->InitWebSocket(ws_path_full);
+	
+	c2s->InitWebSocket();
 
 	return (void *)0;
 }
@@ -178,7 +130,7 @@ int Comm2Server::StopWebSocketThread()
 {
 	
 	this->m_thread_run=FALSE;
-		
+	this->m_sip_client_open=false;
 	return 0;
 }
 /*----------------------------------*/
@@ -195,8 +147,10 @@ void Comm2Server::Join()
 *
 */
 /*----------------------------------*/
-void Comm2Server::InitWebSocket(string uri)
+void Comm2Server::InitWebSocket()
 {
+	const string uri=this->m_CommData.GetWsUrl();
+
 	try {
 		// We expect there to be a lot of errors, so suppress them
 		m_sip_client.clear_access_channels(websocketpp::log::alevel::all);
@@ -207,6 +161,9 @@ void Comm2Server::InitWebSocket(string uri)
 
 		// Register our handlers
 		m_sip_client.set_open_handler(websocketpp::lib::bind(&Comm2Server::on_open,this,&m_sip_client,::_1));
+		m_sip_client.set_close_handler(websocketpp::lib::bind(&Comm2Server::on_close,this,&m_sip_client,::_1));
+		m_sip_client.set_fail_handler(websocketpp::lib::bind(&Comm2Server::on_fail,this,&m_sip_client,::_1));
+		m_sip_client.set_interrupt_handler(websocketpp::lib::bind(&Comm2Server::on_interrupt,this,&m_sip_client,::_1));
 		m_sip_client.set_message_handler(websocketpp::lib::bind(&Comm2Server::on_message,this,&m_sip_client,::_1,::_2));
 
 		websocketpp::lib::error_code ec;
@@ -221,11 +178,11 @@ void Comm2Server::InitWebSocket(string uri)
 		m_sip_client.run();
 
 		while(m_thread_run) {
-			boost::this_thread::sleep(boost::posix_time::milliseconds(100));
-			std::cout<<"#";
+			sleep(500);		
+			std::cout << "#";
 		}
 
-		std::cout << "done" << std::endl;
+		std::cout << "websocket done !" << std::endl;
 
 	} catch (const std::exception & e) {
 		std::cout << e.what() << std::endl;
@@ -236,25 +193,125 @@ void Comm2Server::InitWebSocket(string uri)
 	}
 
 }
-
+/*----------------------------------*/
+/**
+*
+*/
+/*----------------------------------*/
 
 void Comm2Server::on_open(client* c, websocketpp::connection_hdl hdl)
 {
 	// now it is safe to use the connection
+	client::connection_ptr con = m_sip_client.get_con_from_hdl(hdl);
 	std::cout << "connection ready" << std::endl;
-
-	// Send a SIP OPTIONS message to the server:
-	std::string SIP_msg="OPTIONS sip:carol@chicago.com SIP/2.0\r\nVia: SIP/2.0/WS df7jal23ls0d.invalid;rport;branch=z9hG4bKhjhs8ass877\r\nMax-Forwards: 70\r\nTo: <sip:carol@chicago.com>\r\nFrom: Alice <sip:alice@atlanta.com>;tag=1928301774\r\nCall-ID: a84b4c76e66710\r\nCSeq: 63104 OPTIONS\r\nContact: <sip:alice@pc33.atlanta.com>\r\nAccept: application/sdp\r\nContent-Length: 0\r\n\r\n";
-	m_sip_client.send(hdl, SIP_msg.c_str(), websocketpp::frame::opcode::text);
+	this->m_sip_client_open=true;
+	this->SendHeartBeat(c,con);
 }
+/*----------------------------------*/
+/**
+*
+*/
+/*----------------------------------*/
+void Comm2Server::on_close(client* c, websocketpp::connection_hdl hdl)
+{
+	this->m_thread_run=false;
 
+	std::cout << "[ws][c]websocket connection close" << std::endl;
+
+}
+/*----------------------------------*/
+/**
+*
+*/
+/*----------------------------------*/
+void Comm2Server::on_fail(client* c, websocketpp::connection_hdl hdl)
+{
+	std::cout << "[ws][f]websocket connection fail" << std::endl;
+}
+/*----------------------------------*/
+/**
+*
+*/
+/*----------------------------------*/
+void Comm2Server::on_interrupt(client* c, websocketpp::connection_hdl hdl)
+{
+	std::cout << "[ws][i]websocket connection interrupt" << std::endl;
+}
+/*----------------------------------*/
+/**
+*
+*/
+/*----------------------------------*/
 void Comm2Server::on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg)
 {
 	client::connection_ptr con = m_sip_client.get_con_from_hdl(hdl);
+	string payload_t=msg->get_payload();
 
+#if _DEBUG
 	std::cout << "Received a reply:" << std::endl;
-	fwrite(msg->get_payload().c_str(), msg->get_payload().size(), 1, stdout);
 	
-	m_sip_client.send(hdl,"xxxxxxxxxxxxxx", websocketpp::frame::opcode::text);
-}
+	fwrite(msg->get_payload().c_str(), msg->get_payload().size(), 1, stdout);
+#endif
 
+	ResponseData res_data(payload_t);
+
+	if (res_data.IsHeartbeat() && 0){
+		this->SendHeartBeat(c,con);
+	}
+
+
+
+}
+/*----------------------------------*/
+/**
+*
+*/
+/*----------------------------------*/
+void Comm2Server::sleep(int ms)
+{
+
+#if __GNUC__
+	 usleep(ms * 1000);
+#endif
+
+#if _MSC_VER
+		Sleep(ms);
+#endif
+
+}
+/*----------------------------------*/
+/**
+*
+*/
+/*----------------------------------*/
+void Comm2Server::SendHeartBeat(client* c, client::connection_ptr con)
+{
+	try {
+		
+		websocketpp::connection_hdl hdl=con->get_handle();
+
+		if (m_sip_client_open){
+
+			string SIP_msg=m_CommData.GetHeartBeat();
+
+			std::cout<<"HeartBeat !"<<endl;	
+
+			m_sip_client.send(hdl, SIP_msg.c_str(), websocketpp::frame::opcode::text);
+
+			sleep(1000);
+
+		}
+
+	} catch (const std::exception & e) {
+		std::cout << e.what() << std::endl;
+	} catch (websocketpp::lib::error_code e) {
+		std::cout << e.message() << std::endl;
+	} catch (...) {
+		std::cout << "other exception" << std::endl;
+	}
+}
+/*----------------------------------*/
+/**
+*
+*/
+/*----------------------------------*/

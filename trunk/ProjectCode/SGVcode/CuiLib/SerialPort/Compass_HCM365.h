@@ -56,6 +56,7 @@ public:
 		void SendCmdPitchRollHeading();
 		
 		string GetPitchRollHeadingStr();
+		string GetHeadingStr();
 		/*string GetLatStr();
 		string GetLonStr();*/
 

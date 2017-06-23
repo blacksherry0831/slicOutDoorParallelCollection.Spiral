@@ -18,8 +18,11 @@ GPS_WG_8020 *GPS_WG_8020::_instance =new GPS_WG_8020();
 
 GPS_WG_8020::GPS_WG_8020(void)
 {
-	this->g_Lat_float=-1;
-	this->g_Lon_float=-1;
+	
+	double x = 1.0*rand()/RAND_MAX/1000;
+
+	this->g_Lat_float=31.9379781820+x;
+	this->g_Lon_float=118.8643670082+x;
 
 	buffer_result_idx=0;
 	memset(buffer_result,0,sizeof(buffer_result));

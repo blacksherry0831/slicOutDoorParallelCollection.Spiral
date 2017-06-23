@@ -14,14 +14,18 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
  CONFIGCURLHTTP()
  CONFIGPTHREADS()
  
- SET(BASE_LINK_LIB 
-	libcurl_http)
+ SET(BASE_LINK_LIB
+		jsoncpp_lib
+		SerialPort
+		libcurl_http)
 
 IF(Boost_FOUND)
 	
 	ConfigBoost()
 	SET(DIR_SRCS   
-			Comm2Server.cpp		 
+			Comm2Server.cpp
+			CommData.cpp	
+			ResponseData.cpp	 
 		 )
 	ADD_LIBRARY(Comm2ServerLib   STATIC    ${DIR_SRCS}  )
 	

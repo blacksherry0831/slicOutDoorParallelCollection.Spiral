@@ -1,7 +1,7 @@
 #pragma once
 
 #include "module_websocket.h"
-
+#include "CommData.h"
 typedef websocketpp::client<websocketpp::config::asio_client> client;
 
 using websocketpp::lib::placeholders::_1;
@@ -24,19 +24,16 @@ class Comm2Server
 {
 private:
 	client m_sip_client;
-	string m_url;
-	string m_websockets_url;
-	int    m_port;
-	bool   m_thread_run; 
+	websocketpp::connection_hdl m_hdl_open;
+	bool   m_sip_client_open;
 private:
-
-  string m_current_task;
-  string m_user_id;
-  string m_car_id;
-  pthread_t m_pthread_t_id;
+	bool   m_thread_run;
+	pthread_t m_pthread_t_id;
 public:
 	Comm2Server(void);
 	~Comm2Server(void);
+private:
+	CommData m_CommData;
 public:
 	void InputCarUserId();
 	int RegisterCar(void);
@@ -50,8 +47,15 @@ public:
 	int StopWebSocketThread();
 	void Join();
 
-	void InitWebSocket(string uri);
+	void InitWebSocket();
+	
 	void on_open(client* c, websocketpp::connection_hdl hdl);
+	void on_close(client* c, websocketpp::connection_hdl hdl);
 	void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg);
+	void on_fail(client* c, websocketpp::connection_hdl hdl);
+	void on_interrupt(client* c, websocketpp::connection_hdl hdl);
+
+	void sleep(int ms);
+	void SendHeartBeat(client* c, client::connection_ptr con);
 };
 

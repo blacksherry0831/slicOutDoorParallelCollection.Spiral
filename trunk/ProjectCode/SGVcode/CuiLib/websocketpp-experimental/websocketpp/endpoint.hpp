@@ -333,14 +333,14 @@ private:
     std::string                 m_user_agent;
     
     open_handler                m_open_handler;
-    close_handler               m_close_handler;
-    fail_handler                m_fail_handler;
-    ping_handler                m_ping_handler;
-    pong_handler                m_pong_handler;
-    pong_timeout_handler        m_pong_timeout_handler;
-    interrupt_handler           m_interrupt_handler;
-    http_handler                m_http_handler;
-    validate_handler            m_validate_handler;
+	close_handler               m_close_handler;
+	fail_handler                m_fail_handler;
+	ping_handler                m_ping_handler;
+	pong_handler                m_pong_handler;
+	pong_timeout_handler        m_pong_timeout_handler;
+	interrupt_handler           m_interrupt_handler;
+	http_handler                m_http_handler;
+	validate_handler            m_validate_handler;
     message_handler             m_message_handler;
     
     rng_type m_rng;

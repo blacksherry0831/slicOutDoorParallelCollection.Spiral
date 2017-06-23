@@ -63,7 +63,22 @@ void TestAGVDriver()
 
 }
 
+void TestAGVComm()
+{
 
+	Comm2Server comm2server;
+	comm2server.InputCarUserId();
+	comm2server.RegisterCar();
+
+#if 0
+	comm2server.GetTaskLongitudeLatitude();
+#endif
+
+
+	comm2server.StartWebSocketThread();
+
+	comm2server.Join();
+}
 
 int main()
 {
@@ -72,33 +87,24 @@ int main()
 
 	printf("Please Input Test Item:\n");
 
-	printf("1 AGVDriver Test! \n");
+	printf("1 AGV Driver Test! \n");
 	printf("2 Communication Test! \n");
 
 	cin>>test_num;
 
 	if (test_num==1){
-#if 1
+
 		TestAGVDriver();
-#endif
+
 	}else if (test_num==2){
 		
-		Comm2Server comm2server;
-		comm2server.InputCarUserId();
-		comm2server.RegisterCar();
-		comm2server.GetTaskLongitudeLatitude();
-
-		comm2server.StartWebSocketThread();
-
-		comm2server.Join();
+		TestAGVComm();
+		
 	}else{
 
 
 	}
 
-
-
-	
 	cin.get();
 	return 0;
 }
