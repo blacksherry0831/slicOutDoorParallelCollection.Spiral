@@ -8,35 +8,25 @@ ConfigOpenCv()
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")  
  
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
-
 ####################################### 
  ConfigMFC_2()
  CONFIGCURLHTTP()
  CONFIGPTHREADS()
  
  SET(BASE_LINK_LIB
-		StompLib
-		jsoncpp_lib
-		SerialPort
-		libcurl_http)
+		)
 
-IF(Boost_FOUND)
+
 	
-	ConfigBoost()
+	
 	SET(DIR_SRCS   
-			Comm2Server.cpp
-			CommData.cpp	
-			ResponseData.cpp	 
+			StompCommandConstants.cpp
+			StompFrame.cpp
 		 )
-	ADD_LIBRARY(Comm2ServerLib   STATIC    ${DIR_SRCS}  )
+	ADD_LIBRARY(StompLib   STATIC    ${DIR_SRCS}  )
 	
-	TARGET_LINK_LIBRARIES(Comm2ServerLib ${BASE_LINK_LIB})
+	TARGET_LINK_LIBRARIES(StompLib ${BASE_LINK_LIB})
 
-ELSE(Boost_FOUND)
-
-   MESSAGE(FATAL_ERROR ¡±Boost library not found¡±)
-
-ENDIF(Boost_FOUND)
 ########################################
 
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")

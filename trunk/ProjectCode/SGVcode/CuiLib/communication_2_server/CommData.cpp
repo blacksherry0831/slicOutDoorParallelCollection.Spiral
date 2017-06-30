@@ -174,12 +174,22 @@ string CommData::GetUrlTaskLongitudeLatitude()
 string CommData::GetWsUrl()
 {
 	stringstream ss; //定义一个string流（使用s实例化） 
-	const string ws_path_t="/car/websocket";
+	
+	//const string ws_path_t="/car/websocket";
 
+	const string ws_path_t="/car/hello";
+
+#if 0
 	ss<<m_websockets_url<<":"<<m_port<<ws_path_t<<"?"<<"car="<<m_car_id;
+#else
+	ss<<m_url<<":"<<m_port<<ws_path_t;
+#endif
+
 
 	const string ws_path_full=ss.str();
-
+#if 0
+	return "ws://120.25.162.254:7681";
+#endif
 	return ws_path_full;
 }
 /*----------------------------------*/

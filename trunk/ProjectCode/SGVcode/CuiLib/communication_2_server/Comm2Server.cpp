@@ -205,7 +205,13 @@ void Comm2Server::on_open(client* c, websocketpp::connection_hdl hdl)
 	client::connection_ptr con = m_sip_client.get_con_from_hdl(hdl);
 	std::cout << "connection ready" << std::endl;
 	this->m_sip_client_open=true;
+	
+	this->SendStompConnect(c,con);
+#if 0
 	this->SendHeartBeat(c,con);
+#endif
+
+
 }
 /*----------------------------------*/
 /**
@@ -255,7 +261,7 @@ void Comm2Server::on_message(client* c, websocketpp::connection_hdl hdl, message
 
 	ResponseData res_data(payload_t);
 
-	if (res_data.IsHeartbeat() && 0){
+	if (res_data.IsHeartbeat() || 0){
 		this->SendHeartBeat(c,con);
 	}
 
@@ -297,6 +303,37 @@ void Comm2Server::SendHeartBeat(client* c, client::connection_ptr con)
 			std::cout<<"HeartBeat !"<<endl;	
 
 			m_sip_client.send(hdl, SIP_msg.c_str(), websocketpp::frame::opcode::text);
+
+			sleep(1000);
+
+		}
+
+	} catch (const std::exception & e) {
+		std::cout << e.what() << std::endl;
+	} catch (websocketpp::lib::error_code e) {
+		std::cout << e.message() << std::endl;
+	} catch (...) {
+		std::cout << "other exception" << std::endl;
+	}
+}
+/*----------------------------------*/
+/**
+*
+*/
+/*----------------------------------*/
+void Comm2Server::SendStompConnect(client* c, client::connection_ptr con)
+{
+	try {
+
+		websocketpp::connection_hdl hdl=con->get_handle();
+
+		if (m_sip_client_open){
+
+			string SIP_msg=StompFrame::GetConnectCmd();
+
+			std::cout<<"[ws][stomp][connect]"<<endl;	
+
+			m_sip_client.send(hdl, SIP_msg.c_str(),SIP_msg.size(), websocketpp::frame::opcode::binary);
 
 			sleep(1000);
 

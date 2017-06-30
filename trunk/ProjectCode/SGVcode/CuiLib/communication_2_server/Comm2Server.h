@@ -20,6 +20,8 @@ using websocketpp::lib::bind;
 #include "pthread.h"
 using namespace std;
 
+#include "stomp/StompFrame.h"
+
 class Comm2Server
 {
 private:
@@ -56,6 +58,8 @@ public:
 	void on_interrupt(client* c, websocketpp::connection_hdl hdl);
 
 	void sleep(int ms);
+
 	void SendHeartBeat(client* c, client::connection_ptr con);
+	void SendStompConnect(client* c, client::connection_ptr con);
 };
 
