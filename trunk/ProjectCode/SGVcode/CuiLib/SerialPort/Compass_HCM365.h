@@ -66,7 +66,7 @@ private:
 	void process_compass_data();
 	float ConvertBCD2Float(unsigned char* data_t);
 public:
-	static vector<string> split(const string& s,char delim);
+	
 	 static Compass_HCM365* getInstance();
 private:
 	 static  Compass_HCM365* _instance;

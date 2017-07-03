@@ -1,9 +1,6 @@
 #include "ResponseData.h"
-#include<iostream>
-#include<sstream>
-#include<string>
-#include <fstream>
-#include <assert.h>
+
+#include "MY_SDK_LIB/Base.h"
 /*----------------------------------*/
 /**
 *
@@ -53,7 +50,7 @@ int ResponseData::parse(string data_t)
 			m_resp_result=0;
 		}
 
-		std::vector<std::string> random_data_t=split(m_random,'@');
+		std::vector<std::string> random_data_t=Base::split(m_random,'@');
 		this->m_random_count= atoi(random_data_t.at(1).c_str()) ;
 		this->m_resp_type=random_data_t.at(0);
 		/*std::cout << out << std::endl;*/
@@ -76,20 +73,7 @@ int ResponseData::parse(string data_t)
 *
 */
 /*----------------------------------*/
-std::vector<std::string> ResponseData::split  (const std::string &s, char delim)
-{
 
-	std::stringstream ss(s);
-	std::string item;
-	std::vector<std::string> elems;
-
-	while (std::getline(ss, item, delim)) {
-
-		elems.push_back(item);
-		// elems.push_back(std::move(item)); // if C++11 (based on comment from @mchiasson)
-	}
-	return elems;
-}
 /*----------------------------------*/
 /**
 *

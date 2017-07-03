@@ -1,9 +1,5 @@
 #include "CommData.h"
-#include<iostream>
-#include<sstream>
-#include<string>
-#include <fstream>
-#include <assert.h>
+#include <stomp/StompCommandConstants.h>
 /*----------------------------------*/
 /**
 *
@@ -197,7 +193,18 @@ string CommData::GetWsUrl()
 *
 */
 /*----------------------------------*/
+StompFrame CommData::GetHeartBeatFrame()
+{
+	StompFrame sf_t;
 
+	sf_t.setCommand(StompCommandConstants::SEND);
+
+	sf_t.setProperty("destination","//");
+
+	sf_t.SetBody(this->GetHeartBeat());
+
+	return sf_t;
+}
 /*----------------------------------*/
 /**
 *

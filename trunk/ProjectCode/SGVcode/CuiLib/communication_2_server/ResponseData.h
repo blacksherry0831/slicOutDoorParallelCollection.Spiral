@@ -1,12 +1,10 @@
 #pragma once
 
 #include <jsoncpp-master/include/json/json.h>
+
 #include "pthread.h"
-using namespace std;
 
-
-#include <type.h>
-
+#include "cpp_stl.h"
 
 class ResponseData
 {
@@ -24,7 +22,7 @@ private:
 public:
 	int parse(string data_t);
 	int IsHeartbeat();
-	static	std::vector<std::string> split  (const std::string &s, char delim);
+	
 public:
 		
 };

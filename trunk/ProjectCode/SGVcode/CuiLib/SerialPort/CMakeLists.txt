@@ -53,5 +53,6 @@ SET(DIR_SRCS
 ADD_LIBRARY(SerialPort   STATIC    ${DIR_SRCS}  )
 
 TARGET_LINK_LIBRARIES(SerialPort
+	MY_SDK_LIB
 	pthreads) 
 ################################################################################

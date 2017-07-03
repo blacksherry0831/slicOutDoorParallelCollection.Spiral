@@ -14,7 +14,7 @@ Comm2Server::Comm2Server(void)
 {
 
 	this->m_thread_run=true;
-	this->m_sip_client_open=false;
+	this->m_sip_client_connected=false;
 }
 /*----------------------------------*/
 /**
@@ -130,7 +130,7 @@ int Comm2Server::StopWebSocketThread()
 {
 	
 	this->m_thread_run=FALSE;
-	this->m_sip_client_open=false;
+	this->m_sip_client_connected=false;
 	return 0;
 }
 /*----------------------------------*/
@@ -204,14 +204,8 @@ void Comm2Server::on_open(client* c, websocketpp::connection_hdl hdl)
 	// now it is safe to use the connection
 	client::connection_ptr con = m_sip_client.get_con_from_hdl(hdl);
 	std::cout << "connection ready" << std::endl;
-	this->m_sip_client_open=true;
-	
+		
 	this->SendStompConnect(c,con);
-#if 0
-	this->SendHeartBeat(c,con);
-#endif
-
-
 }
 /*----------------------------------*/
 /**
@@ -259,10 +253,20 @@ void Comm2Server::on_message(client* c, websocketpp::connection_hdl hdl, message
 	fwrite(msg->get_payload().c_str(), msg->get_payload().size(), 1, stdout);
 #endif
 
-	ResponseData res_data(payload_t);
+	StompFrame  sf_t;
 
-	if (res_data.IsHeartbeat() || 0){
-		this->SendHeartBeat(c,con);
+	sf_t.Parse(payload_t);
+
+	if (sf_t.IsConnected()){
+		//连接成功
+		this->m_sip_client_connected=true;
+
+	}else if (sf_t.IsERROR()){
+		//
+
+	}else{
+
+
 	}
 
 
@@ -296,7 +300,7 @@ void Comm2Server::SendHeartBeat(client* c, client::connection_ptr con)
 		
 		websocketpp::connection_hdl hdl=con->get_handle();
 
-		if (m_sip_client_open){
+		if (m_sip_client_connected){
 
 			string SIP_msg=m_CommData.GetHeartBeat();
 
@@ -327,7 +331,7 @@ void Comm2Server::SendStompConnect(client* c, client::connection_ptr con)
 
 		websocketpp::connection_hdl hdl=con->get_handle();
 
-		if (m_sip_client_open){
+		if (m_sip_client_connected){
 
 			string SIP_msg=StompFrame::GetConnectCmd();
 

@@ -1,6 +1,6 @@
 #include "StdAfx.h"
 #include "GPS_WG_8020.h"
-//#include "opencv_stl.h"
+#include "MY_SDK_LIB/Base.h"
 /*-------------------------------------*/
 /**
 *
@@ -275,7 +275,7 @@ void GPS_WG_8020::process_gps_data()
 
 	string data_t=buffer_result;
 	int idx=0;
-	vector<std::string> gps_datas_t=this->split(data_t,',');
+	vector<std::string> gps_datas_t=Base::split(data_t,',');
 
 	if (gps_datas_t.at(idx++).compare("$GPRMC")==0)
 	{
@@ -313,19 +313,7 @@ void GPS_WG_8020::process_gps_data()
 *
 */
 /*-------------------------------------*/
-std::vector<std::string>  GPS_WG_8020::split(const std::string &s, char delim) {
-		
-	std::stringstream ss(s);
-	std::string item;
-	std::vector<std::string> elems;
-	
-	while (std::getline(ss, item, delim)) {
-		
-		elems.push_back(item);
-			// elems.push_back(std::move(item)); // if C++11 (based on comment from @mchiasson)
-		}
-		return elems;
-}
+
 /*-------------------------------------*/
 /**
 *ddmm.mmmm

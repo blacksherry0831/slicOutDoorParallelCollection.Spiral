@@ -27,7 +27,7 @@ class Comm2Server
 private:
 	client m_sip_client;
 	websocketpp::connection_hdl m_hdl_open;
-	bool   m_sip_client_open;
+	bool   m_sip_client_connected;
 private:
 	bool   m_thread_run;
 	pthread_t m_pthread_t_id;

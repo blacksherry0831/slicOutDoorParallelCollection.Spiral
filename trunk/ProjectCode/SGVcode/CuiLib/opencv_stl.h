@@ -42,95 +42,9 @@ using namespace cv;
 
 
 /*********************************************************/
-//C++
-#include<stdio.h>
-#include <iostream>
-#include <stdlib.h>
-#include <fstream>
-//#include <iostream>
-#include <math.h>
-#include <fstream>
-#include <string>
-#include <sstream>
-#include <vector>
-#include <string>
-#include <algorithm>
-#include <cfloat>
-#include <cmath>
-#include <ios>
-#include <fstream>
-#include <stdexcept>
-#include <cstdio> 
-#include<stdio.h>
-#include<string.h>
-#if _MSC_VER
-#include <mbctype.h>  
-#include <io.h>
-#endif
-#if _MSC_VER
-#include <tchar.h>
-#endif
-#if linux||__linux__||__linux||__GNUC__
-#include<memory>
-#include <tr1/memory>
-#include <dirent.h>
-#include <unistd.h>
-#endif
 
+#include "cpp_stl.h"
 
-#ifndef TimeCountClock_START
-
-#endif 
-#ifndef TimeCountClock_END
-
-#endif
-
-#ifndef TimeCountClockTest
-//#define TimeCountClockTest(P,M)  {double dur;clock_t start,end;start = clock();	{P} end = clock();dur = (double)(end - start);printf("%s(S):%0.3f\n",M,(dur/CLOCKS_PER_SEC));}
-
-#define TimeCountStart()	double dur=0;clock_t start,end;start = clock();
-
-#define TimeCountStop(MESSAGE_TIME_END)		end = clock();dur = (double)(end - start);printf("%s(S):%0.3f\n",MESSAGE_TIME_END,(dur/CLOCKS_PER_SEC));
-#endif
-
-
-
-using namespace std;
-
-#ifndef DWORD
-typedef unsigned long       DWORD;
-#endif
-
-#ifndef BOOL
-typedef int                 BOOL;
-#endif
-
-
-#ifndef BYTE
-typedef unsigned char       BYTE;
-#endif
-
-
-//
-//typedef unsigned short      WORD;
-//
-//typedef float               FLOAT;
-//typedef FLOAT               *PFLOAT;
-//typedef BOOL near           *PBOOL;
-//typedef BOOL far            *LPBOOL;
-//typedef BYTE near           *PBYTE;
-//typedef BYTE far            *LPBYTE;
-//typedef int near            *PINT;
-//typedef int far             *LPINT;
-//typedef WORD near           *PWORD;
-//typedef WORD far            *LPWORD;
-//typedef long far            *LPLONG;
-//typedef DWORD near          *PDWORD;
-//typedef DWORD far           *LPDWORD;
-//typedef void far            *LPVOID;
-//typedef CONST void far      *LPCVOID;
-
-/*********************************************************/
 #endif
 
 

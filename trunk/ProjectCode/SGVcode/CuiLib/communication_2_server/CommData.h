@@ -2,13 +2,14 @@
 
 #include <jsoncpp-master/include/json/json.h>
 #include "pthread.h"
+
 using namespace std;
-
-
 #include <type.h>
 
 #include <SerialPort/Gps_WG_8020.h>
 #include <SerialPort/Compass_HCM365.h>
+
+#include <stomp/StompFrame.h>
 
 #define  CAR_STATUS_RUN  "run"
 #define  CAR_STATUS_STOP "stop"
@@ -40,6 +41,9 @@ public:
 
 
 	string GetHeartBeat();
+
+	StompFrame GetHeartBeatFrame();
+
 public:
 	string GetUrlRegisterCar();
 	string GetUrlTaskLongitudeLatitude();

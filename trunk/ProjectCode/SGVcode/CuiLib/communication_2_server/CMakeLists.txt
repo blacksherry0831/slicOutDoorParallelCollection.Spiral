@@ -15,6 +15,7 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
  CONFIGPTHREADS()
  
  SET(BASE_LINK_LIB
+		MY_SDK_LIB
 		StompLib
 		jsoncpp_lib
 		SerialPort

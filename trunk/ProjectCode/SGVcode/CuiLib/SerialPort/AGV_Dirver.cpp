@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "AGV_Dirver.h"
+#include "MY_SDK_LIB/Base.h"
 /*-------------------------------------*/
 /**
 *
@@ -189,20 +190,7 @@ void AGV_Dirver::process_result_data()
 *
 */
 /*-------------------------------------*/
-std::vector<std::string>  AGV_Dirver::split(const std::string &s, char delim) {
-		
-	std::stringstream ss(s);
-	std::string item;
-	std::vector<std::string> elems;
-	
-	while (std::getline(ss, item, delim)) {
-		
-		elems.push_back(item);
-			// elems.push_back(std::move(item));
-			// if C++11 (based on comment from @mchiasson)
-		}
-		return elems;
-}
+
 /*----------------------------------------------------*/
 /**
 *

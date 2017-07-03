@@ -18,14 +18,7 @@
 #ifndef _ACTIVEMQ_WIREFORMAT_STOMP_STOMPFRAMEWRAPPER_H_
 #define _ACTIVEMQ_WIREFORMAT_STOMP_STOMPFRAMEWRAPPER_H_
 
-#include <string>
-#include <string.h>
-#include <map>
-
-#include <sstream>
-#include <string.h>
-#include <vector>
-using namespace std;
+#include "cpp_stl.h"
 
 #include "StompCommandConstants.h"
     /**
@@ -60,7 +53,13 @@ using namespace std;
 		void setCommand(const std::string cmd_p);
 		void setProperty(string key_p,string value_p);
 		string GetCmdString();
+		StompFrame* Parse(string msg);
 
+		void SetBody(string body_str_t);
+		string GetBody();
+		void SetProperties(vector<string> p_str_t);
+		int IsConnected();
+		int IsERROR();
     };
 
 
