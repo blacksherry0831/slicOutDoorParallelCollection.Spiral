@@ -21,7 +21,14 @@ using websocketpp::lib::bind;
 using namespace std;
 
 #include "stomp/StompFrame.h"
-
+/*----------------------------------*/
+/**
+*	boost_1_64_0-msvc-10.0-32.exe
+*	BOOST_ROOT=C:\local\boost_1_64_0
+*	b2 --toolset=msvc-10.0 --build-type=complete stage
+* 
+*/
+/*----------------------------------*/
 class Comm2Server
 {
 private:
@@ -61,5 +68,8 @@ public:
 
 	void SendHeartBeat(client* c, client::connection_ptr con);
 	void SendStompConnect(client* c, client::connection_ptr con);
+	void SendStompSubscription(client* c, client::connection_ptr con);
+	void SendStompSubscriptionP2P(client* c, client::connection_ptr con);
+	void SendWebSockString(client::connection_ptr con,string str_t);
 };
 

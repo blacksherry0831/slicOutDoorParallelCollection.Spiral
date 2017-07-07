@@ -1631,9 +1631,14 @@ void cui_GeneralImgProcess::GetContour2Fill(
 			holeColor=filldata;
 			externalColor=filldata;
 			cvDrawContours(fill_img,pcontour,externalColor,holeColor,1,CV_FILLED,8,cvPoint(OriginX,OriginY));
-			printf("#");
+          
+			if (cui_GeneralImgProcess::SAVE_DEBUG_2DISK)		
+				printf("#");
+          
+
 		}
-		printf("\n");
+		if (cui_GeneralImgProcess::SAVE_DEBUG_2DISK)
+			printf("\n");
 	}
 //	cvReleaseImage(&src);
 	cvReleaseImage(&pImg);

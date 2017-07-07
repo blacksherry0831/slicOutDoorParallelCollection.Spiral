@@ -234,6 +234,7 @@ void ImageData::ReleaseMemory(void)
 	 int spcount,
 	 double compactness)
  {  
+	 TimeCountStart();
 	 TRACE_FUNC();
 	 ReleaseMemory();
 	 /*************************************************************************************************/ 
@@ -307,6 +308,7 @@ void ImageData::ReleaseMemory(void)
 	   this->pYweight_V=new double[ImgHeight];
 	   /*********************************************************************/
 	   this->p_SpProperty=new SP_PROPERTY[MAX_SP_NUM];
+	   TimeCountStop("RGB 2 LAB 2 ThetaMLXY");
  }
 /*----------------------------------------------------------------*/
 /**

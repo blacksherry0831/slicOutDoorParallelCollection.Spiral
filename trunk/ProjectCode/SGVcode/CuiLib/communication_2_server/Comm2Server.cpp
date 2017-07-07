@@ -178,8 +178,9 @@ void Comm2Server::InitWebSocket()
 		m_sip_client.run();
 
 		while(m_thread_run) {
-			sleep(500);		
-			std::cout << "#";
+			 sleep(500);		
+			 //std::cout << "#";
+			/* this->SendHeartBeat(&m_sip_client,con);*/
 		}
 
 		std::cout << "websocket done !" << std::endl;
@@ -244,13 +245,14 @@ void Comm2Server::on_interrupt(client* c, websocketpp::connection_hdl hdl)
 /*----------------------------------*/
 void Comm2Server::on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg)
 {
-	client::connection_ptr con = m_sip_client.get_con_from_hdl(hdl);
+	const client::connection_ptr con = m_sip_client.get_con_from_hdl(hdl);
 	string payload_t=msg->get_payload();
 
 #if _DEBUG
-	std::cout << "Received a reply:" << std::endl;
+	std::cout << "[server]>>>Received a reply:" << std::endl;
 	
 	fwrite(msg->get_payload().c_str(), msg->get_payload().size(), 1, stdout);
+	std::cout << "<<<[server]" << std::endl;
 #endif
 
 	StompFrame  sf_t;
@@ -261,12 +263,28 @@ void Comm2Server::on_message(client* c, websocketpp::connection_hdl hdl, message
 		//连接成功
 		this->m_sip_client_connected=true;
 
+//		this->SendStompSubscription(c,con);
+		
+		this->SendStompSubscriptionP2P(c,con);
+		
+		this->SendHeartBeat(c,con);
+
+
 	}else if (sf_t.IsERROR()){
 		//
 
+	}else if (sf_t.IsMESSAGE()){
+		
+		ResponseData rd_t;
+		rd_t.parse(sf_t.GetBody());
+		
+		if(rd_t.IsHeartbeat()){
+			this->SendHeartBeat(c,con);
+		}
+
+
 	}else{
-
-
+	
 	}
 
 
@@ -302,11 +320,11 @@ void Comm2Server::SendHeartBeat(client* c, client::connection_ptr con)
 
 		if (m_sip_client_connected){
 
-			string SIP_msg=m_CommData.GetHeartBeat();
+			string SIP_msg=m_CommData.GetHeartBeatFrame().str();
 
-			std::cout<<"HeartBeat !"<<endl;	
+			std::cout<<"[local] HeartBeat !"<<endl;	
 
-			m_sip_client.send(hdl, SIP_msg.c_str(), websocketpp::frame::opcode::text);
+			this->SendWebSockString(con,SIP_msg);
 
 			sleep(1000);
 
@@ -331,13 +349,13 @@ void Comm2Server::SendStompConnect(client* c, client::connection_ptr con)
 
 		websocketpp::connection_hdl hdl=con->get_handle();
 
-		if (m_sip_client_connected){
+		{
 
 			string SIP_msg=StompFrame::GetConnectCmd();
 
 			std::cout<<"[ws][stomp][connect]"<<endl;	
 
-			m_sip_client.send(hdl, SIP_msg.c_str(),SIP_msg.size(), websocketpp::frame::opcode::binary);
+			this->SendWebSockString(con,SIP_msg);
 
 			sleep(1000);
 
@@ -350,6 +368,78 @@ void Comm2Server::SendStompConnect(client* c, client::connection_ptr con)
 	} catch (...) {
 		std::cout << "other exception" << std::endl;
 	}
+}
+/*----------------------------------*/
+/**
+*
+*/
+/*----------------------------------*/
+void Comm2Server::SendStompSubscription(client* c, client::connection_ptr con)
+{
+	try {
+
+		websocketpp::connection_hdl hdl=con->get_handle();
+
+		if (m_sip_client_connected){
+
+			string SIP_msg=m_CommData.GetSubscriptionFrame().str();
+
+			std::cout<<"[local] Subscription !"<<endl;	
+
+			this->SendWebSockString(con,SIP_msg);
+
+			sleep(1000);
+
+		}
+
+	} catch (const std::exception & e) {
+		std::cout << e.what() << std::endl;
+	} catch (websocketpp::lib::error_code e) {
+		std::cout << e.message() << std::endl;
+	} catch (...) {
+		std::cout << "other exception" << std::endl;
+	}
+}
+/*----------------------------------*/
+/**
+*
+*/
+/*----------------------------------*/
+void Comm2Server::SendStompSubscriptionP2P(client* c, client::connection_ptr con)
+{
+	try {
+
+		websocketpp::connection_hdl hdl=con->get_handle();
+
+		if (m_sip_client_connected){
+
+			string SIP_msg=m_CommData.GetSubscriptionFrameP2p().str();
+
+			std::cout<<"[local] Subscription !"<<endl;	
+
+			this->SendWebSockString(con,SIP_msg);
+
+			sleep(1000);
+
+		}
+
+	} catch (const std::exception & e) {
+		std::cout << e.what() << std::endl;
+	} catch (websocketpp::lib::error_code e) {
+		std::cout << e.message() << std::endl;
+	} catch (...) {
+		std::cout << "other exception" << std::endl;
+	}
+}
+/*----------------------------------*/
+/**
+*
+*/
+/*----------------------------------*/
+void Comm2Server::SendWebSockString(client::connection_ptr con,string str_t)
+{
+	websocketpp::connection_hdl hdl=con->get_handle();
+	m_sip_client.send(hdl,str_t.data(),str_t.size(),websocketpp::frame::opcode::binary);
 }
 /*----------------------------------*/
 /**

@@ -18,6 +18,12 @@ public:
 	static std::vector<std::string> split  (const std::string &s, char delim);
 
 	static std::vector<std::string> split  (const std::string &s, string delim);
+
+	static void SaveString2Disk(
+		string ffile_name_t,
+		string str_t);
+	
+	static int IsEqual(std::string str_0,std::string str_1);
 	
 };
 

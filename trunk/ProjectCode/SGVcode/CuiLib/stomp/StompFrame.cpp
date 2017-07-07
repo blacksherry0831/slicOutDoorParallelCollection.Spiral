@@ -80,7 +80,7 @@ string StompFrame::GetConnectCmd()
 	
 	sf_t.setProperty("accept-version","1.0,1.1,2.0");
 	
-	string  result_str=sf_t.GetCmdString();
+	string  result_str=sf_t.str();
 
 	char last_char=result_str.data()[result_str.size()-1];
 	if (last_char!=0x00){
@@ -92,10 +92,25 @@ string StompFrame::GetConnectCmd()
 /*-----------------------------------------*/
 /**
 *
+*/
+/*-----------------------------------------*/
+StompFrame  StompFrame::GetSubscribeFrame(string id,string dest)
+{
+	StompFrame sf_t;
+
+	sf_t.setCommand(StompCommandConstants::SUBSCRIBE);
+
+	
+	sf_t.setProperty(StompCommandConstants::HEADER_DESTINATION,dest);
+	sf_t.setProperty(StompCommandConstants::HEADER_ID,id);
+	return sf_t; 
+}
+/*-----------------------------------------*/
+/**
 *
 */
 /*-----------------------------------------*/
-string StompFrame::GetCmdString()
+string StompFrame::str()
 {
 	stringstream ss_result_t;
 	const string E_O_L="\r\n";
@@ -125,7 +140,14 @@ string StompFrame::GetCmdString()
 	//½áÊø·û
 	ss_result_t<<"\0";
 
-	return ss_result_t.str();
+	string result_str_t=ss_result_t.str();
+
+	if (result_str_t.data()[result_str_t.size()-1]!='\0'){
+			result_str_t+='\0';
+	}
+
+
+	return result_str_t;
 }
 /*-----------------------------------------*/
 /**
@@ -176,6 +198,7 @@ void  StompFrame::SetBody(string body_str_t)
 	for(int i=0;i<LEN;i++){
 		this->body.push_back(DATA[i]);
 	}
+	this->body.push_back(0x00);
 }
 /*-----------------------------------------*/
 /**
@@ -221,12 +244,7 @@ void  StompFrame::SetProperties(vector<string> p_str_t)
 /*-----------------------------------------*/
 int StompFrame::IsConnected()
 {
-	int result_t=this->command.compare(StompCommandConstants::CONNECTED);
-	if (result_t==0){
-		return TRUE;
-	}else{
-		return FALSE;
-	}
+	return Base::IsEqual(command,StompCommandConstants::CONNECTED);
 }
 /*-----------------------------------------*/
 /**
@@ -236,12 +254,27 @@ int StompFrame::IsConnected()
 /*-----------------------------------------*/
 int StompFrame::IsERROR()
 {
-	int result_t=this->command.compare(StompCommandConstants::ERROR_CMD);
-	if (result_t==0){
-		return TRUE;
-	}else{
-		return FALSE;
-	}
+	return Base::IsEqual(command,StompCommandConstants::ERROR_CMD);
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+void StompFrame::setPropertyContentType(string value_p)
+{
+	this->setProperty("content-type",value_p);
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+int StompFrame::IsMESSAGE()
+{
+	return Base::IsEqual(command,StompCommandConstants::MESSAGE);
 }
 /*-----------------------------------------*/
 /**

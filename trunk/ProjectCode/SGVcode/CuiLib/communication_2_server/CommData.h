@@ -29,25 +29,27 @@ public:
 	string m_car_status;
 	string m_error;
 	int    m_random_count;
+	string m_phone_number;
 public:
 	void  InputCarUserId();
 
-	static void SaveString2Disk(
-		string ffile_name_t,
-		string str_t);
+
 public:
 	GPS_WG_8020* m_gps;
 	Compass_HCM365 *m_compass;
-
-
+	
 	string GetHeartBeat();
 
+	StompFrame GetSubscriptionFrame();
 	StompFrame GetHeartBeatFrame();
-
+	StompFrame GetSubscriptionFrameP2p();
 public:
 	string GetUrlRegisterCar();
 	string GetUrlTaskLongitudeLatitude();
 	string GetWsUrl();
+	string GetWsStompSendUrl();
+	string GetWsStompSubscriptionUrl();
+	string GetWsStompSubscriptionP2pUrl();
 public:
 
 	

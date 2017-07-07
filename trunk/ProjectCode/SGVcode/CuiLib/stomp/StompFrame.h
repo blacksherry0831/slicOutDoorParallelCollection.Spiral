@@ -36,7 +36,7 @@
         // Byte data of Body.
         std::vector<unsigned char> body;
 
-    public:
+	public:
 
         /**
          * Default constructor.
@@ -47,19 +47,23 @@
          * Destruction.
          */
         virtual ~StompFrame();
-
-        static string GetConnectCmd();
-
-		void setCommand(const std::string cmd_p);
-		void setProperty(string key_p,string value_p);
-		string GetCmdString();
+	public:
 		StompFrame* Parse(string msg);
-
+		string str();	
+	public:	
+		string  GetBody();
+		static  string GetConnectCmd();
+	    static	StompFrame GetSubscribeFrame(string id,string dest);
+	public:
+		void setCommand(const std::string cmd_p);
 		void SetBody(string body_str_t);
-		string GetBody();
+		void setProperty(string key_p,string value_p);
+		void setPropertyContentType(string value_p);
 		void SetProperties(vector<string> p_str_t);
+	public:
 		int IsConnected();
 		int IsERROR();
+		int IsMESSAGE();
     };
 
 

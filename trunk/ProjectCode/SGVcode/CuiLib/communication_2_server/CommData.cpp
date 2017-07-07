@@ -1,5 +1,6 @@
 #include "CommData.h"
 #include <stomp/StompCommandConstants.h>
+#include <MY_SDK_LIB/Base.h>
 /*----------------------------------*/
 /**
 *
@@ -10,14 +11,25 @@ CommData::CommData(void)
 	this->m_user_id="";
 	this->m_car_id="";
 	this->m_current_task="task";
+#if 0
 	this->m_url="http://58.240.85.222";
 	this->m_websockets_url="ws://58.240.85.222";
 	this->m_port=10000;
+#else
+	const string ip_addr="120.25.162.254";
+	this->m_url="http://"+ip_addr;
+	this->m_websockets_url="ws://"+ip_addr;
+	this->m_port=9080;
+#endif
+
+	
+	
 	this->m_error="200";
 	m_gps=GPS_WG_8020::getInstance();
 	m_compass=Compass_HCM365::getInstance();
 	this->m_random_count=1;
 	m_car_status=CAR_STATUS_STOP;
+	this->m_phone_number="15365078745";
 }
 /*----------------------------------*/
 /**
@@ -58,7 +70,7 @@ string CommData::GetHeartBeat()
 		car["frame_type"] =frame_type_t;
 		
 	    stringstream random_ss_t;
-	    random_ss_t<<frame_type_t<<m_random_count;
+	    random_ss_t<<frame_type_t<<m_random_count++;
 
 		car["random"] =random_ss_t.str();
 
@@ -68,7 +80,15 @@ string CommData::GetHeartBeat()
 	
 	std::string json_file = writer.write(car);
 
-	SaveString2Disk("heart_beat.json",json_file);
+	Base::SaveString2Disk("heart_beat.json",json_file);
+
+#if TRUE	
+	while(json_file.c_str()[json_file.size()-1]!='}'){
+		json_file.resize(json_file.size()-1);
+	}
+#endif
+
+
 
 	return json_file;
 }
@@ -77,20 +97,7 @@ string CommData::GetHeartBeat()
 *
 */
 /*----------------------------------*/
-void CommData::SaveString2Disk(string file_name_t,string str_t)
-{
-#if _DEBUG	
 
-	ofstream ofs;
-	ofs.open(file_name_t);
-	
-	assert(ofs.is_open());
-	ofs<<str_t;
-
-	ofs.close();
-
-#endif
-}
 /*----------------------------------*/
 /**
 *
@@ -193,17 +200,103 @@ string CommData::GetWsUrl()
 *
 */
 /*----------------------------------*/
+string CommData::GetWsStompSendUrl()
+{
+	stringstream ss; //定义一个string流（使用s实例化） 
+	const String AppDestPrefix="/app";
+	
+	const string ws_send_path_t="/hello";
+
+
+	ss<<AppDestPrefix<<ws_send_path_t;
+		
+
+	return ss.str();
+}
+/*----------------------------------*/
+/**
+*
+*/
+/*----------------------------------*/
+string CommData::GetWsStompSubscriptionUrl()
+{
+	stringstream ss; //定义一个string流（使用s实例化） 
+	const String AppDestPrefix="";
+
+	const string ws_send_path_t="/topic/greetings";
+
+	ss<<AppDestPrefix<<ws_send_path_t;
+
+	return ss.str();
+}
+/*----------------------------------*/
+/**
+*
+*/
+/*----------------------------------*/
+string  CommData::GetWsStompSubscriptionP2pUrl()
+{
+	stringstream ss; //定义一个string流（使用s实例化） 
+	const string UserDestinationPrefix="/user";
+	const string UserId="/"+m_car_id;
+	const string Msg="/message";
+
+	ss<<UserDestinationPrefix<<UserId<<Msg;
+
+	return ss.str();
+}
+/*----------------------------------*/
+/**
+*
+*/
+/*----------------------------------*/
 StompFrame CommData::GetHeartBeatFrame()
 {
 	StompFrame sf_t;
+	
+	const string send_body_t=this->GetHeartBeat();
 
 	sf_t.setCommand(StompCommandConstants::SEND);
 
-	sf_t.setProperty("destination","//");
+	int  content_lengh_t=send_body_t.length();
+	stringstream ss_t;
+	ss_t<<content_lengh_t;
 
-	sf_t.SetBody(this->GetHeartBeat());
+	sf_t.setProperty(StompCommandConstants::HEADER_DESTINATION,this->GetWsStompSendUrl());
+	sf_t.setProperty(StompCommandConstants::HEADER_CONTENTLENGTH,ss_t.str());
+
+//	sf_t.setPropertyContentType("application/json");
+
+	sf_t.SetBody(send_body_t);
 
 	return sf_t;
+}
+
+/*----------------------------------*/
+/**
+*
+*/
+/*----------------------------------*/
+StompFrame CommData::GetSubscriptionFrame()
+{
+	string id_t=this->m_car_id;
+
+	string dest_t=this->GetWsStompSubscriptionUrl();
+
+	return StompFrame::GetSubscribeFrame(id_t,dest_t);
+}
+/*----------------------------------*/
+/**
+*
+*/
+/*----------------------------------*/
+StompFrame CommData::GetSubscriptionFrameP2p()
+{
+	string id_t=this->m_car_id;
+
+	string dest_t=this->GetWsStompSubscriptionP2pUrl();
+
+	return StompFrame::GetSubscribeFrame(id_t,dest_t);
 }
 /*----------------------------------*/
 /**

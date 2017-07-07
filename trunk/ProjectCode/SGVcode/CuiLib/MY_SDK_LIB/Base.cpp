@@ -90,3 +90,39 @@ std::vector<std::string> Base::split  (const std::string &s, string delim)
 *
 */
 /*-----------------------------------------*/
+void Base::SaveString2Disk(string file_name_t,string str_t)
+{
+#if _DEBUG	
+
+	ofstream ofs;
+	ofs.open(file_name_t);
+
+	assert(ofs.is_open());
+	ofs<<str_t;
+
+	ofs.close();
+
+#endif
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+int Base::IsEqual(std::string str_0,std::string str_1)
+{
+	int result_t=str_0.compare(str_1);
+
+	if (result_t==0){
+		return TRUE;
+	}else{
+		return FALSE;
+	}
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
