@@ -19,7 +19,8 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		StompLib
 		jsoncpp_lib
 		SerialPort
-		libcurl_http)
+		libcurl_http
+		pthreads)
 
 IF(Boost_FOUND)
 	
@@ -27,7 +28,8 @@ IF(Boost_FOUND)
 	SET(DIR_SRCS   
 			Comm2Server.cpp
 			CommData.cpp	
-			ResponseData.cpp	 
+			ResponseData.cpp
+			DriveCarByCmd.cpp 
 		 )
 	ADD_LIBRARY(Comm2ServerLib   STATIC    ${DIR_SRCS}  )
 	

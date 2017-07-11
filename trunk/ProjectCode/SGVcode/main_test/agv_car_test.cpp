@@ -75,7 +75,7 @@ void TestAGVComm()
 #endif
 
 
-	comm2server.StartWebSocketThread();
+	comm2server.Start();
 
 	comm2server.Join();
 }

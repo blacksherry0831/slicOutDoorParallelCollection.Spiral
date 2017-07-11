@@ -58,8 +58,9 @@ public:
 	void RunLeft();
 	void RunRight();
 	void RunStraight();
-	void Send2Car();
+	int Send2Car();
 	void Send2CarFeedBack();
+	void SendByte2Car(unsigned char* buffer_t,int size_t);
 	/*	void SendCmdPitchRollHeading();
 		
 	string GetPitchRollHeadingStr();*/

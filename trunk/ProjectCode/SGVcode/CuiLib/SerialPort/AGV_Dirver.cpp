@@ -224,7 +224,11 @@ void* AGV_Dirver::readResultThread(void* lpParam)
 void AGV_Dirver::StartRun()
 {	
 	this->cmd_current[1]=0x01;
-	this->Send2Car();
+	if(this->Send2Car()){
+
+	}else{
+		std::cout<<"[local][car]Run START"<<std::endl;
+	}
 }
 /*----------------------------------------------------*/
 /**
@@ -234,7 +238,12 @@ void AGV_Dirver::StartRun()
 void AGV_Dirver::StopRun()
 {	
 	this->cmd_current[1]=0x00;
-	this->Send2Car();
+	if(this->Send2Car()){
+
+	}else{
+		std::cout<<"[local][car]STOP "<<std::endl;
+	}
+
 }
 /*----------------------------------------------------*/
 /**
@@ -313,7 +322,11 @@ void AGV_Dirver::RunBack()
 {
 	this->cmd_current[3]=0x01;
 	
-	this->Send2Car();
+	if(this->Send2Car()){
+
+	}else{
+		std::cout<<"[local][car]Run Back"<<std::endl;
+	}
 }
 /*----------------------------------------------------*/
 /**
@@ -325,7 +338,12 @@ void AGV_Dirver::RunForward()
 	this->cmd_current[3]=0x00;
 	this->GetLRC(this->cmd_current);
 
-	this->Send2Car();
+	if(this->Send2Car()){
+
+	}else{
+		std::cout<<"[local][car]Run Forward"<<std::endl;
+	}
+
 }
 /*----------------------------------------------------*/
 /**
@@ -335,7 +353,12 @@ void AGV_Dirver::RunForward()
 void AGV_Dirver::RunLeft()
 {
 	cmd_current[0]=LEFT_TURN;
-	this->Send2Car();
+	if(this->Send2Car()){
+
+	}else{
+		std::cout<<"[local][car]Run Left"<<std::endl;
+	}
+
 }
 /*----------------------------------------------------*/
 /**
@@ -345,7 +368,11 @@ void AGV_Dirver::RunLeft()
 void AGV_Dirver::RunRight()
 {
 	cmd_current[0]=RIGHT_TURN;
-	this->Send2Car();
+	if(this->Send2Car()){
+
+	}else{
+		std::cout<<"[local][car]Run Right"<<std::endl;
+	}
 }
 /*----------------------------------------------------*/
 /**
@@ -355,17 +382,32 @@ void AGV_Dirver::RunRight()
 void AGV_Dirver::RunStraight()
 {
 	cmd_current[0]=NO_TURN;
-	this->Send2Car();
+	if(this->Send2Car()){
+
+	}else{
+		std::cout<<"[local][car]Run Straight"<<std::endl;
+	}
 }
 /*----------------------------------------------------*/
 /**
 *
 */
 /*----------------------------------------------------*/
-void AGV_Dirver::Send2Car(void)
+int AGV_Dirver::Send2Car(void)
 {
 	this->GetLRC(this->cmd_current);
-	m_sp.Write(cmd_current,sizeof(cmd_current));
+
+	const int BUFF_SIZE=sizeof(cmd_current);
+	int  buf_send_t=-1;
+	if (m_sp.IsOpen()){
+			buf_send_t=m_sp.Write(cmd_current,BUFF_SIZE);
+	}else{
+		return FALSE;
+	}
+
+	return buf_send_t==BUFF_SIZE;
+
+
 }
 /*----------------------------------------------------*/
 /**
@@ -375,7 +417,10 @@ void AGV_Dirver::Send2Car(void)
 void AGV_Dirver::Send2CarFeedBack(void)
 {
 	this->GetLRC(this->buffer_result);
-	m_sp.Write(cmd_current,sizeof(this->buffer_result));
+	if (m_sp.IsOpen()){
+		m_sp.Write(cmd_current,sizeof(this->buffer_result));	
+	}
+
 }
 /*----------------------------------------------------*/
 /**

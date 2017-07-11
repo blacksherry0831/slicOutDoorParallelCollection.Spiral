@@ -21,6 +21,7 @@ using websocketpp::lib::bind;
 using namespace std;
 
 #include "stomp/StompFrame.h"
+#include "pthreads-w32-2-9-1-release/include/pt_mutex_switch.h"
 /*----------------------------------*/
 /**
 *	boost_1_64_0-msvc-10.0-32.exe
@@ -33,11 +34,13 @@ class Comm2Server
 {
 private:
 	client m_sip_client;
-	websocketpp::connection_hdl m_hdl_open;
-	bool   m_sip_client_connected;
+	client::connection_ptr m_con;
+	bool   IsStompConnected;
+	ThreadSwitch   HeartbeatSwitch;
 private:
 	bool   m_thread_run;
 	pthread_t m_pthread_t_id;
+	pthread_t m_pthread_t_heartbeat_id;
 public:
 	Comm2Server(void);
 	~Comm2Server(void);
@@ -50,22 +53,29 @@ public:
 	int GetTaskLongitudeLatitude();
 
 public:
-	static void* StartWebSocketConnection(void *pdata);
+	int Start();
 	
 	int StartWebSocketThread();
-	int StopWebSocketThread();
+	int StartWebSocketSendThread();
+	
+	static void*  WebSocketThreadStack(void *pdata);
+	static void*  WebSocketSendThreadStack(void* pdata);	
+	
+	void WebSocketThread();
+	void WebSocketSendThread();
+
+	int Stop();
+
 	void Join();
 
-	void InitWebSocket();
-	
+public:
 	void on_open(client* c, websocketpp::connection_hdl hdl);
 	void on_close(client* c, websocketpp::connection_hdl hdl);
 	void on_message(client* c, websocketpp::connection_hdl hdl, message_ptr msg);
 	void on_fail(client* c, websocketpp::connection_hdl hdl);
 	void on_interrupt(client* c, websocketpp::connection_hdl hdl);
 
-	void sleep(int ms);
-
+public:
 	void SendHeartBeat(client* c, client::connection_ptr con);
 	void SendStompConnect(client* c, client::connection_ptr con);
 	void SendStompSubscription(client* c, client::connection_ptr con);

@@ -50,6 +50,7 @@ ENDIF ()
 
 ###############################################################################
 SET(pthreads_SRCS
+		./include/pt_mutex_switch.cpp
 		./include/pt_mutex.cpp)
 
 ADD_LIBRARY(pthreads   STATIC    ${pthreads_SRCS})

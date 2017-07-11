@@ -25,5 +25,8 @@ public:
 	
 	static int IsEqual(std::string str_0,std::string str_1);
 	
+public:
+	static void sleep(int ms);
+
 };
 

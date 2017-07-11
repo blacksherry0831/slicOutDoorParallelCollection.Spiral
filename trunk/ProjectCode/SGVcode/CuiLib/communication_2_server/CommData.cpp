@@ -11,18 +11,16 @@ CommData::CommData(void)
 	this->m_user_id="";
 	this->m_car_id="";
 	this->m_current_task="task";
-#if 0
-	this->m_url="http://58.240.85.222";
-	this->m_websockets_url="ws://58.240.85.222";
+#if 1
+	const string ip_addr="58.240.85.222";
 	this->m_port=10000;
 #else
 	const string ip_addr="120.25.162.254";
-	this->m_url="http://"+ip_addr;
-	this->m_websockets_url="ws://"+ip_addr;
 	this->m_port=9080;
 #endif
 
-	
+	this->m_url="http://"+ip_addr;
+	this->m_websockets_url="ws://"+ip_addr;
 	
 	this->m_error="200";
 	m_gps=GPS_WG_8020::getInstance();

@@ -5,6 +5,8 @@
 #include "ResponseData.h"
 using namespace std; 
 typedef websocketpp::client<websocketpp::config::asio_client> client;
+#include <MY_SDK_LIB/Base.h>
+#include <pthreads-w32-2-9-1-release/include/pt_mutex.h>
 /*----------------------------------*/
 /**
 *
@@ -14,7 +16,8 @@ Comm2Server::Comm2Server(void)
 {
 
 	this->m_thread_run=true;
-	this->m_sip_client_connected=false;
+	this->IsStompConnected=false;
+	HeartbeatSwitch.SetAtom(TRUE);
 }
 /*----------------------------------*/
 /**
@@ -95,11 +98,41 @@ int  Comm2Server::GetTaskLongitudeLatitude()
 *
 */
 /*----------------------------------*/
-void*  Comm2Server::StartWebSocketConnection(void* pdata)
+int Comm2Server::Start()
+{
+	int ret0=this->StartWebSocketThread();
+	ret0+=this->StartWebSocketSendThread();
+	return ret0;
+}
+/*----------------------------------*/
+/**
+*
+*/
+/*----------------------------------*/
+void*  Comm2Server::WebSocketThreadStack(void* pdata)
 {
 	Comm2Server* c2s=(Comm2Server*) pdata;
-	
-	c2s->InitWebSocket();
+
+	c2s->WebSocketThread();
+
+	return (void *)0;
+}
+/*----------------------------------*/
+/**
+*
+*/
+/*----------------------------------*/
+
+/*----------------------------------*/
+/**
+*
+*/
+/*----------------------------------*/
+void*  Comm2Server::WebSocketSendThreadStack(void* pdata)
+{
+	Comm2Server* c2s=(Comm2Server*) pdata;
+
+	c2s->WebSocketSendThread();
 
 	return (void *)0;
 }
@@ -112,7 +145,7 @@ int Comm2Server::StartWebSocketThread()
 {	
 	int ret;  
 	/*创建线程一*/  
-	ret=pthread_create(&m_pthread_t_id,NULL,StartWebSocketConnection,this);  
+	ret=pthread_create(&m_pthread_t_id,NULL,WebSocketThreadStack,this);  
 	if(ret!=0)  
 	{  
 		printf("Create pthread error!\n");  
@@ -126,11 +159,29 @@ int Comm2Server::StartWebSocketThread()
 *
 */
 /*----------------------------------*/
-int Comm2Server::StopWebSocketThread()
+int Comm2Server::StartWebSocketSendThread()
+{	
+	int ret;  
+	/*创建线程一*/  
+	ret=pthread_create(&m_pthread_t_heartbeat_id,NULL,WebSocketSendThreadStack,this);  
+	if(ret!=0)  
+	{  
+		printf("Create pthread error!\n");  
+		assert(ret!=0);
+		return -1;  
+	}
+	return ret;
+}
+/*----------------------------------*/
+/**
+*
+*/
+/*----------------------------------*/
+int Comm2Server::Stop()
 {
 	
 	this->m_thread_run=FALSE;
-	this->m_sip_client_connected=false;
+	this->IsStompConnected=false;
 	return 0;
 }
 /*----------------------------------*/
@@ -147,7 +198,7 @@ void Comm2Server::Join()
 *
 */
 /*----------------------------------*/
-void Comm2Server::InitWebSocket()
+void Comm2Server::WebSocketThread()
 {
 	const string uri=this->m_CommData.GetWsUrl();
 
@@ -167,21 +218,17 @@ void Comm2Server::InitWebSocket()
 		m_sip_client.set_message_handler(websocketpp::lib::bind(&Comm2Server::on_message,this,&m_sip_client,::_1,::_2));
 
 		websocketpp::lib::error_code ec;
-		client::connection_ptr con = m_sip_client.get_connection(uri, ec);
+		m_con = m_sip_client.get_connection(uri, ec);
 
 		// Specify the SIP subprotocol:
-		con->add_subprotocol("sip");
+		m_con->add_subprotocol("sip");
 
-		m_sip_client.connect(con);
+		m_sip_client.connect(m_con);
 
 		// Start the ASIO io_service run loop
 		m_sip_client.run();
 
-		while(m_thread_run) {
-			 sleep(500);		
-			 //std::cout << "#";
-			/* this->SendHeartBeat(&m_sip_client,con);*/
-		}
+		m_thread_run=false;
 
 		std::cout << "websocket done !" << std::endl;
 
@@ -192,6 +239,36 @@ void Comm2Server::InitWebSocket()
 	} catch (...) {
 		std::cout << "other exception" << std::endl;
 	}
+
+}
+/*----------------------------------*/
+/**
+*
+*/
+/*----------------------------------*/
+void Comm2Server::WebSocketSendThread()
+{
+
+	while(m_thread_run){
+		if (IsStompConnected){
+			this->SendStompSubscriptionP2P(&m_sip_client,m_con);
+			break;
+		}
+		Base::sleep(0);
+	}
+
+	
+	while(m_thread_run){
+
+
+#if 1
+		this->SendHeartBeat(&m_sip_client,m_con);
+#endif
+
+		Base::sleep(5000);
+	}
+
+
 
 }
 /*----------------------------------*/
@@ -227,6 +304,7 @@ void Comm2Server::on_close(client* c, websocketpp::connection_hdl hdl)
 /*----------------------------------*/
 void Comm2Server::on_fail(client* c, websocketpp::connection_hdl hdl)
 {
+	this->m_thread_run=false;
 	std::cout << "[ws][f]websocket connection fail" << std::endl;
 }
 /*----------------------------------*/
@@ -236,6 +314,7 @@ void Comm2Server::on_fail(client* c, websocketpp::connection_hdl hdl)
 /*----------------------------------*/
 void Comm2Server::on_interrupt(client* c, websocketpp::connection_hdl hdl)
 {
+	this->m_thread_run=false;
 	std::cout << "[ws][i]websocket connection interrupt" << std::endl;
 }
 /*----------------------------------*/
@@ -248,11 +327,11 @@ void Comm2Server::on_message(client* c, websocketpp::connection_hdl hdl, message
 	const client::connection_ptr con = m_sip_client.get_con_from_hdl(hdl);
 	string payload_t=msg->get_payload();
 
-#if _DEBUG
-	std::cout << "[server]>>>Received a reply:" << std::endl;
+#if _DEBUG && 1
+	std::cout << "[server]>>>>>>Received a reply:" << std::endl;
 	
 	fwrite(msg->get_payload().c_str(), msg->get_payload().size(), 1, stdout);
-	std::cout << "<<<[server]" << std::endl;
+	std::cout << "<<<<<<[server]" << std::endl;
 #endif
 
 	StompFrame  sf_t;
@@ -261,13 +340,13 @@ void Comm2Server::on_message(client* c, websocketpp::connection_hdl hdl, message
 
 	if (sf_t.IsConnected()){
 		//连接成功
-		this->m_sip_client_connected=true;
+		this->IsStompConnected=true;
 
 //		this->SendStompSubscription(c,con);
 		
-		this->SendStompSubscriptionP2P(c,con);
+		//
 		
-		this->SendHeartBeat(c,con);
+		//this->SendHeartBeat(c,con);
 
 
 	}else if (sf_t.IsERROR()){
@@ -279,9 +358,11 @@ void Comm2Server::on_message(client* c, websocketpp::connection_hdl hdl, message
 		rd_t.parse(sf_t.GetBody());
 		
 		if(rd_t.IsHeartbeat()){
-			this->SendHeartBeat(c,con);
-		}
+			HeartbeatSwitch.SetAtom(TRUE);
+		}else if (rd_t.IsCmd()){
 
+		}
+		
 
 	}else{
 	
@@ -290,23 +371,7 @@ void Comm2Server::on_message(client* c, websocketpp::connection_hdl hdl, message
 
 
 }
-/*----------------------------------*/
-/**
-*
-*/
-/*----------------------------------*/
-void Comm2Server::sleep(int ms)
-{
 
-#if __GNUC__
-	 usleep(ms * 1000);
-#endif
-
-#if _MSC_VER
-		Sleep(ms);
-#endif
-
-}
 /*----------------------------------*/
 /**
 *
@@ -314,11 +379,14 @@ void Comm2Server::sleep(int ms)
 /*----------------------------------*/
 void Comm2Server::SendHeartBeat(client* c, client::connection_ptr con)
 {
-	try {
-		
-		websocketpp::connection_hdl hdl=con->get_handle();
+	try {		
 
-		if (m_sip_client_connected){
+
+		if (IsStompConnected&&HeartbeatSwitch.GetAtom()){
+			
+			HeartbeatSwitch.SetAtom(FALSE);		
+			
+			websocketpp::connection_hdl hdl=con->get_handle();
 
 			string SIP_msg=m_CommData.GetHeartBeatFrame().str();
 
@@ -326,9 +394,11 @@ void Comm2Server::SendHeartBeat(client* c, client::connection_ptr con)
 
 			this->SendWebSockString(con,SIP_msg);
 
-			sleep(1000);
+
 
 		}
+
+
 
 	} catch (const std::exception & e) {
 		std::cout << e.what() << std::endl;
@@ -357,7 +427,7 @@ void Comm2Server::SendStompConnect(client* c, client::connection_ptr con)
 
 			this->SendWebSockString(con,SIP_msg);
 
-			sleep(1000);
+			Base::sleep(1000);
 
 		}
 
@@ -380,7 +450,7 @@ void Comm2Server::SendStompSubscription(client* c, client::connection_ptr con)
 
 		websocketpp::connection_hdl hdl=con->get_handle();
 
-		if (m_sip_client_connected){
+		if (IsStompConnected){
 
 			string SIP_msg=m_CommData.GetSubscriptionFrame().str();
 
@@ -388,7 +458,7 @@ void Comm2Server::SendStompSubscription(client* c, client::connection_ptr con)
 
 			this->SendWebSockString(con,SIP_msg);
 
-			sleep(1000);
+			Base::sleep(1000);
 
 		}
 
@@ -411,7 +481,7 @@ void Comm2Server::SendStompSubscriptionP2P(client* c, client::connection_ptr con
 
 		websocketpp::connection_hdl hdl=con->get_handle();
 
-		if (m_sip_client_connected){
+		if (IsStompConnected){
 
 			string SIP_msg=m_CommData.GetSubscriptionFrameP2p().str();
 
@@ -419,7 +489,7 @@ void Comm2Server::SendStompSubscriptionP2P(client* c, client::connection_ptr con
 
 			this->SendWebSockString(con,SIP_msg);
 
-			sleep(1000);
+			Base::sleep(1000);
 
 		}
 
@@ -439,6 +509,7 @@ void Comm2Server::SendStompSubscriptionP2P(client* c, client::connection_ptr con
 void Comm2Server::SendWebSockString(client::connection_ptr con,string str_t)
 {
 	websocketpp::connection_hdl hdl=con->get_handle();
+	
 	m_sip_client.send(hdl,str_t.data(),str_t.size(),websocketpp::frame::opcode::binary);
 }
 /*----------------------------------*/

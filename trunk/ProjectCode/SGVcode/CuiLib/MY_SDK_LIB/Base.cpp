@@ -120,6 +120,23 @@ int Base::IsEqual(std::string str_0,std::string str_1)
 		return FALSE;
 	}
 }
+/*----------------------------------*/
+/**
+*
+*/
+/*----------------------------------*/
+void Base::sleep(int ms)
+{
+
+#if __GNUC__
+	usleep(ms * 1000);
+#endif
+
+#if _MSC_VER
+	Sleep(ms);
+#endif
+
+}
 /*-----------------------------------------*/
 /**
 *
