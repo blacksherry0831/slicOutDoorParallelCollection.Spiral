@@ -266,6 +266,8 @@ void Comm2Server::WebSocketSendThread()
 #endif
 
 		Base::sleep(5000);
+				Base::sleep(5000);
+						Base::sleep(5000);
 	}
 
 
@@ -360,7 +362,8 @@ void Comm2Server::on_message(client* c, websocketpp::connection_hdl hdl, message
 		if(rd_t.IsHeartbeat()){
 			HeartbeatSwitch.SetAtom(TRUE);
 		}else if (rd_t.IsCmd()){
-
+			DriveCarByCmd dcbc;
+			dcbc.ExeCommand(rd_t);
 		}
 		
 

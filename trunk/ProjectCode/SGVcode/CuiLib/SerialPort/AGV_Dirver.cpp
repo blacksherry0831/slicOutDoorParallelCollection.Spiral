@@ -25,6 +25,7 @@ AGV_Dirver::AGV_Dirver(void)
 	status_car_roadblock=0;
 	status_car_internal_error=0;
 	status_car_communication_error=0;
+	m_car_status=CAR_STATUS_STOP;
 }
 /*-------------------------------------*/
 /**
@@ -225,7 +226,7 @@ void AGV_Dirver::StartRun()
 {	
 	this->cmd_current[1]=0x01;
 	if(this->Send2Car()){
-
+		this->m_car_status=CAR_STATUS_RUN;
 	}else{
 		std::cout<<"[local][car]Run START"<<std::endl;
 	}
@@ -239,7 +240,7 @@ void AGV_Dirver::StopRun()
 {	
 	this->cmd_current[1]=0x00;
 	if(this->Send2Car()){
-
+		this->m_car_status=CAR_STATUS_STOP;
 	}else{
 		std::cout<<"[local][car]STOP "<<std::endl;
 	}
@@ -466,6 +467,19 @@ int AGV_Dirver::IsCarInternalError(void)
 int AGV_Dirver::IsCarCommunicationError(void)
 {
 	return status_car_communication_error;
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+string AGV_Dirver::status()
+{
+	if (Base::IsEqual(this->m_car_status,"")){
+		m_car_status=CAR_STATUS_STOP;
+	}
+
+	return m_car_status;
 }
 /*----------------------------------------------------*/
 /**

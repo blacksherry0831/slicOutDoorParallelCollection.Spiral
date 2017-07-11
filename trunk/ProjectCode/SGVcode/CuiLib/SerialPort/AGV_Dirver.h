@@ -1,11 +1,14 @@
 #pragma once
 
-#include "opencv_stl.h"
+#include "cpp_stl.h"
 #include "SerialPort.h"
 
 #define NO_TURN		0x00
 #define LEFT_TURN	0x01
 #define RIGHT_TURN	0x02
+
+#define  CAR_STATUS_RUN  "run"
+#define  CAR_STATUS_STOP "stop"
 
 #include "pt_mutex.h"
 
@@ -39,7 +42,7 @@ private:
 	int status_car_roadblock;
 	int status_car_internal_error;
 	int status_car_communication_error;
-
+	std::string m_car_status;
 public:
 	void GetCmd(
 	unsigned char* cmd,
@@ -58,6 +61,7 @@ public:
 	void RunLeft();
 	void RunRight();
 	void RunStraight();
+public:
 	int Send2Car();
 	void Send2CarFeedBack();
 	void SendByte2Car(unsigned char* buffer_t,int size_t);
@@ -73,6 +77,8 @@ public:
 	int IsCarInternalError(void);
 	int IsCarCommunicationError(void);
 	/*-------------------------------------------*/
+public:
+	string status();
 private:     
 	void process_result_data();
 	

@@ -25,8 +25,9 @@ CommData::CommData(void)
 	this->m_error="200";
 	m_gps=GPS_WG_8020::getInstance();
 	m_compass=Compass_HCM365::getInstance();
+	m_agv_drive=AGV_Dirver::getInstance();
 	this->m_random_count=1;
-	m_car_status=CAR_STATUS_STOP;
+	/*m_car_status=CAR_STATUS_STOP;*/
 	this->m_phone_number="15365078745";
 }
 /*----------------------------------*/
@@ -56,7 +57,7 @@ string CommData::GetHeartBeat()
 		car["latitude"] =m_gps->GetLatStr();
 		car["compass"] =m_compass->GetHeadingStr();
 		car["battery"] ="0.7";
-		car["status"] =m_car_status;
+		car["status"] =m_agv_drive->status();
 		car["roadblock"] ="false";
 		car["speed"] ="7";
 		car["error"] =m_error;

@@ -8,11 +8,11 @@ using namespace std;
 
 #include <SerialPort/Gps_WG_8020.h>
 #include <SerialPort/Compass_HCM365.h>
+#include <SerialPort/AGV_Dirver.h>
 
 #include <stomp/StompFrame.h>
 
-#define  CAR_STATUS_RUN  "run"
-#define  CAR_STATUS_STOP "stop"
+
 
 class CommData
 {
@@ -26,7 +26,7 @@ public:
 	string m_current_task;
 	string m_user_id;
 	string m_car_id;
-	string m_car_status;
+	/*string m_car_status;*/
 	string m_error;
 	int    m_random_count;
 	string m_phone_number;
@@ -37,9 +37,9 @@ public:
 public:
 	GPS_WG_8020* m_gps;
 	Compass_HCM365 *m_compass;
-	
+	AGV_Dirver* m_agv_drive;
+public:
 	string GetHeartBeat();
-
 	StompFrame GetSubscriptionFrame();
 	StompFrame GetHeartBeatFrame();
 	StompFrame GetSubscriptionFrameP2p();
@@ -51,7 +51,7 @@ public:
 	string GetWsStompSubscriptionUrl();
 	string GetWsStompSubscriptionP2pUrl();
 public:
-
+	
 	
 };
 
