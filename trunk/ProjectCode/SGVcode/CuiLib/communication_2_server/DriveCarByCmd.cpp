@@ -30,9 +30,9 @@ void DriveCarByCmd::ExeCommand( ResponseData cmd_t)
 	assert(cmd_t.IsCmd()==TRUE);
 		
 	if (cmd_t.IsAutoCmd()){
-		ExeCommandManual(cmd_t);
+			ExeCommandAuto(cmd_t);
 	}else if (cmd_t.IsManualCmd()){
-		ExeCommandAuto(cmd_t);
+			ExeCommandManual(cmd_t);
 	}else{
 
 	}

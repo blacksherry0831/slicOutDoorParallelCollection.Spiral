@@ -396,11 +396,12 @@ void AGV_Dirver::RunStraight()
 /*----------------------------------------------------*/
 int AGV_Dirver::Send2Car(void)
 {
-	this->GetLRC(this->cmd_current);
+	
 
 	const int BUFF_SIZE=sizeof(cmd_current);
 	int  buf_send_t=-1;
 	if (m_sp.IsOpen()){
+			this->GetLRC(this->cmd_current);
 			buf_send_t=m_sp.Write(cmd_current,BUFF_SIZE);
 	}else{
 		return FALSE;
@@ -417,8 +418,9 @@ int AGV_Dirver::Send2Car(void)
 /*----------------------------------------------------*/
 void AGV_Dirver::Send2CarFeedBack(void)
 {
-	this->GetLRC(this->buffer_result);
+
 	if (m_sp.IsOpen()){
+		this->GetLRC(this->buffer_result);
 		m_sp.Write(cmd_current,sizeof(this->buffer_result));	
 	}
 
