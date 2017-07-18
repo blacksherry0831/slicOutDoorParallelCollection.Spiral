@@ -2,6 +2,7 @@
 
 #include "cpp_stl.h"
 #include "SerialPort.h"
+#include "MY_SDK_LIB/LatLng.h"
 
 #define NO_TURN		0x00
 #define LEFT_TURN	0x01
@@ -12,13 +13,14 @@
 
 #include "pt_mutex.h"
 
+#include "IGps.h"
+#include "ICompass.h"
+
 class AGV_Dirver
 {
 	unsigned char	buffer_result[10];
 	int		buffer_result_idx;
 	unsigned char cmd_current[10];
-	
-	//unsigned char cmd_current_read[10];
 
 protected:
 	AGV_Dirver(void);
@@ -32,6 +34,8 @@ private:
 
 private:
 		CSerialPort m_sp;
+		IGps*       m_gps_ptr;
+		ICompass*   m_compass_ptr;
 public:
 		void open(int com_num);
 		void close();
@@ -61,6 +65,7 @@ public:
 	void RunLeft();
 	void RunRight();
 	void RunStraight();
+	void RunSimulation(LatLng laatlng_t,double angle_car,double angle_run);
 public:
 	int Send2Car();
 	void Send2CarFeedBack();
@@ -100,6 +105,6 @@ private:
 					 }    
 		  };    
 		  
-		static CGarbo Garbo; // 定义一个静态成员，在程序结束时，系统会调用它的析构函数    
+	 static CGarbo Garbo; // 定义一个静态成员，在程序结束时，系统会调用它的析构函数    
 
 };

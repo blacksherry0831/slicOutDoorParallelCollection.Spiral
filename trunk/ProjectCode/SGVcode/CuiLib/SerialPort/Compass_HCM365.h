@@ -1,11 +1,13 @@
 #pragma once
 
-#include "opencv_stl.h"
+#include "cpp_stl.h"
 #include "SerialPort.h"
 
 #include "pt_mutex.h"
 
-class Compass_HCM365
+#include "ICompass.h"
+
+class Compass_HCM365:public ICompass
 {
 	unsigned char	buffer_result[1024];
 	//char	buffer_cmd[1024];
@@ -16,25 +18,7 @@ class Compass_HCM365
 	char CMD_ATE1[]="ate1\n";
 	char CMD_ATE0[]="ate0\n";*/
 public:
-	//double g_Lat_float;
-	//double g_Lon_float;
-
-private:
-	float m_pitch;
-	float m_roll;
-	float m_heading;
-	//string g_UtcTime_hhmmss;//UTC时间
-	//string g_Location_status;//定位状态
-	//string g_Lat;//维度
-	//String g_NS;
-	//string g_Lon;//经度
-	//string g_EW;
-	//string g_Speed;
-	//String g_Direction;
-	//String g_UtcTime_ddmmyy;
-	//string g_CiPianJiao;
-	//string g_CiPianJiaoFangXiang;
-	//String g_Mode;
+	
 
 protected:
 	Compass_HCM365(void);
@@ -57,8 +41,7 @@ public:
 		
 		string GetPitchRollHeadingStr();
 		string GetHeadingStr();
-		/*string GetLatStr();
-		string GetLonStr();*/
+		double GetHead();
 
 		void ReadCompassData();
 		static DWORD readCompassThread(LPVOID lpParam);

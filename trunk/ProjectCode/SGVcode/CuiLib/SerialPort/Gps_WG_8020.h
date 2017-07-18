@@ -1,10 +1,13 @@
 #pragma once
 
-#include "opencv_stl.h"
+#include "IGps.h"
+#include "cpp_stl.h"
 #include "SerialPort.h"
 #include "pt_mutex.h"
 
-class GPS_WG_8020
+
+
+class GPS_WG_8020 :public IGps
 {
 	char	buffer_result[1024];
 	char	buffer_cmd[1024];
@@ -14,23 +17,20 @@ class GPS_WG_8020
 	char CMD_GPRMC[]="AT^GPRMC\n";
 	char CMD_ATE1[]="ate1\n";
 	char CMD_ATE0[]="ate0\n";*/
-public:
-	double g_Lat_float;
-	double g_Lon_float;
 
 public:
 	string g_UtcTime_hhmmss;//UTC时间
 	string g_Location_status;//定位状态
 	string g_Lat;//维度
-	String g_NS;
+	string g_NS;
 	string g_Lon;//经度
 	string g_EW;
 	string g_Speed;
-	String g_Direction;
-	String g_UtcTime_ddmmyy;
-	string g_CiPianJiao;
+	string g_Direction;
+	string g_UtcTime_ddmmyy;
+	string g_CiPianJiao;//磁偏角方向
 	string g_CiPianJiaoFangXiang;
-	String g_Mode;
+	string g_Mode;
 
 protected:
 	GPS_WG_8020(void);
@@ -53,6 +53,7 @@ public:
 		string GetLatLonStr();
 		string GetLatStr();
 		string GetLonStr();
+		LatLng get();
 
 		void ReadGpsData();
 		string ReadString();

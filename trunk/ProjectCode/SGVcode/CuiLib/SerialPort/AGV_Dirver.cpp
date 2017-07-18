@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "AGV_Dirver.h"
 #include "MY_SDK_LIB/Base.h"
+#include "Gps_WG_8020.h"
 /*-------------------------------------*/
 /**
 *
@@ -26,6 +27,8 @@ AGV_Dirver::AGV_Dirver(void)
 	status_car_internal_error=0;
 	status_car_communication_error=0;
 	m_car_status=CAR_STATUS_STOP;
+
+	m_gps_ptr=GPS_WG_8020::getInstance();
 }
 /*-------------------------------------*/
 /**
@@ -343,6 +346,10 @@ void AGV_Dirver::RunForward()
 
 	}else{
 		std::cout<<"[local][car]Run Forward"<<std::endl;
+
+		//this->RunSimulation(LatLng())
+
+
 	}
 
 }
@@ -482,6 +489,27 @@ string AGV_Dirver::status()
 	}
 
 	return m_car_status;
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+void AGV_Dirver::RunSimulation(LatLng laatlng_t,double angle_car,double angle_run)
+{
+	IGps* igps_t=m_gps_ptr;
+	ICompass* icompass_t=m_compass_ptr;
+	
+	LatLng latlng_t0=igps_t->get();
+	double head_angle=icompass_t->GetHead();
+
+	double run_angle=head_angle+angle_run;
+	const double dist_m=100;
+
+	
+	LatLng latlng_new= LatLng::getMyLatLng(latlng_t0,dist_m,run_angle);
+
+
 }
 /*----------------------------------------------------*/
 /**

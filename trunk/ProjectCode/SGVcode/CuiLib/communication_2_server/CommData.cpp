@@ -202,7 +202,7 @@ string CommData::GetWsUrl()
 string CommData::GetWsStompSendUrl()
 {
 	stringstream ss; //定义一个string流（使用s实例化） 
-	const String AppDestPrefix="/app";
+	const string AppDestPrefix="/app";
 	
 	const string ws_send_path_t="/hello";
 
@@ -220,7 +220,7 @@ string CommData::GetWsStompSendUrl()
 string CommData::GetWsStompSubscriptionUrl()
 {
 	stringstream ss; //定义一个string流（使用s实例化） 
-	const String AppDestPrefix="";
+	const string AppDestPrefix="";
 
 	const string ws_send_path_t="/topic/greetings";
 

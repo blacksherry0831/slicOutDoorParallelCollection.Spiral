@@ -343,27 +343,21 @@ string Compass_HCM365::GetHeadingStr()
 *
 */
 /*----------------------------------------------------*/
-//string Compass_HCM365::GetLatStr()
-//{
-//	String Lat_t;
-//
-//	m_MUTEX.Lock();
-//
-//
-//	/*if (this->g_Lat_float>0
-//	&&this->g_Lon_float>0)
-//	{
-//	char buffer_z[1024];
-//	sprintf_s(buffer_z,"%0.8f",this->g_Lat_float);
-//	Lat_t=buffer_z;
-//	}*/
-//
-//
-//
-//	m_MUTEX.Unlock();
-//
-//	return Lat_t;
-//}
+double  Compass_HCM365::GetHead()
+{
+	double head_t;
+
+	m_MUTEX.Lock();
+
+	
+		
+		head_t=m_heading;
+		
+
+	m_MUTEX.Unlock();
+
+	return head_t;
+}
 
 /*----------------------------------------------------*/
 /**

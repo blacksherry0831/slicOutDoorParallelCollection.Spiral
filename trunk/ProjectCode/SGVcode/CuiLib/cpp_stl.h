@@ -51,6 +51,10 @@ using namespace std;
 *
 */
 /*-----------------------------------------*/
+#ifndef M_PI
+#define M_PI (3.14159265358979323846)
+#endif
+
 #ifndef TRUE
 #define TRUE 1
 #endif
@@ -70,6 +74,11 @@ using namespace std;
 #include <assert.h>
 #define  ASSERT(Exp) assert(Exp)
 #endif
+
+#if _MSC_VER
+#include <assert.h>
+#endif
+
 #endif
 
 #ifndef TimeCountClock_START
