@@ -265,9 +265,8 @@ void Comm2Server::WebSocketSendThread()
 		this->SendHeartBeat(&m_sip_client,m_con);
 #endif
 
-		Base::sleep(5000);
-				Base::sleep(5000);
-						Base::sleep(5000);
+		Base::sleep(100*10);
+		
 	}
 
 
