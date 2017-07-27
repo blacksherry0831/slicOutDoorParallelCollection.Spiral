@@ -1,7 +1,7 @@
 #ifndef play_include_h
 #define play_include_h
 
-#define HOWELL_PLAY_API	extern "C"__declspec(dllexport)
+#define HOWELL_PLAY_API	extern "C" __declspec(dllexport)
 typedef unsigned long PLAY_HANDLE;
 typedef unsigned long MOTION_HANDLE;
 

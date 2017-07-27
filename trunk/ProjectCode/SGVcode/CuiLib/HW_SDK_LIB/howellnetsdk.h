@@ -1,7 +1,7 @@
 #ifndef _HOWELL_NET_SDK_INCLUDE_H
 #define _HOWELL_NET_SDK_INCLUDE_H
 #include "protocol_type.h"
-#define HOWELL_NET_API	extern "C"__declspec(dllexport)
+#define HOWELL_NET_API	extern "C" __declspec(dllexport)
 typedef long USER_HANDLE;
 typedef long REAL_HANDLE;
 typedef long REC_HANDLE;

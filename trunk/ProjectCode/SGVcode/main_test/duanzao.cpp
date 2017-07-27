@@ -61,7 +61,7 @@ void on_trackbar(int threshold)
 //利德曼
 void Laplace_test()
 {
-	const char *pstrImageName = "D:\\ImageDataBase\\duanjian\\11_.png";
+	const char *pstrImageName = "X:\\ImageDataBase\\duanjian\\11_.png";
 	const char *pstrWindowsSrcTitle = "原图(http://blog.csdn.net/MoreWindows)";
 	const char *pstrWindowsToolBar = "Threshold";
 
@@ -101,10 +101,10 @@ int Hough_test()
 {
 	Mat src, gray;
 
-	//src=imread("D:\\ImageDataBase\\duanjian\\easy.jpg");
-	src=imread("D:\\ImageDataBase\\duanjian\\Contours.png");
+	//src=imread("X:\\ImageDataBase\\duanjian\\easy.jpg");
+	src=imread("X:\\ImageDataBase\\duanjian\\Contours.png");
 
-	//src=imread("D:\\ImageDataBase\\duanjian\\yuan.jpg");
+	//src=imread("X:\\ImageDataBase\\duanjian\\yuan.jpg");
 	
 	if( !src.data )  
 		return -1;  
@@ -159,9 +159,9 @@ int Hough_Canny()
 {
 	Mat src, gray;
 
-	//src=imread("D:\\ImageDataBase\\duanjian\\easy.jpg");
-	//src=imread("D:\\ImageDataBase\\duanjian\\Contours.png");
-	src=imread("D:\\ImageDataBase\\duanjian\\11_.png");
+	//src=imread("X:\\ImageDataBase\\duanjian\\easy.jpg");
+	//src=imread("X:\\ImageDataBase\\duanjian\\Contours.png");
+	src=imread("X:\\ImageDataBase\\duanjian\\11_.png");
 
 
 
@@ -183,7 +183,7 @@ int Hough_Canny()
 	    erode(src,src, element_line_h); 
 	   erode(src,src, element_line_v); 
 #endif	
-	   //src=imread("D:\\ImageDataBase\\duanjian\\yuan.jpg");
+	   //src=imread("X:\\ImageDataBase\\duanjian\\yuan.jpg");
 	
 	if( !src.data )  
 		return -1;  
@@ -239,8 +239,8 @@ void UseMyHough_edges()
 	CvSeq* results;
 	CvMemStorage* storage = cvCreateMemStorage(0);
 #if 1
-	IplImage* src = cvLoadImage("D:\\ImageDataBase\\duanjian\\hough_edges.png", 0 );
-	IplImage* dst = cvLoadImage("D:\\ImageDataBase\\duanjian\\hough_edges.png");
+	IplImage* src = cvLoadImage("X:\\ImageDataBase\\duanjian\\hough_edges.png", 0 );
+	IplImage* dst = cvLoadImage("X:\\ImageDataBase\\duanjian\\hough_edges.png");
 
 	results =ImageProcess::cvHoughCircles_Binary(  //cvHoughCircles函数需要估计每一个像素梯度的方向，
 								      //因此会在内部自动调用cvSobel,而二值边缘图像的处理是比较难的
@@ -278,8 +278,8 @@ void UseMyHough_SuperPixel()
 	CvSeq* results;
 	CvMemStorage* storage = cvCreateMemStorage(0);
 #if 0	
-	IplImage* src = cvLoadImage("D:\\ImageDataBase\\duanjian\\Contours.png", 0 );
-	IplImage* dst = cvLoadImage("D:\\ImageDataBase\\duanjian\\Contours.png");
+	IplImage* src = cvLoadImage("X:\\ImageDataBase\\duanjian\\Contours.png", 0 );
+	IplImage* dst = cvLoadImage("X:\\ImageDataBase\\duanjian\\Contours.png");
 
 	//cvSmooth( src, dst, CV_GAUSSIAN, 5, 5 );  //降噪
 
@@ -300,8 +300,8 @@ void UseMyHough_SuperPixel()
 		);
 #endif
 #if 1
-	IplImage* src = cvLoadImage("D:\\ImageDataBase\\duanjian\\easy.jpg", 0 );
-	IplImage* dst = cvLoadImage("D:\\ImageDataBase\\duanjian\\easy.jpg");
+	IplImage* src = cvLoadImage("X:\\ImageDataBase\\duanjian\\easy.jpg", 0 );
+	IplImage* dst = cvLoadImage("X:\\ImageDataBase\\duanjian\\easy.jpg");
 
 	cvSmooth( src, src, CV_GAUSSIAN, 5, 5 );  //降噪
 
@@ -321,8 +321,8 @@ void UseMyHough_SuperPixel()
 		
 		);
 #else
-	IplImage* src = cvLoadImage("D:\\ImageDataBase\\duanjian\\easy.jpg", 0 );
-	IplImage* dst = cvLoadImage("D:\\ImageDataBase\\duanjian\\easy.jpg");
+	IplImage* src = cvLoadImage("X:\\ImageDataBase\\duanjian\\easy.jpg", 0 );
+	IplImage* dst = cvLoadImage("X:\\ImageDataBase\\duanjian\\easy.jpg");
 	cvSmooth( src, src, CV_GAUSSIAN, 5, 5 );  //降噪
 	results =cvHoughCircles(  //cvHoughCircles函数需要估计每一个像素梯度的方向，
 								      //因此会在内部自动调用cvSobel,而二值边缘图像的处理是比较难的
@@ -369,8 +369,8 @@ int main(int *argc,char *argv[])
 	{
 		vector<string> paths;
 		
-		paths.push_back("D:\\ImageDataBase\\duanjian\\suck_ohaha.jpg");
-		paths.push_back("D:\\ImageDataBase\\duanjian\\test.jpg");
+		paths.push_back("X:\\ImageDataBase\\duanjian\\suck_ohaha.jpg");
+		paths.push_back("X:\\ImageDataBase\\duanjian\\test.jpg");
 		
 		for(int i=0;i<paths.size();i++){
 			string path_t=paths.at(i);
