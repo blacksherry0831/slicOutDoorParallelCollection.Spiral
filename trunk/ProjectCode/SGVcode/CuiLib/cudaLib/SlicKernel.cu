@@ -1646,6 +1646,10 @@ __global__ void SetMatrix_Efficient(double *matrix,int width,int height,double v
 *
 */
 /*------------------------------------------------------------------------------------------*/
+#if !defined(__CUDA_ARCH__) || __CUDA_ARCH__ >= 600 
+
+#else 
+
 __device__ double atomicAdd(double* address, double val)
 {
 	unsigned long long int* address_as_ull =
@@ -1665,6 +1669,11 @@ __device__ double atomicAdd(double* address, double val)
 }
 //Read more at: http://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#ixzz3HQ3voVZ1 
 //Follow us: @GPUComputing on Twitter | NVIDIA on Facebook
+
+#endif
+
+
+
 /*------------------------------------------------------------------------------------------*/
 /**
 *              1*1            
