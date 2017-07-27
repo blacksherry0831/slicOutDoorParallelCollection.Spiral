@@ -2,11 +2,12 @@
 #include "device_launch_parameters.h"
 #include "device_functions.h"
 #include "math_functions.h"
+
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <sstream>
-using namespace std;
+
 #define  WeightZoom (10000)
 
 #ifndef M_PI
@@ -195,9 +196,9 @@ int i = blockIdx.x * blockDim.x + threadIdx.x;
 	/**************************************************/
 	if (y>=0&&y<Height){
 		if (x<0){
-			WeightArray_dev[y]=-1*C_1*pow(-x,1.0/(2*n+1))*WeightZoom;
+			WeightArray_dev[y]=-1*C_1*pow(1.0*-x,1.0/(2*n+1))*WeightZoom;
 		}else if (x>=0){
-			WeightArray_dev[y]=C_2*pow(x,1.0/(2*n+1))*WeightZoom;
+			WeightArray_dev[y]=C_2*pow(1.0*x,1.0/(2*n+1))*WeightZoom;
 		}else{
 			assert(0);
 		}
@@ -231,9 +232,9 @@ __global__ void	FillWeightArrayG_out_Kernel(double horizontal_line, double n,dou
 		if (y>=0&&y<Height){
 			if (x<0){
 				//Ææº¯Êý
-				WeightArray_dev[y]=-1*(-1*C_1*pow(-1*x,1.0/(2*n+1)))*WeightZoom;
+				WeightArray_dev[y]=-1*(-1*C_1*pow(-1.0*x,1.0/(2*n+1)))*WeightZoom;
 			}else{
-				WeightArray_dev[y]=-1*C_2*pow(x,1.0/(2*n+1))*WeightZoom;
+				WeightArray_dev[y]=-1*C_2*pow(1.0*x,1.0/(2*n+1))*WeightZoom;
 			}
 			/*if (WeightArray_dev[y]<0){
 				WeightArray_dev[y]=0;
@@ -368,6 +369,9 @@ __global__ void	FillWeightArrayG_out_Kernel(double horizontal_line, double n,dou
 	 int*labels_host)
  {
 		 cudaError_t cudaStatus;
+#if _DEBUG
+		 cudaStatus = cudaStatus;
+#endif
 		 double* SVG_SpSum_host=new double[Numlabels];
 		 memset(SVG_SpSum_host,0,sizeof(double)*Numlabels);
 		 memset(SkyWeightSp_host,0,sizeof(double)*Numlabels);
@@ -524,11 +528,11 @@ Statistical_SVGsum_Fill_Category_Lable<<<(Numlabels+1023)/1024,1024>>>(
 		  cudaStatus=cudaMemcpy(VerticalWeightArray_host,VerticalWeightArray_dev,Height*sizeof(double),cudaMemcpyDeviceToHost);
 		  cudaStatus=cudaMemcpy(GroundWeightArray_host,GroundWeightArray_dev,Height*sizeof(double),cudaMemcpyDeviceToHost);
 		  cudaStatus=cudaMemcpy(SkyWeightArray_host,SkyWeightArray_dev,Height*sizeof(double),cudaMemcpyDeviceToHost);
-#if _MSC_VER
+#if _MSC_VER&&_DEBUG
  {
 			  char data_t[1024];																			
-			  ofstream outfile;								   
-			  outfile.open("Matrix_Weight_GVS_zlm_cuda.data",ios::out);
+			  std::ofstream outfile;								   
+			  outfile.open("Matrix_Weight_GVS_zlm_cuda.data",std::ios::out);
 			  for( int i = 0; i <Height; i++ ){
 				  {
 					   double value_t=i;
@@ -550,7 +554,7 @@ Statistical_SVGsum_Fill_Category_Lable<<<(Numlabels+1023)/1024,1024>>>(
 					  sprintf_s(data_t,1024," %0.2e ",value_t);
 					  outfile<<data_t;										
 				  }
-				  outfile<<endl;			 
+				  outfile<<std::endl;			 
 			  } 
 			  outfile.close();
 		  }

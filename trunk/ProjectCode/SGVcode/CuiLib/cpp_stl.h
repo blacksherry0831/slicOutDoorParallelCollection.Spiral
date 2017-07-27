@@ -179,6 +179,12 @@ typedef unsigned long long ULONGLONG;
 #endif
 #endif
 
+
+#if _MSC_VER==1900
+
+#include <functional>
+
+#endif
 /*-----------------------------------------*/
 /**
 *

@@ -1915,7 +1915,7 @@ int cui_GeneralImgProcess::GetMinValue(int* Data, long DataNum)
 	 int *Data_cp=new int[DataNum];
 	 int  max_value;
 	 memcpy(Data_cp,Data,sizeof(int)*DataNum);
-	 std::sort(Data_cp,Data_cp+DataNum,greater<int>());
+	 std::sort(Data_cp,Data_cp+DataNum,std::greater<int>());
 	 max_value=Data_cp[DataNum-1];
 	 delete []Data_cp;
 	 return  max_value;
