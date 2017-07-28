@@ -33,23 +33,27 @@ endif()
   
 endfunction (ConfigPT) 
 ############################################################ 
-
-############################################################
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")  
 
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
  ConfigMFC_2()
  ConfigPT()
-
+ 
+if (CBB_BUILDING_AGV_CAR)
+	SET(DIR_SRCS   
+			SerialPort.cpp
+			Gps_WG_8020.cpp
+			Compass_HCM365.cpp
+			AGV_Dirver.cpp)
+ else()
+	SET(DIR_SRCS   
+			SerialPort.cpp)
+ endif (CBB_BUILDING_AGV_CAR)
+ 
 ENDIF () 
 ############################################################ 
 ###############################################################################
-SET(DIR_SRCS   
-		SerialPort.cpp
-		Gps_WG_8020.cpp
-		Compass_HCM365.cpp
-		AGV_Dirver.cpp)
-
+		
 ADD_LIBRARY(SerialPort   STATIC    ${DIR_SRCS}  )
 
 TARGET_LINK_LIBRARIES(SerialPort

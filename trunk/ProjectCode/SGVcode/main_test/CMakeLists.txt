@@ -17,18 +17,24 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
  CONFIGCURLHTTP()
 ###############################################
 IF(Boost_FOUND)
+
 	ConfigBoost()
-	####################################
-	ADD_EXECUTABLE(TEST_WEB_SOCKET_PP websocket_test.cpp)
-	TARGET_LINK_LIBRARIES(TEST_WEB_SOCKET_PP
+	
+	if(NEED_WEBSOCKETPP)
+		ADD_EXECUTABLE(TEST_WEB_SOCKET_PP websocket_test.cpp)
+		TARGET_LINK_LIBRARIES(TEST_WEB_SOCKET_PP
 					)
+	endif(NEED_WEBSOCKETPP)
 	####################################
 
-	ADD_EXECUTABLE(TEST_AGV_CAR agv_car_test.cpp)
-	TARGET_LINK_LIBRARIES(TEST_AGV_CAR	
-		libcurl_http
-		SerialPort
-		Comm2ServerLib) 
+	if(NEED_WEBSOCKETPP AND NEED_HTTP AND NEED_BOOST)
+		ADD_EXECUTABLE(TEST_AGV_CAR agv_car_test.cpp)
+		TARGET_LINK_LIBRARIES(TEST_AGV_CAR	
+			libcurl_http
+			SerialPort
+			Comm2ServerLib) 		
+	endif()
+
 	####################################
 
 ELSE(Boost_FOUND)

@@ -1,22 +1,41 @@
 #include "stdafx.h"
-#include "live_video.h"
+#include "live_video_base.h"
 #include <stdio.h>
 #include <iostream>
 #include <string>
 #include <sstream>
 using namespace std;
-//#include "Convert.h"
+
 #include "modules.h"
 
-#include "../SerialPort/Compass_HCM365.h"
-#include "../SerialPort/Gps_WG_8020.h"
 
 
+int live_video_base::RGB_Y_tab[256];
+int live_video_base::B_U_tab[256];
+int live_video_base::G_U_tab[256];
+int live_video_base::G_V_tab[256];
+int live_video_base::R_V_tab[256];
 
-
-live_video::live_video(const char* ip,int slot):live_video_base(ip,slot)
+void live_video_base::colorspace_init(void)
 {
-	
+	int i;
+
+	for (i = 0; i < 256; i++) {
+		RGB_Y_tab[i] = FIX_OUT(RGB_Y_OUT) * (i - Y_ADD_OUT);
+		B_U_tab[i] = FIX_OUT(B_U_OUT) * (i - U_ADD_OUT);
+		G_U_tab[i] = FIX_OUT(G_U_OUT) * (i - U_ADD_OUT);
+		G_V_tab[i] = FIX_OUT(G_V_OUT) * (i - V_ADD_OUT);
+		R_V_tab[i] = FIX_OUT(R_V_OUT) * (i - V_ADD_OUT);
+	}
+}
+
+bool live_video_base::m_save_video_switch=false;
+
+live_video_base::live_video_base(const char* ip,int slot)
+	:m_ip(ip),m_slot(slot),m_uh(-1),m_sh(-1),m_ph(INVALID_HANDLE),m_hwnd(0)
+	,m_is_playing(false)
+{
+	colorspace_init();
 	m_stream_len=0;
 	m_stream_count=0;
 	m_stream_ready=0;
@@ -50,7 +69,7 @@ live_video::live_video(const char* ip,int slot):live_video_base(ip,slot)
 
 }
 
-live_video::~live_video()
+live_video_base::~live_video_base()
 {
 	close();
 	cvReleaseImage(&m_img_rgb_3);
@@ -68,9 +87,115 @@ live_video::~live_video()
 
 
 
-void CALLBACK live_video::on_stream(long lVideoID,char*buf,int len,int videoType,long nUser)
+void live_video_base::yv12_to_rgb24_c(unsigned char * dst,
+	int dst_stride,
+	unsigned char * y_src,
+	unsigned char * u_src,
+	unsigned char * v_src,
+	int y_stride,
+	int uv_stride,
+	int width,
+	int height)
 {
-	live_video* lv = (live_video*)nUser;
+	const unsigned short dst_dif = 6 * dst_stride - 3 * width;
+	int y_dif = 2 * y_stride - width;
+
+	unsigned char *dst2 = dst + 3 * dst_stride;
+	unsigned char *y_src2 = y_src + y_stride;
+	unsigned int x, y;
+
+	if (height < 0) {			/* flip image? */
+		height = -height;
+		y_src += (height - 1) * y_stride;
+		y_src2 = y_src - y_stride;
+		u_src += (height / 2 - 1) * uv_stride;
+		v_src += (height / 2 - 1) * uv_stride;
+		y_dif = -width - 2 * y_stride;
+		uv_stride = -uv_stride;
+	}
+
+	for (y = height / 2; y; y--) {
+		/* process one 2x2 block per iteration */
+		for (x = 0; x < (unsigned int) width / 2; x++) {
+			int u, v;
+			int b_u, g_uv, r_v, rgb_y;
+			int r, g, b;
+
+			u = u_src[x];
+			v = v_src[x];
+
+			b_u = B_U_tab[u];
+			g_uv = G_U_tab[u] + G_V_tab[v];
+			r_v = R_V_tab[v];
+
+			rgb_y = RGB_Y_tab[*y_src];
+			b = (rgb_y + b_u) >> SCALEBITS_OUT;
+			g = (rgb_y - g_uv) >> SCALEBITS_OUT;
+			r = (rgb_y + r_v) >> SCALEBITS_OUT;
+			dst[0] = MAX(0, MIN(255, b));
+			dst[1] = MAX(0, MIN(255, g));
+			dst[2] = MAX(0, MIN(255, r));
+
+			y_src++;
+			rgb_y = RGB_Y_tab[*y_src];
+			b = (rgb_y + b_u) >> SCALEBITS_OUT;
+			g = (rgb_y - g_uv) >> SCALEBITS_OUT;
+			r = (rgb_y + r_v) >> SCALEBITS_OUT;
+			dst[3] = MAX(0, MIN(255, b));
+			dst[4] = MAX(0, MIN(255, g));
+			dst[5] = MAX(0, MIN(255, r));
+			y_src++;
+
+			rgb_y = RGB_Y_tab[*y_src2];
+			b = (rgb_y + b_u) >> SCALEBITS_OUT;
+			g = (rgb_y - g_uv) >> SCALEBITS_OUT;
+			r = (rgb_y + r_v) >> SCALEBITS_OUT;
+			dst2[0] = MAX(0, MIN(255, b));
+			dst2[1] = MAX(0, MIN(255, g));
+			dst2[2] = MAX(0, MIN(255, r));
+			y_src2++;
+
+			rgb_y = RGB_Y_tab[*y_src2];
+			b = (rgb_y + b_u) >> SCALEBITS_OUT;
+			g = (rgb_y - g_uv) >> SCALEBITS_OUT;
+			r = (rgb_y + r_v) >> SCALEBITS_OUT;
+			dst2[3] = MAX(0, MIN(255, b));
+			dst2[4] = MAX(0, MIN(255, g));
+			dst2[5] = MAX(0, MIN(255, r));
+			y_src2++;
+
+			dst += 6;
+			dst2 += 6;
+		}
+
+		dst += dst_dif;
+		dst2 += dst_dif;
+
+		y_src += y_dif;
+		y_src2 += y_dif;
+
+		u_src += uv_stride;
+		v_src += uv_stride;
+	}
+}
+
+void live_video_base::rgb24_to_rgb8(unsigned char * rgb_buf,int w,int h,char* dst_r,char* dst_g,char* dst_b)
+{
+	for(int i = 0; i < h; i++)
+	{
+		for(int j = 0; j < w ; j++)
+		{
+			//fwrite((char*)&rgb24[i * w * 3] + j * 3 + type ,1,1,ou);
+			dst_r[i * w + j] = rgb_buf[i * w * 3 + j * 3 + 0];
+			dst_g[i * w + j] = rgb_buf[i * w * 3 + j * 3 + 1];
+			dst_b[i * w + j] = rgb_buf[i * w * 3 + j * 3 + 2];
+		}		
+	}
+}
+
+void CALLBACK live_video_base::on_stream(long lVideoID,char*buf,int len,int videoType,long nUser)
+{
+	live_video_base* lv = (live_video_base*)nUser;
 	if(len != 40)
 	{
 		hwplay_input_data(lv->m_ph,buf,len);
@@ -98,9 +223,9 @@ void CALLBACK live_video::on_stream(long lVideoID,char*buf,int len,int videoType
 
 }
 
-void CALLBACK live_video::on_yuv_ex(PLAY_HANDLE handle, const unsigned char* y, const unsigned char* u, const unsigned char* v, int y_stride, int uv_stride, int width, int height, INT64 time, long user)
+void CALLBACK live_video_base::on_yuv_ex(PLAY_HANDLE handle, const unsigned char* y, const unsigned char* u, const unsigned char* v, int y_stride, int uv_stride, int width, int height, INT64 time, long user)
 {
-	live_video* lv = (live_video*)user;
+	live_video_base* lv = (live_video_base*)user;
 	IplImage* ipl_img=lv->m_img_rgb_3;
 	unsigned char *image_buffer=(unsigned char *)ipl_img->imageData;
 #if _DEBUG
@@ -173,7 +298,7 @@ void CALLBACK live_video::on_yuv_ex(PLAY_HANDLE handle, const unsigned char* y, 
 *
 *
 */
-bool live_video::init_video_writer()
+bool live_video_base::init_video_writer()
 {				
 		const int fps     = FPS_MY;
 		//static int frame_count=0;
@@ -236,7 +361,7 @@ bool live_video::init_video_writer()
 *
 *
 */
-bool live_video::play(HWND hwnd)
+bool live_video_base::play(HWND hwnd)
 {
 	if(m_is_playing)
 	{
@@ -319,7 +444,7 @@ ONERR:
 	return false;
 }
 
-void live_video::close()
+void live_video_base::close()
 {
 	if(!m_is_playing)
 	{
@@ -337,7 +462,7 @@ void live_video::close()
 	m_is_playing = false;
 }
 
-bool live_video::zoom_rect(bool enable,RECT* src,RECT* dst)
+bool live_video_base::zoom_rect(bool enable,RECT* src,RECT* dst)
 {
 	if(!m_is_playing)
 	{
@@ -347,7 +472,7 @@ bool live_video::zoom_rect(bool enable,RECT* src,RECT* dst)
 	return hwplay_zoom_rect(m_ph,enable ? TRUE : FALSE,dst,src) ? true : false;
 }
 
-bool live_video::get_video_size(int* w,int * h)
+bool live_video_base::get_video_size(int* w,int * h)
 {
 	if(!m_is_playing)
 	{
@@ -390,7 +515,7 @@ bool live_video::get_video_size(int* w,int * h)
 	return return_value_t;
 }
 
-bool live_video::register_draw(draw_callback* fun,long user)
+bool live_video_base::register_draw(draw_callback* fun,long user)
 {
 	if(!m_is_playing)
 	{
@@ -400,7 +525,7 @@ bool live_video::register_draw(draw_callback* fun,long user)
 	return hwplay_register_draw_fun(m_ph,fun,user) ? true : false;
 }
 
-bool live_video::save_to_jpg(const char* file,int quality)
+bool live_video_base::save_to_jpg(const char* file,int quality)
 {
 	if(!m_is_playing)
 	{
@@ -412,7 +537,7 @@ bool live_video::save_to_jpg(const char* file,int quality)
 	return hwplay_save_to_jpg(m_ph,file,quality) ? true : false;
 }
 
-bool live_video::save_to_bmp(const char* bmp)
+bool live_video_base::save_to_bmp(const char* bmp)
 {
 	if(!m_is_playing)
 	{
@@ -422,7 +547,7 @@ bool live_video::save_to_bmp(const char* bmp)
 	return hwplay_save_to_bmp(m_ph,bmp) ? true : false;
 }
 
-bool live_video::print_yuv(bool isYuv)
+bool live_video_base::print_yuv(bool isYuv)
 {
 	if (isYuv)
 	{
@@ -436,7 +561,7 @@ bool live_video::print_yuv(bool isYuv)
 	return true;
 }
 
-bool live_video::wait_for_frame()
+bool live_video_base::wait_for_frame()
 {	
 	int frame_num_t;
 	int wait_time_t=0;
@@ -469,7 +594,7 @@ bool live_video::wait_for_frame()
 *
 */
 /*----------------------------------------------------*/
-bool live_video::snap2jpg()
+bool live_video_base::snap2jpg()
 {
 	std::string ip_addr_t=this->m_ip;
 	
@@ -485,7 +610,7 @@ bool live_video::snap2jpg()
 *
 */
 /*----------------------------------------------------*/
-string live_video::ltos(long l)  
+string live_video_base::ltos(long l)  
 {  
 	ostringstream os;  
 	os<<l;  
@@ -500,10 +625,10 @@ string live_video::ltos(long l)
 *
 */
 /*----------------------------------------------------*/
-unsigned live_video::opencv_show_image_thread(LPVOID lpParam)
+unsigned live_video_base::opencv_show_image_thread(LPVOID lpParam)
 {
 
-	live_video* lv = (live_video*)lpParam;
+	live_video_base* lv = (live_video_base*)lpParam;
 	
 	while(lv->m_img_rgb_3==NULL&&lv->m_is_playing);
 
@@ -527,13 +652,13 @@ unsigned live_video::opencv_show_image_thread(LPVOID lpParam)
 		printf("C Cut frame \n");
 		printf("V Start save video \n");
 
-	ImageData MemData(lv->m_img_rgb_4_for_show,
+	/*ImageData MemData(lv->m_img_rgb_4_for_show,
 			"",
 			1000,
 			0,
 			0.5);
 	
-	MemData.GetThetaMLXYSeeds_ByCircle_UseSpiral();
+	MemData.GetThetaMLXYSeeds_ByCircle_UseSpiral();*/
 	
 	while(lv->m_is_playing){
 
@@ -544,18 +669,7 @@ unsigned live_video::opencv_show_image_thread(LPVOID lpParam)
 		
 		if(lv->m_is_draw_spiral){
 
-				MemData.Draw_Kseeds_Spiral(lv->m_img_rgb_4_for_show);
-				std::string gps_p=GPS_WG_8020::getInstance()->GetLatLonStr();
-				std::string compass_prh=Compass_HCM365::getInstance()->GetPitchRollHeadingStr();
-				{
-					CvFont font;
-					CvPoint pt1=cvPoint(20,30);
-					CvPoint pt0=cvPoint(20,100);;
-					cvInitFont(&font,CV_FONT_HERSHEY_SIMPLEX, 1.0f,1.0f,2);
-					cvPutText(lv->m_img_rgb_4_for_show, gps_p.c_str(), pt1, &font,CV_RGB(0, 0, 0) );
-					cvPutText(lv->m_img_rgb_4_for_show, compass_prh.c_str(), pt0, &font,CV_RGB(0, 0, 0) );
-
-				}
+				
 		}
 
 		cvShowImage(lv->m_ip.c_str(),lv->m_img_rgb_4_for_show);
@@ -617,7 +731,7 @@ unsigned live_video::opencv_show_image_thread(LPVOID lpParam)
 *
 */
 /*----------------------------------------------------*/
-bool live_video::is_play()
+bool live_video_base::is_play()
 {
 	return this->m_is_playing;
 }
@@ -626,7 +740,7 @@ bool live_video::is_play()
 *
 */
 /*----------------------------------------------------*/
-void live_video::string_replace(string&s1,const string s2,const string s3)
+void live_video_base::string_replace(string&s1,const string s2,const string s3)
 {
 	string::size_type pos=0;
 	string::size_type a=s2.size();
@@ -642,7 +756,7 @@ void live_video::string_replace(string&s1,const string s2,const string s3)
 *
 */
 /*----------------------------------------------------*/
-string live_video::get_directory()
+string live_video_base::get_directory()
 {
 		string path_t=this->m_ip;
 		string_replace(path_t,".","_");
@@ -656,7 +770,7 @@ string live_video::get_directory()
 *
 */
 /*----------------------------------------------------*/
-string live_video::get_time_stamp()
+string live_video_base::get_time_stamp()
 {
 #if _MSC_VER
 
@@ -680,7 +794,7 @@ string live_video::get_time_stamp()
 *
 */
 /*----------------------------------------------------*/
-void live_video::turn_up()
+void live_video_base::turn_up()
 {
 		struct tPtzControl data_t;
 #if TRUE		
@@ -701,7 +815,7 @@ void live_video::turn_up()
 *
 */
 /*----------------------------------------------------*/
-void live_video::turn_down()
+void live_video_base::turn_down()
 {
 		struct tPtzControl data_t;
 		data_t.slot=0;
@@ -715,7 +829,7 @@ void live_video::turn_down()
 *
 */
 /*----------------------------------------------------*/
-void live_video::turn_left()
+void live_video_base::turn_left()
 {
 		struct tPtzControl data_t;
 		data_t.slot=0;
@@ -729,7 +843,7 @@ void live_video::turn_left()
 *
 */
 /*----------------------------------------------------*/
-void live_video::turn_right()
+void live_video_base::turn_right()
 {
 		struct tPtzControl data_t;
 		data_t.slot=0;
@@ -743,7 +857,7 @@ void live_video::turn_right()
 *
 */
 /*----------------------------------------------------*/
-void live_video::turn_stop()
+void live_video_base::turn_stop()
 {
 		struct tPtzControl data_t;	
 		data_t.controlType=0;//direct
@@ -755,7 +869,7 @@ void live_video::turn_stop()
 *
 */
 /*----------------------------------------------------*/
-void  live_video::SaveImage_rgb_3()
+void  live_video_base::SaveImage_rgb_3()
 {
 #ifdef _MSC_VER
 	m_ImgLock.Lock();
@@ -763,27 +877,7 @@ void  live_video::SaveImage_rgb_3()
 
 #ifdef SAVE_IMAGE
 #if SAVE_IMAGE	
-		{
-					std::string gps_p=GPS_WG_8020::getInstance()->GetLatLonStr();
-					std::string compass_prh=Compass_HCM365::getInstance()->GetPitchRollHeadingStr();
-
-					std::string ip_addr_t=this->m_ip;
-
-					std::string filename_org_t=ip_addr_t+
-						"$"+get_time_stamp()+
-						"$"+gps_p+
-						"$"+compass_prh+
-						"$"+"org.jpg";
-					//std::string filename_srl_t=ip_addr_t+"_"+get_time_stamp()+"spiral.jpg";
-					string path_t=this->m_ip;
-					string_replace(path_t,".","_");
-										
-					cvSaveImage( (path_t+"//"+filename_org_t).c_str(),this->m_img_rgb_3);
-					//cvSaveImage( (path_t+"//"+filename_srl_t).c_str(),lv->m_img_rgb_4_for_show);
-
-
-					printf("SAVE_IMAGE\n");
-		}
+		
 #endif
 #endif
 
@@ -796,7 +890,7 @@ void  live_video::SaveImage_rgb_3()
 *
 */
 /*----------------------------------------------------*/
-void  live_video::SaveImage_rgb_4_for_show()
+void  live_video_base::SaveImage_rgb_4_for_show()
 {
 #ifdef _MSC_VER
 	m_ImgLock.Lock();
@@ -804,21 +898,7 @@ void  live_video::SaveImage_rgb_4_for_show()
 
 #ifdef SAVE_IMAGE
 #if SAVE_IMAGE
-		std::string gps_p=GPS_WG_8020::getInstance()->GetLatLonStr();
-		std::string compass_prh=Compass_HCM365::getInstance()->GetPitchRollHeadingStr();
 		
-		{				
-			std::string ip_addr_t=this->m_ip;				
-			std::string filename_srl_t=ip_addr_t+
-				"$"+get_time_stamp()+
-				"$"+gps_p+
-				"$"+compass_prh+
-				"$"+"spiral.jpg";
-			string path_t=this->m_ip;
-			string_replace(path_t,".","_");				
-			cvSaveImage( (path_t+"//"+filename_srl_t).c_str(),this->m_img_rgb_4_for_show);
-			printf("SAVE IMAGE SPIRAL\n");
-		}
 #endif
 #endif
 
@@ -831,7 +911,7 @@ void  live_video::SaveImage_rgb_4_for_show()
 *
 */
 /*----------------------------------------------------*/
-void live_video::SaveImage()
+void live_video_base::SaveImage()
 {
 	if(this->m_save_image_switch>0){
 		this->SaveImage_rgb_4_for_show();
@@ -845,7 +925,7 @@ void live_video::SaveImage()
 *
 */
 /*----------------------------------------------------*/
-void live_video::SaveVideo()
+void live_video_base::SaveVideo()
 {
 #ifdef _MSC_VER
 	m_ImgLock.Lock();
@@ -892,7 +972,7 @@ void live_video::SaveVideo()
 *
 */
 /*----------------------------------------------------*/
-bool live_video::init_xml_pos()
+bool live_video_base::init_xml_pos()
 {
 
 	const char* declaration ="<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>";
@@ -916,41 +996,9 @@ bool live_video::init_xml_pos()
 *
 */
 /*----------------------------------------------------*/
-bool live_video::write_xml_pos()
+bool live_video_base::write_xml_pos()
 {
-	char  frame_count_t[1024];
-	itoa(this->m_video_frame_count,frame_count_t,10);
-
-
-	string lat_lon_str_t=GPS_WG_8020::getInstance()->GetLatLonStr();
-	std::string compass_prh=Compass_HCM365::getInstance()->GetPitchRollHeadingStr();
 	
-
-
-	XMLElement* root=this->m_video_pos.RootElement();
-	
-	XMLElement* Node_t =this->m_video_pos.NewElement("VideoFrame");
-	{	
-		/*-----------*/
-		XMLElement *frame_count=this->m_video_pos.NewElement("Frame"); 
-					frame_count->InsertEndChild(this->m_video_pos.NewText(frame_count_t));
-
-		Node_t->InsertEndChild(frame_count);
-		/*-----------*/			     
-		XMLElement* lat_lon_t = this->m_video_pos.NewElement("LatLon");
-					lat_lon_t->InsertEndChild(this->m_video_pos.NewText(lat_lon_str_t.c_str()));
-		
-		Node_t->InsertEndChild(lat_lon_t);
-		/*-----------*/
-		XMLElement* compass_prh_e = this->m_video_pos.NewElement("Compass");
-					compass_prh_e->InsertEndChild(this->m_video_pos.NewText(compass_prh.c_str()));
-		
-		Node_t->InsertEndChild(compass_prh_e);
-		/*-----------*/
-	}
-	
-	root->InsertEndChild(Node_t);
-
 	return true;
 }
 /*----------------------------------------------------*/

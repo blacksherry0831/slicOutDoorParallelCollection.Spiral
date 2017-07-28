@@ -36,12 +36,7 @@ endif()
   
 endfunction (ConfigPT) 
 ###############################################################################
-SET(BASE_LINK_LIB 
-	         tinyxml2
-			 SGVcode
-			 SerialPort
-			 pthreads
-	)
+
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")  
  
@@ -57,12 +52,37 @@ ELSE ()
    
 ENDIF ()  
 ###############################################################################
-SET(HW_SDK_SRCS
-	live_video.cpp
-	live_set.cpp
-	ipc.cpp
-	dc_save.cpp)
 
+if(NEED_CUDA)
+
+	SET(HW_SDK_SRCS
+			live_video_base.cpp
+			live_video.cpp
+			live_set.cpp
+			ipc.cpp
+			dc_save.cpp)
+			
+	SET(BASE_LINK_LIB 
+	        tinyxml2
+			SGVcode
+			SerialPort
+			pthreads)
+	
+else()
+
+	SET(HW_SDK_SRCS
+		live_video_base.cpp
+		live_set.cpp
+		ipc.cpp
+		dc_save.cpp)
+		
+	SET(BASE_LINK_LIB 
+		 tinyxml2
+		 SerialPort
+		 pthreads)
+			 
+endif()
+	
 ADD_LIBRARY(HW_SDK_LIB   STATIC    ${HW_SDK_SRCS})
 
 TARGET_LINK_LIBRARIES(HW_SDK_LIB ${BASE_LINK_LIB})

@@ -2,31 +2,11 @@
 #define live_video_include_h
 
 
-#ifdef _MSC_VER
-#include "afxmt.h"
-#endif
 
 
-#include <string>
-#include "howellnetsdk.h"
-#include "play_def.h"
-#pragma comment(lib,"hwclient.lib")
-#pragma comment(lib,"play_sdk.lib")
+#include "live_video_base.h"
 
-#include "cv.h"
-#include "highgui.h"
-using namespace cv;
-
-#if TRUE
-#include <tinyxml2/tinyxml2.h>
-using namespace tinyxml2;
-#endif
-
-#define SAVE_IMAGE TRUE
-#define SAVE_VIDEO TRUE
-#define SHOW_IMAGE TRUE
-#define	FPS_MY (25)
-class live_video
+class live_video :public live_video_base
 {
 public:
 	live_video(const char* ip,int slot);
@@ -76,37 +56,7 @@ private:
 	REAL_HANDLE m_sh;
 	PLAY_HANDLE m_ph;
 	bool m_is_playing;
-public:
-	bool m_is_draw_spiral;
-public:
-	int m_width;
-	int m_height;
-public: 
-	long m_stream_len;/**<buffer size*/
-	long m_stream_count;/**<*/
-	long m_stream_ready;/**<*/
-	long m_stream_frame_count;/**<*/
-	long m_save_image_switch;
-	static bool m_save_video_switch;
-	bool m_save_video_start;
-public:
-	clock_t m_frame_start;
-public:
-	clock_t m_frame_end;
-public:
 
-	IplImage * m_img_rgb_3;
-#ifdef SHOW_IMAGE
-#if SHOW_IMAGE
-	IplImage * m_img_rgb_4_for_show;
-#endif
-#endif
-
-	int m_video_frame_count;
-
-	CvVideoWriter *m_writer;
-	CvVideoWriter *m_writer_spiral;
-	tinyxml2::XMLDocument m_video_pos;
 
 private:
 	static void CALLBACK on_stream(long lVideoID,char*buf,int len,int videoType,long nUser);

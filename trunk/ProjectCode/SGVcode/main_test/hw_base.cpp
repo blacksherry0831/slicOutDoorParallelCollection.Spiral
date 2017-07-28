@@ -15,12 +15,6 @@ using namespace cv;
 #endif
 
 
-#if 1
-#include "SerialPort/Compass_HCM365.h"
-#include "SerialPort/Gps_WG_8020.h"
-#endif
-
-
 
 /*-------------------------------------------------------------------------*/
 /**
@@ -49,7 +43,7 @@ unsigned THreadSuperPixel_DoOneImage_win(LPVOID lpParam)
 	BOOL login_success_t=FALSE;
 	int save_num_t=0;
 	BOOL is_save_t=false;
-#if  1
+#if  0
 	live_video_ptr g_cur_video=live_video_ptr(new live_video(ipc_p_t->ip,0));
 #else
 	live_video_base_ptr g_cur_video =live_video_base_ptr(new live_video_base(ipc_p_t->ip, 0));
@@ -165,21 +159,6 @@ int main()
 	TimeCountStart();
 
 	HW_NET_Init(0);
-
-	{
-		int  com_num_gps=4;
-		int  com_num_compass=7;
-
-		printf("Input Gps,Compass Com:\n");
-		scanf("%d,%d",&com_num_gps,&com_num_compass);
-
-		if(com_num_gps>=0 && com_num_compass>=0){
-			GPS_WG_8020::getInstance()->open(com_num_gps);
-			Compass_HCM365::getInstance()->open(com_num_compass);		
-		}
-
-
-	}
 
 	
 	std::vector<ipc_ptr> g_ipcs;
