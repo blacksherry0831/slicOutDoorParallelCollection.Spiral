@@ -45,32 +45,8 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	ConfigMFC_2() 
     ConfigPT()
 
-
-ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
-   
-ELSE ()  
-   
-ENDIF ()  
-###############################################################################
-
-if(NEED_CUDA)
-
 	SET(HW_SDK_SRCS
-			live_video_base.cpp
-			live_video.cpp
-			live_set.cpp
-			ipc.cpp
-			dc_save.cpp)
-			
-	SET(BASE_LINK_LIB 
-	        tinyxml2
-			SGVcode
-			SerialPort
-			pthreads)
-	
-else()
-
-	SET(HW_SDK_SRCS
+		hw_nvr.cpp
 		live_video_base.cpp
 		live_set.cpp
 		ipc.cpp
@@ -80,8 +56,28 @@ else()
 		 tinyxml2
 		 SerialPort
 		 pthreads)
+
+	if(NEED_CUDA)
+
+		SET(HW_SDK_SRCS
+				${HW_SDK_SRCS}
+				live_video.cpp)
+			
+		SET(BASE_LINK_LIB 
+				${BASE_LINK_LIB}
+				SGVcode)	
+	else()
 			 
-endif()
+	endif()
+
+ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
+   
+ELSE ()  
+   
+ENDIF ()  
+###############################################################################
+
+
 	
 ADD_LIBRARY(HW_SDK_LIB   STATIC    ${HW_SDK_SRCS})
 

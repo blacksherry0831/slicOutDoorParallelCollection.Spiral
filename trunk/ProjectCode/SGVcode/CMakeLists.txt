@@ -231,7 +231,7 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 							  )
 	endif()	
 	################################################
-	if (CBB_BUILDING_AGV_CAR)
+	if(CBB_BUILDING_AGV_CAR)
 
 		ADD_EXECUTABLE(TEST_GPS main_test/gps_test.cpp)
 		TARGET_LINK_LIBRARIES(TEST_GPS
@@ -255,8 +255,15 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	
 	endif(CBB_BUILDING_HOT_FORGING)	
 	################################################
-	ADD_EXECUTABLE(TEST_calibration main_test/calibration.cpp)
-	TARGET_LINK_LIBRARIES(TEST_calibration)
+	if(NEED_OPENCV)
+	
+		ADD_EXECUTABLE(TEST_calibration main_test/calibration.cpp)
+		TARGET_LINK_LIBRARIES(TEST_calibration)
+	
+		ADD_EXECUTABLE(TEST_opencv main_test/opencv_test.cpp)
+		TARGET_LINK_LIBRARIES(TEST_opencv)
+	
+	endif(NEED_OPENCV)	
 	################################################
 	if (NEED_JSON)
 
@@ -264,7 +271,7 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		TARGET_LINK_LIBRARIES(TEST_JSON
 										jsoncpp_lib)
  
-	 endif (NEED_JSON)
+	 endif(NEED_JSON)
 	################################################
 	if (NEED_HTTP)
 
@@ -273,17 +280,14 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
  
 	 endif (NEED_HTTP)
 	################################################
-	################################################
+	if(NEED_OPENCV)
+
 	ADD_EXECUTABLE(EXE_HW_AVI2IMAGE main_test/hw_avi2image.cpp)
 	TARGET_LINK_LIBRARIES(EXE_HW_AVI2IMAGE
 		MY_SDK_LIB
 		HW_SDK_LIB) 
-	#################################################
-	################################################
-	#ADD_EXECUTABLE(TEST_AGV_CAR main_test/agv_car_test.cpp)
-	#TARGET_LINK_LIBRARIES(TEST_AGV_CAR
-	#	Comm2ServerLib
-	#	SerialPort) 
+		
+	endif() 
 	#################################################
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
    

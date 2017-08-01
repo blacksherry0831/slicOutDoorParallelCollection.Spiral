@@ -6,12 +6,23 @@
 #include "afxmt.h"
 #endif
 
+#include "pt_mutex.h"
 
+#if TRUE
+#include <stdio.h>
+#include <iostream>
 #include <string>
+#include <sstream>
+using namespace std;
+#endif
+
+
+#if _MSC_VER
 #include "howellnetsdk.h"
 #include "play_def.h"
 #pragma comment(lib,"hwclient.lib")
 #pragma comment(lib,"play_sdk.lib")
+#endif
 
 #include "cv.h"
 #include "highgui.h"
@@ -94,7 +105,9 @@ public:
 	void turn_left();
 	void turn_right();
 	void turn_stop();
-	
+public:
+	bool hw_login();
+public:
 	static unsigned opencv_show_image_thread(LPVOID lpParam);
 	
 	bool is_play();
@@ -112,7 +125,7 @@ public:
 	void  SaveImage_rgb_4_for_show();
 	void  SaveImage();
 	void  SaveVideo();
-private:
+protected:
 	std::string m_ip;
 	int m_slot;
 	HWND m_hwnd;
@@ -164,13 +177,12 @@ private:
 		int height,
 		INT64 time,
 		long user);
-private:
+protected:
 
-#ifdef _MSC_VER 
-#if _MSC_VER
-	CMutex m_ImgLock;
-#endif
-#endif	
+
+	ThreadMutex m_ImgLock;
+
+
 protected:
 	static int RGB_Y_tab[256];
 	static int B_U_tab[256];

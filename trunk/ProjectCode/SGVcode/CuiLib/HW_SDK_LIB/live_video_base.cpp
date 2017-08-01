@@ -72,6 +72,9 @@ live_video_base::live_video_base(const char* ip,int slot)
 live_video_base::~live_video_base()
 {
 	close();
+
+#ifdef CV_VERSION
+
 	cvReleaseImage(&m_img_rgb_3);
 #ifdef SHOW_IMAGE
 #if SHOW_IMAGE
@@ -81,6 +84,7 @@ live_video_base::~live_video_base()
 	cvReleaseVideoWriter(&m_writer);
 	cvReleaseVideoWriter(&m_writer_spiral);
 
+#endif
 }
 
 
@@ -863,6 +867,24 @@ void live_video_base::turn_stop()
 		data_t.controlType=0;//direct
 		data_t.cmd=5;//stop
 		HW_NET_ControlPtz(m_sh,&data_t);
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+bool live_video_base::hw_login()
+{
+	m_uh = HW_NET_Login(m_ip.c_str(), 5198, "admin", "12345");
+	if (m_uh < 0)
+	{
+		printf("login error s% !\n", m_ip.c_str());
+		return false;
+	}else {
+		printf("login success s% !\n", m_ip.c_str());
+	}
+
+	return true;
 }
 /*----------------------------------------------------*/
 /**

@@ -12,8 +12,12 @@ using namespace cv;
 #include "HW_SDK_LIB/live_set.h"
 #include "HW_SDK_LIB/live_video.h"
 #include "HW_SDK_LIB/dc_save.h"
+#include "HW_SDK_LIB/hw_nvr.h"
 #endif
 
+#ifndef  SHOW_IMAGE
+#define SHOW_IMAGE FALSE
+#endif
 
 
 /*-------------------------------------------------------------------------*/
@@ -152,57 +156,59 @@ do{
 *
 */
 /*-------------------------------------------------------------------------*/
-
-int main()
+void ip_camera_test()
 {
-	
 	TimeCountStart();
 
 	HW_NET_Init(0);
 
-	
+
 	std::vector<ipc_ptr> g_ipcs;
 	std::vector<string>  g_ips;
 
 	g_ips.push_back("192.168.3.22");
 	g_ips.push_back("192.168.3.2");
-	//g_ips.push_back("192.168.24.102");
-		//g_ips.push_back("192.168.3.22");
-	/*g_ips.push_back("192.168.3.3");*/
-	/*g_ips.push_back("192.168.3.4");
-	
+#if 0
+	g_ips.push_back("192.168.24.102");
+	g_ips.push_back("192.168.3.22");
+
+	g_ips.push_back("192.168.3.3");
+	g_ips.push_back("192.168.3.4");
 	g_ips.push_back("192.168.3.5");
 	g_ips.push_back("192.168.3.6");
-	g_ips.push_back("192.168.3.7");*/
+	g_ips.push_back("192.168.3.7");
+#endif // 0
 
-	
-	for (int i=0;i<g_ips.size();i++){
-		
-		get_ipcs_from_name(g_ips.at(i).c_str(),&g_ipcs);
-#if 0
-		cvNamedWindow(g_ips.at(i).c_str(),0);
-		cvResizeWindow(g_ips.at(i).c_str(),480,270);
+
+
+
+	for (int i = 0; i<g_ips.size(); i++) {
+
+		get_ipcs_from_name(g_ips.at(i).c_str(), &g_ipcs);
+#if SHOW_IMAGE
+		cvNamedWindow(g_ips.at(i).c_str(), 0);
+		cvResizeWindow(g_ips.at(i).c_str(), 480, 270);
 #endif
 	}
 
 #if _MSC_VER
 
 	vector<HANDLE> handle;
-	for (int i=0;i<g_ipcs.size();i++){
+	for (int i = 0; i<g_ipcs.size(); i++) {
 
-		HANDLE handle_t=::CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)THreadSuperPixel_DoOneImage_win,g_ipcs.at(i),0,NULL); 
-	    handle.push_back(handle_t);
-	
+		HANDLE handle_t = ::CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)THreadSuperPixel_DoOneImage_win, g_ipcs.at(i), 0, NULL);
+		handle.push_back(handle_t);
+
 	}
-	
-	for(int i=0;i<handle.size();i++){
-		WaitForSingleObject(handle.at(i),INFINITE);
+
+	for (int i = 0; i<handle.size(); i++) {
+		WaitForSingleObject(handle.at(i), INFINITE);
 	}
 
 #endif
 
 #if TRUE
-	for (int i=0;i<g_ipcs.size();i++){
+	for (int i = 0; i<g_ipcs.size(); i++) {
 
 		delete g_ipcs.at(i);
 	}
@@ -212,7 +218,70 @@ int main()
 
 
 	TimeCountStop("Threads Done : ");
+}
+/*-------------------------------------------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------------------------------------------*/
+void network_video_recorder()
+{
 
+	HW_NET_Init(0);
+
+	
+	std::auto_ptr<hw_nvr> g_hw_nvr(new hw_nvr("192.168.9.200", 0));
+
+
+	if (g_hw_nvr->hw_login()) {
+		
+
+
+		
+		g_hw_nvr->GetChannelStatus();
+		g_hw_nvr->GetNetRecord();
+
+		g_hw_nvr->StartAllRecoed();
+		g_hw_nvr->StopAllRecord();
+	
+	}	
+
+
+	g_hw_nvr->status();
+
+
+
+	HW_NET_Release();
+}
+/*-------------------------------------------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------------------------------------------*/
+int main()
+{
+
+	int test_num = 0;
+
+	std::cout << "Please Input Test Item:" << std::endl;
+	std::cout << "1 IP Camera Test! " << std::endl;
+	std::cout << "2 Network Video Recorder Test! " << std::endl;
+	
+	cin >> test_num;
+
+	if (test_num == 1) {
+		
+		ip_camera_test();
+
+	}else if (test_num == 2) {		
+
+		network_video_recorder();
+
+	}else {
+
+	}
+
+	cin.get();
 	return 0;
 
 }

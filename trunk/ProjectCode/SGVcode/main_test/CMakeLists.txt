@@ -2,20 +2,37 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.8.1)
 #ÏîÄ¿Ãû³Æ
 ###############################################################################
-FIND_PACKAGE(Boost)
+if(NEED_BOOST)
+	FIND_PACKAGE(Boost)
+	IF(Boost_FOUND)
+
+	ELSE()
+		MESSAGE(FATAL_ERROR ¡±Boost library not found¡±)
+	ENDIF(Boost_FOUND)
+endif(NEED_BOOST)
 ###############################################################################
-ConfigOpenCv()
-ConfigCUDA()
+
+CONFIGPTHREADS()
+
+if(NEED_OPENCV)
+	ConfigOpenCv()	
+endif(NEED_OPENCV)
+
+if(NEED_CUDA)
+	ConfigCUDA()	
+endif(NEED_CUDA)
+
+if(NEED_HTTP)
+	 CONFIGCURLHTTP()
+endif(NEED_HTTP)
 ###############################################################################
   
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")  
  
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
- ConfigMFC_2()	
- CONFIGPTHREADS()
- CONFIGCURLHTTP()
-###############################################
+ ConfigMFC_2()
+ ###############################################
 IF(Boost_FOUND)
 
 	ConfigBoost()
@@ -34,22 +51,13 @@ IF(Boost_FOUND)
 			SerialPort
 			Comm2ServerLib) 		
 	endif()
-
 	####################################
-
-ELSE(Boost_FOUND)
-
-   MESSAGE(FATAL_ERROR ¡±Boost library not found¡±)
-
+	
+	if(NEED_OPENCV)
+	
+	endif(NEED_OPENCV)
+	####################################
 ENDIF(Boost_FOUND)
-
-
-
-
-################################################
-
-################################################
-
 ################################################
 
 
