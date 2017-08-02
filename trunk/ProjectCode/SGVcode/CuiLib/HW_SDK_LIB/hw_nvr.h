@@ -17,9 +17,9 @@ public:
 	tDevConfig m_dev_config;
 	tChannelStatus m_channel_status;
 	tAlarmState m_alarm_state;
-
-
-	
+	tHarddiskInfo m_hard_disk_info;
+private:
+	net_blackwhite_t    m_net_blackwhite;
 
 public:
 	boolean GetDevConfig();
@@ -29,6 +29,11 @@ public:
 	boolean hw_login();
 	boolean StopAllRecord();
 	boolean StartAllRecoed();
+	boolean SetManual();
+	boolean Reboot();
+	boolean ShutDown();
+	boolean FormatDisk();
+	boolean GetHarddiskState();
 };
 
 typedef hw_nvr* hw_nvr_ptr;

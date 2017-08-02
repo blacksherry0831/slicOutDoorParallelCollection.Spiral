@@ -202,4 +202,157 @@ boolean hw_nvr::StartAllRecoed()
 *
 */
 /*----------------------------------------------------------------*/
+boolean hw_nvr::SetManual()
+{
+
+#if 0
+	if (HW_NET_SET_GetBlackWhite(m_uh, &m_net_blackwhite)) {
+
+		if (m_net_blackwhite.control_mode == 1) {
+			std::cout << "control mode is auto" << std::endl;
+			m_net_blackwhite.control_mode == 0;
+		}else {
+			std::cout << "control mode is manual" << std::endl;
+		}
+
+		if(HW_NET_SET_SetBlackWhite(m_uh, &m_net_blackwhite)){
+			return true;
+		}else {
+			std::cout << "set black white error" << std::endl;
+		}
+
+	}else{
+		std::cout << "get black white error"<<std::endl;
+	}	
+#endif // 0
+
+
+
+
+	return false;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+boolean hw_nvr::Reboot()
+{
+	if (HW_NET_Reboot(m_uh)) {
+
+		std::cout << "Reboot!" << std::endl;
+		this->close();
+		return true;
+	}
+	return false;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+boolean hw_nvr::ShutDown()
+{
+	if (HW_NET_ShutDown(m_uh)) {
+
+		std::cout << "Shutdown!" << std::endl;
+		return true;
+	}
+	return false;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+boolean hw_nvr::FormatDisk()
+{
+	const int  DISK_COUNT = m_dev_config.disk_count;
+	int progress_f = 0;
+
+	for (size_t i = 0; i < DISK_COUNT; i++){
+
+		if (HW_NET_SET_FormatHarddisk(m_uh, i)) {
+		
+				while (progress_f != 100) {
+						HW_NET_SET_GetFormatProgress(m_uh,&progress_f);//0-100
+						Sleep(100);
+						std::cout << "progress present:" << progress_f<<"%"<<std::endl ;
+
+				}
+
+				std::cout <<"disk"<<'['<<i<<']'<<"format success !"<<std::endl;		
+		
+		}
+
+
+
+	}
+
+	return true;
+	
+
+
+
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+boolean hw_nvr::GetHarddiskState()
+{
+
+	boolean flag = false;
+	
+	INT64 volume=0; //Ó²ÅÌÈÝÁ¿
+	INT64 free=0;//¿ÉÓÃÈÝÁ¿
+	int state=0;//Ó²ÅÌ×´Ì¬ 0- Õý³£ 1-ÐÝÃß 2-²»Õý³£
+	
+	const int  DISK_COUNT = m_dev_config.disk_count;
+	if (DISK_COUNT> 0) {
+		
+		std::cout << "Ó²ÅÌÊý£º" << DISK_COUNT <<std::endl;
+		flag = HW_NET_SET_GetHarddiskState(m_uh, &m_hard_disk_info);
+		if (flag) {
+		
+			for (size_t i = 0; i <DISK_COUNT; i++)
+			{
+				if (m_hard_disk_info.disk[i].state == 0) {
+					volume += m_hard_disk_info.disk[i].volume;
+					free += m_hard_disk_info.disk[i].free;
+				}else if (m_hard_disk_info.disk[i].state == 1) {
+					std::cout << "Ó²ÅÌ" << "[" << i << "]" << "ÐÝÃß" << std::endl;
+				}else if (m_hard_disk_info.disk[i].state == 2){
+					std::cout << "Ó²ÅÌ" << "[" << i << "]" << "²»Õý³£" << std::endl;
+				}else {
+					ASSERT(0);
+				}
+
+			
+			}			
+		}
+	
+	}else {
+		std::cout << "Ó²ÅÌ£º" << "Ã»ÓÐÓ²ÅÌ" << std::endl;
+	}
+
+	if (volume > 0 ) {		
+		float present_free = 1.0*free /volume;
+		std::cout << "Ó²ÅÌÊ£Óà£º" << present_free*100 <<"%"<< std::endl;
+		
+		if (present_free<0.1) {
+			flag = false;//Ê£Óà¿Õ¼ä²»×ã
+		}else {
+			flag = true;
+		}
+	}
+
+	return flag;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
 

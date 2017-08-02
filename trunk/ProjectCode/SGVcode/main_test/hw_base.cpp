@@ -232,22 +232,50 @@ void network_video_recorder()
 	
 	std::auto_ptr<hw_nvr> g_hw_nvr(new hw_nvr("192.168.9.200", 0));
 
+	string cmd;
 
-	if (g_hw_nvr->hw_login()) {
-		
+	while (TRUE) {
+		getline(std::cin, cmd);
 
+		if (cmd.compare("login")==0) {
+			g_hw_nvr->hw_login();
+		}else if (cmd.compare("channel")==0) {
+			g_hw_nvr->GetChannelStatus();
+		}else if (cmd.compare("status")==0) {
+			g_hw_nvr->status();
+		}else if (cmd.compare("start record")==0) {		
+			g_hw_nvr->StartAllRecoed();		
+		}else if (cmd.compare("stop record")==0) {
+			g_hw_nvr->StopAllRecord();
+		}else if (cmd.compare("set manual") == 0) {
+			g_hw_nvr->SetManual();
+		}else if (cmd.compare("reboot") == 0) {
+			g_hw_nvr->Reboot();			
+		}else if (cmd.compare("hard disk") == 0) {
+			g_hw_nvr->GetHarddiskState();
+		}else if (cmd.compare("format disk") == 0) {
+			g_hw_nvr->FormatDisk();
+		}else if (cmd.compare("q")==0) {
+			g_hw_nvr->StopAllRecord();
+			break;
+		}else {
+			std::cout << "you can use this cmd:" << std::endl;
+			std::cout << "login" << std::endl;
+			std::cout << "status" << std::endl;
+			std::cout << "start record" << std::endl;
+			std::cout << "stop record" << std::endl;
+			std::cout << "set manual" << std::endl;
+			std::cout << "reboot" << std::endl;
+			std::cout << "hard disk" << std::endl;
+			std::cout << "format disk" << std::endl;
+			std::cout << "q" << std::endl;
+			std::cout << "please input a cmd :" << std::endl;
 
-		
-		g_hw_nvr->GetChannelStatus();
-		g_hw_nvr->GetNetRecord();
+		}
 
-		g_hw_nvr->StartAllRecoed();
-		g_hw_nvr->StopAllRecord();
 	
-	}	
+	}
 
-
-	g_hw_nvr->status();
 
 
 
