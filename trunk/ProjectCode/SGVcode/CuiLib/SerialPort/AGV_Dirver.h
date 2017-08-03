@@ -1,7 +1,5 @@
 #pragma once
-
-#include "cpp_stl.h"
-#include "SerialPort.h"
+#include "SerialPortBase.hpp"
 #include "MY_SDK_LIB/LatLng.h"
 
 #define NO_TURN		0x00
@@ -16,7 +14,7 @@
 #include "IGps.h"
 #include "ICompass.h"
 
-class AGV_Dirver
+class AGV_Dirver : public SerialPortBase
 {
 	unsigned char	buffer_result[10];
 	int		buffer_result_idx;
@@ -24,21 +22,17 @@ class AGV_Dirver
 
 protected:
 	AGV_Dirver(void);
-private:
-
-	ThreadMutex m_mutex ;  
 	
 private:
 
 	~AGV_Dirver(void);
 
 private:
-		CSerialPort m_sp;
 		IGps*       m_gps_ptr;
 		ICompass*   m_compass_ptr;
 public:
 		void open(int com_num);
-		void close();
+		
 		void init();
 private:
 	int status_car_ready;
@@ -69,7 +63,7 @@ public:
 public:
 	int Send2Car();
 	void Send2CarFeedBack();
-	void SendByte2Car(unsigned char* buffer_t,int size_t);
+	//void SendByte2Car(unsigned char* buffer_t,int size_t);
 	/*	void SendCmdPitchRollHeading();
 		
 	string GetPitchRollHeadingStr();*/
@@ -87,9 +81,9 @@ public:
 private:     
 	void process_result_data();
 	
+/*-------------------------------------------------------*/
 public:
-	 static vector<string> split(const string& s,char delim);
-	 static AGV_Dirver* getInstance();
+	  static AGV_Dirver* getInstance();
 private:
 	 static  AGV_Dirver* _instance;
 	 class CGarbo // 它的唯一工作就是在析构函数中删除CSingleton的实例      
@@ -106,5 +100,5 @@ private:
 		  };    
 		  
 	 static CGarbo Garbo; // 定义一个静态成员，在程序结束时，系统会调用它的析构函数    
-
+/*-------------------------------------------------------*/
 };
