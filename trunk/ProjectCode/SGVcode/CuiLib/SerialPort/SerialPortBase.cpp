@@ -35,7 +35,7 @@ SerialPortBase::~SerialPortBase(void)
 *
 */
 /*-------------------------------------*/
-void SerialPortBase::open(int com_num)
+bool SerialPortBase::open(int com_num)
 {
 	if(m_sp.IsOpen()==false){
 		m_sp.Open(com_num,9600);
@@ -53,6 +53,7 @@ void SerialPortBase::open(int com_num)
 #endif
 	}
 
+	return m_sp.IsOpen();
 }
 /*-------------------------------------*/
 /**

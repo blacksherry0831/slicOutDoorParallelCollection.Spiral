@@ -30,7 +30,7 @@ protected:
 private:
 	~GPS_WG_8020(void);
 public:
-		void open(int com_num);
+		bool open(int com_num);
 		void init();
 
 		void SendCmdEnterAT();

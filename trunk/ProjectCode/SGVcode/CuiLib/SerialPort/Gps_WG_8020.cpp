@@ -43,7 +43,7 @@ GPS_WG_8020::~GPS_WG_8020(void)
 *
 */
 /*-------------------------------------*/
-void GPS_WG_8020::open(int com_num)
+bool GPS_WG_8020::open(int com_num)
 {
 	try{
 
@@ -68,7 +68,7 @@ void GPS_WG_8020::open(int com_num)
 		ASSERT(0);
 	}
 
-
+	return m_sp.IsOpen();
 }
 /*-------------------------------------*/
 /**

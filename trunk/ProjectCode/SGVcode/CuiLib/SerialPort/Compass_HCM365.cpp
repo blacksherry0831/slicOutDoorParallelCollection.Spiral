@@ -43,7 +43,7 @@ Compass_HCM365::~Compass_HCM365(void)
 *
 */
 /*-------------------------------------*/
-void Compass_HCM365::open(int com_num)
+bool Compass_HCM365::open(int com_num)
 {
 	if(m_sp.IsOpen()==false){
 		m_sp.Open(com_num,9600);
@@ -60,7 +60,7 @@ void Compass_HCM365::open(int com_num)
 		HANDLE handle_t=::CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)readCompassThread,this,0,NULL);
 #endif
 	}
-
+	return m_sp.IsOpen();
 }
 /*-------------------------------------*/
 /**

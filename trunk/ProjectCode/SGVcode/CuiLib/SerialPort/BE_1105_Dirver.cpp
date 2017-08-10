@@ -22,6 +22,7 @@ BE_1105_Driver::BE_1105_Driver(void)
 	this->m_baudrate = 9600;
 	m_read_thread_run = true;
 	m_be_1105_addr = 0;
+	memset(m_status, 0xAA, sizeof(m_status));
 }
 /*-------------------------------------*/
 /**
@@ -39,7 +40,7 @@ BE_1105_Driver::~BE_1105_Driver(void)
 *
 */
 /*-------------------------------------*/
-void BE_1105_Driver::open(int com_num)
+bool BE_1105_Driver::open(int com_num)
 {
 	if (m_sp.IsOpen() == false) {
 			m_sp.Open(com_num,m_baudrate);
@@ -55,6 +56,7 @@ void BE_1105_Driver::open(int com_num)
 			std::cout << "open serial port£º"<<com_num<<std::endl;
 #if TRUE		
 			int ret = 0;	
+			this->m_read_thread_run = true;
 			ret = pthread_create(&m_pt_handle, NULL, readResultThread,this);
 			if (ret != 0)
 			{
@@ -64,13 +66,15 @@ void BE_1105_Driver::open(int com_num)
 #endif			
 
 	}
+
+	return m_sp.IsOpen();
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void BE_1105_Driver::open(string com)
+bool BE_1105_Driver::open(string com)
 {
 	const size_t length= com.length();
 	string com_num;
@@ -85,7 +89,9 @@ void BE_1105_Driver::open(string com)
 
 	 int com_number=std::stoi(com_num);
 
-	 this->open(com_number);
+	 
+
+	 return this->open(com_number);
 }
 /*-------------------------------------*/
 /**
@@ -101,11 +107,20 @@ void BE_1105_Driver::init()
 *
 */
 /*-------------------------------------*/
+void BE_1105_Driver::Join()
+{
+	int ret = pthread_join(m_pt_handle, NULL);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void BE_1105_Driver::close()
 {
 	
 	this->m_read_thread_run = false;
-	
+	this->Join();
 	SerialPortBase::close();
 }
 /*-------------------------------------*/
@@ -214,9 +229,9 @@ void BE_1105_Driver::ReadRespData()
 			ASSERT(0);
 		}
 
-	} while (Timeout_t<1 * 10);
+	} while (Timeout_t<1 * 10 && IsThreadRun());
 
-	if (Timeout_t < 1 * 10) {
+	if (Timeout_t < 1 * 10 && IsThreadRun()) {
 		this->ProcessData();
 	}
 
@@ -262,6 +277,8 @@ bool BE_1105_Driver::IsReady()
 			FLAG=true;
 	}else if(m_status[0] == 0x55){
 		FLAG = false;
+	}else if (m_status[0]==0xAA) {
+		FLAG = true;
 	}else{
 		ASSERT(0);
 	}

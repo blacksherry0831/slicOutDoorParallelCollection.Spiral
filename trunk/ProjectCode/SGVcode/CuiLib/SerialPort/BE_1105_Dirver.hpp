@@ -28,10 +28,11 @@ private:
 	BE_1105_Driver(void);
 	~BE_1105_Driver(void);	
 public:
-	void open(int com_num);
-	void open(string com);
+	bool open(int com_num);
+	bool open(string com);
 	void init();
 	void close();
+	void Join();
 	static void* readResultThread(void* lpParam);
 	boolean IsThreadRun();
 	void ReadRespData();

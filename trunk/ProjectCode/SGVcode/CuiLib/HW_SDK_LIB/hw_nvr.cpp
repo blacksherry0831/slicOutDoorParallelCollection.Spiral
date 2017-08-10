@@ -231,6 +231,7 @@ boolean hw_nvr::Wait4StopAllRecord()
 /*----------------------------------------------------------------*/
 boolean hw_nvr::IsAllRecordStop()
 {
+	this->status();
 	/*----------------------------*/
 	for (size_t i = 0; i < m_dev_config.dsp_count; i++) {
 		if (m_channel_status.status[i] == 1) {//连接状态
@@ -244,7 +245,7 @@ boolean hw_nvr::IsAllRecordStop()
 }
 boolean hw_nvr::IsAllRecordStart()
 {
-
+	this->status();
 	/*----------------------------*/
 	for (size_t i = 0; i < m_dev_config.dsp_count; i++) {
 		if (m_channel_status.status[i] == 1) {//连接状态

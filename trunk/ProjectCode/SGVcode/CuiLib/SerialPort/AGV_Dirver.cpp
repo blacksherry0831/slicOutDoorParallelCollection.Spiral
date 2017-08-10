@@ -44,7 +44,7 @@ AGV_Dirver::~AGV_Dirver(void)
 *
 */
 /*-------------------------------------*/
-void AGV_Dirver::open(int com_num)
+bool AGV_Dirver::open(int com_num)
 {
 	if(m_sp.IsOpen()==false){
 		m_sp.Open(com_num,9600);
@@ -66,7 +66,7 @@ void AGV_Dirver::open(int com_num)
 			 ASSERT(ret!=0);
 		 }  
 	}
-
+	return m_sp.IsOpen();
 }
 /*-------------------------------------*/
 /**

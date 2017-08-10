@@ -35,7 +35,7 @@ protected:
 public:
 		SerialPortBase(void);
 public:
-	virtual void open(int com_num);
+	virtual bool open(int com_num);
 	virtual void init();
 
 

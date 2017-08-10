@@ -31,7 +31,7 @@ private:
 		IGps*       m_gps_ptr;
 		ICompass*   m_compass_ptr;
 public:
-		void open(int com_num);
+		bool open(int com_num);
 		
 		void init();
 private:
