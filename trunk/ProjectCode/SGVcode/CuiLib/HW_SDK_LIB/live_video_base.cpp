@@ -875,16 +875,26 @@ void live_video_base::turn_stop()
 /*----------------------------------------------------*/
 bool live_video_base::hw_login()
 {
-	m_uh = HW_NET_Login(m_ip.c_str(), 5198, "admin", "12345");
-	if (m_uh < 0)
-	{
-		printf("login error s% !\n", m_ip.c_str());
-		return false;
-	}else {
-		printf("login success s% !\n", m_ip.c_str());
+
+	if (m_uh <0) {
+		//ÉÐÎ´µÇÂ¼
+		m_uh = HW_NET_Login(m_ip.c_str(), 5198, "admin", "12345");
+		if (m_uh < 0)
+		{
+			printf("login error s% !\n", m_ip.c_str());
+			return false;
+		}else {
+			printf("login success s% !\n", m_ip.c_str());
+			return true;
+		}
+
+	}else{
+		//ÒÑ¾­µÇÂ¼
+		return true;
+
 	}
 
-	return true;
+	return false;
 }
 /*----------------------------------------------------*/
 /**

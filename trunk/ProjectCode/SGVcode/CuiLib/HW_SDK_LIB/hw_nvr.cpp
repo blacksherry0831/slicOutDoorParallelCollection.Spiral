@@ -143,11 +143,118 @@ boolean hw_nvr::status()
 	/*----------------------------*/
 #endif // 1
 
+	 const boolean disk_status= (m_dev_config.disk_count > 0) && this->GetHarddiskState();
 
-
-	const boolean STATUS = (m_uh != -1) && (m_dev_config.disk_count >= 0);
+	 const boolean STATUS = (m_uh != -1) && disk_status;
 
 	return STATUS;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*
+*
+*/
+/*----------------------------------------------------------------*/
+boolean hw_nvr::Check7Status4Start()
+{
+
+	if (this->Check7Link4Start()) {
+		//全部连接
+		if (this->Wait4StopAllRecord()) {
+			//全部关闭
+			return true;
+		}
+	}
+
+	return false;//标记的7个摄像头，全部处于关闭状态
+}
+boolean hw_nvr::Check7Link4Start()
+{
+	const int NVR_COUNT_7 = 7;
+
+	if (this->status()) {
+		/*----------------------------*/
+		for (size_t i = 0; i < NVR_COUNT_7; i++) {
+			if (m_channel_status.status[i] == 1) {//连接状态
+				
+			}
+			else {
+				return false;
+			}
+		}
+		/*----------------------------*/
+	}
+	else {
+		return false;
+	}
+
+	return true;//标记的7个摄像头，全部处于关闭状态
+}
+boolean hw_nvr::Wait4StartAllRecord()
+{
+	boolean FLAG = false;
+
+
+	do {
+		this->StartAllRecoed();
+		FLAG = this->IsAllRecordStart();
+	} while (FLAG == false);
+
+	return FLAG;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*
+*
+*/
+/*----------------------------------------------------------------*/
+boolean hw_nvr::Wait4StopAllRecord()
+{
+	boolean IsStop =false;
+	
+	
+	do {
+		this->StopAllRecord();
+		IsStop = this->IsAllRecordStop();
+	}while (IsStop==false);
+
+	return IsStop;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*
+*
+*/
+/*----------------------------------------------------------------*/
+boolean hw_nvr::IsAllRecordStop()
+{
+	/*----------------------------*/
+	for (size_t i = 0; i < m_dev_config.dsp_count; i++) {
+		if (m_channel_status.status[i] == 1) {//连接状态
+			if (m_alarm_state.rec_state[i] == 1) {//录像状态
+				return false;//处于连接状态的摄像头，有一台正在录像
+			}			
+		}		
+	}
+	/*----------------------------*/
+	return true;
+}
+boolean hw_nvr::IsAllRecordStart()
+{
+
+	/*----------------------------*/
+	for (size_t i = 0; i < m_dev_config.dsp_count; i++) {
+		if (m_channel_status.status[i] == 1) {//连接状态
+			if (m_alarm_state.rec_state[i] == 0) {//录像状态
+				return false;//处于连接状态的摄像头，有一台尚未录像
+			}
+		}
+	}
+	/*----------------------------*/
+	return true;
 }
 /*----------------------------------------------------------------*/
 /**

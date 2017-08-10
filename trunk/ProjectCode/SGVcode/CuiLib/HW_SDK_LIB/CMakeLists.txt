@@ -5,36 +5,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.8.1)
 C11_Config()  
 ConfigOpenCv()
 ###############################################################################
-function (ConfigPT)
 
-#CMAKE的内建变量，如果是true，就说明编译器的64位的，自然可以编译64bit的程序
-
-INCLUDE_DIRECTORIES( #相关头文件的目录
-		../pthreads-w32-2-9-1-release/include
-	)
-
-if(CMAKE_CL_64)    
-	
-	SET(LIB_PTHREADS
-		pthreadVC2.lib)
-
-   LINK_DIRECTORIES(		
-		../pthreads-w32-2-9-1-release/lib/x64)
-
-else()
-	SET(LIB_PTHREADS
-		pthreadVC2.lib
-		pthreadVCE2.lib
-		pthreadVSE2.lib)
-
-  LINK_DIRECTORIES(		
-		../pthreads-w32-2-9-1-release/lib/x86)
-
-endif()
-
-   link_libraries(${LIB_PTHREADS})  
-  
-endfunction (ConfigPT) 
 ###############################################################################
 
 
@@ -43,7 +14,7 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	
 	ConfigMFC_2() 
-    ConfigPT()
+    CONFIGPTHREADS()
 
 	SET(HW_SDK_SRCS
 		hw_nvr.cpp

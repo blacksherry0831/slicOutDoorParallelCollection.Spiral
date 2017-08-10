@@ -31,19 +31,27 @@ using namespace std;
 #if _MSC_VER
 #include <mbctype.h>  
 #include <io.h>
-#endif
-#if _MSC_VER
 #include <tchar.h>
+#include <assert.h>
+
 #endif
+#if _MSC_VER==1900
+#include <functional>
+#endif
+
 #if linux||__linux__||__linux||__GNUC__
 #include<memory>
 #include <tr1/memory>
 #include <dirent.h>
 #include <unistd.h>
-#endif
-#if linux||__linux||__linux__||__GNUC__
 #include <sys/sysinfo.h>
 #include <pthread.h>
+
+#ifndef ASSERT
+#include <assert.h>
+#define  ASSERT(Exp) assert(Exp)
+#endif
+
 #endif
 /*-----------------------------------------*/
 /**
@@ -69,17 +77,7 @@ using namespace std;
 #endif
 #endif
 
-#ifndef ASSERT
-#if linux||__linux||__linux__||__GNUC__
-#include <assert.h>
-#define  ASSERT(Exp) assert(Exp)
-#endif
 
-#if _MSC_VER
-#include <assert.h>
-#endif
-
-#endif
 
 #ifndef TimeCountClock_START
 
@@ -174,17 +172,56 @@ typedef unsigned long long ULONGLONG;
 #if __GNUC__
 #define LPVOID  void *
 #endif
-#if _MSC_VER
+//LPTSTR
+//#ifndef LPTSTR
+//typedef char* LPTSTR;
+//#endif
+
+#ifndef PVOID
+typedef void *PVOID;
+#endif
+
+#ifndef HANDLE
+typedef PVOID HANDLE;
+#endif
+
+#ifndef UINT
+typedef unsigned int UINT;
+#endif // !UINT
+
+
+#ifndef PUINT
+typedef unsigned int        *PUINT;
+#endif // !1
+
+
+//#ifndef CHAR
+//typedef char CHAR;
+//#endif
+
+//#ifndef LPSTR
+//typedef CHAR* LPSTR;
+//#endif // 
+
+//#ifndef WCHAR
+//typedef WCHAR *LPWSTR;
+//#endif
+
+//#ifdef UNICODE
+//typedef LPWSTR LPTSTR;
+//#else
+//typedef LPSTR LPTSTR;
+//#endif
 
 #endif
-#endif
 
 
-#if _MSC_VER==1900
+#ifndef boolean
+typedef unsigned char boolean;
+#endif // !boolean
 
-#include <functional>
 
-#endif
+
 /*-----------------------------------------*/
 /**
 *

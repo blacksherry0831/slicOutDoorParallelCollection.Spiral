@@ -34,7 +34,7 @@ if (CBB_BUILDING_CRACK_DETECTION)
 
 
 	SET(NEED_OPENCV		ON)
-	
+	SET(NEED_QT		ON)
 
 endif (CBB_BUILDING_CRACK_DETECTION)
 ###############################################################################
@@ -176,6 +176,7 @@ CONFIG_LOCAL_MODULE()
 ###############################################################################
 ADD_SUBDIRECTORY(CuiLib)
 ADD_SUBDIRECTORY(main_test)
+ADD_SUBDIRECTORY(main_gui_crack)
 ###############################################################################
 MESSAGE(STATUS "operation system is ${CMAKE_SYSTEM}")  
 ############≈‰÷√OPENCV#########################################################
@@ -282,10 +283,18 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	################################################
 	if(NEED_OPENCV)
 
-	ADD_EXECUTABLE(EXE_HW_AVI2IMAGE main_test/hw_avi2image.cpp)
-	TARGET_LINK_LIBRARIES(EXE_HW_AVI2IMAGE
+		ADD_EXECUTABLE(EXE_HW_AVI2IMAGE main_test/hw_avi2image.cpp)
+		TARGET_LINK_LIBRARIES(EXE_HW_AVI2IMAGE
 		MY_SDK_LIB
 		HW_SDK_LIB) 
+		
+	endif() 
+	#################################################
+	if(CBB_BUILDING_CRACK_DETECTION)
+
+		ADD_EXECUTABLE(TEST_BE_1105 main_test/be1105_test.cpp)
+		TARGET_LINK_LIBRARIES(TEST_BE_1105
+			SerialPort) 
 		
 	endif() 
 	#################################################

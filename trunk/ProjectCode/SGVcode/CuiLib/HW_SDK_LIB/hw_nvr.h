@@ -26,6 +26,16 @@ public:
 	boolean GetChannelStatus();
 	boolean GetNetRecord();
 	boolean status();
+
+	boolean Check7Status4Start();
+	boolean Check7Link4Start();
+
+	boolean Wait4StartAllRecord();	
+	boolean Wait4StopAllRecord();
+	
+	boolean IsAllRecordStop();
+	boolean IsAllRecordStart();
+
 	boolean hw_login();
 	boolean StopAllRecord();
 	boolean StartAllRecoed();

@@ -65,9 +65,6 @@ void AGV_Dirver::open(int com_num)
 			 printf("Create pthread error!\n");  
 			 ASSERT(ret!=0);
 		 }  
-#if _MSC_VER && 0
-		HANDLE handle_t=::CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)readResultThread,this,0,NULL);
-#endif
 	}
 
 }

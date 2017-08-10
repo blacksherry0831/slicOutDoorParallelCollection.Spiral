@@ -75,6 +75,7 @@ bool getUrl(char *filename)
         fclose(fp);
         return true;
     }
+	return false;
 }
 
 bool postUrl(char *filename)

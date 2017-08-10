@@ -636,6 +636,7 @@ int TrainTreeBuilding::ClassifyTreeBuilding(float *data,unsigned int Dim)
 		return POS_Category_TREE;
 	}else{
 		ASSERT(0);
+		return 0;
 	}
 }
 /*-------------------------------------------------------------------------------------*/
