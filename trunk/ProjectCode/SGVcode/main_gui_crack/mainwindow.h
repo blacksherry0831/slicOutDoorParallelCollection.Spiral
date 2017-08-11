@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 #include <QMainWindow>
 
+#include "DoWork.hpp"
+
 #ifdef QT_VERSION
 
 #endif // QT_VERSION
@@ -38,19 +40,23 @@ private:
 public:
 	void initUI();
 	void TestSerialPort();
-	QString m_motor_port_name;
-	bool m_motor_run_direct;
 	bool m_test_result;
 public:
 	void WhenCfgDone(boolean enable);
+	void WorkStart();
+	void WorkDone();
 public:
-	BE_1105_Driver*		m_Step_Motor_ptr;
-	std::auto_ptr<hw_nvr> m_hw_nvr_ptr;
+	
+
+
+	DoWorkThread*  m_DoWorkThread;
+
 public slots:
 	void ClickButton_Test();
 	void ClickButton_SetSerialPort();
 	void ClickButton_CameraStart();
 	void ClickButton_MotorRun();
+	void WorkProgressShow(QString str);
 };
 
 #endif // MAINWINDOW_H

@@ -45,6 +45,7 @@ IF (CBB_BUILDING_CRACK_DETECTION)
 add_executable(EXE_GUI_CRACK_DETECTION WIN32
                             main.cpp
                             mainwindow.cpp
+							DoWork.cpp
                             ${ui_FILES})
 
 # Use the Widgets module from Qt 5.
