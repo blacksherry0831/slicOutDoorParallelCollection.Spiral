@@ -299,8 +299,8 @@ bool BE_1105_Driver::Wait4CmdDone()
 	int COUNT = 0;
 	do {
 	
-		Base::sleep(500);		
-		if (COUNT++ > 10) {
+		Base::sleep(100);		
+		if (COUNT++ > 15*10*m_circle) {
 			break;//超时退出
 		}
 	} while (IsReady() == false);
@@ -312,12 +312,14 @@ bool BE_1105_Driver::Wait4CmdDone()
 *
 */
 /*-------------------------------------*/
-unsigned char * BE_1105_Driver::get_cmd(int run_mode)
+unsigned char * BE_1105_Driver::get_cmd(int run_mode,int speed,int circle)
 {	
-	const unsigned int division_factor = 63500;
-	const unsigned int be_1105_addr = 0;	
-	const unsigned int run_pulse = 30000;	
-	const unsigned int run_up_down_pulse = 300;
+	const unsigned int division_factor = speed;//运动速度 6.2K
+	const unsigned int be_1105_addr = 0;
+	const unsigned int one_circle = 25000;
+	const unsigned int run_pulse =one_circle*circle;//一圈	
+	const unsigned int run_up_down_pulse = one_circle*0.02;//平滑
+	m_circle = circle;
 
 	m_cmd_ctrl[0] = 0xBA;// 实时控制指令
 	m_cmd_ctrl[1] = 0x01;//单步模式
@@ -381,12 +383,12 @@ unsigned char * BE_1105_Driver::get_query_cmd()
 *
 */
 /*-------------------------------------*/
-int BE_1105_Driver::SendCmd(int mode)
+int BE_1105_Driver::SendCmd(int run_mode, int speed, int circle)
 {
 	m_cmd_mode = 0xBA;
 	memset(m_status, 0x55, sizeof(m_status));
 
-	return this->serial_write(this->get_cmd(mode), 17);
+	return this->serial_write(this->get_cmd(run_mode,speed,circle), 17);
 }
 /*-------------------------------------*/
 /**

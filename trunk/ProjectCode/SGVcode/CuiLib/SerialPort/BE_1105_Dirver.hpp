@@ -53,10 +53,11 @@ public:
 	int		buffer_result_idx;
 	int		m_wait_bytes;
 	int     m_cmd_mode;
+	int		m_circle;
 public:
-	unsigned char * get_cmd(int run_mode);
+	unsigned char * get_cmd(int run_mode, int speed, int circle=1);
 	unsigned char * get_query_cmd();
-	int  SendCmd(int mode);
+	int  SendCmd(int run_mode, int speed, int circle=1);
 	int  SendQueryCmd(int mode);
 /*-------------------------------------------------------*/
 private:	
