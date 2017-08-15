@@ -298,6 +298,13 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		
 	endif() 
 	#################################################
+	if(NEED_OPENCV)
+		ADD_EXECUTABLE(EXE_HOWELL_CALIBRATION main_test/howell_calibration.cpp)
+			TARGET_LINK_LIBRARIES(EXE_HOWELL_CALIBRATION
+								OpencvCalibration
+								HW_SDK_LIB) 	
+	endif(NEED_OPENCV)
+	#################################################
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
    
 ELSE ()  

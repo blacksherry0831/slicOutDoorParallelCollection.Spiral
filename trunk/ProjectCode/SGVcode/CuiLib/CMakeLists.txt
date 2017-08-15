@@ -3,7 +3,11 @@ ADD_SUBDIRECTORY(tinyxml2)
 #ADD_SUBDIRECTORY(tinyxml)
 ADD_SUBDIRECTORY(FilePathName)
 
+if(NEED_OPENCV)
 
+	ADD_SUBDIRECTORY(opencv_calibration)
+
+endif()
 
 if (NEED_CUDA)
 
