@@ -26,12 +26,14 @@ using namespace std;
 
 #include "cv.h"
 #include "highgui.h"
-using namespace cv;
+
 
 #if TRUE
 #include <tinyxml2/tinyxml2.h>
 using namespace tinyxml2;
 #endif
+
+#include "MY_SDK_LIB/ICamera.hpp"
 
 #define SAVE_IMAGE TRUE
 #define SAVE_VIDEO TRUE
@@ -81,8 +83,14 @@ using namespace tinyxml2;
 #endif
 
 
-class live_video_base
+class live_video_base :public ICamera
 {
+public:
+	bool init();
+	bool release();
+	IplImage* QueryFrame();
+	string IntrinsicName();
+	string DistortionName();
 public:
 	live_video_base(const char* ip,int slot);
 	~live_video_base();
@@ -108,6 +116,7 @@ public:
 public:
 	bool hw_login();
 public:
+	bool start_show_image_window_thread(int show);
 	static unsigned opencv_show_image_thread(LPVOID lpParam);
 	
 	bool is_play();

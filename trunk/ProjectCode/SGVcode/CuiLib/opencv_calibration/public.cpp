@@ -55,7 +55,7 @@ void Calculate_Intrinsics_Distortion( CvCapture* capture,int board_w,int board_h
 	int successes = 0;
 	int step, frame = 0;
 
-	 IplImage *image = cvQueryFrame( capture );
+	IplImage *image = cvQueryFrame( capture );
 	IplImage *gray_image = cvCreateImage(cvGetSize(image),8,1);//subpixel
 
 

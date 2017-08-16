@@ -8,6 +8,7 @@ using namespace std;
 
 #include "modules.h"
 
+#include "MY_SDK_LIB/Base.h"
 
 
 int live_video_base::RGB_Y_tab[256];
@@ -76,6 +77,7 @@ live_video_base::~live_video_base()
 #ifdef CV_VERSION
 
 	cvReleaseImage(&m_img_rgb_3);
+	cvReleaseImage(&m_image_frame);
 #ifdef SHOW_IMAGE
 #if SHOW_IMAGE
 	cvReleaseImage(&m_img_rgb_4_for_show);
@@ -492,8 +494,11 @@ bool live_video_base::get_video_size(int* w,int * h)
 		this->m_height=*h;
 		if (m_img_rgb_3!=NULL){
 			cvReleaseImage(&m_img_rgb_3);		
+			
+			cvReleaseImage(&m_image_frame);
 		}
 		m_img_rgb_3=cvCreateImage(cvSize(*w,*h),IPL_DEPTH_8U,3);
+		m_image_frame= cvCreateImage(cvSize(*w, *h), IPL_DEPTH_8U, 3);
 
 #ifdef SHOW_IMAGE
 #if SHOW_IMAGE
@@ -508,11 +513,7 @@ bool live_video_base::get_video_size(int* w,int * h)
 	}
 
 
-	if (this->m_is_playing){
-#if _MSC_VER
-		HANDLE handle_t=::CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)(opencv_show_image_thread),this,0,NULL);
-#endif
-	}
+
 
 
 
@@ -624,6 +625,16 @@ string live_video_base::ltos(long l)
 	return result;  
 
 }
+bool live_video_base::start_show_image_window_thread(int show)
+{
+
+	if (this->m_is_playing) {
+#if _MSC_VER
+		HANDLE handle_t = ::CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)(opencv_show_image_thread), this, 0, NULL);
+#endif
+	}
+	return false;
+}
 /*----------------------------------------------------*/
 /**
 *
@@ -643,6 +654,7 @@ unsigned live_video_base::opencv_show_image_thread(LPVOID lpParam)
 #ifdef SHOW_IMAGE
 #if SHOW_IMAGE
 	cvNamedWindow(lv->m_ip.c_str(),0);
+	cvWaitKey(1);
 	cvResizeWindow(lv->m_ip.c_str(),480,270);
 #endif
 #endif
@@ -656,13 +668,6 @@ unsigned live_video_base::opencv_show_image_thread(LPVOID lpParam)
 		printf("C Cut frame \n");
 		printf("V Start save video \n");
 
-	/*ImageData MemData(lv->m_img_rgb_4_for_show,
-			"",
-			1000,
-			0,
-			0.5);
-	
-	MemData.GetThetaMLXYSeeds_ByCircle_UseSpiral();*/
 	
 	while(lv->m_is_playing){
 
@@ -1032,6 +1037,92 @@ bool live_video_base::write_xml_pos()
 {
 	
 	return true;
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+bool live_video_base::init()
+{
+	BOOL login_success_t = FALSE;
+	int width = 0, height = 0;
+	BOOL success_t;	
+#if 1
+	//login
+	do {
+		login_success_t = this->play(NULL);
+		if (login_success_t == FALSE) {
+			Base::sleep(1000);
+		}
+	} while (login_success_t == FALSE);
+#endif
+#if 1
+	//get image width height 
+	do
+	{
+		success_t = this->get_video_size(&width, &height);
+
+	} while (success_t == FALSE);
+	printf("Width: %d,Height:%d \n", width, height);
+#endif
+
+	print_yuv(TRUE);//开启数据通道
+	
+	return login_success_t==TRUE;
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+bool live_video_base::release()
+{
+	this->close();
+	return true;
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+IplImage* live_video_base::QueryFrame()
+{
+	m_ImgLock.lock();
+	cvCopyImage(m_img_rgb_3, m_image_frame);
+	m_ImgLock.UnLock();
+	return   m_image_frame;
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+string live_video_base::IntrinsicName()
+{
+	stringstream ss;
+
+	ss << "Intrinsics";
+	ss << "_";
+	ss << this->m_ip.c_str();
+	ss << ".xml";
+
+	return ss.str();
+}
+/*----------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------*/
+string live_video_base::DistortionName()
+{
+	stringstream ss;
+	ss << "Distortion";
+	ss << "_";
+	ss << this->m_ip.c_str();
+	ss << ".xml";
+
+	return ss.str();
 }
 /*----------------------------------------------------*/
 /**

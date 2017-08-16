@@ -1,34 +1,98 @@
 #include "stdafx.h"
-#include "cpp_stl.h"
-#include "opencv_stl.h"
-#include "opencv_calibration/public.h"
 
+#include "opencv_stl.h"
 #include "pt_mutex.h"
+
+#include "opencv_calibration/public.h"
+#include "opencv_calibration/calibration.hpp"
+
+#include "MY_SDK_LIB/OpencvCamera.hpp"
+#include "HW_SDK_LIB/live_video.h"
+
+void CalCamera(ICamera *camera_t)
+{
+	calibration cal(camera_t);
+	string cmd;
+
+	std::cout << "please input Cmd :"<<std::endl;
+
+	while (TRUE) {
+
+		
+		std::getline(std::cin, cmd);
+
+		if (cmd.compare("start 1") == 0) {
+			cal.start(TRUE);
+		}
+		else if (cmd.compare("stop") == 0) {
+			cal.stop();
+		}
+		else if (cmd.compare("start 0") == 0) {
+			cal.start(0);
+		}
+		else if (cmd.compare("q") == 0) {
+			cal.stop();
+			break;
+		}
+		else {
+			std::cout << "you can use this cmd:" << std::endl;
+			std::cout << "1.start 1?" << std::endl;
+			std::cout << "2.start 0?" << std::endl;
+
+
+		}
+	}
+
+	cal.Join();
+}
+
+void opencv_camera()
+{
+	CalCamera(new OpencvCamera());
+}
+
+void howell_camera(string ip)
+{
+	HW_NET_Init(0);
+	std::cout << "Connect Ip:" << ip << std::endl;
+	CalCamera(new live_video_base(ip.c_str(), 0));
+
+	HW_NET_Release();
+}
 
 int main( int argc, char** argv )
 {
 
-
-#if TRUE	
 	
-	global_thread_synch = true;
-	GlobalStatic::CAL_ROUTINE = TRUE;
+	int test_num = 0;
 
-	int ret = 0;
-	pthread_t pt_handle;
-	ret = pthread_create(&pt_handle,NULL, &thread_opencv_calibration,NULL);
-	if (ret != 0)
-	{
-		std::cout << "Create pthread error!" << std::endl;
-		ASSERT(ret != 0);
+	std::cout << "Please Input Test Item:" << std::endl;
+	std::cout << "1 Camera Test! " << std::endl;
+	std::cout << "2 Howell Camera Test! " << std::endl;
+
+	cin >> test_num;
+
+	if (test_num == 1) {
+
+		opencv_camera();
+
+	}else if (test_num == 2) {
+		
+		string ip_addr;
+
+		std::cout << "Please Input a IpAddr :" << std::endl;
+		
+		while (ip_addr=="") {
+		std::getline(std::cin, ip_addr);
+		}		
+		howell_camera(ip_addr);
+
+	}else {
+
 	}
 
-	ret = pthread_join(pt_handle, NULL);
-
-#endif
-	std::cout << "thread done !";
-	char str[1024];
-	std::cin.getline(str, 5);
+	cin.get();
+	return 0;
 
 
 }

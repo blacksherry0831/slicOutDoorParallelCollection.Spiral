@@ -17,6 +17,7 @@
 #define ANGLE_DOWN (-54)
 #define ANGLE_DELTA (0)
 #define ANGLE_HIST_NUM (11)
+
 ImageProcess::ImageProcess(void)
 {
 

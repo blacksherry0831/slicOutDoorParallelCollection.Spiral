@@ -8,7 +8,9 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	ConfigMFC_2()
 	CONFIGPTHREADS()
 
-	SET(DIR_SRCS   
+	SET(DIR_SRCS 
+			checkerboard.cpp
+			calibration.cpp
 			public.cpp) 
 ENDIF () 
 ############################################################ 

@@ -23,6 +23,7 @@ ENDIF ()
 SET(MY_SDK_SRCS
 	Base.cpp
 	LatLng.cpp
+	OpencvCamera.cpp
 	ImageProcess.cpp)
 ADD_LIBRARY(MY_SDK_LIB   STATIC    ${MY_SDK_SRCS})
 ###############################################################################

@@ -47,37 +47,17 @@ unsigned THreadSuperPixel_DoOneImage_win(LPVOID lpParam)
 	BOOL login_success_t=FALSE;
 	int save_num_t=0;
 	BOOL is_save_t=false;
-#if  0
-	live_video_ptr g_cur_video=live_video_ptr(new live_video(ipc_p_t->ip,0));
-#else
-	live_video_base_ptr g_cur_video =live_video_base_ptr(new live_video_base(ipc_p_t->ip, 0));
-#endif
 
+	live_video_base_ptr g_cur_video =live_video_base_ptr(new live_video_base(ipc_p_t->ip, 0));
 
 	printf("connect to %s \n",ipc_p_t->ip);
-	do{
-		login_success_t=g_cur_video->play(NULL);
-		if (login_success_t==FALSE){
-			Sleep(0);
-		}
-	} while (login_success_t==FALSE);
-
-
-
-#if 1
-
-	int width=0,height=0;
-	BOOL success_t;
-	do 
-	{
-		success_t=g_cur_video->get_video_size(&width,&height);
-
-	} while (success_t==FALSE);
-	printf("Width: %d,Height:%d \n",width,height);
-#endif
 	
+	
+	g_cur_video->init();
+	
+	g_cur_video->start_show_image_window_thread(1);
+
 #if 1
-	g_cur_video->print_yuv(TRUE);
 
 	do 
 	{
@@ -87,60 +67,7 @@ unsigned THreadSuperPixel_DoOneImage_win(LPVOID lpParam)
 
 #endif
 
-
-
-#if 0
-do{
-
-
-		std::string ip_addr_t=ipc_p_t->ip;
-		long time=clock();
-		std::string filename_t=ip_addr_t+"_"+ltos(time)+"hello.jpg";
-		
-	
-		
-
-		while(!is_save_t){
-
-			char buffer[1024];
-			clock_t start=clock();
-			long time=start;
-
-			
-#if 0
-			is_save_t=g_cur_video->save_to_jpg(filename_t.c_str(),100);
-			//is_save_t=g_cur_video->snap2jpg();
-#else
-	
-#endif
-
-#if 0
-			long error_t=HW_NET_GetLastError();
-
-			if (error_t!=0){
-				printf("Error Code: %d",error_t);
-			}
-#endif
-
-			if (is_save_t){
-				printf("±£´æ³É¹¦£º%d \n",save_num_t);
-				Sleep(1000);
-			}else{
-				Sleep(0);
-			}
-
-
-		}
-#if READ_FILE_MAX
-		is_save_t=FALSE;
-#endif
-
-	} while (READ_FILE_MAX);
-#endif
-	
-	if(g_cur_video){
-		g_cur_video->close();
-	}
+	g_cur_video->release();
 
 	delete g_cur_video;
 	
@@ -166,9 +93,13 @@ void ip_camera_test()
 	std::vector<ipc_ptr> g_ipcs;
 	std::vector<string>  g_ips;
 
+	
+	g_ips.push_back("192.168.9.6");
+#if 0
+	g_ips.push_back("192.168.9.7");
 	g_ips.push_back("192.168.3.22");
 	g_ips.push_back("192.168.3.2");
-#if 0
+
 	g_ips.push_back("192.168.24.102");
 	g_ips.push_back("192.168.3.22");
 
@@ -185,10 +116,7 @@ void ip_camera_test()
 	for (int i = 0; i<g_ips.size(); i++) {
 
 		get_ipcs_from_name(g_ips.at(i).c_str(), &g_ipcs);
-#if SHOW_IMAGE
-		cvNamedWindow(g_ips.at(i).c_str(), 0);
-		cvResizeWindow(g_ips.at(i).c_str(), 480, 270);
-#endif
+
 	}
 
 #if _MSC_VER
