@@ -17,5 +17,17 @@ public:
 public:
 	ICamera() {}
 	~ICamera() {}
+public:
+
+	int is_file_exist(const char * file_path)
+	{
+		if (file_path == NULL)
+			return -1;
+		if (access(file_path,0) == 0)
+			return 0;
+		return -1;
+	}
+
+public:
 
 };

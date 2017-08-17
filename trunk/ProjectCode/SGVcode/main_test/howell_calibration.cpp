@@ -14,6 +14,10 @@ void CalCamera(ICamera *camera_t)
 	calibration cal(camera_t);
 	string cmd;
 
+	if (camera_t->is_file_exist(camera_t->IntrinsicName().c_str()) == 0) {
+		std::cout << "校准文件 已存在!!" << std::endl;
+	}
+
 	std::cout << "please input Cmd :"<<std::endl;
 
 	while (TRUE) {

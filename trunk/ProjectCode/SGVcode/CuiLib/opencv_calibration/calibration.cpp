@@ -11,6 +11,7 @@ calibration::calibration(ICamera*  camera_t)
 {
 	this->m_camera.reset(camera_t);
 	m_read_thread_run = true;
+	m_pt_handle.p=NULL;
 }
 /*-------------------------------------*/
 /**
@@ -22,6 +23,7 @@ calibration::calibration(void)
 {
 	
 	m_read_thread_run = true;
+	m_pt_handle.p = NULL;
 
 }
 /*-------------------------------------*/
@@ -52,7 +54,11 @@ void calibration::init()
 /*-------------------------------------*/
 void calibration::Join()
 {
-	int ret = pthread_join(m_pt_handle, NULL);
+	if (m_pt_handle.p != NULL) {
+		int ret = pthread_join(m_pt_handle, NULL);
+		m_pt_handle.p = NULL;
+	}
+
 }
 /*-------------------------------------*/
 /**
