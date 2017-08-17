@@ -21,13 +21,13 @@ void CalCamera(ICamera *camera_t)
 		
 		std::getline(std::cin, cmd);
 
-		if (cmd.compare("start 1") == 0) {
+		if (cmd.compare("start cal") == 0) {
 			cal.start(TRUE);
 		}
 		else if (cmd.compare("stop") == 0) {
 			cal.stop();
 		}
-		else if (cmd.compare("start 0") == 0) {
+		else if (cmd.compare("start test cal") == 0) {
 			cal.start(0);
 		}
 		else if (cmd.compare("q") == 0) {
@@ -36,8 +36,10 @@ void CalCamera(ICamera *camera_t)
 		}
 		else {
 			std::cout << "you can use this cmd:" << std::endl;
-			std::cout << "1.start 1?" << std::endl;
-			std::cout << "2.start 0?" << std::endl;
+			std::cout << "1>start cal" << std::endl;
+			std::cout << "2>start test cal" << std::endl;
+			std::cout << "3>stop" << std::endl;
+			std::cout << "4>q" << std::endl;
 
 
 		}

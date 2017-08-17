@@ -32,7 +32,7 @@ CvCapture* gloal_p_capture=NULL;//全局的图像指针
 static CCameraDS *pcamera;//摄像头
 #endif
 /***********************函数声明************************************************************/
-#define DRAW_LINE  FALSE
+#define DRAW_LINE  TRUE
 /******************************************************************************/
 void Calculate_Intrinsics_Distortion( CvCapture* capture,int board_w,int board_h,int n_boards,int board_dt){
 

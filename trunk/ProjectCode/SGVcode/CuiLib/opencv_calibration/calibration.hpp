@@ -9,6 +9,10 @@
 
 #include "checkerboard.hpp"
 
+#ifndef DRAW_LINE 
+#define DRAW_LINE  TRUE
+#endif
+
 /*-------------------------------------*/
 /**
 *

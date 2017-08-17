@@ -306,7 +306,7 @@ void calibration::Calculate_Intrinsics_Distortion(ICamera*  camera, int board_w,
 void calibration::calibration_image(ICamera*  camera) {
 	// EXAMPLE OF LOADING THESE MATRICES BACK IN:
 	CvMat *intrinsic = (CvMat*)cvLoad(camera->IntrinsicName().c_str());
-	CvMat *distortion = (CvMat*)cvLoad(camera->IntrinsicName().c_str());
+	CvMat *distortion = (CvMat*)cvLoad(camera->DistortionName().c_str());
 	CvPoint cxcy;
 
 	if (intrinsic == NULL || distortion == NULL) {
@@ -322,16 +322,27 @@ void calibration::calibration_image(ICamera*  camera) {
 	int image_w = image->width;
 	IplImage* mapx = cvCreateImage(cvGetSize(image), IPL_DEPTH_32F, 1);
 	IplImage* mapy = cvCreateImage(cvGetSize(image), IPL_DEPTH_32F, 1);
-	cvInitUndistortMap(
-		intrinsic,
-		distortion,
-		mapx,
-		mapy
-	);
+	
+	try
+	{
+		cvInitUndistortMap(
+			intrinsic,
+			distortion,
+			mapx,
+			mapy
+		);
+	}
+	catch (cv::Exception& e)
+	{
+		std::cout << e.msg << std::endl;
+	}
+
+	
+	
 	// Just run the camera to the screen, now showing the raw and
 	// the undistorted image.
-	cvNamedWindow("Raw Video", CV_WINDOW_AUTOSIZE);
-	cvNamedWindow("Undistort", CV_WINDOW_AUTOSIZE);
+	cvNamedWindow("Raw Video", CV_WINDOW_NORMAL);
+	cvNamedWindow("Undistort", CV_WINDOW_NORMAL);
 
 	while (image&&IsThreadRun())
 	{
