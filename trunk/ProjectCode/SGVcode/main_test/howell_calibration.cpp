@@ -75,6 +75,7 @@ int main( int argc, char** argv )
 	std::cout << "Please Input Test Item:" << std::endl;
 	std::cout << "1 Camera Test! " << std::endl;
 	std::cout << "2 Howell Camera Test! " << std::endl;
+	std::cout << "3 Cal Video ! " << std::endl;
 
 	cin >> test_num;
 
@@ -89,11 +90,66 @@ int main( int argc, char** argv )
 		std::cout << "Please Input a IpAddr :" << std::endl;
 		
 		while (ip_addr=="") {
-		std::getline(std::cin, ip_addr);
+			std::getline(std::cin, ip_addr);
 		}		
+
 		howell_camera(ip_addr);
 
+	}else if (test_num==3) {
+#if 0
+string file_in;
+		string file_out;
+		string cal_file;
+		
+		std::cout << "Please Input In File :" << std::endl;
+		while (file_in == "") {
+			std::getline(std::cin, file_in);
+		}
+		
+		file_out = file_in+"out.avi";
+
+		std::cout << "Please Input Cal File:" << std::endl;
+		while (cal_file == "") {
+			std::getline(std::cin, cal_file);
+		}
+		calibration::opencv_cal_video(file_in, file_out, cal_file);
+#else
+		string file_base="X:\\MyProject\\项目\\原觉项目\\工业视觉探伤技术资料\\软件设计\\软件代码及说明\\2017年8月17日-探伤检测-崔兵兵-数据采集-7路视频\\org\\";
+
+		std::vector<string> file_t;
+		std::vector<string> file_cal_t;
+		
+		file_t.push_back("ch1.mp4");
+		file_t.push_back("ch2.mp4");
+		file_t.push_back("ch3.mp4");
+		file_t.push_back("ch4.mp4");
+		file_t.push_back("ch5.mp4");
+		file_t.push_back("ch6.mp4");
+		file_t.push_back("ch7.mp4");
+
+		file_cal_t.push_back("192.168.9.1");
+		file_cal_t.push_back("192.168.9.2");
+		file_cal_t.push_back("192.168.9.3");
+		file_cal_t.push_back("192.168.9.4");
+		file_cal_t.push_back("192.168.9.5");
+		file_cal_t.push_back("192.168.9.6");
+		file_cal_t.push_back("192.168.9.7");
+
+		size_t length = file_t.size();
+		for (size_t i = 0; i < length; i++)
+		{
+			calibration::opencv_cal_video(file_base+file_t[i],file_base+ file_t[i]+ "out.avi", file_cal_t[i]);
+		}
+
+#endif
+		
+
+	
+
+
+	
 	}else {
+
 
 	}
 

@@ -36,8 +36,10 @@ public:
 	static void* readResultThread(void* lpParam);
 	boolean IsThreadRun();
 	void ReadRespData();
+	
 	bool IsReady();
 	bool Wait4CmdDone();
+
 private:
 	void ProcessData();
 private:

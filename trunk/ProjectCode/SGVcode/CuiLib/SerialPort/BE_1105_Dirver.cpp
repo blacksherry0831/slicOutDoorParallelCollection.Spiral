@@ -22,6 +22,7 @@ BE_1105_Driver::BE_1105_Driver(void)
 	this->m_baudrate = 9600;
 	m_read_thread_run = true;
 	m_be_1105_addr = 0;
+	m_circle = 5;
 	memset(m_status, 0xAA, sizeof(m_status));
 }
 /*-------------------------------------*/
@@ -300,10 +301,10 @@ bool BE_1105_Driver::Wait4CmdDone()
 	do {
 	
 		Base::sleep(100);		
-		if (COUNT++ > 15*10*m_circle) {
+		if (COUNT++ > 5*60*10*m_circle) {
 			break;//³¬Ê±ÍË³ö
 		}
-	} while (IsReady() == false);
+	} while (this->IsThreadRun() && (IsReady() == false));
 
 	return IsReady();
 }

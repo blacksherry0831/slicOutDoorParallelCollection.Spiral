@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>394</width>
-    <height>552</height>
+    <width>409</width>
+    <height>582</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>280</y>
+      <y>320</y>
       <width>331</width>
       <height>101</height>
      </rect>
@@ -39,7 +39,7 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>180</y>
+      <y>220</y>
       <width>331</width>
       <height>91</height>
      </rect>
@@ -68,7 +68,7 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>90</y>
+      <y>130</y>
       <width>331</width>
       <height>81</height>
      </rect>
@@ -115,7 +115,7 @@
       <x>30</x>
       <y>10</y>
       <width>331</width>
-      <height>71</height>
+      <height>111</height>
      </rect>
     </property>
     <property name="title">
@@ -160,6 +160,38 @@
       <string>打开</string>
      </property>
     </widget>
+    <widget class="QLineEdit" name="lineEdit_Speed">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>60</y>
+       <width>71</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>38000</string>
+     </property>
+     <property name="maxLength">
+      <number>5</number>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>60</y>
+       <width>71</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>电机速度：</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::PlainText</enum>
+     </property>
+    </widget>
    </widget>
    <widget class="QCheckBox" name="checkBox_RunDirect">
     <property name="geometry">
@@ -180,7 +212,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>394</width>
+     <width>409</width>
      <height>23</height>
     </rect>
    </property>
@@ -191,7 +223,13 @@
     <addaction name="actionload"/>
     <addaction name="actionclose"/>
    </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>设置</string>
+    </property>
+   </widget>
    <addaction name="menu"/>
+   <addaction name="menu_2"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">

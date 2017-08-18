@@ -49,6 +49,9 @@ private:
 	
 	boolean m_read_thread_run;
 	pthread_t m_pt_handle;
+public:
+	static bool opencv_cal_video(string video_in, string video_out, string cal_prefix);
+	static bool opencv_cal_img2img(IplImage* img_src, IplImage* img_dest, string cal_prefix);
 	
 	
 /*-------------------------------------------------------*/

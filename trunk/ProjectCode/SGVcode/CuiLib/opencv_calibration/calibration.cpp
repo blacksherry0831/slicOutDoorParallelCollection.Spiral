@@ -396,7 +396,124 @@ void calibration::calibration_image(ICamera*  camera) {
 *
 */
 /*-------------------------------------*/
+bool calibration::opencv_cal_video(string video_in, string video_out, string cal_prefix)
+{
+	IplImage *frame_in = NULL;
+	IplImage *frame_out = NULL;
+	CvCapture *capture_in = NULL;
+	const string window_in = "video_in";
+	const string window_out = "video_out";
+	capture_in = cvCreateFileCapture(video_in.c_str());
+	frame_in = cvQueryFrame(capture_in);
+	frame_out = cvCloneImage(frame_in);
+	cvNamedWindow(window_in.c_str(),0);
+	cvNamedWindow(window_out.c_str(),0);
 
+#if _MSC_VER
+	CvVideoWriter *video_writer_out = cvCreateVideoWriter(video_out.c_str(),
+		CV_FOURCC_PROMPT,
+		cvGetCaptureProperty(capture_in, CV_CAP_PROP_FPS),
+		cvGetSize(frame_in));
+#else
+	CvVideoWriter *video_writer_out = cvCreateVideoWriter(video_out.c_str(),
+		CV_FOURCC_DEFAULT,
+		cvGetCaptureProperty(capture_in, CV_CAP_PROP_FPS),
+		cvGetSize(frame_in));
+#endif
+
+	assert(video_writer_out!=NULL);
+
+
+	while (frame_in) {
+
+		opencv_cal_img2img(frame_in, frame_out, cal_prefix);
+		cvWriteFrame(video_writer_out, frame_out);
+#if 0
+		cvShowImage(window_in.c_str(), frame_in);
+		cvShowImage(window_out.c_str(), frame_out);
+		
+		
+
+#endif // 0
+
+		cvWaitKey(1);
+
+
+
+
+		frame_in = cvQueryFrame(capture_in);
+		
+
+	}
+
+	cvReleaseImage(&frame_out);
+
+	cvReleaseCapture(&capture_in);
+	cvReleaseVideoWriter(&video_writer_out);
+
+	cvDestroyWindow(window_in.c_str());
+	cvDestroyWindow(window_out.c_str());
+
+	std::cout << " convert done!" << std::endl;
+
+	return true;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+bool calibration::opencv_cal_img2img(IplImage * img_src, IplImage * img_dest, string cal_prefix)
+{
+
+	stringstream intrinsic_file;
+	stringstream distortion_file;	
+
+	intrinsic_file << "Intrinsics_";
+	intrinsic_file << cal_prefix;
+	intrinsic_file << ".xml";
+
+	distortion_file << "Distortion_";
+	distortion_file << cal_prefix;
+	distortion_file << ".xml";
+
+	CvMat *intrinsic = (CvMat*)cvLoad(intrinsic_file.str().c_str());
+	CvMat *distortion = (CvMat*)cvLoad(distortion_file.str().c_str());
+	if (intrinsic == NULL || distortion == NULL) {
+		std::cout << "没有校准文件";
+		return false;
+	}
+	// Build the undistort map which we will use for all 
+	// subsequent frames.		
+	IplImage* mapx = cvCreateImage(cvGetSize(img_src), IPL_DEPTH_32F, 1);
+	IplImage* mapy = cvCreateImage(cvGetSize(img_src), IPL_DEPTH_32F, 1);
+
+	try
+	{
+		cvInitUndistortMap(
+			intrinsic,
+			distortion,
+			mapx,
+			mapy
+		);
+	}
+	catch (cv::Exception& e)
+	{
+		std::cout << e.msg << std::endl;
+	}
+	// Just run the camera to the screen, now showing the raw and
+	// the undistorted image.
+
+	cvRemap(img_src, img_dest, mapx, mapy);     // Undistort image
+	
+	cvReleaseMat(&intrinsic);
+	cvReleaseMat(&distortion);
+	cvReleaseImage(&mapx);
+	cvReleaseImage(&mapy);
+	
+
+	return false;
+}
 /*-------------------------------------*/
 /**
 *

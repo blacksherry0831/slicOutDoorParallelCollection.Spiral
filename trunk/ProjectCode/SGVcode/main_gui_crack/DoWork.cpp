@@ -84,7 +84,7 @@ void DoWorkThread::WorkStart()
 		return;
 	}
 	//启动步进电机
-	this->m_Step_Motor_ptr->SendCmd(BE_1105_RUN_POS,63000);
+	this->m_Step_Motor_ptr->SendCmd(BE_1105_RUN_POS,m_motor_speed);
 	if (this->m_Step_Motor_ptr->Wait4CmdDone() == false) {
 		emit WorkProgress( QStringLiteral("步进电机：无法执行"));
 	}

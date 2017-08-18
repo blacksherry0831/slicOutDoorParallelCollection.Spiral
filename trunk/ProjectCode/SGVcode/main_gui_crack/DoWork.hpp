@@ -26,6 +26,7 @@ BE_1105_Driver*		m_Step_Motor_ptr;
 std::auto_ptr<hw_nvr> m_hw_nvr_ptr;
 QString m_motor_port_name;
 bool m_motor_run_direct;
+int  m_motor_speed;
 private:
 
 	int m_progress;
