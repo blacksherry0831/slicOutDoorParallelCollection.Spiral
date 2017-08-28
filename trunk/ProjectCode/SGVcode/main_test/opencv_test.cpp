@@ -9,6 +9,27 @@ void print_mat(string name_t,cv::Mat mat_t)
 
 }
 
+void capture_frame() {
+	char FileName[80];
+	memset(FileName, 0, sizeof FileName);
+	string avi_1 = "C:\\Users\\cui-e460\\Desktop\\ch3_cal\\ch3.mp4out.avi";
+	CvCapture* capture = cvCaptureFromAVI(avi_1.c_str());
+	int i = 99;
+	while (cvGrabFrame(capture))
+	{
+		i++;
+		if (i % 100 == 0)
+		{
+			Mat img = cvRetrieveFrame(capture);        // retrieve the captured frame
+			
+			sprintf(FileName, "C:\\Users\\cui-e460\\Desktop\\ch3_cal\\002\\%d.png", i);
+			imwrite(FileName, img);
+
+		}
+	}
+	cvReleaseCapture(&capture);
+}
+
 void  inv_test()
 {
 	const int COLS = 1000;
@@ -33,10 +54,13 @@ void  inv_test()
 
 int main( int argc, char** argv )
 {
-
+#if 0
 	inv_test();
+#endif // 0
 
 
+
+	capture_frame();
 
     return 0;
 }

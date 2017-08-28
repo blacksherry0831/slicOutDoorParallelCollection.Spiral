@@ -15,8 +15,12 @@ public:
 	virtual string IntrinsicName() = 0;
 	virtual string DistortionName() = 0;
 public:
-	ICamera() {}
-	~ICamera() {}
+	ICamera() {
+		m_image_frame = NULL;
+	}
+	~ICamera() {
+		cvReleaseImage(&m_image_frame);
+	}
 public:
 
 	int is_file_exist(const char * file_path)
