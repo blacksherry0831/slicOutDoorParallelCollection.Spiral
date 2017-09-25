@@ -411,7 +411,8 @@ bool calibration::opencv_cal_video(string video_in, string video_out, string cal
 
 #if _MSC_VER
 	CvVideoWriter *video_writer_out = cvCreateVideoWriter(video_out.c_str(),
-		CV_FOURCC_PROMPT,
+		//CV_FOURCC_PROMPT,
+		CV_FOURCC('D', 'I', 'V', 'X'),
 		cvGetCaptureProperty(capture_in, CV_CAP_PROP_FPS),
 		cvGetSize(frame_in));
 #else
@@ -431,9 +432,6 @@ bool calibration::opencv_cal_video(string video_in, string video_out, string cal
 #if 0
 		cvShowImage(window_in.c_str(), frame_in);
 		cvShowImage(window_out.c_str(), frame_out);
-		
-		
-
 #endif // 0
 
 		cvWaitKey(1);

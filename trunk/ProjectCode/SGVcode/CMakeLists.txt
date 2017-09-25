@@ -295,6 +295,10 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		ADD_EXECUTABLE(TEST_BE_1105 main_test/be1105_test.cpp)
 		TARGET_LINK_LIBRARIES(TEST_BE_1105
 			SerialPort) 
+
+		ADD_EXECUTABLE(EXE_CRACK main_gui_crack/main_crack.cpp)
+		TARGET_LINK_LIBRARIES(EXE_CRACK
+					 ) 
 		
 	endif() 
 	#################################################

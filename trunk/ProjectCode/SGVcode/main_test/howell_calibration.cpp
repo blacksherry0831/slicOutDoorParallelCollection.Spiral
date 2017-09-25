@@ -114,7 +114,7 @@ string file_in;
 		}
 		calibration::opencv_cal_video(file_in, file_out, cal_file);
 #else
-		string file_base="X:\\MyProject\\项目\\原觉项目\\工业视觉探伤技术资料\\软件设计\\软件代码及说明\\2017年8月17日-探伤检测-崔兵兵-数据采集-7路视频\\org\\";
+		string file_base="X:\\MyProject\\Project\\原觉项目\\工业视觉探伤技术资料\\软件设计\\软件测试数据\\output\\2017年9月18日\\12s\\obj0-12\\";
 
 		std::vector<string> file_t;
 		std::vector<string> file_cal_t;
