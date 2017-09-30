@@ -29,6 +29,7 @@ public:
 	static void sleep(int ms);
 
 	static int is_file_exist(const char * file_path);
+	static int get_number(string str_t);
 
 };
 

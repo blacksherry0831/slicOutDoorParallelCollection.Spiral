@@ -7,18 +7,23 @@ class ImageProcess
 public:
 	ImageProcess(void);
 	~ImageProcess(void);
+public:
 	void findTestArea(void);
 	int	findMaxFloatIdx(float* arr, int N);
 	void adjustFloatMatrix2_100000(int height,float* matrix);
-	CvRect findTestArea(IplImage *image_gray,std::string readfile_name_t);
-	float findAvgFloat(float* arr, int N);
-public:
 	
-	void SaveCutImage(IplImage* img_t,CvRect cut_t,string readfile_name_t);
+	float findAvgFloat(float* arr, int N);
+	static int GetMaxValueIndexdouble(
+		double* data,
+		double size);
 public:
 	void FilterByMeanStdDev(IplImage* image_org_rgb,char *show_win);
-
 	IplImage* FilterByMeanStdDev(IplImage* image_org_rgb);
+public:	
+	void SaveCutImage(IplImage* img_t,CvRect cut_t,string readfile_name_t);
+	static void wait_for_show_image(string window_name,IplImage* img_t);
+public:
+	CvRect findTestArea(IplImage *image_gray, std::string readfile_name_t);
 public:
 	static CvSeq*	cvHoughCircles_Binary( CvArr* src_image, void* circle_storage,
                 int method, double dp, double min_dist,
@@ -32,8 +37,9 @@ public:
 public:
 	static void zhangjiagang_hongbao_duanzao_rgb(string filename);
 	static void zhangjiagang_hongbao_duanzao(string filename);
-	static void wait_for_show_image(string window_name,IplImage* img_t);
 
+	static  IplImage* cut_image(IplImage* src_color_t,int method,CvRect& cut_t,IplImage* src_binary_t);
+	static  IplImage* cut_image_01(CvMemStorage* memory,IplImage* src_color_cut,IplImage* src_binary_cut_part,CvRect& cut_t);
 
 	static IplImage* use_lab2binary(IplImage* src_color_t);
 	static  CvSeq* find_max_contour_adjust_binary(CvMemStorage* memory,IplImage* src_binary_t);
@@ -51,14 +57,6 @@ public:
 
 	static IplImage* gary_by_angle(IplImage* src_color_t,IplImage* src_gary_t,IplImage* mask_img);
 	static void gary_get_by_angle(IplImage* src_color_t,double*hist_gary_level);
-
-	static int GetMaxValueIndexdouble(
-	double* data, 
-	double size);
-
-
-	static  IplImage* cut_image(IplImage* src_color_t,int method,CvRect& cut_t,IplImage* src_binary_t);
-	static  IplImage* cut_image_01(CvMemStorage* memory,IplImage* src_color_cut,IplImage* src_binary_cut_part,CvRect& cut_t);
 	
 	static  void hough_image(IplImage* src_color_t,int method);
 
@@ -81,15 +79,15 @@ public:
 	
 	static void draw_duan_jian_result(IplImage* src_color,CvSeq* seq,Point3f circle1,Point3f circle0,IplImage* mask_img);
 	static void draw_dash_line(IplImage* src_color,double k,double b,IplImage* mask_img);
-
-
 	
-
-
 	static void find_circle(IplImage* src_color_cut,IplImage* src_binary_cut_part);
 
 	static void process_max_min_rect(CvMemStorage* memory,IplImage* src_color_cut,IplImage* src_gary_cut,CvSeq* seq,IplImage* src_binary_cut,Point3f& circle0,Point3f& circle1);
-
-
+public:
+	static void CannyAdaptiveFindThreshold(IplImage* pImg,double *low, double *high);
+	static void HYAdaptiveFindThreshold(CvMat *dx, CvMat *dy, double *low, double *high);
+public:
+	static void HoughLine(IplImage* pImg, int *pR, int *pTh, int iThreshold);
+	static void Draw_line_on_image(float rho, float theta, CvRect rect_cut, IplImage* iplimg_tmp, Point& pt1, Point& pt2);
 };
 

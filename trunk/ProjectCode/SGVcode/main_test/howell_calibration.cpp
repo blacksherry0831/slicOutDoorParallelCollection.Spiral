@@ -67,9 +67,7 @@ void howell_camera(string ip)
 }
 
 int main( int argc, char** argv )
-{
-
-	
+{	
 	int test_num = 0;
 
 	std::cout << "Please Input Test Item:" << std::endl;
@@ -97,7 +95,7 @@ int main( int argc, char** argv )
 
 	}else if (test_num==3) {
 #if 0
-string file_in;
+		string file_in;
 		string file_out;
 		string cal_file;
 		

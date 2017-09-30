@@ -157,3 +157,25 @@ int  Base::is_file_exist(const char * file_path)
 *
 */
 /*-----------------------------------------*/
+int Base::get_number(string str_t)
+{
+
+	string str_new_t;
+
+	for (size_t i = 0; i <str_t.size(); i++)
+	{
+			char char_t=str_t.at(i);
+
+			if (isdigit(char_t)) {
+				str_new_t += char_t;
+			}
+	}
+		
+	return atoi(str_new_t.c_str());
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/

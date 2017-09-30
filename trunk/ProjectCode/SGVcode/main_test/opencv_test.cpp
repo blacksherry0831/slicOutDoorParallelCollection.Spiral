@@ -14,6 +14,7 @@ void capture_frame() {
 	memset(FileName, 0, sizeof FileName);
 	string avi_1 = "C:\\Users\\cui-e460\\Desktop\\ch3_cal\\ch3.mp4out.avi";
 	CvCapture* capture = cvCaptureFromAVI(avi_1.c_str());
+	
 	int i = 99;
 	while (cvGrabFrame(capture))
 	{
@@ -21,7 +22,6 @@ void capture_frame() {
 		if (i % 100 == 0)
 		{
 			Mat img = cvRetrieveFrame(capture);        // retrieve the captured frame
-			
 			sprintf(FileName, "C:\\Users\\cui-e460\\Desktop\\ch3_cal\\002\\%d.png", i);
 			imwrite(FileName, img);
 

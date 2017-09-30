@@ -982,6 +982,9 @@ void ImageProcess::draw_dash_line(IplImage* src_color,double k,double b,IplImage
 #endif
 	}
 }
+void ImageProcess::find_circle(IplImage * src_color_cut, IplImage * src_binary_cut_part)
+{
+}
 IplImage* ImageProcess::use_lab2binary(IplImage* src_color_t)
 {
 	IplImage* src_lab=cvCreateImage(cvGetSize(src_color_t),src_color_t->depth,3);
@@ -2284,6 +2287,228 @@ void ImageProcess::process_max_min_rect(CvMemStorage* memory,IplImage* src_color
 #endif
 	cvReleaseImage(&src_binary_cut_part_temp);
  	return NULL;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+  void ImageProcess::HYAdaptiveFindThreshold(CvMat *dx, CvMat *dy, double *low, double *high)
+ {
+	 CvSize size = cvGetSize(dx);
+	 IplImage* imge = cvCreateImage(size, IPL_DEPTH_32F, 1);
+
+	 // 计算边缘的强度, 并存于图像中
+	 int i, j;
+	 short* _dx = 0;
+	 short* _dy = 0;
+	 float* _image = 0;
+	 float maxv = 0;
+	 for (i = 0; i < size.height; ++i)
+	 {
+		 _dx = (short*)(dx->data.ptr + dx->step * i);
+		 _dy = (short*)(dy->data.ptr + dy->step * i);
+		 _image = (float *)(imge->imageData + imge->widthStep * i);
+		 for (j = 0; j < size.width; ++j)
+		 {
+			 _image[j] = (float)(abs(_dx[j]) + abs(_dy[j]));
+			 maxv = maxv < _image[j] ? _image[j] : maxv;
+		 }
+	 }
+
+	 int hist_size = 255;
+	 float range_0[] = { 0, 256 };
+	 float* ranges[] = { range_0 };
+
+	 // 计算直方图
+	 range_0[1] = maxv;	// 最大值
+	 hist_size = (int)(hist_size > maxv ? maxv : hist_size);
+
+	 CvHistogram* hist = cvCreateHist(1, &hist_size, CV_HIST_ARRAY, ranges, 1);
+	 cvCalcHist(&imge, hist, 0, 0);
+
+	 double dPercentOfPixelsNotEdges = 0.97;
+	 int total = (int)(size.height * size.width * dPercentOfPixelsNotEdges);
+	 float sum = 0;
+	 int icount = hist->mat.dim[0].size;
+
+	 float *h = (float*)cvPtr1D(hist->bins, 0);
+	 for (i = 0; i < icount; ++i)
+	 {
+		 sum += h[i];
+		 if (sum > total)
+			 break;
+	 }
+	 // 计算高低门限
+	 *high = (i + 1) * maxv / hist_size;
+	 *low = *high * 0.4;
+	 cvReleaseImage(&imge);
+	 cvReleaseHist(&hist);
+ }
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+void  ImageProcess::CannyAdaptiveFindThreshold(IplImage* pImg8u,double *low, double *high)
+{
+	int aperture_size = 3;
+	//梯度    
+	CvMat* dx = cvCreateMat(pImg8u->height, pImg8u->width, CV_16SC1);
+	CvMat* dy = cvCreateMat(pImg8u->height, pImg8u->width, CV_16SC1);
+
+	cvSobel(pImg8u, dx, 1, 0, aperture_size);
+	cvSobel(pImg8u, dy, 0, 1, aperture_size);
+
+	// 我们可以在这里自适应计算高低阈值  
+	if (*low == -1 && *high == -1)
+	{
+		HYAdaptiveFindThreshold(dx, dy, low, high);
+	}
+
+	
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+void ImageProcess::HoughLine(IplImage* pImg, int *pR, int *pTh, int iThreshold)
+
+// src is the src_img one_dimension array
+// width is width of src_img, height  is height of src_img
+// pR is distance from original_point to the line
+// pTh is the angle of the line
+// iThreshold value determines whether it is line or not
+
+
+{
+	unsigned char *src = (unsigned char*) pImg->imageData;
+	int width = pImg->width;
+	int height = pImg->height;
+	int *pArray;
+	//
+	const int iRMax = (int)sqrt(width * width + height * height) + 1;
+	// this is diagonal line length
+	const int iThMax = 360;
+	//  将直线的斜率分成360份，也即一周
+	int iTh = 0;
+	//
+	int iR;
+	int iMax = -1;
+	int iThMaxIndex = -1;
+	int iRMaxIndex = -1;
+
+	pArray = new int[iRMax * iThMax];
+	memset(pArray, 0, sizeof(int) * iRMax * iThMax);
+
+	float fRate = (float)(2*M_PI /iThMax);
+
+	for (int y = 0; y < height; y++)
+	{
+		for (int x = 0; x < width; x++)
+		{
+			unsigned char* pixel_data=(uchar*) (pImg->imageData + y*pImg->widthStep+x);
+
+			if (*pixel_data == 255)
+				//255 stands for foreground picture
+			{
+				for (iTh = 0; iTh < iThMax; iTh += 1)
+				{
+					iR = (int)(x * cos(iTh * fRate) + y * sin(iTh * fRate));
+
+					if (iR > 0)
+					{
+						pArray[iR / 1 * iThMax + iTh]++;
+					}
+				}
+			}
+
+		
+		} // x
+	} // y
+	  // 这个是累积计算的过程，因为xy已知，当直线垂直于原点和xy点时候有最大的iR
+
+
+	for (iR = 0; iR < iRMax; iR++)
+	{
+		for (iTh = 0; iTh < iThMax; iTh++)
+		{
+			int iCount = pArray[iR * iThMax + iTh];
+			if (iCount > iMax)
+			{
+				iMax = iCount;
+				iRMaxIndex = iR;
+				iThMaxIndex = iTh;
+			}
+		}
+	}
+	// 找最大值的过程
+	iThreshold = (iThreshold >= 2) ? iThreshold : 2;
+	if (iMax >= iThreshold)
+	{
+		*pR = iRMaxIndex;
+		*pTh = iThMaxIndex;
+	}
+
+	delete[]pArray;
+
+	return;
+} // end of Hough
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+void ImageProcess::Draw_line_on_image(float rho,float theta, CvRect rect_cut, IplImage* iplimg_tmp,Point& pt1,Point& pt2)
+{
+#if TRUE
+		
+	theta = theta*M_PI / 180;
+
+	double cos_t = cos(theta);
+	double sin_t = sin(theta);
+			
+	double k;
+	double b;
+
+	if (sin_t == 0) {
+		
+		pt1.x = 0;
+		pt1.y = rho;
+		
+		pt2.x = rect_cut.width;
+		pt2.y = rho;
+
+	}else {
+ 		k = -1*cos_t/sin_t;
+		b = rho / sin_t;
+		
+		pt1.x = 0;
+		pt1.y = 0*k+b;
+		
+		pt2.x = rect_cut.width;
+		pt2.y = rect_cut.width*k+b;
+	}
+
+	/*pt1.x +=rect_cut.x ;
+	pt1.y += rect_cut.y;
+	pt2.x += rect_cut.x;
+	pt2.y += rect_cut.y;*/
+	if (iplimg_tmp != nullptr) {
+		cvLine(iplimg_tmp, pt1, pt2, CV_RGB(0, 0, 255), 1, 8);
+	}
+	
+
+#endif // 0
+#if TRUE
+	pt1.x = pt1.x+rect_cut.x;
+	pt1.y = pt1.y+rect_cut.y;
+
+	pt2.x = pt2.x+rect_cut.x;
+	pt2.y = pt2.y+rect_cut.y;
+#endif
+
 }
 /*----------------------------------------------------------------*/
 /**
