@@ -87,7 +87,7 @@ public:
 	static void CannyAdaptiveFindThreshold(IplImage* pImg,double *low, double *high);
 	static void HYAdaptiveFindThreshold(CvMat *dx, CvMat *dy, double *low, double *high);
 public:
-	static void HoughLine(IplImage* pImg, int *pR, int *pTh, int iThreshold);
+	static void HoughLine(IplImage* pImg, int *pR, int *pTh, int iThreshold, float rho_min, float rho_max, float theta_min, float theta_range);
 	static void Draw_line_on_image(float rho, float theta, CvRect rect_cut, IplImage* iplimg_tmp, Point& pt1, Point& pt2);
 };
 

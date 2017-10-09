@@ -2373,7 +2373,7 @@ void  ImageProcess::CannyAdaptiveFindThreshold(IplImage* pImg8u,double *low, dou
 *
 */
 /*----------------------------------------------------------------*/
-void ImageProcess::HoughLine(IplImage* pImg, int *pR, int *pTh, int iThreshold)
+void ImageProcess::HoughLine(IplImage* pImg, int *pR, int *pTh, int iThreshold,float rho_min,float rho_max,float theta_center,float theta_range)
 
 // src is the src_img one_dimension array
 // width is width of src_img, height  is height of src_img
@@ -2413,15 +2413,17 @@ void ImageProcess::HoughLine(IplImage* pImg, int *pR, int *pTh, int iThreshold)
 			if (*pixel_data == 255)
 				//255 stands for foreground picture
 			{
-				for (iTh = 0; iTh < iThMax; iTh += 1)
-				{
-					iR = (int)(x * cos(iTh * fRate) + y * sin(iTh * fRate));
+					for (iTh = 0; iTh < iThMax; iTh += 1){
+								if (std::abs(iTh - theta_center) < theta_range) {
+					
+									iR = (int)(x * cos(iTh * fRate) + y * sin(iTh * fRate));
 
-					if (iR > 0)
-					{
-						pArray[iR / 1 * iThMax + iTh]++;
+										if (iR > rho_min && iR<rho_max){
+											pArray[iR / 1 * iThMax + iTh]++;
+										}
+
+								}
 					}
-				}
 			}
 
 		
