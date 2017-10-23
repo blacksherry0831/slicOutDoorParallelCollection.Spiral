@@ -27,9 +27,15 @@ public:
 	
 public:
 	static void sleep(int ms);
-
 	static int is_file_exist(const char * file_path);
 	static int get_number(string str_t);
+public:
+	static double Math_GetAverageValue(double* Data, int DataNum);
+	static double Math_GetVarianceValue(
+		double* Data,
+		int DataNum,
+		double avg,
+		double *variance);
 
 };
 

@@ -179,3 +179,33 @@ int Base::get_number(string str_t)
 *
 */
 /*-----------------------------------------*/
+double Base::Math_GetAverageValue(double* Data, int DataNum)
+{
+	double sum = 0;
+	ASSERT(DataNum>0);
+	for (int i = 0; i<DataNum; i++) {
+		sum += Data[i];
+	}
+	sum /= DataNum;
+	return sum;
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+double Base::Math_GetVarianceValue(
+	double* Data,
+	int DataNum,
+	double avg,
+	double *variance) {
+
+	*variance = 0;
+	for (int i = 0; i<DataNum; i++) {
+		*variance += (avg - Data[i])*(avg - Data[i]);
+	}
+	*variance /= DataNum;
+	*variance = sqrtl(*variance);
+	return *variance;
+}
