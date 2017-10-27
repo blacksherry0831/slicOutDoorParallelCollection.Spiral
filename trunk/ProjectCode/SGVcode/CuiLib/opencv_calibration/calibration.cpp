@@ -475,8 +475,8 @@ bool calibration::opencv_cal_img2img(IplImage * img_src, IplImage * img_dest, st
 	distortion_file << cal_prefix;
 	distortion_file << ".xml";
 
-	CvMat *intrinsic = (CvMat*)cvLoad(intrinsic_file.str().c_str());
-	CvMat *distortion = (CvMat*)cvLoad(distortion_file.str().c_str());
+	CvMat *intrinsic = (CvMat*)cvLoad(intrinsic_file.str().c_str());//内参
+	CvMat *distortion = (CvMat*)cvLoad(distortion_file.str().c_str());//外参
 	if (intrinsic == NULL || distortion == NULL) {
 		std::cout << "没有校准文件";
 		return false;
