@@ -89,5 +89,8 @@ public:
 public:
 	static void HoughLine(IplImage* pImg, int *pR, int *pTh, int iThreshold, float rho_min, float rho_max, float theta_min, float theta_range);
 	static void Draw_line_on_image(float rho, float theta, CvRect rect_cut, IplImage* iplimg_tmp, Point& pt1, Point& pt2);
+public:
+	static vector<float> crack_get_image_feature(IplImage *diff_org);
+	static void Svm_Lean(vector<float> FeatureData, int FeatureDim, vector<INT32> FeatureClassify, int method, string path);
 };
 

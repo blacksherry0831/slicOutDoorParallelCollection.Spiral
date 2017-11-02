@@ -36,6 +36,27 @@ string Base::base_name(string const & path)
 *
 */
 /*-----------------------------------------*/
+std::string Base::file_name_without_ext(string const path)
+{
+	std::string base_name = Base::base_name(path);
+	
+	std::vector<std::string> name_ext=split(base_name, ".");
+
+	string name;
+	string ext;
+	
+	if (name_ext.size()==2) {
+		name=name_ext.at(0);
+		ext=name_ext.at(1);	
+	}
+	return name;
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
 string Base::comine_str(string f_str,string s_str)
 {
 	return f_str.append(s_str);

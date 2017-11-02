@@ -2517,3 +2517,130 @@ void ImageProcess::Draw_line_on_image(float rho,float theta, CvRect rect_cut, Ip
 *
 */
 /*----------------------------------------------------------------*/
+vector<float> ImageProcess::crack_get_image_feature(IplImage *diff_org)
+{
+	double Sum_delta[4];
+	double a_col_sum_delta[4];
+	memset(Sum_delta, 0, sizeof(double) * sizeof(4));//统计求和
+	vector<double> a_col_tmp;
+	a_col_tmp.resize(diff_org->height, 0);//每列的暂存数据
+
+	for (size_t coli = 0; coli <diff_org->width; coli++)
+	{
+		memset(a_col_sum_delta, 0, sizeof(4) * sizeof(double));//Col统计结果清零
+#if TRUE
+		for (size_t rowi = 0; rowi <diff_org->height; rowi++)
+		{
+			a_col_tmp[rowi] = cvGetReal2D(diff_org, rowi, coli);
+		}
+		//计算均值方差，统计结果
+		double delta_t = 0, avg_t = 0;
+		delta_t = Base::Math_GetVarianceValue(a_col_tmp.data(), diff_org->height, avg_t, &delta_t);
+#endif // TRUE
+#if TRUE
+		for (size_t rowi = 0; rowi <diff_org->height; rowi++)
+		{
+			double diff_value = a_col_tmp[rowi];
+			const double range[] = { 1 * delta_t,2 * delta_t,3 * delta_t };
+			double test_value = fabs(diff_value - 0);
+			if (test_value<range[0]) {
+				a_col_sum_delta[0]++;
+			}
+			else if (test_value >= range[0] && test_value<range[1]) {
+				a_col_sum_delta[1]++;
+			}
+			else if (test_value >= range[1] && test_value<range[2]) {
+				a_col_sum_delta[2]++;
+			}
+			else if (test_value >= range[2]) {
+				a_col_sum_delta[3]++;
+			}
+			else {
+				assert(false);
+			}
+		}
+#endif // TRUE
+
+		//统计整幅图像
+		Sum_delta[0] += a_col_sum_delta[0];
+		Sum_delta[1] += a_col_sum_delta[1];
+		Sum_delta[2] += a_col_sum_delta[2];
+		Sum_delta[3] += a_col_sum_delta[3];
+
+	}
+
+	vector<float> feature_data_t;
+
+	for (size_t i = 0; i <4; i++)
+	{
+		feature_data_t.push_back(Sum_delta[i]);
+	}
+	return feature_data_t;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+void ImageProcess::Svm_Lean(vector<float> FeatureData,int FeatureDim,vector<INT32> FeatureClassify,int method,string path)
+{
+#if (CV_MAJOR_VERSION==2)&&(CV_MINOR_VERSION==4)
+	
+	const unsigned long samplenum = FeatureClassify.size();//
+		
+	static CvMat dataMatHeader;//
+	static CvMat resMatHeader;//
+	
+	CvMat* data_mat;//
+	CvMat* res_mat;//
+
+	res_mat = cvInitMatHeader(&resMatHeader, samplenum, 1, CV_32SC1, FeatureClassify.data());
+	data_mat = cvInitMatHeader(&dataMatHeader, samplenum, FeatureDim, CV_32FC1, FeatureData.data());
+
+	CvSVM svm;
+	CvSVMParams params;
+	assert(method>=0&&method<2);
+	if (method == 0){
+//#ifdef SVM_USE_Linear
+		params.svm_type = CvSVM::C_SVC;
+		params.kernel_type = 0;
+		params.term_crit = cvTermCriteria(CV_TERMCRIT_ITER, 1000, FLT_EPSILON);
+		params.C = 0.01;
+	}else if (method==1){
+//#ifdef SVM_USE_Gaussian
+		params.svm_type = CvSVM::C_SVC;
+		params.kernel_type = RBF;
+		params.term_crit = cvTermCriteria(CV_TERMCRIT_EPS, 1000, FLT_EPSILON);
+		params.gamma = 8;
+		params.C = 10;
+	}else if(method ==2){
+//#ifdef SVM_USE_Poly
+		params.svm_type = CvSVM::C_SVC;
+		params.kernel_type = POLY;
+		params.term_crit = cvTermCriteria(CV_TERMCRIT_EPS, 1000, FLT_EPSILON);
+		params.degree = 4;//最高相次
+		params.gamma = 0.5;//1/k
+		params.coef0 = 0;
+		params.C = 1;//0
+	}else{
+
+	}
+
+	std::cout << "Start SVM Train !" << std::endl;
+
+	svm.train(data_mat, res_mat, NULL, NULL, params);//☆    
+	
+	std::cout << "END SVM Train !" << std::endl;
+													 //☆☆利用训练数据和确定的学习参数,进行SVM学习☆☆☆☆  
+	const	string svmsavepath =path+"SvmModule.xml";
+
+	svm.save(svmsavepath.c_str(), 0);
+
+
+#endif
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
