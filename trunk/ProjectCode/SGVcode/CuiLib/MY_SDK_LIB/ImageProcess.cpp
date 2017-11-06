@@ -2570,10 +2570,10 @@ vector<float> ImageProcess::crack_get_image_feature(IplImage *diff_org)
 	}
 
 	vector<float> feature_data_t;
-
+	const float sum_pixel = diff_org->width*diff_org->height;
 	for (size_t i = 0; i <4; i++)
 	{
-		feature_data_t.push_back(Sum_delta[i]);
+		feature_data_t.push_back(Sum_delta[i]/sum_pixel);
 	}
 	return feature_data_t;
 }
@@ -2632,9 +2632,9 @@ void ImageProcess::Svm_Lean(vector<float> FeatureData,int FeatureDim,vector<INT3
 	
 	std::cout << "END SVM Train !" << std::endl;
 													 //☆☆利用训练数据和确定的学习参数,进行SVM学习☆☆☆☆  
-	const	string svmsavepath =path+"SvmModule.xml";
+	//const	string svmsavepath =path+"SvmModule.xml";
 
-	svm.save(svmsavepath.c_str(), 0);
+	svm.save(path.c_str(), 0);
 
 
 #endif
