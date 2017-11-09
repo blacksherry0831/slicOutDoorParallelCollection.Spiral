@@ -8,6 +8,8 @@ public:
 	Base(void);
 	~Base(void);
 public:
+    static	int str2int(int &int_temp, const string &string_temp);
+public:
 
 	//static string GetNameExt4path(void);
 

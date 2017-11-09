@@ -2517,10 +2517,33 @@ void ImageProcess::Draw_line_on_image(float rho,float theta, CvRect rect_cut, Ip
 *
 */
 /*----------------------------------------------------------------*/
-vector<float> ImageProcess::crack_get_image_feature(IplImage *diff_org)
+vector<float> ImageProcess::crack_get_image_feature(IplImage *diff_org,string file_base,int frame_idx)
 {
-	double Sum_delta[4];
+
+
+#if TRUE
+	stringstream path_diff_out_ss;
+	path_diff_out_ss << file_base << "\\"
+		<< frame_idx << ".png";
+	const string path_diff_out = path_diff_out_ss.str();
+
+	CvSize diff_size = cvGetSize(diff_org);
+	const int SCALE = 3;
+	
+	IplImage *image_out = cvCreateImage(cvSize(diff_size.width*SCALE,diff_size.height*SCALE), IPL_DEPTH_8U, 3);
+	
+	const CvScalar color_black = CV_RGB(0, 0, 0);
+	const CvScalar color_blue = CV_RGB(0, 0, 255);
+	const CvScalar color_yellow = CV_RGB(255,255, 0);
+	const CvScalar color_red_64 = CV_RGB(64, 0, 0);
+	const CvScalar color_red_128 = CV_RGB(128, 0, 0);
+	const CvScalar color_red_255 = CV_RGB(255, 0, 0);
+#endif // TRUE
+
+
+	double Sum_delta[5];
 	double a_col_sum_delta[4];
+
 	memset(Sum_delta, 0, sizeof(double) * sizeof(4));//统计求和
 	vector<double> a_col_tmp;
 	a_col_tmp.resize(diff_org->height, 0);//每列的暂存数据
@@ -2538,26 +2561,39 @@ vector<float> ImageProcess::crack_get_image_feature(IplImage *diff_org)
 		delta_t = Base::Math_GetVarianceValue(a_col_tmp.data(), diff_org->height, avg_t, &delta_t);
 #endif // TRUE
 #if TRUE
+		CvScalar color_fill;
 		for (size_t rowi = 0; rowi <diff_org->height; rowi++)
 		{
 			double diff_value = a_col_tmp[rowi];
 			const double range[] = { 1 * delta_t,2 * delta_t,3 * delta_t };
 			double test_value = fabs(diff_value - 0);
-			if (test_value<range[0]) {
-				a_col_sum_delta[0]++;
+			
+			if (test_value<=range[0]) {
+				a_col_sum_delta[0]++;				
+				color_fill=color_black;
 			}
-			else if (test_value >= range[0] && test_value<range[1]) {
+			else if (test_value > range[0] && test_value<=range[1]) {
 				a_col_sum_delta[1]++;
+				color_fill=color_blue;
 			}
-			else if (test_value >= range[1] && test_value<range[2]) {
+			else if (test_value > range[1] && test_value<=range[2]) {
 				a_col_sum_delta[2]++;
+				color_fill=color_yellow;
 			}
-			else if (test_value >= range[2]) {
+			else if (test_value > range[2]) {
 				a_col_sum_delta[3]++;
+				color_fill = color_red_255;
 			}
 			else {
 				assert(false);
 			}
+
+			for (size_t ri = 0; ri <SCALE; ri++){
+				for (size_t ci = 0; ci <SCALE; ci++){
+					cvSet2D(image_out, rowi*SCALE+ri, coli*SCALE+ci, color_fill);
+				}
+			}
+
 		}
 #endif // TRUE
 
@@ -2566,15 +2602,26 @@ vector<float> ImageProcess::crack_get_image_feature(IplImage *diff_org)
 		Sum_delta[1] += a_col_sum_delta[1];
 		Sum_delta[2] += a_col_sum_delta[2];
 		Sum_delta[3] += a_col_sum_delta[3];
+		Sum_delta[4] += delta_t;
 
 	}
 
 	vector<float> feature_data_t;
 	const float sum_pixel = diff_org->width*diff_org->height;
+	assert(sum_pixel == Sum_delta[0] + Sum_delta[1] + Sum_delta[2] + Sum_delta[3]);
 	for (size_t i = 0; i <4; i++)
 	{
 		feature_data_t.push_back(Sum_delta[i]/sum_pixel);
 	}
+
+#if TRUE
+	if (file_base != "") {
+		cvSaveImage(path_diff_out.c_str(),image_out);
+	}
+
+	cvReleaseImage(&image_out);
+#endif // TRUE
+
 	return feature_data_t;
 }
 /*----------------------------------------------------------------*/
