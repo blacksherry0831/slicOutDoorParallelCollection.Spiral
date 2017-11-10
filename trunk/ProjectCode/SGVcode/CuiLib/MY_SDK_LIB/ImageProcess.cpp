@@ -2544,13 +2544,13 @@ vector<float> ImageProcess::crack_get_image_feature(IplImage *diff_org,string fi
 	double Sum_delta[5];
 	double a_col_sum_delta[4];
 
-	memset(Sum_delta, 0, sizeof(double) * sizeof(4));//统计求和
+	memset(Sum_delta, 0, sizeof(Sum_delta));//统计求和
 	vector<double> a_col_tmp;
 	a_col_tmp.resize(diff_org->height, 0);//每列的暂存数据
 
 	for (size_t coli = 0; coli <diff_org->width; coli++)
 	{
-		memset(a_col_sum_delta, 0, sizeof(4) * sizeof(double));//Col统计结果清零
+		memset(a_col_sum_delta, 0, sizeof(a_col_sum_delta));//Col统计结果清零
 #if TRUE
 		for (size_t rowi = 0; rowi <diff_org->height; rowi++)
 		{
@@ -2609,10 +2609,14 @@ vector<float> ImageProcess::crack_get_image_feature(IplImage *diff_org,string fi
 	vector<float> feature_data_t;
 	const float sum_pixel = diff_org->width*diff_org->height;
 	assert(sum_pixel == Sum_delta[0] + Sum_delta[1] + Sum_delta[2] + Sum_delta[3]);
-	for (size_t i = 0; i <4; i++)
+	for (size_t i = 1; i <4; i++)
 	{
 		feature_data_t.push_back(Sum_delta[i]/sum_pixel);
 	}
+	Sum_delta[4] = Sum_delta[4] / diff_org->width / 255;
+	assert(Sum_delta[4] >= 0 && Sum_delta[4] <= 1+1E-6);
+
+	feature_data_t.push_back(Sum_delta[4]);
 
 #if TRUE
 	if (file_base != "") {
