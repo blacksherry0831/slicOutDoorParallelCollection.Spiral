@@ -2695,3 +2695,59 @@ void ImageProcess::Svm_Lean(vector<float> FeatureData,int FeatureDim,vector<INT3
 *
 */
 /*----------------------------------------------------------------*/
+void ImageProcess::CuiResize(IplImage * src, IplImage * dst,const int m_step, const int n_step)
+{
+
+	const int m = 1.0*src->width / m_step;
+	const int n = 1.0*src->height / n_step;
+	assert(m==dst->width);
+	assert(n==dst->height);
+	const float w_step = 1.0*src->width /m;
+	const float h_step = 1.0*src->height /n;
+	
+	std::vector<float> data_statistic;
+	std::vector<float> data_statistic_count;	
+	data_statistic.resize(m*n, 0);
+	data_statistic_count.resize(m*n, 0);
+	float*  data_statistic_p = data_statistic.data();
+	float*  data_statistic_count_p = data_statistic_count.data();
+	memset(data_statistic_p, 0, sizeof(float)*m*n);//清空内存
+	memset(data_statistic_count_p, 0, sizeof(float)*m*n);//清空内存
+
+	//统计
+	for (size_t iw = 0; iw <src->width; iw++) {
+		for (size_t ih = 0; ih <src->height; ih++) {
+
+			const int m_idx = floor(1.0*iw / w_step);
+			const int n_idx = floor(1.0*ih / h_step);
+			const int idx_mn = m_idx + n_idx*m;
+			const float data_pixel_f = cvGetReal2D(src, ih, iw);
+#if _DEBUG
+			const uchar data_pixel = ((uchar *)(src->imageData + ih*src->widthStep))[iw];
+			assert(data_pixel == data_pixel_f);
+			assert(data_pixel >= 0 && data_pixel <= 255);
+#endif // _DEBUG
+			data_statistic_p[idx_mn] += data_pixel;
+			data_statistic_count_p[idx_mn]++;
+
+		}
+	}
+	//转图像
+	for (size_t im = 0; im <m; im++) {
+		for (size_t in = 0; in <n; in++) {
+			const int idx_mn = im + in*m;
+			const float  gray_center = data_statistic_p[idx_mn] = data_statistic_p[idx_mn] / data_statistic_count_p[idx_mn];
+#if 0
+			uchar* pixel = (uchar*)(image_cut_statistic->imageData + in*image_cut_statistic->widthStep);
+			pixel[im] = (uchar)gray_center;
+#else
+			cvSetReal2D(dst, in, im, gray_center);
+#endif // 0
+		}
+	}
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
