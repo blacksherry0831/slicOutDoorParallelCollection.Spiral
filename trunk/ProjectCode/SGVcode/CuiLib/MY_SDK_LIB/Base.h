@@ -9,6 +9,7 @@ public:
 	~Base(void);
 public:
     static	int str2int(int &int_temp, const string &string_temp);
+	static  string int2str(int value_t);
 public:
 
 	//static string GetNameExt4path(void);

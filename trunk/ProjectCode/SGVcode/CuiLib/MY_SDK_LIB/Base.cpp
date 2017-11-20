@@ -40,6 +40,19 @@ int Base::str2int(int & int_temp, const string & string_temp)
 *
 */
 /*-----------------------------------------*/
+string Base::int2str(int value_t)
+{
+	stringstream stream;
+	stream << value_t;
+
+	return stream.str();
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
 string Base::base_name(string const & path)
 {
 	return path.substr(path.find_last_of("/\\") + 1);

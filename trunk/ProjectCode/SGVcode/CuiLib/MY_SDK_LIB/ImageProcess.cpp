@@ -2517,10 +2517,254 @@ void ImageProcess::Draw_line_on_image(float rho,float theta, CvRect rect_cut, Ip
 *
 */
 /*----------------------------------------------------------------*/
+void ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, string file_base,int CHANNEL, int frame_idx, IplImage *image_out,vector<float>& delta_out)
+{
+#if TRUE
+	stringstream sub_path_ss;
+	sub_path_ss <<"ch" << CHANNEL << "diff";
+	stringstream sub2_path_ss;
+	sub2_path_ss << "4delta";
+	string sub_path_str=ImageProcess::GetPath(file_base, sub_path_ss.str());
+	string sub2_path_str = ImageProcess::GetPath(sub_path_str,sub2_path_ss.str());
+	const string path_diff_out = sub2_path_str+Base::int2str(frame_idx)+".png";
+
+	CvSize diff_size = cvGetSize(diff_org);
+	const int SCALE = 1;
+
+	//IplImage *image_out = cvCreateImage(cvSize(diff_size.width*SCALE, diff_size.height*SCALE), IPL_DEPTH_8U, 3);
+
+	const CvScalar color_black = CV_RGB(0, 0, 0);
+	const CvScalar color_blue = CV_RGB(0, 0, 255);
+	const CvScalar color_yellow = CV_RGB(255, 255, 0);
+	const CvScalar color_red_64 = CV_RGB(64, 0, 0);
+	const CvScalar color_red_128 = CV_RGB(128, 0, 0);
+	const CvScalar color_red_255 = CV_RGB(255, 0, 0);
+#endif // TRUE
+	
+	double Sum_delta[5];
+	double a_col_sum_delta[4];
+	memset(Sum_delta, 0, sizeof(Sum_delta));//统计求和
+	vector<double> a_col_tmp;
+	a_col_tmp.resize(diff_org->height, 0);//每列的暂存数据
+	delta_out.resize(diff_org->width, 0);
+
+	for (size_t coli = 0; coli <diff_org->width; coli++)
+	{
+		memset(a_col_sum_delta, 0, sizeof(a_col_sum_delta));//Col统计结果清零
+#if TRUE
+		for (size_t rowi = 0; rowi <diff_org->height; rowi++)
+		{
+			a_col_tmp[rowi] = cvGetReal2D(diff_org, rowi, coli);
+		}
+		//计算均值方差，统计结果
+		double delta_t = 0, avg_t = 0;
+		delta_out[coli]=delta_t = Base::Math_GetVarianceValue(a_col_tmp.data(), diff_org->height, avg_t, &delta_t);
+#endif // TRUE
+#if TRUE
+		CvScalar color_fill;
+		for (size_t rowi = 0; rowi <diff_org->height; rowi++)
+		{
+			double diff_value = a_col_tmp[rowi];
+			const double range[] = { 1 * delta_t,2 * delta_t,3 * delta_t };
+			double test_value = fabs(diff_value - 0);
+
+			if (test_value <= range[0]) {
+				a_col_sum_delta[0]++;
+				color_fill = color_black;
+			}
+			else if (test_value > range[0] && test_value <= range[1]) {
+				a_col_sum_delta[1]++;
+				color_fill = color_blue;
+			}
+			else if (test_value > range[1] && test_value <= range[2]) {
+				a_col_sum_delta[2]++;
+				color_fill = color_yellow;
+			}
+			else if (test_value > range[2]) {
+				a_col_sum_delta[3]++;
+				color_fill = color_red_255;
+			}
+			else {
+				assert(false);
+			}
+
+			cvSet2D(image_out, rowi, coli, color_fill);
+			/*for (size_t ri = 0; ri <SCALE; ri++) {
+				for (size_t ci = 0; ci <SCALE; ci++) {
+					cvSet2D(image_out, rowi*SCALE + ri, coli*SCALE + ci, color_fill);
+				}
+			}*/
+
+		}
+#endif // TRUE
+
+		//统计整幅图像
+		Sum_delta[0] += a_col_sum_delta[0];
+		Sum_delta[1] += a_col_sum_delta[1];
+		Sum_delta[2] += a_col_sum_delta[2];
+		Sum_delta[3] += a_col_sum_delta[3];
+		Sum_delta[4] += delta_t;
+
+	}
+
+	vector<float> feature_data_t;
+	const float sum_pixel = diff_org->width*diff_org->height;
+	assert(sum_pixel == Sum_delta[0] + Sum_delta[1] + Sum_delta[2] + Sum_delta[3]);
+	for (size_t i = 1; i <4; i++)
+	{
+		feature_data_t.push_back(Sum_delta[i] / sum_pixel);
+	}
+	Sum_delta[4] = Sum_delta[4] / diff_org->width / 255;
+	assert(Sum_delta[4] >= 0 && Sum_delta[4] <= 1 + 1E-6);
+
+	feature_data_t.push_back(Sum_delta[4]);
+
+#if TRUE
+	if (file_base != "") {
+		cvSaveImage(path_diff_out.c_str(), image_out);
+	}
+
+	
+#endif // TRUE
+
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+void ImageProcess::crack_get_long_crack(IplImage *image_4_delta, int delta_idx,vector<vector<CvPoint>>&   point_sets, string file_base, int CHANNEL, int frame_idx)
+{
+	const int dx4[8] = {-1,-1,-1,1, 0,1,0,1};
+	const int dy4[8] = {-1, 0,1,-1 -1,0,1,1};
+	const int WIDTH= image_4_delta->width;
+	const int HEIGHT= image_4_delta->height;
+	const CvScalar color_black = CV_RGB(0, 0, 0);
+	const CvScalar color_blue = CV_RGB(0, 0, 255);
+	const CvScalar color_yellow = CV_RGB(255, 255, 0);
+	const CvScalar color_red_255 = CV_RGB(255, 0, 0);
+	CvScalar color_target = CV_RGB(255, 0, 0);
+	if (delta_idx == 1) {
+		color_target = color_black;
+	}
+	else if (delta_idx == 2) {
+		color_target = color_blue;
+	}
+	else if (delta_idx == 3) {
+		color_target = color_yellow;
+	}
+	else if (delta_idx == 4) {
+		color_target = color_red_255;
+	}
+	else {
+
+	}
+	IplImage* image_4_delta_out = cvCreateImage(cvGetSize(image_4_delta), IPL_DEPTH_8U, 3);
+	IplImage* image_visit = cvCreateImage(cvGetSize(image_4_delta), IPL_DEPTH_8U, 1);
+	cvZero(image_4_delta_out);
+	cvZero(image_visit);
+	{
+#if TRUE		
+		for (size_t ci = 0; ci < WIDTH; ci++) {
+			for (size_t ri = 0; ri < HEIGHT; ri++) {
+				CvScalar visit = cvGet2D(image_visit, ri, ci);
+				vector<CvPoint>   point_set;
+				if (visit.val[0] == 0) {				
+						CvScalar value = cvGet2D(image_4_delta, ri, ci);
+						visit.val[0] = 255;
+						cvSet2D(image_visit,ri, ci, visit);
+						
+						if (value.val[0]== color_target.val[0]
+							&& value.val[1] == color_target.val[1]
+							&& value.val[2] == color_target.val[2]
+							&& value.val[3] == color_target.val[3]) {
+							//采样点
+							
+							point_set.push_back(cvPoint(ci, ri));
+							
+
+							for (register int c = 0; c <point_set.size(); c++)
+							{
+								for (register int n = 0; n < 8; n++)
+								{
+									int x_n = point_set[c].x + dx4[n];
+									int y_n = point_set[c].y + dy4[n];
+
+									if ((x_n >= 0 && x_n <  WIDTH) && (y_n >= 0 && y_n < HEIGHT))
+									{
+										//int nindex = y*WIDTH + x;
+										CvScalar visit = cvGet2D(image_visit, y_n, x_n);
+										CvScalar n_color = cvGet2D(image_4_delta,y_n,x_n);
+										if ((visit.val[0]==0) 
+											&&(n_color.val[0] == color_target.val[0])
+												&& (n_color.val[1] == color_target.val[1])
+												&& (n_color.val[2] == color_target.val[2])
+												&& (n_color.val[3] == color_target.val[3])) {
+										
+											visit.val[0] = 255;
+											cvSet2D(image_visit, y_n, x_n, visit);
+											point_set.push_back(cvPoint(x_n, y_n));
+										}
+									}
+
+								}
+							}
+						}
+				}
+				if (point_set.size()>0) {
+					visit.val[0] = 255;
+					point_sets.push_back(point_set);
+				}
+				
+			}
+		}
+#endif // TRUE
+#if _DEBUG
+		for (size_t si = 0; si < point_sets.size();si++) {
+			vector<CvPoint> point_set=point_sets.at(si);
+			for (size_t pi = 0; pi < point_set.size();pi++) {
+				cvSet2D(image_4_delta_out,
+					point_set.at(pi).y,
+					point_set.at(pi).x,
+					color_target);
+			}
+		}
+		stringstream sub_path_ss;
+		sub_path_ss << "ch" << CHANNEL << "diff";
+		stringstream sub2_path_ss;
+		sub2_path_ss << "single_delta";
+		string sub_path_str = ImageProcess::GetPath(file_base, sub_path_ss.str());
+		string sub2_path_str = ImageProcess::GetPath(sub_path_str, sub2_path_ss.str());
+		string filesaveimg = sub2_path_str + Base::int2str(frame_idx) + ".png";
+		cvShowImage("single_delta", image_4_delta_out);
+		cvSaveImage(filesaveimg.c_str(),image_4_delta_out);
+#endif // _DEBUG
+
+	}
+	cvReleaseImage(&image_visit);
+	cvReleaseImage(&image_4_delta_out);
+
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+std::string ImageProcess::GetPath(std::string path_base, std::string path_sub)
+{	
+	stringstream ss_file_full_path;
+	ss_file_full_path << path_base;
+	ss_file_full_path <<path_sub<<"\\" ;
+	CreateDirectory(ss_file_full_path.str().c_str(), NULL);
+	return ss_file_full_path.str();
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
 vector<float> ImageProcess::crack_get_image_feature(IplImage *diff_org,string file_base,int frame_idx)
 {
-
-
 #if TRUE
 	stringstream path_diff_out_ss;
 	path_diff_out_ss << file_base << "\\"
@@ -2745,6 +2989,73 @@ void ImageProcess::CuiResize(IplImage * src, IplImage * dst,const int m_step, co
 #endif // 0
 		}
 	}
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+void ImageProcess::DrawHistogram(float *data, int size,string file_base,int CHANNEL,int frame_idx)
+{
+	/////////////////////////////////////////////////////////////////	
+	double max = GetMaxValue(&data[0],size);
+	//////////////////////////////////////////////////////////////////
+	const int bin_w = 20;
+	const int h_bins = size;
+	const int width = h_bins*bin_w;
+	const int height = 100;
+	
+	IplImage* hist_img = cvCreateImage(cvSize(width, height), 8, 3);
+	cvRectangle(hist_img, cvPoint(0, 0), cvPoint(width, height), cvScalar(255, 255 / 2, 255 / 2), -1, 8, 0);
+	char  text_buff_t[1024];
+	/////////////////////////////////////////////////////////////////////////////////////
+	for (int h = 0; h <h_bins; h++) {
+		/** 获得直方图中的统计次数，计算显示在图像中的高度 */
+		float bin_val =data[h];
+		int intensity = cvRound(bin_val*height / max);
+		intensity = intensity<0 ? 0 : intensity;
+		/** 获得当前直方图代表的颜色，转换成RGB用于绘制 */
+		
+		CvScalar color =CV_RGB(0,0,255);
+		cvRectangle(hist_img, cvPoint(h*bin_w, height), cvPoint((h + 1)*bin_w, height - intensity),CV_RGB(0,255,0), 2);
+		cvRectangle(hist_img, cvPoint(h*bin_w, height), cvPoint((h + 1)*bin_w, height - intensity + 1), color,CV_FILLED);
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		CvFont font;
+		cvInitFont(&font, CV_FONT_VECTOR0, 0.3, 0.3, 0, 1, 8);
+		sprintf(text_buff_t, "%d", h);
+		cvPutText(hist_img, text_buff_t, cvPoint(h*bin_w, height), &font, CV_RGB(255, 255, 255));
+
+	}
+	
+	stringstream sub_path_ss;
+	sub_path_ss << "ch" << CHANNEL << "diff";
+	stringstream sub2_path_ss;
+	sub2_path_ss << "histogram";
+	string sub_path_str = ImageProcess::GetPath(file_base, sub_path_ss.str());
+	string sub2_path_str = ImageProcess::GetPath(sub_path_str, sub2_path_ss.str());
+	string filesaveimg = sub2_path_str + Base::int2str(frame_idx) + ".png";
+
+
+	cvSaveImage(filesaveimg.c_str(), hist_img);//在"H-S Histogtam"窗口中显示图像
+	cvReleaseImage(&hist_img);
+	
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+float ImageProcess::GetMaxValue(float* Data, long DataNum)
+{
+	float *Data_cp = new float[DataNum];
+	float  max_value;
+	memcpy(Data_cp, Data, sizeof(float)*DataNum);
+	std::sort(Data_cp, Data_cp + DataNum, greater<float>());
+	max_value = Data_cp[0];
+	delete[]Data_cp;
+	return  max_value;
 }
 /*----------------------------------------------------------------*/
 /**
