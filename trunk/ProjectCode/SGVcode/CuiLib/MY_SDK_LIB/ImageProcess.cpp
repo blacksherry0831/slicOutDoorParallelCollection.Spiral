@@ -2635,8 +2635,8 @@ void ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, string fil
 /*----------------------------------------------------------------*/
 void ImageProcess::crack_get_long_crack(IplImage *image_4_delta, int delta_idx,vector<vector<CvPoint>>&   point_sets, string file_base, int CHANNEL, int frame_idx)
 {
-	const int dx4[8] = {-1,-1,-1,1, 0,1,0,1};
-	const int dy4[8] = {-1, 0,1,-1 -1,0,1,1};
+	const int dx4[8] = {-1,-1,-1, 0, 0, 1,1,1};
+	const int dy4[8] = {-1, 0, 1,-1, 1,-1,0,1};
 	const int WIDTH= image_4_delta->width;
 	const int HEIGHT= image_4_delta->height;
 	const CvScalar color_black = CV_RGB(0, 0, 0);
@@ -2663,6 +2663,7 @@ void ImageProcess::crack_get_long_crack(IplImage *image_4_delta, int delta_idx,v
 	IplImage* image_visit = cvCreateImage(cvGetSize(image_4_delta), IPL_DEPTH_8U, 1);
 	cvZero(image_4_delta_out);
 	cvZero(image_visit);
+	point_sets.clear();
 	{
 #if TRUE		
 		for (size_t ci = 0; ci < WIDTH; ci++) {
@@ -2683,32 +2684,34 @@ void ImageProcess::crack_get_long_crack(IplImage *image_4_delta, int delta_idx,v
 							point_set.push_back(cvPoint(ci, ri));
 							
 
-							for (register int c = 0; c <point_set.size(); c++)
-							{
-								for (register int n = 0; n < 8; n++)
+								for (register int c = 0; c <point_set.size(); c++)
 								{
-									int x_n = point_set[c].x + dx4[n];
-									int y_n = point_set[c].y + dy4[n];
+										for (register int n = 0; n < 8; n++)
+										{
+												int x_n = point_set[c].x + dx4[n];
+												int y_n = point_set[c].y + dy4[n];
 
-									if ((x_n >= 0 && x_n <  WIDTH) && (y_n >= 0 && y_n < HEIGHT))
-									{
-										//int nindex = y*WIDTH + x;
-										CvScalar visit = cvGet2D(image_visit, y_n, x_n);
-										CvScalar n_color = cvGet2D(image_4_delta,y_n,x_n);
-										if ((visit.val[0]==0) 
-											&&(n_color.val[0] == color_target.val[0])
-												&& (n_color.val[1] == color_target.val[1])
-												&& (n_color.val[2] == color_target.val[2])
-												&& (n_color.val[3] == color_target.val[3])) {
-										
-											visit.val[0] = 255;
-											cvSet2D(image_visit, y_n, x_n, visit);
-											point_set.push_back(cvPoint(x_n, y_n));
+												if ((x_n >= 0 && x_n <  WIDTH) && (y_n >= 0 && y_n < HEIGHT))
+												{
+														//int nindex = y*WIDTH + x;
+														CvScalar visit = cvGet2D(image_visit, y_n, x_n);
+														CvScalar n_color = cvGet2D(image_4_delta,y_n,x_n);
+
+														if (visit.val[0] == 0) {
+																	if ((n_color.val[0] == color_target.val[0])
+																			&& (n_color.val[1] == color_target.val[1])
+																			&& (n_color.val[2] == color_target.val[2])
+																			&& (n_color.val[3] == color_target.val[3])) {
+																			point_set.push_back(cvPoint(x_n, y_n));
+																	}
+																	visit.val[0] = 255;
+																	cvSet2D(image_visit, y_n, x_n, visit);										
+														}
+
+												}
+
 										}
-									}
-
 								}
-							}
 						}
 				}
 				if (point_set.size()>0) {
@@ -2719,6 +2722,19 @@ void ImageProcess::crack_get_long_crack(IplImage *image_4_delta, int delta_idx,v
 			}
 		}
 #endif // TRUE
+
+#if TRUE
+		vector<vector<CvPoint>>::iterator it;
+		for (it = point_sets.begin(); it != point_sets.end();){
+			vector<CvPoint> point_set = *it;
+			if (point_set.size() == 1)
+				it = point_sets.erase(it);    //删除元素，返回值指向已删除元素的下一个位置    
+			else
+				++it;    //指向下一个位置
+		}
+#endif // TRUE
+
+
 #if _DEBUG
 		for (size_t si = 0; si < point_sets.size();si++) {
 			vector<CvPoint> point_set=point_sets.at(si);
@@ -3000,32 +3016,54 @@ void ImageProcess::DrawHistogram(float *data, int size,string file_base,int CHAN
 	/////////////////////////////////////////////////////////////////	
 	double max = GetMaxValue(&data[0],size);
 	//////////////////////////////////////////////////////////////////
-	const int bin_w = 20;
+	const int bin_w = 1;
 	const int h_bins = size;
 	const int width = h_bins*bin_w;
-	const int height = 100;
-	
+	const int height = 1000;
+	const CvScalar color_white = CV_RGB(255,255,255);
+	const CvScalar color_black = CV_RGB(0, 0, 0);
+	const CvScalar color_blue = CV_RGB(0, 0, 255);
+	const CvScalar color_yellow = CV_RGB(255, 255, 0);
+	/*const CvScalar color_red_64 = CV_RGB(64, 0, 0);
+	const CvScalar color_red_128 = CV_RGB(128, 0, 0);*/
+	const CvScalar color_red_255 = CV_RGB(255, 0, 0);
+	CvScalar color_line;
 	IplImage* hist_img = cvCreateImage(cvSize(width, height), 8, 3);
-	cvRectangle(hist_img, cvPoint(0, 0), cvPoint(width, height), cvScalar(255, 255 / 2, 255 / 2), -1, 8, 0);
+	cvRectangle(hist_img, cvPoint(0, 0), cvPoint(width, height),color_black, -1, 8, 0);
 	char  text_buff_t[1024];
 	/////////////////////////////////////////////////////////////////////////////////////
 	for (int h = 0; h <h_bins; h++) {
 		/** 获得直方图中的统计次数，计算显示在图像中的高度 */
-		float bin_val =data[h];
-		int intensity = cvRound(bin_val*height / max);
-		intensity = intensity<0 ? 0 : intensity;
+		float bin_val =data[h]/2*1E5;
+		int  intensity = bin_val > height?height: bin_val;
+		if (bin_val <= height) {
+			color_line=color_white;
+		}else if (bin_val>height && bin_val<=2*height) {
+			color_line=color_blue;
+		}else if (bin_val>2*height && bin_val <=3*height) {
+			color_line=color_yellow;
+		}else {
+			color_line=color_red_255;
+		}
+
+
+
+
 		/** 获得当前直方图代表的颜色，转换成RGB用于绘制 */
-		
-		CvScalar color =CV_RGB(0,0,255);
-		cvRectangle(hist_img, cvPoint(h*bin_w, height), cvPoint((h + 1)*bin_w, height - intensity),CV_RGB(0,255,0), 2);
-		cvRectangle(hist_img, cvPoint(h*bin_w, height), cvPoint((h + 1)*bin_w, height - intensity + 1), color,CV_FILLED);
+#if FALSE
+		//cvRectangle(hist_img, cvPoint(h*bin_w, height), cvPoint((h + 1)*bin_w, height - intensity),CV_RGB(0,255,0), 2);
+		//cvRectangle(hist_img, cvPoint(h*bin_w, height), cvPoint((h + 1)*bin_w, height - intensity + 1), color,CV_FILLED);	
+#endif 
+		cvLine(hist_img,cvPoint(h*bin_w, height), cvPoint(h*bin_w, height - intensity + 1), color_line);
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		
-		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#if 0
 		CvFont font;
 		cvInitFont(&font, CV_FONT_VECTOR0, 0.3, 0.3, 0, 1, 8);
 		sprintf(text_buff_t, "%d", h);
 		cvPutText(hist_img, text_buff_t, cvPoint(h*bin_w, height), &font, CV_RGB(255, 255, 255));
+#endif // 0
+
+		
 
 	}
 	
