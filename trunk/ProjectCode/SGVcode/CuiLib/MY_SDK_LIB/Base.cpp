@@ -257,3 +257,14 @@ double Base::Math_GetVarianceValue(
 	*variance = sqrtl(*variance);
 	return *variance;
 }
+
+vector<float> Base::CombineVector(vector<float> v0, vector<float> v1)
+{
+	vector<float> v_out;
+
+	v_out.insert(v_out.end(), v0.begin(), v0.end());
+
+	v_out.insert(v_out.end(), v1.begin(), v1.end());
+
+	return v_out;
+}

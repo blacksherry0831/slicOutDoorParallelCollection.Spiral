@@ -2517,7 +2517,7 @@ void ImageProcess::Draw_line_on_image(float rho,float theta, CvRect rect_cut, Ip
 *
 */
 /*----------------------------------------------------------------*/
-void ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, string file_base,int CHANNEL, int frame_idx, IplImage *image_out,vector<float>& delta_out)
+vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, string file_base,int CHANNEL, int frame_idx, IplImage *image_out,vector<float>& delta_out)
 {
 #if TRUE
 	stringstream sub_path_ss;
@@ -2608,25 +2608,45 @@ void ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, string fil
 	}
 
 	vector<float> feature_data_t;
+#if FALSE
 	const float sum_pixel = diff_org->width*diff_org->height;
 	assert(sum_pixel == Sum_delta[0] + Sum_delta[1] + Sum_delta[2] + Sum_delta[3]);
 	for (size_t i = 1; i <4; i++)
 	{
 		feature_data_t.push_back(Sum_delta[i] / sum_pixel);
 	}
-	Sum_delta[4] = Sum_delta[4] / diff_org->width / 255;
-	assert(Sum_delta[4] >= 0 && Sum_delta[4] <= 1 + 1E-6);
+#endif // TRUE
 
+#if TRUE
+	Sum_delta[4] =1.0* Sum_delta[4] / diff_org->width / 255;
+	assert(Sum_delta[4] >= 0 && Sum_delta[4] <= 1 + 1E-6);
 	feature_data_t.push_back(Sum_delta[4]);
+#endif // TRUE
 
 #if TRUE
 	if (file_base != "") {
 		cvSaveImage(path_diff_out.c_str(), image_out);
-	}
-
-	
+	}	
 #endif // TRUE
 
+#if TRUE
+	//vector<float> delta_out;
+	vector<float> histogram;
+	const int HISTOGRAM_DIM = diff_org->width;
+	vector<vector<CvPoint>>   point_sets;
+
+	ImageProcess::crack_get_long_crack(image_out, 4, point_sets, file_base, CHANNEL, frame_idx);
+
+
+	vector<float> hist_feature = process_histogram(histogram, point_sets, delta_out, HISTOGRAM_DIM, diff_org->width, diff_org->height);
+
+	ImageProcess::DrawHistogram(histogram.data(), HISTOGRAM_DIM, file_base, CHANNEL, frame_idx);
+
+	vector<float> all_feature = Base::CombineVector(feature_data_t, hist_feature);
+#endif // TRUE
+
+
+	return all_feature;
 }
 /*----------------------------------------------------------------*/
 /**
@@ -2753,6 +2773,7 @@ void ImageProcess::crack_get_long_crack(IplImage *image_4_delta, int delta_idx,v
 		string sub2_path_str = ImageProcess::GetPath(sub_path_str, sub2_path_ss.str());
 		string filesaveimg = sub2_path_str + Base::int2str(frame_idx) + ".png";
 		cvShowImage("single_delta", image_4_delta_out);
+		cvWaitKey(1);
 		cvSaveImage(filesaveimg.c_str(),image_4_delta_out);
 #endif // _DEBUG
 
@@ -2773,6 +2794,111 @@ std::string ImageProcess::GetPath(std::string path_base, std::string path_sub)
 	ss_file_full_path <<path_sub<<"\\" ;
 	CreateDirectory(ss_file_full_path.str().c_str(), NULL);
 	return ss_file_full_path.str();
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+vector<float> ImageProcess::process_histogram(vector<float>& histogram, vector<vector<CvPoint>>& point_sets, vector<float>& delta_out, int HISTOGRAM_DIM, int width, int height)
+{
+#if TRUE
+
+	vector<float> histogram_count;
+	histogram.resize(HISTOGRAM_DIM, 0);
+	histogram_count.resize(HISTOGRAM_DIM, 0);
+	for (size_t si = 0; si < point_sets.size(); si++) {
+		vector<CvPoint> point_set = point_sets.at(si);
+		float one_line_sum = 0;
+		int one_line_idx = 0;
+		int count = GetLineProperty(point_set, delta_out, one_line_sum, one_line_idx);
+		histogram[one_line_idx] += one_line_sum;
+		histogram_count[one_line_idx] += count;
+	}
+#endif
+#if TRUE
+	for (size_t hi = 0; hi < HISTOGRAM_DIM; hi++)
+	{
+		if (histogram_count[hi] == 0) {
+			histogram[hi] = 0;
+		}
+		else {
+			histogram[hi] /= (255.0 * width*height);
+		}
+
+	}
+#endif // TRUE
+
+	vector<float> feature;
+	int  min_left_pos = 0;
+	float min_left_pos_value = 0;
+
+
+	float * data_hist = histogram.data();
+	vector<int> sort;
+
+	sort.resize(2, 0);
+	ImageProcess::GetMaxValueIndex(histogram.data(), histogram.size(), sort.data(), sort.size());
+	const int max_pos = sort.at(0);
+	float max_value = histogram.at(max_pos);
+
+	sort.resize(histogram.size() - max_pos, 0);
+	ImageProcess::GetMinValueIndex(&data_hist[max_pos], histogram.size() - max_pos, sort.data(), sort.size());
+	const int base_pos = max_pos;
+
+	for (size_t i = 0; i <sort.size(); i++) {
+		int pos = sort.at(i);
+
+		if (histogram.at(pos + base_pos) > 0) {
+			//最小值
+			min_left_pos = pos + base_pos;
+			min_left_pos_value = histogram.at(pos + base_pos);
+			break;
+		}
+
+	}
+
+	sort.resize(2, 0);
+	ImageProcess::GetMaxValueIndex(&data_hist[min_left_pos], histogram.size() - min_left_pos, sort.data(), sort.size());
+	int   max_left_pos = min_left_pos + sort.at(0);
+	float   max_left_value = histogram.at(max_left_pos);
+
+	feature.push_back(1.0*max_pos / width);
+	feature.push_back(1.0*histogram.at(max_pos));
+
+	feature.push_back(1.0* max_left_pos / width);
+	feature.push_back(1.0*histogram.at(max_left_pos));
+
+	return feature;
+}
+int ImageProcess::GetLineProperty(vector<CvPoint> point_set, vector<float> delta, float & sum_delta, int & idx)
+{
+	vector<float> x_count;
+	vector<float>::iterator it;
+	sum_delta = 0;
+
+	for (size_t i = 0; i <point_set.size(); i++) {
+
+		int x_p = point_set.at(i).x;
+		int y_p = point_set.at(i).y;
+
+		it = find(x_count.begin(), x_count.end(), x_p);
+
+		if (it != x_count.end()) {
+			//存在value值
+
+		}
+		else {
+			//不存在value值
+			x_count.push_back(x_p);
+		}
+
+		sum_delta += delta.at(x_p);//方差求和
+
+	}
+
+	idx = x_count.size();
+	return point_set.size();
 }
 /*----------------------------------------------------------------*/
 /**
@@ -3034,7 +3160,8 @@ void ImageProcess::DrawHistogram(float *data, int size,string file_base,int CHAN
 	/////////////////////////////////////////////////////////////////////////////////////
 	for (int h = 0; h <h_bins; h++) {
 		/** 获得直方图中的统计次数，计算显示在图像中的高度 */
-		float bin_val =data[h]/2*1E5;
+		const float SCALE = 255 * 1E5/2;
+		float bin_val =data[h]*SCALE;
 		int  intensity = bin_val > height?height: bin_val;
 		if (bin_val <= height) {
 			color_line=color_white;
@@ -3094,6 +3221,68 @@ float ImageProcess::GetMaxValue(float* Data, long DataNum)
 	max_value = Data_cp[0];
 	delete[]Data_cp;
 	return  max_value;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+void ImageProcess::GetMaxValueIndex(float * data, float size, int * sort, int sort_num)
+{
+#if 1
+	float* data_t = new float[(LONGLONG)size];
+	memcpy(data_t, data, sizeof(float)*((LONGLONG)size));
+	/*****寻找最值***************************************************************/
+	for (int sj = 0; sj<sort_num; sj++) {
+
+		float max_value = data[0];
+		int max_value_i = 0;
+		/*******************************/
+		for (register int i = 0; i<size; i++) {
+			if (data_t[i]>max_value) {
+				max_value = data_t[i];
+				max_value_i = i;
+			}
+		}
+		/*******************************/
+		sort[sj] = max_value_i;
+		data_t[max_value_i] = FLT_MIN;
+
+	}
+	/*******************************************************************************/
+	delete[]data_t;
+#else
+
+#endif
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+void ImageProcess::GetMinValueIndex(float * data, float size, int * sort, int sort_num)
+{
+	float* data_t = new float[(LONGLONG)size];
+	memcpy(data_t, data, sizeof(float)*((LONGLONG)size));
+	/*****寻找最值***************************************************************/
+	for (int sj = 0; sj<sort_num; sj++) {
+
+		float min_value = data[0];
+		int min_value_i = 0;
+		/*******************************/
+		for (register int i = 0; i<size; i++) {
+			if (data_t[i]<min_value) {
+				min_value = data_t[i];
+				min_value_i = i;
+			}
+		}
+		/*******************************/
+		sort[sj] = min_value_i;
+		data_t[min_value_i] = FLT_MAX;
+
+	}
+	/*******************************************************************************/
+	delete[]data_t;
 }
 /*----------------------------------------------------------------*/
 /**

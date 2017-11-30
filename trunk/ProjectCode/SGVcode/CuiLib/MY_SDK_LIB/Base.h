@@ -41,6 +41,7 @@ public:
 		int DataNum,
 		double avg,
 		double *variance);
-
+public:
+	static vector<float> CombineVector(vector<float> v0, vector<float> v1);
 };
 
