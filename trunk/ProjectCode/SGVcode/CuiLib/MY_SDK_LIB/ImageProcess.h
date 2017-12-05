@@ -101,7 +101,7 @@ public:
 public:
 	static void CuiResize(IplImage * src, IplImage * dst, const int m_step, const int n_step);
 public:
-	static void  DrawHistogram(float *data, int size, string file_base, int CHANNEL, int frame_idx);
+	static void  DrawHistogram(float *data, int size, string file_base, int CHANNEL, int frame_idx, vector<float> feature);
 	static float GetMaxValue(float* Data, long DataNum);
 	static void  GetMaxValueIndex(
 		float* data,

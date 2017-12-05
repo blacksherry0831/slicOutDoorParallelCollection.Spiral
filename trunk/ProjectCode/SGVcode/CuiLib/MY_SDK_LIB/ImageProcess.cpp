@@ -2636,13 +2636,11 @@ vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, s
 	vector<vector<CvPoint>>   point_sets;
 
 	ImageProcess::crack_get_long_crack(image_out, 4, point_sets, file_base, CHANNEL, frame_idx);
-
-
+	
 	vector<float> hist_feature = process_histogram(histogram, point_sets, delta_out, HISTOGRAM_DIM, diff_org->width, diff_org->height);
-
-	ImageProcess::DrawHistogram(histogram.data(), HISTOGRAM_DIM, file_base, CHANNEL, frame_idx);
-
 	vector<float> all_feature = Base::CombineVector(feature_data_t, hist_feature);
+		
+	ImageProcess::DrawHistogram(histogram.data(), HISTOGRAM_DIM, file_base, CHANNEL, frame_idx, all_feature);
 #endif // TRUE
 
 
@@ -2803,7 +2801,6 @@ std::string ImageProcess::GetPath(std::string path_base, std::string path_sub)
 vector<float> ImageProcess::process_histogram(vector<float>& histogram, vector<vector<CvPoint>>& point_sets, vector<float>& delta_out, int HISTOGRAM_DIM, int width, int height)
 {
 #if TRUE
-
 	vector<float> histogram_count;
 	histogram.resize(HISTOGRAM_DIM, 0);
 	histogram_count.resize(HISTOGRAM_DIM, 0);
@@ -2839,8 +2836,12 @@ vector<float> ImageProcess::process_histogram(vector<float>& histogram, vector<v
 
 	sort.resize(2, 0);
 	ImageProcess::GetMaxValueIndex(histogram.data(), histogram.size(), sort.data(), sort.size());
-	const int max_pos = sort.at(0);
-	float max_value = histogram.at(max_pos);
+	const int max_pos = sort.at(0);//噪声峰值 or 左峰
+	float max_value = histogram.at(max_pos);//噪声峰值 or 左峰
+	int   max_left_pos = 0;
+	float   max_left_value=0;
+
+#if 0
 
 	sort.resize(histogram.size() - max_pos, 0);
 	ImageProcess::GetMinValueIndex(&data_hist[max_pos], histogram.size() - max_pos, sort.data(), sort.size());
@@ -2850,24 +2851,43 @@ vector<float> ImageProcess::process_histogram(vector<float>& histogram, vector<v
 		int pos = sort.at(i);
 
 		if (histogram.at(pos + base_pos) > 0) {
-			//最小值
+			//噪声低谷  or （左峰本身，左锋低谷）
 			min_left_pos = pos + base_pos;
 			min_left_pos_value = histogram.at(pos + base_pos);
 			break;
 		}
 
 	}
-
 	sort.resize(2, 0);
 	ImageProcess::GetMaxValueIndex(&data_hist[min_left_pos], histogram.size() - min_left_pos, sort.data(), sort.size());
-	int   max_left_pos = min_left_pos + sort.at(0);
+	   max_left_pos = min_left_pos + sort.at(0);//  左峰值，即是伤痕
 	float   max_left_value = histogram.at(max_left_pos);
+	feature.push_back(1.0* max_left_pos / width);//  左峰值，即是伤痕
+	feature.push_back(1.0*histogram.at(max_left_pos));//左峰值，即是伤痕
+	if (max_value==0){
+		feature.push_back(0);//主峰与次峰的比值
+	}else{
+		feature.push_back(1.0*max_left_value / max_value);//主峰与次峰的比值
+	}
+#endif // 0	
 
-	feature.push_back(1.0*max_pos / width);
-	feature.push_back(1.0*histogram.at(max_pos));
 
-	feature.push_back(1.0* max_left_pos / width);
-	feature.push_back(1.0*histogram.at(max_left_pos));
+	for (int i = histogram.size()-1; i>=max_pos; i--){
+		float value_t = histogram.at(i);
+		if (value_t > max_value / 2) {
+			max_left_pos = i;
+			break;
+		}
+	}
+
+	feature.push_back(1.0*max_pos / width);//噪声峰值 or 左峰
+	feature.push_back(1.0*histogram.at(max_pos));//噪声峰值 or 左峰
+	
+	feature.push_back(1.0*max_left_pos / width);//噪声峰值 or 左峰
+
+
+
+
 
 	return feature;
 }
@@ -3137,7 +3157,7 @@ void ImageProcess::CuiResize(IplImage * src, IplImage * dst,const int m_step, co
 *
 */
 /*----------------------------------------------------------------*/
-void ImageProcess::DrawHistogram(float *data, int size,string file_base,int CHANNEL,int frame_idx)
+void ImageProcess::DrawHistogram(float *data, int size,string file_base,int CHANNEL,int frame_idx,vector<float> feature)
 {
 	/////////////////////////////////////////////////////////////////	
 	double max = GetMaxValue(&data[0],size);
@@ -3153,7 +3173,7 @@ void ImageProcess::DrawHistogram(float *data, int size,string file_base,int CHAN
 	/*const CvScalar color_red_64 = CV_RGB(64, 0, 0);
 	const CvScalar color_red_128 = CV_RGB(128, 0, 0);*/
 	const CvScalar color_red_255 = CV_RGB(255, 0, 0);
-	CvScalar color_line;
+	CvScalar color_line= color_white;
 	IplImage* hist_img = cvCreateImage(cvSize(width, height), 8, 3);
 	cvRectangle(hist_img, cvPoint(0, 0), cvPoint(width, height),color_black, -1, 8, 0);
 	char  text_buff_t[1024];
@@ -3163,6 +3183,8 @@ void ImageProcess::DrawHistogram(float *data, int size,string file_base,int CHAN
 		const float SCALE = 255 * 1E5/2;
 		float bin_val =data[h]*SCALE;
 		int  intensity = bin_val > height?height: bin_val;
+		color_line = color_white;
+#if FALSE
 		if (bin_val <= height) {
 			color_line=color_white;
 		}else if (bin_val>height && bin_val<=2*height) {
@@ -3172,9 +3194,7 @@ void ImageProcess::DrawHistogram(float *data, int size,string file_base,int CHAN
 		}else {
 			color_line=color_red_255;
 		}
-
-
-
+#endif // FALSE		
 
 		/** 获得当前直方图代表的颜色，转换成RGB用于绘制 */
 #if FALSE
@@ -3189,7 +3209,18 @@ void ImageProcess::DrawHistogram(float *data, int size,string file_base,int CHAN
 		sprintf(text_buff_t, "%d", h);
 		cvPutText(hist_img, text_buff_t, cvPoint(h*bin_w, height), &font, CV_RGB(255, 255, 255));
 #endif // 0
-
+		//1,3
+		int max0 = round(feature.at(1)*size);
+		int max1 = round(feature.at(3)*size);
+		
+		if (max0 == h) {
+			color_line= color_red_255;
+			cvLine(hist_img, cvPoint(h*bin_w, height), cvPoint(h*bin_w, height - 0.4*intensity + 1), color_line);
+		}
+		if (max1 == h) {
+			color_line = color_yellow;
+			cvLine(hist_img, cvPoint(h*bin_w, height - 0.4*intensity + 1), cvPoint(h*bin_w, height - 0.8*intensity + 1), color_line);
+		}		
 		
 
 	}
