@@ -243,6 +243,19 @@ double Base::Math_GetAverageValue(double* Data, int DataNum)
 *
 */
 /*-----------------------------------------*/
+float Base::Math_GetAverageValueF(float * Data, int DataNum)
+{
+	ASSERT(DataNum>0);	
+	double sum = Math_GetSumF(Data, DataNum);
+	sum /= DataNum;
+	return sum;
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
 double Base::Math_GetVarianceValue(
 	double* Data,
 	int DataNum,
@@ -257,7 +270,117 @@ double Base::Math_GetVarianceValue(
 	*variance = sqrtl(*variance);
 	return *variance;
 }
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+float Base::Math_GetVarianceValueF(float * Data, int DataNum, float avg, float * variance)
+{
+	*variance = 0;
+	for (int i = 0; i<DataNum; i++) {
+		*variance += (avg - Data[i])*(avg - Data[i]);
+	}
+	*variance /= DataNum;
+	*variance = sqrtl(*variance);
+	return *variance;
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+double Base::Math_GetMaxValue(double* Data, long DataNum)
+{
+	double *Data_cp = new double[DataNum];
+	double  max_value;
+	memcpy(Data_cp, Data, sizeof(double)*DataNum);
+	std::sort(Data_cp, Data_cp + DataNum, greater<double>());
+	max_value = Data_cp[0];
+	delete[]Data_cp;
+	return  max_value;
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+void Base::Math_AbsArray(double * Data, long Num)
+{
+	for (size_t i = 0; i <Num; i++) {
 
+		Data[i] = fabs(Data[i]);
+	}
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+void Base::Math_GetMaxValueIndexF(float * data, float size, int * sort, int sort_num)
+{
+	
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+void Base::Math_GetMaxValueIndex(double * data, float size, int * sort, int sort_num)
+{
+	double* data_t = new double[(LONGLONG)size];
+	memcpy(data_t, data, sizeof(double)*((LONGLONG)size));
+	/*****Ñ°ÕÒ×îÖµ***************************************************************/
+	for (int sj = 0; sj<sort_num; sj++) {
+
+		float max_value = data[0];
+		int max_value_i = 0;
+		/*******************************/
+		for (register int i = 0; i<size; i++) {
+			if (data_t[i]>max_value) {
+				max_value = data_t[i];
+				max_value_i = i;
+			}
+		}
+		/*******************************/
+		sort[sj] = max_value_i;
+		data_t[max_value_i] = FLT_MIN;
+
+	}
+	/*******************************************************************************/
+	delete[]data_t;
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+float Base::Math_GetSumF(float * Data, int DataNum)
+{
+	float sum = 0;
+#if 0
+	for (size_t i = 0; i <DataNum; i++){		
+		sum += Data[i];
+	}
+#else
+	std::vector<float>   data(&Data[0], &Data[DataNum]);
+	sum=std::accumulate(data.begin(),data.end(), 0.0f);
+#endif // 0
+
+	return sum;
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
 vector<float> Base::CombineVector(vector<float> v0, vector<float> v1)
 {
 	vector<float> v_out;
@@ -268,3 +391,9 @@ vector<float> Base::CombineVector(vector<float> v0, vector<float> v1)
 
 	return v_out;
 }
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/

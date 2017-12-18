@@ -91,9 +91,9 @@ public:
 	static void Draw_line_on_image(float rho, float theta, CvRect rect_cut, IplImage* iplimg_tmp, Point& pt1, Point& pt2);
 public:
 	static vector<float> crack_get_image_feature(IplImage *diff_org, string file_base, int frame_idx);
-	static vector<float> crack_get_image_feature_gauss(IplImage *diff_org, string file_base, int CHANNEL, int frame_idx, IplImage *image_out,vector<float>& delta_out);
-	static void crack_get_long_crack(IplImage *image_4_delta,int delta_idx, vector<vector<CvPoint>>&   point_setsstring,string file_base, int CHANNEL, int frame_idx);
-	static std::string GetPath(std::string path_base, std::string path_sub);
+	static vector<float> crack_get_image_feature_gauss(IplImage *diff_org, string file_base, int CHANNEL, int frame_idx, IplImage *image_out,vector<float>& delta_out,boolean SAVE_FLAG);
+	static void crack_get_long_crack(IplImage * diff_org,IplImage *image_4_delta,int delta_idx, vector<vector<CvPoint>>&   point_setsstring,string file_base, int CHANNEL, int frame_idx,boolean SAVE_FLAG);
+	static std::string GetPath(std::string path_base, std::string path_sub, boolean CREATE_FLAG=true);
 	static vector<float> process_histogram(vector<float>& histogram, vector<vector<CvPoint>>&  point_sets, vector<float>& delta_out, int HISTOGRAM_DIM, int width, int height);
 	static int GetLineProperty(vector<CvPoint> point_set, vector<float> delta, float& sum_delta, int& idx);
 public:
@@ -102,6 +102,9 @@ public:
 	static void CuiResize(IplImage * src, IplImage * dst, const int m_step, const int n_step);
 public:
 	static void  DrawHistogram(float *data, int size, string file_base, int CHANNEL, int frame_idx, vector<float> feature);
+public:
+	static void  SaveArray2Disk(float *data, int size,int channel_t, int frame_count, string file_base);
+	
 	static float GetMaxValue(float* Data, long DataNum);
 	static void  GetMaxValueIndex(
 		float* data,

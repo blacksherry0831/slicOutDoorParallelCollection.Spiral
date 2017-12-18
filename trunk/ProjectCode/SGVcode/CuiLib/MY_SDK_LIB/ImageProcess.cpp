@@ -2517,15 +2517,15 @@ void ImageProcess::Draw_line_on_image(float rho,float theta, CvRect rect_cut, Ip
 *
 */
 /*----------------------------------------------------------------*/
-vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, string file_base,int CHANNEL, int frame_idx, IplImage *image_out,vector<float>& delta_out)
+vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, string file_base,int CHANNEL, int frame_idx, IplImage *image_out,vector<float>& delta_out, boolean SAVE_FLAG)
 {
 #if TRUE
 	stringstream sub_path_ss;
 	sub_path_ss <<"ch" << CHANNEL << "diff";
 	stringstream sub2_path_ss;
 	sub2_path_ss << "4delta";
-	string sub_path_str=ImageProcess::GetPath(file_base, sub_path_ss.str());
-	string sub2_path_str = ImageProcess::GetPath(sub_path_str,sub2_path_ss.str());
+	string sub_path_str=ImageProcess::GetPath(file_base, sub_path_ss.str(),SAVE_FLAG);
+	string sub2_path_str = ImageProcess::GetPath(sub_path_str,sub2_path_ss.str(),SAVE_FLAG);
 	const string path_diff_out = sub2_path_str+Base::int2str(frame_idx)+".png";
 
 	CvSize diff_size = cvGetSize(diff_org);
@@ -2541,8 +2541,8 @@ vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, s
 	const CvScalar color_red_255 = CV_RGB(255, 0, 0);
 #endif // TRUE
 	
-	double Sum_delta[5];
-	double a_col_sum_delta[4];
+	double Sum_delta[6] = {0};
+	double a_col_sum_delta[4] = {0};
 	memset(Sum_delta, 0, sizeof(Sum_delta));//统计求和
 	vector<double> a_col_tmp;
 	a_col_tmp.resize(diff_org->height, 0);//每列的暂存数据
@@ -2589,11 +2589,6 @@ vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, s
 			}
 
 			cvSet2D(image_out, rowi, coli, color_fill);
-			/*for (size_t ri = 0; ri <SCALE; ri++) {
-				for (size_t ci = 0; ci <SCALE; ci++) {
-					cvSet2D(image_out, rowi*SCALE + ri, coli*SCALE + ci, color_fill);
-				}
-			}*/
 
 		}
 #endif // TRUE
@@ -2604,6 +2599,8 @@ vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, s
 		Sum_delta[2] += a_col_sum_delta[2];
 		Sum_delta[3] += a_col_sum_delta[3];
 		Sum_delta[4] += delta_t;
+		Base::Math_AbsArray(a_col_tmp.data(),a_col_tmp.size() );
+		Sum_delta[5] += Base::Math_GetMaxValue(a_col_tmp.data(),a_col_tmp.size());
 
 	}
 
@@ -2617,16 +2614,53 @@ vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, s
 	}
 #endif // TRUE
 
-#if TRUE
+#if 0
 	Sum_delta[4] =1.0* Sum_delta[4] / diff_org->width / 255;
 	assert(Sum_delta[4] >= 0 && Sum_delta[4] <= 1 + 1E-6);
 	feature_data_t.push_back(Sum_delta[4]);
 #endif // TRUE
 
 #if TRUE
-	if (file_base != "") {
-		cvSaveImage(path_diff_out.c_str(), image_out);
-	}	
+	int IDX = 5;
+	Sum_delta[IDX] = 1.0* Sum_delta[IDX] / diff_org->width / 255;
+	assert(Sum_delta[IDX] >= 0 && Sum_delta[IDX] <= 1 + 1E-6);
+	feature_data_t.push_back(Sum_delta[IDX]);
+#endif // TRUE
+
+	if (0)
+	{
+#if TRUE
+	float avg_t=Base::Math_GetAverageValueF(delta_out.data(),delta_out.size());
+	float variance_t=0;
+	variance_t = Base::Math_GetVarianceValueF(delta_out.data(), delta_out.size(), avg_t, &variance_t);
+	vector<float> data_delta_3;
+	for (size_t i = 0; i < delta_out.size(); i++){
+		float sub = fabs(delta_out.at(i) - avg_t);
+		if (sub > 3 * variance_t) {
+		 //3 δ之外
+			data_delta_3.push_back(delta_out[i]);
+		}
+			
+	}
+	//求和
+	const float Sum = Base::Math_GetSumF(data_delta_3.data(),data_delta_3.size());
+
+	const float Feature = Sum / 255 / delta_out.size();
+	feature_data_t.push_back(Feature);
+#endif // TRUE
+	}
+
+
+
+
+#if TRUE
+	if (SAVE_FLAG)
+	{
+		if (file_base != "") {
+				cvSaveImage(path_diff_out.c_str(), image_out);
+			}	
+	}
+	
 #endif // TRUE
 
 #if TRUE
@@ -2635,12 +2669,14 @@ vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, s
 	const int HISTOGRAM_DIM = diff_org->width;
 	vector<vector<CvPoint>>   point_sets;
 
-	ImageProcess::crack_get_long_crack(image_out, 4, point_sets, file_base, CHANNEL, frame_idx);
+	ImageProcess::crack_get_long_crack(diff_org,image_out, 4, point_sets, file_base, CHANNEL, frame_idx,SAVE_FLAG);
 	
 	vector<float> hist_feature = process_histogram(histogram, point_sets, delta_out, HISTOGRAM_DIM, diff_org->width, diff_org->height);
 	vector<float> all_feature = Base::CombineVector(feature_data_t, hist_feature);
-		
-	ImageProcess::DrawHistogram(histogram.data(), HISTOGRAM_DIM, file_base, CHANNEL, frame_idx, all_feature);
+	
+	if (SAVE_FLAG){
+			ImageProcess::DrawHistogram(histogram.data(), HISTOGRAM_DIM, file_base, CHANNEL, frame_idx, all_feature);
+	}
 #endif // TRUE
 
 
@@ -2651,7 +2687,7 @@ vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, s
 *
 */
 /*----------------------------------------------------------------*/
-void ImageProcess::crack_get_long_crack(IplImage *image_4_delta, int delta_idx,vector<vector<CvPoint>>&   point_sets, string file_base, int CHANNEL, int frame_idx)
+void ImageProcess::crack_get_long_crack(IplImage * diff_org,IplImage *image_4_delta, int delta_idx,vector<vector<CvPoint>>&   point_sets, string file_base, int CHANNEL, int frame_idx,boolean SAVE_FLAG)
 {
 	const int dx4[8] = {-1,-1,-1, 0, 0, 1,1,1};
 	const int dy4[8] = {-1, 0, 1,-1, 1,-1,0,1};
@@ -2661,6 +2697,7 @@ void ImageProcess::crack_get_long_crack(IplImage *image_4_delta, int delta_idx,v
 	const CvScalar color_blue = CV_RGB(0, 0, 255);
 	const CvScalar color_yellow = CV_RGB(255, 255, 0);
 	const CvScalar color_red_255 = CV_RGB(255, 0, 0);
+	const CvScalar color_XXX = CV_RGB(0, 255, 255);
 	CvScalar color_target = CV_RGB(255, 0, 0);
 	if (delta_idx == 1) {
 		color_target = color_black;
@@ -2753,6 +2790,7 @@ void ImageProcess::crack_get_long_crack(IplImage *image_4_delta, int delta_idx,v
 #endif // TRUE
 
 
+
 #if _DEBUG
 		for (size_t si = 0; si < point_sets.size();si++) {
 			vector<CvPoint> point_set=point_sets.at(si);
@@ -2763,19 +2801,52 @@ void ImageProcess::crack_get_long_crack(IplImage *image_4_delta, int delta_idx,v
 					color_target);
 			}
 		}
-		stringstream sub_path_ss;
-		sub_path_ss << "ch" << CHANNEL << "diff";
-		stringstream sub2_path_ss;
-		sub2_path_ss << "single_delta";
-		string sub_path_str = ImageProcess::GetPath(file_base, sub_path_ss.str());
-		string sub2_path_str = ImageProcess::GetPath(sub_path_str, sub2_path_ss.str());
-		string filesaveimg = sub2_path_str + Base::int2str(frame_idx) + ".png";
-		cvShowImage("single_delta", image_4_delta_out);
-		cvWaitKey(1);
-		cvSaveImage(filesaveimg.c_str(),image_4_delta_out);
+#endif // _DEBUG
+#if _DEBUG
+		vector<double> a_col_tmp;
+		a_col_tmp.resize(diff_org->height, 0);//每列的暂存数据
+		for (size_t coli = 0; coli < diff_org->width; coli++) {
+			for (size_t rowi = 0; rowi <diff_org->height; rowi++) {
+				a_col_tmp[rowi] = cvGetReal2D(diff_org, rowi, coli);
+			}			
+			vector<int> sort;
+			sort.resize(a_col_tmp.size());
+			
+			Base::Math_AbsArray(a_col_tmp.data(), a_col_tmp.size());
+			Base::Math_GetMaxValueIndex(a_col_tmp.data(), a_col_tmp.size(), sort.data(), sort.size());
+			
+			for (size_t i = 0; i <sort.size(); i++){
+				double data_t = a_col_tmp.at(sort[i]);
+				if (	(a_col_tmp.at(sort[0]) == data_t) &&
+						(data_t!=0)					
+					) {
+					cvSet2D(image_4_delta_out, sort[i], coli, color_yellow);
+				}
+			}
+
+			
+		}
+
 #endif // _DEBUG
 
+	cvShowImage("single_delta", image_4_delta_out);
+	cvWaitKey(1);
+	
+			if (SAVE_FLAG) {
+		
+					stringstream sub_path_ss;
+					sub_path_ss << "ch" << CHANNEL << "diff";
+					stringstream sub2_path_ss;
+					sub2_path_ss << "single_delta";
+					string sub_path_str = ImageProcess::GetPath(file_base, sub_path_ss.str());
+					string sub2_path_str = ImageProcess::GetPath(sub_path_str, sub2_path_ss.str());
+					string filesaveimg = sub2_path_str + Base::int2str(frame_idx) + ".png";
+					cvSaveImage(filesaveimg.c_str(),image_4_delta_out);		
+		
+			}
+
 	}
+
 	cvReleaseImage(&image_visit);
 	cvReleaseImage(&image_4_delta_out);
 
@@ -2785,12 +2856,16 @@ void ImageProcess::crack_get_long_crack(IplImage *image_4_delta, int delta_idx,v
 *
 */
 /*----------------------------------------------------------------*/
-std::string ImageProcess::GetPath(std::string path_base, std::string path_sub)
+std::string ImageProcess::GetPath(std::string path_base, std::string path_sub,boolean CREATE_FLAG)
 {	
 	stringstream ss_file_full_path;
 	ss_file_full_path << path_base;
 	ss_file_full_path <<path_sub<<"\\" ;
-	CreateDirectory(ss_file_full_path.str().c_str(), NULL);
+	
+	if (CREATE_FLAG){
+		CreateDirectory(ss_file_full_path.str().c_str(), NULL);
+	}
+
 	return ss_file_full_path.str();
 }
 /*----------------------------------------------------------------*/
@@ -3060,9 +3135,8 @@ void ImageProcess::Svm_Lean(vector<float> FeatureData,int FeatureDim,vector<INT3
 	if (method == 0){
 //#ifdef SVM_USE_Linear
 		params.svm_type = CvSVM::C_SVC;
-		params.kernel_type = 0;
-		params.term_crit = cvTermCriteria(CV_TERMCRIT_ITER, 1000, FLT_EPSILON);
-		params.C = 0.01;
+		params.kernel_type = LINEAR;
+		params.term_crit = cvTermCriteria(CV_TERMCRIT_ITER, 100, 1e-6);
 	}else if (method==1){
 //#ifdef SVM_USE_Gaussian
 		params.svm_type = CvSVM::C_SVC;
@@ -3236,7 +3310,31 @@ void ImageProcess::DrawHistogram(float *data, int size,string file_base,int CHAN
 
 	cvSaveImage(filesaveimg.c_str(), hist_img);//在"H-S Histogtam"窗口中显示图像
 	cvReleaseImage(&hist_img);
-	
+#if TRUE
+	SaveArray2Disk(data, size, CHANNEL, frame_idx, sub2_path_str);	
+#endif
+
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+void ImageProcess::SaveArray2Disk(float * data, int size,int channel_t,int frame_count, string file_base)
+{
+	stringstream ss;
+	ss << file_base <<frame_count<<"."<<channel_t<< ".hist.txt";
+
+	string myfile_path=ss.str();
+	ofstream myfile(myfile_path);
+
+	for (size_t i = 0; i < size; i++){
+
+		myfile << i << " " << data[i] << std::endl;
+
+	}
+
+	myfile.close();
 }
 /*----------------------------------------------------------------*/
 /**

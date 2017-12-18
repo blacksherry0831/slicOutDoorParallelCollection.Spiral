@@ -28,6 +28,7 @@ using namespace std;
 #include <cstdio> 
 #include<stdio.h>
 #include<string.h>
+#include<numeric>
 #if _MSC_VER
 #include <mbctype.h>  
 #include <io.h>
