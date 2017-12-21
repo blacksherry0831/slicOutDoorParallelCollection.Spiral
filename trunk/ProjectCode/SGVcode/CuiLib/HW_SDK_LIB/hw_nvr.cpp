@@ -171,6 +171,7 @@ boolean hw_nvr::Check7Status4Start()
 }
 boolean hw_nvr::Check7Link4Start()
 {
+#if FALSE
 	const int NVR_COUNT_7 = 7;
 
 	if (this->status()) {
@@ -188,6 +189,25 @@ boolean hw_nvr::Check7Link4Start()
 	else {
 		return false;
 	}
+#else
+	const int NVR_COUNT_16 = 16;
+
+	if (this->status()) {
+		/*----------------------------*/
+		
+			if (m_channel_status.status[NVR_COUNT_16-1] == 1) {//连接状态
+				return true;
+			}else {
+				return false;
+			}
+		
+		/*----------------------------*/
+	}
+	else {
+		return false;
+	}
+#endif
+
 
 	return true;//标记的7个摄像头，全部处于关闭状态
 }
