@@ -71,5 +71,9 @@ public:
 	static float Math_GetSumF(float * Data,int DataNum);
 public:
 	static vector<float> CombineVector(vector<float> v0, vector<float> v1);
+public:
+	static void FS_getFiles(string path, string exd, vector<string>& files);
+	static int CRACK_FILE_NAME_get_idx(string file_full_name);
+	static string CRACK_FILR_NAME_get_ipAddr(string file_full_name);
 };
 

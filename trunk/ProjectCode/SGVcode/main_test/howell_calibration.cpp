@@ -94,6 +94,7 @@ int main( int argc, char** argv )
 		howell_camera(ip_addr);
 
 	}else if (test_num==3) {
+
 #if 0
 		string file_in;
 		string file_out;
@@ -112,45 +113,38 @@ int main( int argc, char** argv )
 		}
 		calibration::opencv_cal_video(file_in, file_out, cal_file);
 #else
-		string file_base="X:\\MyProject\\Project\\原觉项目\\工业视觉探伤技术资料\\软件设计\\软件测试数据\\output\\2017年9月18日\\12s\\obj0-12\\";
 
-		std::vector<string> file_t;
-		std::vector<string> file_cal_t;
+		string file_base="";
+		std::vector<string>  files_t;
 		
-		file_t.push_back("ch1.mp4");
-		file_t.push_back("ch2.mp4");
-		file_t.push_back("ch3.mp4");
-		file_t.push_back("ch4.mp4");
-		file_t.push_back("ch5.mp4");
-		file_t.push_back("ch6.mp4");
-		file_t.push_back("ch7.mp4");
 
-		file_cal_t.push_back("192.168.9.1");
-		file_cal_t.push_back("192.168.9.2");
-		file_cal_t.push_back("192.168.9.3");
-		file_cal_t.push_back("192.168.9.4");
-		file_cal_t.push_back("192.168.9.5");
-		file_cal_t.push_back("192.168.9.6");
-		file_cal_t.push_back("192.168.9.7");
+		std::cout<< "please input video path !" << std::endl;
 
-		size_t length = file_t.size();
+		while (file_base == "") {
+			std::getline(std::cin, file_base);
+		}
+
+		Base::FS_getFiles(file_base, "mp4", files_t);
+		
+		std::cout << "Total Video to Calibration : "<<files_t.size() << std::endl;
+		
+
+		size_t length = files_t.size();
 		for (size_t i = 0; i < length; i++)
 		{
-			calibration::opencv_cal_video(file_base+file_t[i],file_base+ file_t[i]+ "out.avi", file_cal_t[i]);
+			calibration::opencv_cal_video(files_t[i],
+											files_t[i]+ ".cal.avi",
+											Base::CRACK_FILR_NAME_get_ipAddr(files_t[i]));
 		}
 
 #endif
-		
 
-	
-
-
-	
 	}else {
 
 
 	}
 
+	std::cout << "Please input \"Enter\"  to Exit" << std::endl;
 	cin.get();
 	return 0;
 

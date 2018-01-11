@@ -398,6 +398,10 @@ void calibration::calibration_image(ICamera*  camera) {
 /*-------------------------------------*/
 bool calibration::opencv_cal_video(string video_in, string video_out, string cal_prefix)
 {
+	std::cout << "IN file : " << video_in << std::endl
+				<< "OUT file : " << video_out << std::endl
+				<< "Ip Addr : " << cal_prefix << std::endl;
+
 	IplImage *frame_in = NULL;
 	IplImage *frame_out = NULL;
 	CvCapture *capture_in = NULL;
