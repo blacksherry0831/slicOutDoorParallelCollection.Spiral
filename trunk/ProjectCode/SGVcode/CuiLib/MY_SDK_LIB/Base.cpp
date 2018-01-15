@@ -480,3 +480,24 @@ string Base::CRACK_FILR_NAME_get_ipAddr(string file_full_name)
 *
 */
 /*-----------------------------------------*/
+bool  Base::FS_checkUserPath(string userPath)
+{
+	bool isRight = true;
+	string::iterator it;
+	for (it = userPath.begin(); it != userPath.end(); ++it)
+	{
+		if (*it == '/')
+		{
+			isRight = false;
+			cout << "\'/\'错误，应该为\'\\',请重新输入！" << endl;
+			break;
+		}
+	}
+	return isRight;
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
