@@ -76,6 +76,11 @@ public:
 	static bool FS_checkUserPath(string userPath);
 
 	static int CRACK_FILE_NAME_get_idx(string file_full_name);
+	static int CRACK_FILE_NAME_get_circle(string file_full_name);
 	static string CRACK_FILR_NAME_get_ipAddr(string file_full_name);
+
+	static string CRACK_PATH_GetFrameChannelDiff(std::string file_base, std::string file_name, std::string add_str);
+	static string CRACK_PATH_GetFrameChannelDiff(std::string file_base,int CIRCLE,int CHANNEL, std::string add_str);
+
 };
 

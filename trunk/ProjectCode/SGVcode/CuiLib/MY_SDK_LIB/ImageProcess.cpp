@@ -2517,15 +2517,23 @@ void ImageProcess::Draw_line_on_image(float rho,float theta, CvRect rect_cut, Ip
 *
 */
 /*----------------------------------------------------------------*/
-vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, string file_base,int CHANNEL, int frame_idx, IplImage *image_out,vector<float>& delta_out, boolean SAVE_FLAG)
+vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, string file_base,string file_name,int CIRCLE,int CHANNEL, int frame_idx, IplImage *image_out,vector<float>& delta_out, boolean SAVE_FLAG)
 {
 #if TRUE
-	stringstream sub_path_ss;
-	sub_path_ss <<"ch" << CHANNEL << "diff";
-	stringstream sub2_path_ss;
-	sub2_path_ss << "4delta";
-	string sub_path_str=ImageProcess::GetPath(file_base, sub_path_ss.str(),SAVE_FLAG);
-	string sub2_path_str = ImageProcess::GetPath(sub_path_str,sub2_path_ss.str(),SAVE_FLAG);
+
+	assert(CIRCLE > 0);
+	assert(CHANNEL > 0);
+
+
+	const string four_delta_str = "4delta";
+
+
+
+	
+	string channel_diff_path_str=Base::CRACK_PATH_GetFrameChannelDiff(file_base,CIRCLE,CHANNEL,"diff");
+
+	string sub2_path_str = ImageProcess::GetPath(channel_diff_path_str, four_delta_str,SAVE_FLAG);
+	
 	const string path_diff_out = sub2_path_str+Base::int2str(frame_idx)+".png";
 
 	CvSize diff_size = cvGetSize(diff_org);
@@ -2669,13 +2677,13 @@ vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, s
 	const int HISTOGRAM_DIM = diff_org->width;
 	vector<vector<CvPoint>>   point_sets;
 
-	ImageProcess::crack_get_long_crack(diff_org,image_out, 4, point_sets, file_base, CHANNEL, frame_idx,SAVE_FLAG);
+	ImageProcess::crack_get_long_crack(diff_org,image_out, 4, point_sets, channel_diff_path_str,CIRCLE, CHANNEL, frame_idx,SAVE_FLAG);
 	
 	vector<float> hist_feature = process_histogram(histogram, point_sets, delta_out, HISTOGRAM_DIM, diff_org->width, diff_org->height);
 	vector<float> all_feature = Base::CombineVector(feature_data_t, hist_feature);
 	
 	if (SAVE_FLAG){
-			ImageProcess::DrawHistogram(histogram.data(), HISTOGRAM_DIM, file_base, CHANNEL, frame_idx, all_feature);
+			ImageProcess::DrawHistogram(histogram.data(), HISTOGRAM_DIM, channel_diff_path_str, CHANNEL, frame_idx, all_feature);
 	}
 #endif // TRUE
 
@@ -2687,7 +2695,15 @@ vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, s
 *
 */
 /*----------------------------------------------------------------*/
-void ImageProcess::crack_get_long_crack(IplImage * diff_org,IplImage *image_4_delta, int delta_idx,vector<vector<CvPoint>>&   point_sets, string file_base, int CHANNEL, int frame_idx,boolean SAVE_FLAG)
+void ImageProcess::crack_get_long_crack(IplImage * diff_org,
+										IplImage *image_4_delta,
+										int delta_idx,
+										vector<vector<CvPoint>>&   point_sets,
+										string file_base,
+										int CIRCLE,
+										int CHANNEL,
+										int frame_idx,
+										boolean SAVE_FLAG)
 {
 	const int dx4[8] = {-1,-1,-1, 0, 0, 1,1,1};
 	const int dy4[8] = {-1, 0, 1,-1, 1,-1,0,1};
@@ -2832,14 +2848,10 @@ void ImageProcess::crack_get_long_crack(IplImage * diff_org,IplImage *image_4_de
 	cvShowImage("single_delta", image_4_delta_out);
 	cvWaitKey(1);
 	
-			if (SAVE_FLAG) {
-		
-					stringstream sub_path_ss;
-					sub_path_ss << "ch" << CHANNEL << "diff";
+			if (SAVE_FLAG) {							
 					stringstream sub2_path_ss;
 					sub2_path_ss << "single_delta";
-					string sub_path_str = ImageProcess::GetPath(file_base, sub_path_ss.str());
-					string sub2_path_str = ImageProcess::GetPath(sub_path_str, sub2_path_ss.str());
+					string sub2_path_str = ImageProcess::GetPath(file_base, sub2_path_ss.str());
 					string filesaveimg = sub2_path_str + Base::int2str(frame_idx) + ".png";
 					cvSaveImage(filesaveimg.c_str(),image_4_delta_out);		
 		
@@ -3299,12 +3311,11 @@ void ImageProcess::DrawHistogram(float *data, int size,string file_base,int CHAN
 
 	}
 	
-	stringstream sub_path_ss;
-	sub_path_ss << "ch" << CHANNEL << "diff";
+	
 	stringstream sub2_path_ss;
 	sub2_path_ss << "histogram";
-	string sub_path_str = ImageProcess::GetPath(file_base, sub_path_ss.str());
-	string sub2_path_str = ImageProcess::GetPath(sub_path_str, sub2_path_ss.str());
+	
+	string sub2_path_str = ImageProcess::GetPath(file_base, sub2_path_ss.str());
 	string filesaveimg = sub2_path_str + Base::int2str(frame_idx) + ".png";
 
 

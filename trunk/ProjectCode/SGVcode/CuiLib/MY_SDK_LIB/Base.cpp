@@ -459,6 +459,20 @@ int Base::CRACK_FILE_NAME_get_idx(string file_full_name)
 *
 */
 /*-----------------------------------------*/
+int  Base::CRACK_FILE_NAME_get_circle(string file_full_name)
+{
+	string base_name = Base::base_name(file_full_name);
+	vector<string>  vs = Base::split(base_name, '.');
+	assert(vs.size()>=2);
+	string idx_str = vs.at(1);//chX.
+	return Base::get_number(idx_str);
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
 string Base::CRACK_FILR_NAME_get_ipAddr(string file_full_name)
 {
 	std::vector<string>  file_cal_t;
@@ -473,6 +487,41 @@ string Base::CRACK_FILR_NAME_get_ipAddr(string file_full_name)
 	
 		return file_cal_t.at(CRACK_FILE_NAME_get_idx(file_full_name));
 
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+string Base::CRACK_PATH_GetFrameChannelDiff(std::string file_base, std::string file_name, std::string add_str)
+{
+	const int video_idx = Base::CRACK_FILE_NAME_get_idx(file_base + file_name);
+	const int CIRCLE = Base::CRACK_FILE_NAME_get_circle(file_base + file_name);
+	return CRACK_PATH_GetFrameChannelDiff(file_base,CIRCLE,video_idx,add_str);
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+string Base::CRACK_PATH_GetFrameChannelDiff(std::string file_base, int CIRCLE, int CHANNEL, std::string add_str)
+{
+	const int video_idx = CHANNEL;
+	stringstream ss_file_full_path;
+	ss_file_full_path << file_base;
+#if TRUE
+	ss_file_full_path << "circle" << CIRCLE << "\\";
+	CreateDirectory(ss_file_full_path.str().c_str(), NULL);
+#endif // TRUE
+#if TRUE
+	ss_file_full_path << "ch" << video_idx << add_str << "\\";
+	CreateDirectory(ss_file_full_path.str().c_str(), NULL);
+#endif // TRUE
+
+	return ss_file_full_path.str();
+	return string();
 }
 /*-----------------------------------------*/
 /**
