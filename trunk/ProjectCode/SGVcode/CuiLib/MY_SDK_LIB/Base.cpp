@@ -446,6 +446,63 @@ void Base::FS_getFiles(string path, string exd, vector<string>& files)
 *
 */
 /*-----------------------------------------*/
+void Base::FS_getDirs(string path, string flag, vector<string>& files)
+{
+	//文件句柄  
+	long   hFile = 0;
+	//文件信息  
+	struct _finddata_t fileinfo;
+	string pathName, exdName;
+	const string exd = "";
+	if (0 != strcmp(exd.c_str(), ""))
+	{
+		exdName = "\\*." + exd;
+	}
+	else
+	{
+		exdName = "\\*";
+	}
+
+	if ((hFile = _findfirst(pathName.assign(path).append(exdName).c_str(), &fileinfo)) != -1)
+	{
+		do
+		{
+			//如果是文件夹中仍有文件夹,迭代之  
+			//如果不是,加入列表  
+			if ((fileinfo.attrib &  _A_SUBDIR))
+			{
+				string file_name = fileinfo.name;
+				if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0 && file_name.find(flag)!= string::npos) {
+					files.push_back(pathName.assign(path).append("\\").append(fileinfo.name));
+				}
+					
+			}else{
+				
+					
+			}
+		} while (_findnext(hFile, &fileinfo) == 0);
+		_findclose(hFile);
+	}
+
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+string Base::FS_getDirName(string path)
+{
+	vector<string>  vs = Base::split(path, '\\');
+	string dir_name_t = vs.at(vs.size() - 1);//chX.
+	return dir_name_t;
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
 int Base::CRACK_FILE_NAME_get_idx(string file_full_name)
 {
 	string base_name = Base::base_name(file_full_name);
@@ -466,6 +523,42 @@ int  Base::CRACK_FILE_NAME_get_circle(string file_full_name)
 	assert(vs.size()>=2);
 	string idx_str = vs.at(1);//chX.
 	return Base::get_number(idx_str);
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+int Base::CRACK_FILE_NAME_get_circle_byPath(string path)
+{	
+	vector<string>  vs = Base::split(path, '\\');
+	string number_t = vs.at(vs.size()-1);//chX.
+	return Base::get_number(number_t);
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+std::string Base::FS_createPath(std::string path_base, std::string path_sub, boolean CREATE_FLAG)
+{
+	stringstream ss_file_full_path;
+
+	if (FS_checkUserPath(path_base)==false) {
+		path_base.append("\\");
+	}
+
+	ss_file_full_path << path_base;
+	
+	ss_file_full_path << path_sub << "\\";
+
+	if (CREATE_FLAG) {
+		CreateDirectory(ss_file_full_path.str().c_str(), NULL);
+	}
+
+	return ss_file_full_path.str();
 }
 /*-----------------------------------------*/
 /**
@@ -494,11 +587,11 @@ string Base::CRACK_FILR_NAME_get_ipAddr(string file_full_name)
 *
 */
 /*-----------------------------------------*/
-string Base::CRACK_PATH_GetFrameChannelDiff(std::string file_base, std::string file_name, std::string add_str)
+string Base::CRACK_PATH_GetFrameChannelDiff(std::string file_base, std::string file_name, std::string add_str,boolean create_flag)
 {
 	const int video_idx = Base::CRACK_FILE_NAME_get_idx(file_base + file_name);
 	const int CIRCLE = Base::CRACK_FILE_NAME_get_circle(file_base + file_name);
-	return CRACK_PATH_GetFrameChannelDiff(file_base,CIRCLE,video_idx,add_str);
+	return CRACK_PATH_GetFrameChannelDiff(file_base,CIRCLE,video_idx,add_str,create_flag);
 }
 /*-----------------------------------------*/
 /**
@@ -506,11 +599,17 @@ string Base::CRACK_PATH_GetFrameChannelDiff(std::string file_base, std::string f
 *
 */
 /*-----------------------------------------*/
-string Base::CRACK_PATH_GetFrameChannelDiff(std::string file_base, int CIRCLE, int CHANNEL, std::string add_str)
+string Base::CRACK_PATH_GetFrameChannelDiff(std::string file_base, int CIRCLE, int CHANNEL, std::string add_str,boolean create_flag)
 {
 	const int video_idx = CHANNEL;
 	stringstream ss_file_full_path;
+
+	if (FS_checkUserPath(file_base) == false) {
+		file_base.append("\\");
+	}
+
 	ss_file_full_path << file_base;
+	
 #if TRUE
 	ss_file_full_path << "circle" << CIRCLE << "\\";
 	CreateDirectory(ss_file_full_path.str().c_str(), NULL);
@@ -521,7 +620,7 @@ string Base::CRACK_PATH_GetFrameChannelDiff(std::string file_base, int CIRCLE, i
 #endif // TRUE
 
 	return ss_file_full_path.str();
-	return string();
+	
 }
 /*-----------------------------------------*/
 /**
@@ -531,18 +630,16 @@ string Base::CRACK_PATH_GetFrameChannelDiff(std::string file_base, int CIRCLE, i
 /*-----------------------------------------*/
 bool  Base::FS_checkUserPath(string userPath)
 {
-	bool isRight = true;
-	string::iterator it;
-	for (it = userPath.begin(); it != userPath.end(); ++it)
+	string sub = userPath.substr(userPath.size()-1,1);
+	if (sub == "\\" || sub == "/")
 	{
-		if (*it == '/')
-		{
-			isRight = false;
-			cout << "\'/\'错误，应该为\'\\',请重新输入！" << endl;
-			break;
-		}
+		return true;
 	}
-	return isRight;
+	else
+	{
+		return false;
+	}
+
 }
 /*-----------------------------------------*/
 /**

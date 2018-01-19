@@ -2526,13 +2526,12 @@ vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, s
 
 
 	const string four_delta_str = "4delta";
-
-
+	const string diff_str = "diff";
 
 	
-	string channel_diff_path_str=Base::CRACK_PATH_GetFrameChannelDiff(file_base,CIRCLE,CHANNEL,"diff");
+	string channel_diff_path_str=Base::CRACK_PATH_GetFrameChannelDiff(file_base,CIRCLE,CHANNEL, diff_str,false);
 
-	string sub2_path_str = ImageProcess::GetPath(channel_diff_path_str, four_delta_str,SAVE_FLAG);
+	string sub2_path_str = Base::FS_createPath(channel_diff_path_str, four_delta_str,SAVE_FLAG);
 	
 	const string path_diff_out = sub2_path_str+Base::int2str(frame_idx)+".png";
 
@@ -2851,7 +2850,7 @@ void ImageProcess::crack_get_long_crack(IplImage * diff_org,
 			if (SAVE_FLAG) {							
 					stringstream sub2_path_ss;
 					sub2_path_ss << "single_delta";
-					string sub2_path_str = ImageProcess::GetPath(file_base, sub2_path_ss.str());
+					string sub2_path_str = Base::FS_createPath(file_base, sub2_path_ss.str());
 					string filesaveimg = sub2_path_str + Base::int2str(frame_idx) + ".png";
 					cvSaveImage(filesaveimg.c_str(),image_4_delta_out);		
 		
@@ -2868,18 +2867,7 @@ void ImageProcess::crack_get_long_crack(IplImage * diff_org,
 *
 */
 /*----------------------------------------------------------------*/
-std::string ImageProcess::GetPath(std::string path_base, std::string path_sub,boolean CREATE_FLAG)
-{	
-	stringstream ss_file_full_path;
-	ss_file_full_path << path_base;
-	ss_file_full_path <<path_sub<<"\\" ;
-	
-	if (CREATE_FLAG){
-		CreateDirectory(ss_file_full_path.str().c_str(), NULL);
-	}
 
-	return ss_file_full_path.str();
-}
 /*----------------------------------------------------------------*/
 /**
 *
@@ -3315,13 +3303,13 @@ void ImageProcess::DrawHistogram(float *data, int size,string file_base,int CHAN
 	stringstream sub2_path_ss;
 	sub2_path_ss << "histogram";
 	
-	string sub2_path_str = ImageProcess::GetPath(file_base, sub2_path_ss.str());
+	string sub2_path_str = Base::FS_createPath(file_base, sub2_path_ss.str());
 	string filesaveimg = sub2_path_str + Base::int2str(frame_idx) + ".png";
 
 
 	cvSaveImage(filesaveimg.c_str(), hist_img);//在"H-S Histogtam"窗口中显示图像
 	cvReleaseImage(&hist_img);
-#if TRUE
+#if FALSE
 	SaveArray2Disk(data, size, CHANNEL, frame_idx, sub2_path_str);	
 #endif
 

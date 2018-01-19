@@ -73,14 +73,18 @@ public:
 	static vector<float> CombineVector(vector<float> v0, vector<float> v1);
 public:
 	static void FS_getFiles(string path, string exd, vector<string>& files);
+	static void FS_getDirs(string path,string flag,vector<string>& files);
+	static string FS_getDirName(string path);
 	static bool FS_checkUserPath(string userPath);
+	static std::string FS_createPath(std::string path_base, std::string path_sub, boolean CREATE_FLAG=true);
 
 	static int CRACK_FILE_NAME_get_idx(string file_full_name);
 	static int CRACK_FILE_NAME_get_circle(string file_full_name);
+	static int CRACK_FILE_NAME_get_circle_byPath(string path);
 	static string CRACK_FILR_NAME_get_ipAddr(string file_full_name);
 
-	static string CRACK_PATH_GetFrameChannelDiff(std::string file_base, std::string file_name, std::string add_str);
-	static string CRACK_PATH_GetFrameChannelDiff(std::string file_base,int CIRCLE,int CHANNEL, std::string add_str);
+	static string CRACK_PATH_GetFrameChannelDiff(std::string file_base, std::string file_name, std::string add_str,boolean create_flag=true);
+	static string CRACK_PATH_GetFrameChannelDiff(std::string file_base,int CIRCLE,int CHANNEL, std::string add_str,boolean create_flag=true);
 
 };
 
