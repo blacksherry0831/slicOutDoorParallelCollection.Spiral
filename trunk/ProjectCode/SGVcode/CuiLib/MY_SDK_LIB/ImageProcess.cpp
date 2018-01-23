@@ -18,6 +18,10 @@
 #define ANGLE_DELTA (0)
 #define ANGLE_HIST_NUM (11)
 
+
+
+int ImageProcess::CRACK_MAX_SIZE = 1920;
+
 ImageProcess::ImageProcess(void)
 {
 
@@ -2682,7 +2686,12 @@ vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, s
 	vector<float> all_feature = Base::CombineVector(feature_data_t, hist_feature);
 	
 	if (SAVE_FLAG){
-			ImageProcess::DrawHistogram(histogram.data(), HISTOGRAM_DIM, channel_diff_path_str, CHANNEL, frame_idx, all_feature);
+			vector<float> hist_1920;
+			hist_1920.resize(ImageProcess::CRACK_MAX_SIZE,0.0);
+
+			std::copy(histogram.begin(), histogram.end(), hist_1920.begin());
+
+			ImageProcess::DrawHistogram(hist_1920.data(), hist_1920.size(), channel_diff_path_str, CHANNEL, frame_idx, all_feature);
 	}
 #endif // TRUE
 
@@ -2714,6 +2723,7 @@ void ImageProcess::crack_get_long_crack(IplImage * diff_org,
 	const CvScalar color_red_255 = CV_RGB(255, 0, 0);
 	const CvScalar color_XXX = CV_RGB(0, 255, 255);
 	CvScalar color_target = CV_RGB(255, 0, 0);
+	
 	if (delta_idx == 1) {
 		color_target = color_black;
 	}
@@ -2729,6 +2739,7 @@ void ImageProcess::crack_get_long_crack(IplImage * diff_org,
 	else {
 
 	}
+	
 	IplImage* image_4_delta_out = cvCreateImage(cvGetSize(image_4_delta), IPL_DEPTH_8U, 3);
 	IplImage* image_visit = cvCreateImage(cvGetSize(image_4_delta), IPL_DEPTH_8U, 1);
 	cvZero(image_4_delta_out);
@@ -2867,7 +2878,70 @@ void ImageProcess::crack_get_long_crack(IplImage * diff_org,
 *
 */
 /*----------------------------------------------------------------*/
+float GetAreaFeature(vector<float> histogram)
+{
+	const size_t length = histogram.size();
+	const float histogram_max = Base::Math_GetMaxValueF(histogram.data(),histogram.size());
+	//step 1 Ö±·½Í¼ÐÞÕý
+	vector<float> histogram_scale;
 
+	for (size_t hi = 0; hi < length; hi++) {
+		
+		float new_value_t = 0;
+		if (histogram_max != 0) {
+			new_value_t = histogram.at(hi) / histogram_max;
+		}else{
+			new_value_t = 0;
+		}
+
+		histogram_scale.push_back(new_value_t);
+
+	}	
+	//step 2 ¼ÆËãÃæ»ý
+
+	float sum_hist = 0;
+
+	for (size_t hi = 0; hi < length; hi++) {
+
+		float single_hist = 1.0*histogram_scale.at(hi) *(1.0*hi / ImageProcess::CRACK_MAX_SIZE);
+		sum_hist += single_hist;
+
+	}
+	//step 3 ¼ÆËãÀíÂÛ×ÜÃæ»ý
+	const float m_width = length;
+	float sum_max =1.0* (m_width - 1)*m_width / 2.0 / 1920;
+	
+	//step 4 ¼ÆËãÌØÕ÷
+
+
+	float feature_t = sum_hist / sum_max;
+
+	assert(sum_max > 0);
+	assert(feature_t < 1 + 1E-6);
+
+	return feature_t;
+
+
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+//float GetAllArea(vector<float> histogram)
+//{
+//	size_t length=histogram.size();
+//	float  sum=0;
+//	for (size_t hi = 0; hi < length; hi++){
+//		sum += 1.0*hi / ImageProcess::CRACK_MAX_SIZE*histogram.at(hi);
+//	}
+//
+//	assert(sum < 1.0+1E-6);
+//
+//	return sum;
+//
+//
+//}
 /*----------------------------------------------------------------*/
 /**
 *
@@ -2955,10 +3029,14 @@ vector<float> ImageProcess::process_histogram(vector<float>& histogram, vector<v
 		}
 	}
 
-	feature.push_back(1.0*max_pos / width);//ÔëÉù·åÖµ or ×ó·å
+	feature.push_back(1.0*max_pos / ImageProcess::CRACK_MAX_SIZE);//ÔëÉù·åÖµ or ×ó·å
 	feature.push_back(1.0*histogram.at(max_pos));//ÔëÉù·åÖµ or ×ó·å
 	
-	feature.push_back(1.0*max_left_pos / width);//ÔëÉù·åÖµ or ×ó·å
+#if 0
+	feature.push_back(1.0*max_left_pos / ImageProcess::CRACK_MAX_SIZE);//ÔëÉù·åÖµ or ×ó·å
+#endif // 0
+	feature.push_back(GetAreaFeature(histogram));
+	
 
 
 
@@ -3284,17 +3362,21 @@ void ImageProcess::DrawHistogram(float *data, int size,string file_base,int CHAN
 		cvPutText(hist_img, text_buff_t, cvPoint(h*bin_w, height), &font, CV_RGB(255, 255, 255));
 #endif // 0
 		//1,3
+#if TRUE
 		int max0 = round(feature.at(1)*size);
-		int max1 = round(feature.at(3)*size);
+		//int max1 = round(feature.at(3)*size);
 		
 		if (max0 == h) {
 			color_line= color_red_255;
 			cvLine(hist_img, cvPoint(h*bin_w, height), cvPoint(h*bin_w, height - 0.4*intensity + 1), color_line);
 		}
-		if (max1 == h) {
+		/*if (max1 == h) {
 			color_line = color_yellow;
 			cvLine(hist_img, cvPoint(h*bin_w, height - 0.4*intensity + 1), cvPoint(h*bin_w, height - 0.8*intensity + 1), color_line);
-		}		
+		}		*/
+#endif // 0
+
+		
 		
 
 	}

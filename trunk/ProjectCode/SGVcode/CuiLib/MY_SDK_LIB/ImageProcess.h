@@ -116,4 +116,6 @@ public:
 		float size,
 		int* sort,
 		int sort_num);
+	public:
+		static int CRACK_MAX_SIZE;
 };
