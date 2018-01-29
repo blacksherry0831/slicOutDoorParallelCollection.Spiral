@@ -73,6 +73,8 @@ public:
 public:
 	static vector<float> CombineVector(vector<float> v0, vector<float> v1);
 public:
+	static int FS_deleteFile(const string file_full_path);
+	static int FS_copyFile(const string src,const string dst);
 	static void FS_getFiles(string path, string exd, vector<string>& files);
 	static void FS_getDirs(string path,string flag,vector<string>& files);
 	static string FS_getDirName(string path);

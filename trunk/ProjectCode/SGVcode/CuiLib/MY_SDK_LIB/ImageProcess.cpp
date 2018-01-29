@@ -2634,12 +2634,13 @@ vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, s
 #if TRUE
 	int IDX = 5;
 	Sum_delta[IDX] = 1.0* Sum_delta[IDX] / diff_org->width / 255;
+	feature_data_t.push_back(Sum_delta[IDX]);//最大值求和
 	assert(Sum_delta[IDX] >= 0 && Sum_delta[IDX] <= 1 + 1E-6);
-	feature_data_t.push_back(Sum_delta[IDX]);
 #endif // TRUE
 
-	if (0)
+	/*if (0)
 	{
+		//每一列的方差。方差中大于3倍方差 做特征
 #if TRUE
 	float avg_t=Base::Math_GetAverageValueF(delta_out.data(),delta_out.size());
 	float variance_t=0;
@@ -2659,7 +2660,7 @@ vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, s
 	const float Feature = Sum / 255 / delta_out.size();
 	feature_data_t.push_back(Feature);
 #endif // TRUE
-	}
+	}*/
 
 
 
@@ -2828,7 +2829,7 @@ void ImageProcess::crack_get_long_crack(IplImage * diff_org,
 			}
 		}
 #endif // _DEBUG
-#if _DEBUG
+#if _DEBUG&&0
 		vector<double> a_col_tmp;
 		a_col_tmp.resize(diff_org->height, 0);//每列的暂存数据
 		for (size_t coli = 0; coli < diff_org->width; coli++) {
@@ -2947,7 +2948,12 @@ float GetAreaFeature(vector<float> histogram)
 *
 */
 /*----------------------------------------------------------------*/
-vector<float> ImageProcess::process_histogram(vector<float>& histogram, vector<vector<CvPoint>>& point_sets, vector<float>& delta_out, int HISTOGRAM_DIM, int width, int height)
+vector<float> ImageProcess::process_histogram(vector<float>& histogram,
+												vector<vector<CvPoint>>& point_sets,
+												vector<float>& delta_out,
+												int HISTOGRAM_DIM,
+												int width,
+												int height)
 {
 #if TRUE
 	vector<float> histogram_count;

@@ -193,11 +193,16 @@ void Base::sleep(int ms)
 /*-----------------------------------------*/
 int  Base::is_file_exist(const char * file_path)
 {
+
 	if (file_path == NULL)
-		return -1;
-	if (access(file_path, 0) == 0)
-		return 0;
-	return -1;
+		return FALSE;
+	
+	if (access(file_path, 0) == 0) {
+		return TRUE;
+	}else{
+		return FALSE;
+	}
+
 }
 /*-----------------------------------------*/
 /**
@@ -406,6 +411,45 @@ vector<float> Base::CombineVector(vector<float> v0, vector<float> v1)
 	v_out.insert(v_out.end(), v1.begin(), v1.end());
 
 	return v_out;
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+int Base::FS_deleteFile(const string file_full_path)
+{
+	if (Base::is_file_exist(file_full_path.c_str())) {
+	
+		return remove(file_full_path.c_str());
+	
+	}else{
+
+		return TRUE;
+	}
+
+
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+int Base::FS_copyFile(const string src, const string dst)
+{
+	Base::FS_deleteFile(dst);
+
+	int copy_result_t = CopyFile(src.c_str(), dst.c_str(), false);
+	DWORD ERROR_CODE;
+	if (copy_result_t == 0)
+	{
+		ERROR_CODE = GetLastError();
+	}
+	assert(copy_result_t != 0);
+
+	return copy_result_t;
 }
 /************************************************************************/
 /*  获取文件夹下所有文件名
