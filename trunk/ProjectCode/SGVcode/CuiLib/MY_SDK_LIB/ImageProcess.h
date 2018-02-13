@@ -92,6 +92,9 @@ public:
 public:
 	static vector<float> crack_get_image_feature(IplImage *diff_org, string file_base, int frame_idx);
 	static vector<float> crack_get_image_feature_gauss(IplImage *diff_org, string file_base,string file_name,int CIRCLE, int CHANNEL, int frame_idx, IplImage *image_out,vector<float>& delta_out,boolean SAVE_FLAG);
+	
+	static vector<float> crack_get_image_feature_one_line(string org);
+	
 	static void crack_get_long_crack(IplImage * diff_org,IplImage *image_4_delta,int delta_idx, vector<vector<CvPoint>>&   point_setsstring,string file_base,int CIRCLE ,int CHANNEL, int frame_idx,boolean SAVE_FLAG);
 	
 	static vector<float> process_histogram(vector<float>& histogram, vector<vector<CvPoint>>&  point_sets, vector<float>& delta_out, int HISTOGRAM_DIM, int width, int height);
@@ -102,6 +105,7 @@ public:
 	static void CuiResize(IplImage * src, IplImage * dst, const int m_step, const int n_step);
 public:
 	static void  DrawHistogram(float *data, int size, string file_base, int CHANNEL, int frame_idx, vector<float> feature);
+	static void  DrawHistogram_fromImage(IplImage * img, string file_base, int CIRCLE, int CHANNEL, int frame_idx, int ColIdx, int hist_bar_height=255, int hist_bar_width=1);
 public:
 	static void  SaveArray2Disk(float *data, int size,int channel_t, int frame_count, string file_base);
 	
@@ -118,4 +122,6 @@ public:
 		int sort_num);
 	public:
 		static int CRACK_MAX_SIZE;
+public:
+	static int GetOneColumn(IplImage *image, IplImage* ColData,int IdxCol);
 };

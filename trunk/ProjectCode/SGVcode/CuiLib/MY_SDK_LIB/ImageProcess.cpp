@@ -2704,6 +2704,97 @@ vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, s
 *
 */
 /*----------------------------------------------------------------*/
+vector<float> ImageProcess::crack_get_image_feature_one_line(string org)
+{
+	vector<float> feature_one;
+	vector<float> feature_org;
+
+	IplImage * img_org=cvLoadImage(org.c_str(),0);
+	
+	for (size_t ci = 0; ci <img_org->width; ci++){
+		 float data_t=cvGetReal2D(img_org,0,ci);
+		 feature_org.push_back(data_t);
+	}
+
+	float avg_org=Base::Math_GetAverageValueF(feature_org.data(), feature_org.size());//[0,255]
+	float sigma_org = 0;//[0,255]
+	Base::Math_GetVarianceValueF(feature_org.data(), feature_org.size(), avg_org, &sigma_org);
+	float line_width = 0;
+	
+	vector<float> feature_adj;
+	{
+		for (size_t i = 0; i <feature_org.size(); i++){
+
+			float value_col = feature_org.at(i);
+			float sub_abs = fabs(avg_org - value_col);
+			
+			if (sub_abs > 3 * sigma_org) {
+				line_width++;
+			}else{
+				feature_adj.push_back(value_col);
+			}
+
+		}
+	
+
+
+	}
+
+	float avg_adj=Base::Math_GetAverageValueF(feature_adj.data(),feature_adj.size());
+
+	float sigma_adj = 0;
+		Base::Math_GetVarianceValueF(feature_adj.data(),feature_adj.size(),avg_adj,&sigma_adj);
+	
+
+
+		float f0 = 0;
+		float f1 = 0;
+		float f2 = 0;
+
+ 		if (avg_adj>0)
+		{
+			f0 = fabs(avg_org - avg_adj) /avg_org;
+		}else{
+			f0 = 0;
+		}
+
+		if (sigma_org>0)
+		{
+				f1 = sigma_adj / sigma_org;
+				
+		}else{
+			f1 = 0;
+		}
+
+		if (true)
+		{
+				f2 = line_width / CRACK_MAX_SIZE;
+				
+		}
+		
+		
+
+		
+		assert(f0 >= 0 && f0 < 1 + 1E-6);
+		assert(f1 >= 0 && f1 < 1 + 1E-6);
+		assert(f2 >= 0 && f2 < 1 + 1E-6);
+
+
+		feature_one.push_back(f0);
+		feature_one.push_back(f1);
+		feature_one.push_back(f2);
+
+
+
+
+	cvReleaseImage(&img_org);
+	return feature_one;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
 void ImageProcess::crack_get_long_crack(IplImage * diff_org,
 										IplImage *image_4_delta,
 										int delta_idx,
@@ -3216,23 +3307,24 @@ void ImageProcess::Svm_Lean(vector<float> FeatureData,int FeatureDim,vector<INT3
 	CvSVM svm;
 	CvSVMParams params;
 	assert(method>=0&&method<2);
+
 	if (method == 0){
 //#ifdef SVM_USE_Linear
 		params.svm_type = CvSVM::C_SVC;
 		params.kernel_type = LINEAR;
-		params.term_crit = cvTermCriteria(CV_TERMCRIT_ITER, 100, 1e-6);
+		params.term_crit = cvTermCriteria(CV_TERMCRIT_ITER, 1e5, FLT_EPSILON);
 	}else if (method==1){
 //#ifdef SVM_USE_Gaussian
 		params.svm_type = CvSVM::C_SVC;
 		params.kernel_type = RBF;
-		params.term_crit = cvTermCriteria(CV_TERMCRIT_EPS, 1000, FLT_EPSILON);
+		params.term_crit = cvTermCriteria(CV_TERMCRIT_EPS, 1e5, 1E-6F);
 		params.gamma = 8;
 		params.C = 10;
 	}else if(method ==2){
 //#ifdef SVM_USE_Poly
 		params.svm_type = CvSVM::C_SVC;
 		params.kernel_type = POLY;
-		params.term_crit = cvTermCriteria(CV_TERMCRIT_EPS, 1000, FLT_EPSILON);
+		params.term_crit = cvTermCriteria(CV_TERMCRIT_EPS, 1e5, FLT_EPSILON);
 		params.degree = 4;//最高相次
 		params.gamma = 0.5;//1/k
 		params.coef0 = 0;
@@ -3243,15 +3335,17 @@ void ImageProcess::Svm_Lean(vector<float> FeatureData,int FeatureDim,vector<INT3
 
 	std::cout << "Start SVM Train !" << std::endl;
 
-	svm.train(data_mat, res_mat, NULL, NULL, params);//☆    
-	
+	cvSave("svm_data.xml", data_mat);
+	cvSave("svm_classifies.xml",res_mat);
+
+	svm.train(data_mat, res_mat, NULL, NULL, params);//☆  
+		
 	std::cout << "END SVM Train !" << std::endl;
 													 //☆☆利用训练数据和确定的学习参数,进行SVM学习☆☆☆☆  
 	//const	string svmsavepath =path+"SvmModule.xml";
 
 	svm.save(path.c_str(), 0);
-
-
+	
 #endif
 }
 /*----------------------------------------------------------------*/
@@ -3407,6 +3501,98 @@ void ImageProcess::DrawHistogram(float *data, int size,string file_base,int CHAN
 *
 */
 /*----------------------------------------------------------------*/
+void ImageProcess::DrawHistogram_fromImage(IplImage * img, string file_base, int CIRCLE, int CHANNEL, int frame_idx,int ColIdx,int hist_bar_height,int hist_bar_width)
+{
+	/////////////////////////////////////////////////////////////////	
+	const int size = img->height;
+	assert(img->nChannels == 1);
+	//////////////////////////////////////////////////////////////////
+	const int bin_w = hist_bar_width;
+	const int h_bins = size;
+	const int HEAD = 20;
+	const int width = h_bins*bin_w;
+	const int height = hist_bar_height+HEAD;
+	const CvScalar color_white = CV_RGB(255, 255, 255);
+	const CvScalar color_black = CV_RGB(0, 0, 0);
+	const CvScalar color_blue = CV_RGB(0, 0, 255);
+	const CvScalar color_yellow = CV_RGB(255, 255, 0);
+	const CvScalar color_red_255 = CV_RGB(255, 0, 0);
+	CvScalar color_line = color_white;
+	IplImage* hist_img = cvCreateImage(cvSize(width, height),IPL_DEPTH_8U, 3);
+	cvRectangle(hist_img, cvPoint(0, 0), cvPoint(width, height), color_black, -1, 8, 0);
+	char  text_buff_t[1024];
+	/////////////////////////////////////////////////////////////////////////////////////
+	for (int hi = 0; hi <h_bins; hi++) {
+		/** 获得直方图中的统计次数，计算显示在图像中的高度 */
+		
+		float bin_val = cvGetReal2D(img, hi, 0);
+		int  intensity = bin_val > height ? height : bin_val;
+		
+		color_line = color_white;
+		cvLine(hist_img, cvPoint(hi*bin_w, height), cvPoint(hi*bin_w, height - intensity + 1), color_line);
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	}
+
+#if TRUE
+	vector<float> data_t;
+	//获得数据
+	for (size_t ri = 0; ri <size; ri++){
+		float bin_val = cvGetReal2D(img, ri, 0);
+		data_t.push_back(bin_val);
+	}
+	
+	const float avg_0 =Base::Math_GetAverageValueF(data_t.data(),data_t.size());
+	float sigma_0 = 0;	Base::Math_GetVarianceValueF(data_t.data(),data_t.size(),avg_0,&sigma_0);
+	const float  avg_0_3sigma = avg_0 + 3 * sigma_0;
+
+	color_line = color_red_255;
+	cvLine(hist_img, cvPoint(0, height-avg_0), cvPoint(width, height-avg_0), color_line);
+	
+	color_line = color_yellow;
+	cvLine(hist_img, cvPoint(0, height - avg_0_3sigma), cvPoint(width, height - avg_0_3sigma), color_line);
+
+#endif // TRUE
+
+	
+#if TRUE
+
+	for (size_t ri = 0; ri <HEAD; ri++){
+		
+		for (size_t ci = 0; ci <width; ci++){
+
+			assert(width == data_t.size());
+			const int GRAY = data_t.at(ci);
+			cvSet2D(hist_img,ri,ci,CV_RGB(GRAY, GRAY, GRAY));
+		}
+
+	}
+
+#endif // TRUE
+
+
+	
+#if TRUE
+	  string ColImageName;
+	 
+	  ColImageName.append("circle").append(Base::int2str(CIRCLE)).append(".")
+		  .append("ch").append(Base::int2str(CHANNEL)).append(".")
+		  .append("frame").append(Base::int2str(frame_idx)).append(".")
+		  .append("col").append(Base::int2str(ColIdx)).append(".hist.png");
+
+	const string ColSavePath_full = file_base + ColImageName;//列号 作为文件名
+	cvSaveImage(ColSavePath_full.c_str(), hist_img);//在"H-S Histogtam"窗口中显示图像
+#endif
+	
+	
+	cvReleaseImage(&hist_img);
+
+
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
 void ImageProcess::SaveArray2Disk(float * data, int size,int channel_t,int frame_count, string file_base)
 {
 	stringstream ss;
@@ -3499,6 +3685,28 @@ void ImageProcess::GetMinValueIndex(float * data, float size, int * sort, int so
 	}
 	/*******************************************************************************/
 	delete[]data_t;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+int ImageProcess::GetOneColumn(IplImage * image, IplImage * ColData, int IdxCol)
+{
+	const size_t ci=IdxCol ;
+
+	assert(image->nChannels == ColData->nChannels);
+
+	for (size_t ri = 0; ri < image->height; ri++){
+		CvScalar color_data=cvGet2D(image, ri, ci);
+
+		for (size_t dstci = 0; dstci <ColData->width; dstci++){
+			cvSet2D(ColData,ri, dstci, color_data);
+		}
+
+	}
+
+	return TRUE;
 }
 /*----------------------------------------------------------------*/
 /**

@@ -470,6 +470,10 @@ void Base::FS_getFiles(string path, string exd, vector<string>& files)
 	//文件信息  
 	struct _finddata_t fileinfo;
 	string pathName, exdName;
+	
+	if (FS_checkUserPath(path) == false) {
+		path.append("\\");
+	}
 
 	if (0 != strcmp(exd.c_str(), ""))
 	{
@@ -489,12 +493,12 @@ void Base::FS_getFiles(string path, string exd, vector<string>& files)
 			if ((fileinfo.attrib &  _A_SUBDIR))
 			{
 				if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0)
-					FS_getFiles(pathName.assign(path).append("\\").append(fileinfo.name), exd, files);
+					FS_getFiles(pathName.assign(path).append(fileinfo.name), exd, files);
 			}
 			else
 			{
 				if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0)
-					files.push_back(pathName.assign(path).append("\\").append(fileinfo.name));
+					files.push_back(pathName.assign(path).append(fileinfo.name));
 			}
 		} while (_findnext(hFile, &fileinfo) == 0);
 		_findclose(hFile);

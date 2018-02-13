@@ -86,7 +86,7 @@ public:
 	static int CRACK_FILE_NAME_get_circle_byPath(string path);
 	static string CRACK_FILR_NAME_get_ipAddr(string file_full_name);
 
-	static string CRACK_PATH_GetFrameChannelDiff(std::string file_base, std::string file_name, std::string add_str,boolean create_flag=true);
+	static string CRACK_PATH_GetFrameChannelDiff(std::string file_base, std::string file_name, std::string add_str="",boolean create_flag=true);
 	static string CRACK_PATH_GetFrameChannelDiff(std::string file_base,int CIRCLE,int CHANNEL, std::string add_str,boolean create_flag=true);
 
 };
