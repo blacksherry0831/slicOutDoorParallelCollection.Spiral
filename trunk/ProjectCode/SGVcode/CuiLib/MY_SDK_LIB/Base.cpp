@@ -248,6 +248,22 @@ double Base::Math_GetAverageValue(double* Data, int DataNum)
 *
 */
 /*-----------------------------------------*/
+double Base::Math_GetAverageValue8U(unsigned char * Data, int DataNum)
+{
+	double sum = 0;
+	ASSERT(DataNum>0);
+	for (int i = 0; i<DataNum; i++) {
+		sum += Data[i];
+	}
+	sum /= DataNum;
+	return sum;
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
 float Base::Math_GetAverageValueF(float * Data, int DataNum)
 {
 	ASSERT(DataNum>0);	
@@ -290,6 +306,23 @@ float Base::Math_GetVarianceValueF(float * Data, int DataNum, float avg, float *
 	*variance /= DataNum;
 	*variance = sqrtl(*variance);
 	return *variance;
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+float Base::Math_GetVarianceValue8U(unsigned char * Data, int DataNum, float avg)
+{
+	float sigma = 0;
+
+	for (int i = 0; i<DataNum; i++) {
+		sigma += (avg - Data[i])*(avg - Data[i]);
+	}
+	sigma /= DataNum;
+	sigma = sqrtl(sigma);
+	return sigma;
 }
 /*-----------------------------------------*/
 /**

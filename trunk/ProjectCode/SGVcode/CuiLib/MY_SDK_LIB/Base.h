@@ -37,6 +37,8 @@ public:
 public:
 	static double Math_GetAverageValue(double* Data, int DataNum);
 
+	static double Math_GetAverageValue8U(unsigned char* Data, int DataNum);
+
 	static float Math_GetAverageValueF(float* Data, int DataNum);
 	
 	static double Math_GetVarianceValue(
@@ -50,6 +52,11 @@ public:
 		int DataNum,
 		float avg,
 		float *variance);
+
+	static float Math_GetVarianceValue8U(
+		unsigned char* Data,
+		int DataNum,
+		float avg);
 	
 	static double Math_GetMaxValue(double* Data, long DataNum);
 	static float Math_GetMaxValueF(float* Data, long DataNum);
@@ -66,6 +73,8 @@ public:
 		float size,
 		int* sort,
 		int sort_num);
+
+
 
 
 public:

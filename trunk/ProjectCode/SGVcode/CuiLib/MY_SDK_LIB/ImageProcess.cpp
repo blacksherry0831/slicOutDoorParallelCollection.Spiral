@@ -3294,19 +3294,29 @@ void ImageProcess::Svm_Lean(vector<float> FeatureData,int FeatureDim,vector<INT3
 #if (CV_MAJOR_VERSION==2)&&(CV_MINOR_VERSION==4)
 	
 	const unsigned long samplenum = FeatureClassify.size();//
-		
+	const string data_file = "svm_data.xml";
+	const string classify_file = "svm_classifies.xml";
 	static CvMat dataMatHeader;//
 	static CvMat resMatHeader;//
 	
 	CvMat* data_mat;//
 	CvMat* res_mat;//
 
-	res_mat = cvInitMatHeader(&resMatHeader, samplenum, 1, CV_32SC1, FeatureClassify.data());
-	data_mat = cvInitMatHeader(&dataMatHeader, samplenum, FeatureDim, CV_32FC1, FeatureData.data());
+	if (FeatureData.size()==0 || FeatureClassify.size()==0){
+		data_mat = (CvMat*)cvLoad(data_file.c_str());
+		res_mat  = (CvMat*)cvLoad(classify_file.c_str());
+
+	}else{
+		res_mat = cvInitMatHeader(&resMatHeader, samplenum, 1, CV_32SC1, FeatureClassify.data());
+		data_mat = cvInitMatHeader(&dataMatHeader, samplenum, FeatureDim, CV_32FC1, FeatureData.data());
+		cvSave(data_file.c_str(), data_mat);
+		cvSave(classify_file.c_str(), res_mat);
+
+	}
 
 	CvSVM svm;
 	CvSVMParams params;
-	assert(method>=0&&method<2);
+	assert(method>=0&&method<20);
 
 	if (method == 0){
 //#ifdef SVM_USE_Linear
@@ -3318,28 +3328,23 @@ void ImageProcess::Svm_Lean(vector<float> FeatureData,int FeatureDim,vector<INT3
 		params.svm_type = CvSVM::C_SVC;
 		params.kernel_type = RBF;
 		params.term_crit = cvTermCriteria(CV_TERMCRIT_EPS, 1e5, 1E-6F);
-		params.gamma = 8;
-		params.C = 10;
+		params.gamma = 8;//增加容错，调小gamma
+		params.C = 10;//增加容错，调小C;
 	}else if(method ==2){
 //#ifdef SVM_USE_Poly
 		params.svm_type = CvSVM::C_SVC;
 		params.kernel_type = POLY;
 		params.term_crit = cvTermCriteria(CV_TERMCRIT_EPS, 1e5, FLT_EPSILON);
-		params.degree = 4;//最高相次
-		params.gamma = 0.5;//1/k
+		params.degree = 2;//最高相次
+		params.gamma = 1.0/FeatureDim;//1/n_features
 		params.coef0 = 0;
-		params.C = 1;//0
+		params.C = 1;//增加容错，调小C 
 	}else{
 
 	}
 
 	std::cout << "Start SVM Train !" << std::endl;
-
-	cvSave("svm_data.xml", data_mat);
-	cvSave("svm_classifies.xml",res_mat);
-
-	svm.train(data_mat, res_mat, NULL, NULL, params);//☆  
-		
+		svm.train(data_mat, res_mat, NULL, NULL, params);//☆  
 	std::cout << "END SVM Train !" << std::endl;
 													 //☆☆利用训练数据和确定的学习参数,进行SVM学习☆☆☆☆  
 	//const	string svmsavepath =path+"SvmModule.xml";
@@ -3707,6 +3712,36 @@ int ImageProcess::GetOneColumn(IplImage * image, IplImage * ColData, int IdxCol)
 	}
 
 	return TRUE;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+void ImageProcess::VIDEO_GetWidthHeight(string video_full_path, int* WIDTH, int* HEIGHT)
+{
+#if TRUE
+
+	{//init width and height
+		CvCapture* capture = cvCaptureFromAVI(video_full_path.c_str());
+
+		//init 
+		if (cvGrabFrame(capture)) {
+
+			Mat matimg = cvRetrieveFrame(capture);        // retrieve the captured frame
+			IplImage iplimg = matimg.operator _IplImage();
+			
+
+			*WIDTH =iplimg.width;
+			*HEIGHT =iplimg.height;
+
+
+		}
+
+		cvReleaseCapture(&capture);
+		capture = NULL;
+	}
+#endif // TRUE
 }
 /*----------------------------------------------------------------*/
 /**

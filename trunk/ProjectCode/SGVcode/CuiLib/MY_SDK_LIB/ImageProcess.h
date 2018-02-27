@@ -124,4 +124,6 @@ public:
 		static int CRACK_MAX_SIZE;
 public:
 	static int GetOneColumn(IplImage *image, IplImage* ColData,int IdxCol);
+public:
+	static void VIDEO_GetWidthHeight(string video_full_path,int* WIDTH,int* HEIGHT);
 };
