@@ -122,6 +122,7 @@ public:
 		int sort_num);
 	public:
 		static int CRACK_MAX_SIZE;
+		static int CRACK_MAX_WIDTH;
 public:
 	static int GetOneColumn(IplImage *image, IplImage* ColData,int IdxCol);
 public:

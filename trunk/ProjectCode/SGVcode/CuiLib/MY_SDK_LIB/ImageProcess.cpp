@@ -21,6 +21,7 @@
 
 
 int ImageProcess::CRACK_MAX_SIZE = 1920;
+int ImageProcess::CRACK_MAX_WIDTH = 1080;
 
 ImageProcess::ImageProcess(void)
 {
@@ -30,6 +31,7 @@ ImageProcess::ImageProcess(void)
 
 ImageProcess::~ImageProcess(void)
 {
+
 }
 
 
@@ -2768,7 +2770,7 @@ vector<float> ImageProcess::crack_get_image_feature_one_line(string org)
 
 		if (true)
 		{
-				f2 = line_width / CRACK_MAX_SIZE;
+				f2 = line_width / CRACK_MAX_WIDTH;
 				
 		}
 		
