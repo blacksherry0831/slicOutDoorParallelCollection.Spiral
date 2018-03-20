@@ -3613,12 +3613,12 @@ void ImageProcess::Svm_Lean(vector<float> FeatureData,int FeatureDim,vector<INT3
 		params.svm_type = CvSVM::C_SVC;
 		params.kernel_type = RBF;
 		params.term_crit = cvTermCriteria(CV_TERMCRIT_EPS, 1e5, 1E-6F);
-#if 0
+#if 1
 		params.gamma = 1.0 / TotalClasses;//增加容错，调小gamma
 		params.C = 1;//增加容错，调小C;
 #endif // 0
-		params.gamma = 10;//增加容错，调小gamma
-		params.C = 8;//增加容错，调小C;
+		//params.gamma = 10;//增加容错，调小gamma
+		//params.C = 8;//增加容错，调小C;
 
 	}else if(method ==2){
 //#ifdef SVM_USE_Poly
