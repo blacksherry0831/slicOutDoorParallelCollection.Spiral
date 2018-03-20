@@ -18,6 +18,8 @@ public:
 
 	static std::string file_name_without_ext(string const  path);
 
+	static std::string file_name_ext(string const  path);
+
 	static std::string comine_str(string f_str,string s_str);
 
 	static std::vector<std::string> split  (const std::string &s, char delim);
@@ -91,6 +93,12 @@ public:
 	static std::string FS_createPath(std::string path_base, std::string path_sub, boolean CREATE_FLAG=true);
 
 	static int CRACK_FILE_NAME_get_idx(string file_full_name);
+	
+	static int CRACK_FILE_NAME_get_channel(string file_full_name);
+
+	static int CRACK_FILE_NAME_get_FRAME(string file_full_name);
+	static int CRACK_FILE_NAME_get_PROPERTY(string file_full_name,string _property);
+	
 	static int CRACK_FILE_NAME_get_circle(string file_full_name);
 	static int CRACK_FILE_NAME_get_circle_byPath(string path);
 	static string CRACK_FILR_NAME_get_ipAddr(string file_full_name);

@@ -96,7 +96,45 @@ public:
 	static vector<float> crack_get_image_feature_one_line(string org);
 	
 	static void crack_get_long_crack(IplImage * diff_org,IplImage *image_4_delta,int delta_idx, vector<vector<CvPoint>>&   point_setsstring,string file_base,int CIRCLE ,int CHANNEL, int frame_idx,boolean SAVE_FLAG);
+	static void CRACK_get_block_sets(
+		IplImage * gray,
+		IplImage * avg,
+		IplImage * image_binary,
+		const int SIGMA,
+		const int TARGET,
+		int CIRCLE,
+		int CHANNEL,
+		int frame_idx,
+		vector<vector<CvPoint>>& point_sets,
+		string file_base,
+		boolean SAVE_FLAG);
+
+	static vector<float> CRACK_get_histgram(
+		IplImage * diff,
+		vector<vector<CvPoint>> point_sets,
+		int PN);
+
+	static  vector<float> CRACK_get_histgram_feature(
+		vector<float> histgram,
+		int WIDTH,
+		int  HEIGHT,
+		int PN);
+
+	static  vector<float> CRACK_get_block_feature(
+		const vector<vector<CvPoint>> frame_point_sets,
+		vector<vector<CvPoint>>& frame_point_sets_out,
+		IplImage * diff,
+		int PN);
+
+	static 	void CRACK_get_block_property(
+		IplImage * diff,
+		vector<CvPoint> point_set,
+		float& sum,
+		unsigned long& count,
+		int PN);
 	
+	static float CRACK_get_histgram_area(vector<float> histgram, int WIDTH, int HEIGHT, int PN);
+
 	static vector<float> process_histogram(vector<float>& histogram, vector<vector<CvPoint>>&  point_sets, vector<float>& delta_out, int HISTOGRAM_DIM, int width, int height);
 	static int GetLineProperty(vector<CvPoint> point_set, vector<float> delta, float& sum_delta, int& idx);
 public:
@@ -109,6 +147,8 @@ public:
 public:
 	static void  SaveArray2Disk(float *data, int size,int channel_t, int frame_count, string file_base);
 	
+	static void  Opencv_SaveVector2CvMatrix(string file_name,vector<float> vf);
+
 	static float GetMaxValue(float* Data, long DataNum);
 	static void  GetMaxValueIndex(
 		float* data,

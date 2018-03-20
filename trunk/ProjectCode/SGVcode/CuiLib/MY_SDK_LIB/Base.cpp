@@ -84,6 +84,17 @@ std::string Base::file_name_without_ext(string const path)
 *
 */
 /*-----------------------------------------*/
+std::string Base::file_name_ext(string const path)
+{
+	string suffixStr = path.substr(path.find_last_of('.') + 1);//获取文件后缀 
+	return suffixStr;
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
 string Base::comine_str(string f_str,string s_str)
 {
 	return f_str.append(s_str);
@@ -266,10 +277,14 @@ double Base::Math_GetAverageValue8U(unsigned char * Data, int DataNum)
 /*-----------------------------------------*/
 float Base::Math_GetAverageValueF(float * Data, int DataNum)
 {
-	ASSERT(DataNum>0);	
-	double sum = Math_GetSumF(Data, DataNum);
-	sum /= DataNum;
-	return sum;
+	if (DataNum==0){
+		return 0;
+	}else{
+		ASSERT(DataNum>0);	
+		double sum = Math_GetSumF(Data, DataNum);
+		sum /= DataNum;
+		return sum;
+	}
 }
 /*-----------------------------------------*/
 /**
@@ -300,11 +315,15 @@ double Base::Math_GetVarianceValue(
 float Base::Math_GetVarianceValueF(float * Data, int DataNum, float avg, float * variance)
 {
 	*variance = 0;
-	for (int i = 0; i<DataNum; i++) {
-		*variance += (avg - Data[i])*(avg - Data[i]);
-	}
-	*variance /= DataNum;
-	*variance = sqrtl(*variance);
+	if (DataNum>0)
+	{
+			*variance = 0;
+			for (int i = 0; i<DataNum; i++) {
+				*variance += (avg - Data[i])*(avg - Data[i]);
+			}
+			*variance /= DataNum;
+			*variance = sqrtl(*variance);
+	}		
 	return *variance;
 }
 /*-----------------------------------------*/
@@ -508,16 +527,9 @@ void Base::FS_getFiles(string path, string exd, vector<string>& files)
 		path.append("\\");
 	}
 
-	if (0 != strcmp(exd.c_str(), ""))
-	{
-		exdName = "\\*." + exd;
-	}
-	else
-	{
-		exdName = "\\*";
-	}
 
-	if ((hFile = _findfirst(pathName.assign(path).append(exdName).c_str(), &fileinfo)) != -1)
+
+	if ((hFile = _findfirst(pathName.assign(path).append("\\*").c_str(), &fileinfo)) != -1)
 	{
 		do
 		{
@@ -530,8 +542,19 @@ void Base::FS_getFiles(string path, string exd, vector<string>& files)
 			}
 			else
 			{
-				if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0)
-					files.push_back(pathName.assign(path).append(fileinfo.name));
+				const string file_name_t = fileinfo.name;
+				if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0) {
+					
+					const string ext_t=Base::file_name_ext(file_name_t);
+
+					if (file_name_t.find(exd)){
+							files.push_back(pathName.assign(path).append(fileinfo.name));
+					}
+					
+
+					
+				}
+					
 			}
 		} while (_findnext(hFile, &fileinfo) == 0);
 		_findclose(hFile);
@@ -602,10 +625,67 @@ string Base::FS_getDirName(string path)
 /*-----------------------------------------*/
 int Base::CRACK_FILE_NAME_get_idx(string file_full_name)
 {
+	return CRACK_FILE_NAME_get_channel(file_full_name);
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+int Base::CRACK_FILE_NAME_get_channel(string file_full_name)
+{
 	string base_name = Base::base_name(file_full_name);
 	vector<string>  vs = Base::split(base_name, '.');
-	string idx_str = vs.at(0);//chX.
-	return Base::get_number(idx_str);
+
+	const string CHANNEL_STR = "ch";
+	for (size_t i = 0; i <vs.size(); i++){
+		const string str_t= vs.at(i);
+		if (str_t.find(CHANNEL_STR) ==string::npos) {
+		
+		}else{
+				return Base::get_number(str_t);
+		}
+	}
+
+	ASSERT(0);
+
+}
+int Base::CRACK_FILE_NAME_get_FRAME(string file_full_name)
+{
+	string base_name = Base::base_name(file_full_name);
+	vector<string>  vs = Base::split(base_name, '.');
+
+	const string CHANNEL_STR = "frame";
+	for (size_t i = 0; i <vs.size(); i++) {
+		const string str_t = vs.at(i);
+		if (str_t.find(CHANNEL_STR) == string::npos) {
+
+		}
+		else {
+			return Base::get_number(str_t);
+		}
+	}
+
+	ASSERT(0);
+}
+int Base::CRACK_FILE_NAME_get_PROPERTY(string file_full_name, string _property)
+{
+
+	string base_name = Base::base_name(file_full_name);
+	vector<string>  vs = Base::split(base_name, '.');
+	
+	for (size_t i = 0; i <vs.size(); i++) {
+		const string str_t = vs.at(i);
+		if (str_t.find(_property) == string::npos) {
+
+		}
+		else {
+			return TRUE;
+		}
+	}
+
+	return FALSE;
 }
 /*-----------------------------------------*/
 /**
@@ -617,9 +697,19 @@ int  Base::CRACK_FILE_NAME_get_circle(string file_full_name)
 {
 	string base_name = Base::base_name(file_full_name);
 	vector<string>  vs = Base::split(base_name, '.');
-	assert(vs.size()>=2);
-	string idx_str = vs.at(1);//chX.
-	return Base::get_number(idx_str);
+
+	const string CHANNEL_STR = "circle";
+	for (size_t i = 0; i <vs.size(); i++) {
+		const string str_t = vs.at(i);
+		if (str_t.find(CHANNEL_STR) == string::npos) {
+
+		}
+		else {
+			return Base::get_number(str_t);
+		}
+	}
+
+	ASSERT(0);
 }
 /*-----------------------------------------*/
 /**

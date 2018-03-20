@@ -2972,6 +2972,289 @@ void ImageProcess::crack_get_long_crack(IplImage * diff_org,
 *
 */
 /*----------------------------------------------------------------*/
+void ImageProcess::CRACK_get_block_sets(
+	IplImage * gray,
+	IplImage * avg,
+	IplImage * image_binary,
+	const int SIGMA,
+	const int TARGET,
+	int CIRCLE,
+	int CHANNEL,
+	int frame_idx,
+	vector<vector<CvPoint>>& point_sets,
+	string file_base,
+	boolean SAVE_FLAG)
+{
+	const int dx4[8] = { -1,-1,-1, 0, 0, 1,1,1 };
+	const int dy4[8] = { -1, 0, 1,-1, 1,-1,0,1 };
+
+	const int WIDTH = image_binary->width;
+	const int HEIGHT = image_binary->height;
+			
+	IplImage* image_visit = cvCreateImage(cvGetSize(image_binary), IPL_DEPTH_8U, 1);
+	cvZero(image_visit);
+	point_sets.clear();
+	{
+#if TRUE		
+		for (size_t ci = 0; ci < WIDTH; ci++) {
+			for (size_t ri = 0; ri < HEIGHT; ri++) {
+				
+				CvScalar visit_start = cvGet2D(image_visit, ri, ci);
+				vector<CvPoint>   point_set;
+				
+				if (visit_start.val[0] == 0) {					
+					visit_start.val[0] = 255;cvSet2D(image_visit, ri, ci, visit_start);
+
+					CvScalar value = cvGet2D(image_binary, ri, ci);
+					
+					if (value.val[0] ==TARGET ) {
+						//采样点
+
+						point_set.push_back(cvPoint(ci, ri));
+
+
+								for (register int c = 0; c <point_set.size(); c++)
+								{
+											for (register int n = 0; n < 8; n++)
+											{
+														int x_n = point_set[c].x + dx4[n];
+														int y_n = point_set[c].y + dy4[n];
+														
+
+													if ((x_n >= 0 && x_n <  WIDTH) && (y_n >= 0 && y_n < HEIGHT)){
+																	//int nindex = y*WIDTH + x;
+																		CvScalar visit = cvGet2D(image_visit, y_n, x_n);
+																		CvScalar n_color = cvGet2D(image_binary, y_n, x_n);	
+
+																	if (visit.val[0] == 0) {
+																		if (n_color.val[0] == TARGET) {
+																			point_set.push_back(cvPoint(x_n, y_n));
+																		}
+																		visit.val[0] = 255;cvSet2D(image_visit, y_n, x_n, visit);
+																	}
+
+													}
+
+											}
+								}
+
+					}
+				}
+				if (point_set.size()>0) {
+					point_sets.push_back(point_set);
+				}
+
+			}
+		}
+#endif // TRUE
+	}
+	cvReleaseImage(&image_visit);
+
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+vector<float> ImageProcess::CRACK_get_histgram(IplImage * diff,vector<vector<CvPoint>> point_sets,int PN)
+{
+#if TRUE	
+	const long HISTOGRAM_DIM = 1920 * 1080;
+	vector<float> histogram;
+	
+	histogram.resize(HISTOGRAM_DIM, 0);
+	
+	for (size_t si = 0; si < point_sets.size(); si++) {
+		
+		vector<CvPoint> point_set = point_sets.at(si);
+		float one_line_sum = 0;
+		unsigned long one_line_idx = 0;
+		CRACK_get_block_property(diff,point_set,one_line_sum,one_line_idx,PN);
+		histogram[one_line_idx] += one_line_sum;
+		
+	}
+	return histogram;
+#endif
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+vector<float> ImageProcess::CRACK_get_histgram_feature(vector<float> histgram,int WIDTH,int  HEIGHT, int PN)
+{
+	
+	int sort_max[1];
+	ImageProcess::GetMaxValueIndex(histgram.data(), histgram.size(),sort_max,1);
+
+
+	float AREA = CRACK_get_histgram_area(histgram,WIDTH,HEIGHT,PN);
+	float MAX_POS =1.0*sort_max[0] / (1920 * 1080);
+
+	vector<float> feature;
+
+	feature.push_back(MAX_POS);
+	feature.push_back(AREA);
+
+	return feature;
+
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+vector<float> ImageProcess::CRACK_get_block_feature(const vector<vector<CvPoint>> frame_point_sets, vector<vector<CvPoint>>& frame_point_sets_out, IplImage * diff, int PN)
+{
+	vector<float> number0;//图块数量，数组
+	vector<float> number1;
+	float t;
+	frame_point_sets_out.clear();
+	for (unsigned long i = 0; i <frame_point_sets.size(); i++){
+		
+		vector<CvPoint> fps=frame_point_sets.at(i);
+		number0.push_back(fps.size());
+
+	}
+
+	const float avg0 = Base::Math_GetAverageValueF(number0.data(), number0.size());
+	const float sigma0 = Base::Math_GetVarianceValueF(number0.data(), number0.size(), avg0,&t);
+
+
+	for (unsigned long i = 0; i < number0.size(); i++){
+		float diff_f =number0.at(i)-avg0;
+			if (diff_f<3*sigma0){
+				number1.push_back(number0.at(i));//保留较小的部分
+			}
+	}
+
+	const float avg1 = Base::Math_GetAverageValueF(number1.data(), number1.size());
+	const float sigma1 = Base::Math_GetVarianceValueF(number1.data(), number1.size(), avg1, &t);
+	
+	float f_1;
+	float f_2;
+	float f_3;
+	
+	vector<float> deltaL;
+	for (unsigned long i = 0; i <frame_point_sets.size(); i++) {
+
+		vector<CvPoint> fps = frame_point_sets.at(i);
+		const int fps_size =fps.size();
+		if (fps_size-avg0>3*sigma0){
+			frame_point_sets_out.push_back(fps);
+			for (unsigned long pi = 0;pi<fps_size; pi++){
+				 float data_t=cvGetReal2D(diff, fps[pi].y, fps[pi].x);
+				 ASSERT(data_t * PN >= 0);
+				 deltaL.push_back(data_t);
+			}
+
+		}
+
+	}
+
+
+	if (avg0>0)
+	{
+		f_1 = fabs(avg0 - avg1) / avg0;
+	}
+	else
+	{
+		f_1 = 0;
+	}
+
+	if (sigma0>0)
+	{
+		f_2 = sigma1 / sigma0;
+	}
+	else
+	{
+		f_2 = 0;
+	}
+
+	f_3 = Base::Math_GetAverageValueF(deltaL.data(),deltaL.size())/255.0;
+
+	vector<float> f;
+
+	f.push_back(f_1);
+	f.push_back(f_2);
+	f.push_back(fabs(f_3));
+
+	return f;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+void ImageProcess::CRACK_get_block_property(
+	IplImage * diff,
+	vector<CvPoint> point_set,
+	float& sum,
+	unsigned long& count,
+	int PN)
+{
+	sum = 0;
+
+		for (size_t i = 0; i <point_set.size(); i++){
+		
+			CvPoint point_t = point_set.at(i);
+			int x = point_t.x;//col
+			int y = point_t.y;//row
+			float data_t=cvGetReal2D(diff, y, x);
+			ASSERT(PN*data_t>=0);
+			sum += data_t;
+		}
+
+		count = point_set.size();
+
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+float ImageProcess::CRACK_get_histgram_area(vector<float> histgram,int WIDTH,int HEIGHT,int PN)
+{
+	
+		const  unsigned long length = histgram.size();
+
+		//step 2 计算面积
+
+		float sum_hist = 0;
+
+		for (unsigned long hi = 0; hi < length; hi++) {
+			
+			float hist_data = histgram.at(hi);
+			
+			if (hist_data>0){
+					const float single_hist =hist_data *hi;
+					sum_hist += single_hist;
+			}
+
+
+		}
+		//step 3 计算理论总面积
+		
+		const float sum_max=1.0*(WIDTH*HEIGHT)*(WIDTH*HEIGHT)*255;
+
+		//step 4 计算特征
+
+
+		float feature_t = sum_hist / sum_max;
+
+		
+		assert(feature_t < 1 + 1E-6);
+
+		return feature_t;
+
+
+	
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
 float GetAreaFeature(vector<float> histogram)
 {
 	const size_t length = histogram.size();
@@ -3300,7 +3583,7 @@ void ImageProcess::Svm_Lean(vector<float> FeatureData,int FeatureDim,vector<INT3
 	const string classify_file = "svm_classifies.xml";
 	static CvMat dataMatHeader;//
 	static CvMat resMatHeader;//
-	
+	const int TotalClasses = 2;;
 	CvMat* data_mat;//
 	CvMat* res_mat;//
 
@@ -3330,15 +3613,20 @@ void ImageProcess::Svm_Lean(vector<float> FeatureData,int FeatureDim,vector<INT3
 		params.svm_type = CvSVM::C_SVC;
 		params.kernel_type = RBF;
 		params.term_crit = cvTermCriteria(CV_TERMCRIT_EPS, 1e5, 1E-6F);
-		params.gamma = 8;//增加容错，调小gamma
-		params.C = 10;//增加容错，调小C;
+#if 0
+		params.gamma = 1.0 / TotalClasses;//增加容错，调小gamma
+		params.C = 1;//增加容错，调小C;
+#endif // 0
+		params.gamma = 10;//增加容错，调小gamma
+		params.C = 8;//增加容错，调小C;
+
 	}else if(method ==2){
 //#ifdef SVM_USE_Poly
 		params.svm_type = CvSVM::C_SVC;
 		params.kernel_type = POLY;
 		params.term_crit = cvTermCriteria(CV_TERMCRIT_EPS, 1e5, FLT_EPSILON);
 		params.degree = 2;//最高相次
-		params.gamma = 1.0/FeatureDim;//1/n_features
+		params.gamma = 1.0/ TotalClasses;//1/n_features
 		params.coef0 = 0;
 		params.C = 1;//增加容错，调小C 
 	}else{
@@ -3615,6 +3903,20 @@ void ImageProcess::SaveArray2Disk(float * data, int size,int channel_t,int frame
 	}
 
 	myfile.close();
+}
+void ImageProcess::Opencv_SaveVector2CvMatrix(string file_name, vector<float> vf)
+{
+	const int DIM = vf.size();
+
+	CvMat *mat = cvCreateMat(1, DIM, CV_32FC1);
+
+	for (size_t ci = 0; ci <DIM; ci++){
+		cvSetReal2D(mat, 0, ci, vf[ci]);
+	}
+
+	cvSave(file_name.c_str(), mat);
+
+	cvReleaseMat(&mat);
 }
 /*----------------------------------------------------------------*/
 /**
