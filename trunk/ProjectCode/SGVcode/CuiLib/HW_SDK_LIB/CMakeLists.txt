@@ -11,6 +11,9 @@ ConfigOpenCv()
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")  
  
+ SET(HW_SDK_SRCS
+		hw_dev.cpp)
+		
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	
 	ConfigMFC_2() 
@@ -21,11 +24,12 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		live_video_base.cpp
 		live_set.cpp
 		ipc.cpp
-		dc_save.cpp)
+		dc_save.cpp
+		hw_dev.cpp)
 		
 	SET(BASE_LINK_LIB 
 		 tinyxml2
-		 SerialPort
+		 SerialPortModule
 		 pthreads)
 
 	if(NEED_CUDA)

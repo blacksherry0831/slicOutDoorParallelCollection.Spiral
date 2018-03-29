@@ -4,7 +4,16 @@ ConfigOpenCv()
 ###############################################################################
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")  
 
+	SET(DIR_SRCS   
+				SerialPortBase.cpp
+				)
+	ADD_LIBRARY(SerialPortModule   STATIC    ${DIR_SRCS}  )
+
+	TARGET_LINK_LIBRARIES(SerialPortModule
+		) 
+
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
+
 	ConfigMFC_2()
 	CONFIGPTHREADS()
 
@@ -28,13 +37,15 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	
 	endif (CBB_BUILDING_CRACK_DETECTION)
  
+ADD_LIBRARY(SerialPortModule   STATIC    ${DIR_SRCS}  )
+
+TARGET_LINK_LIBRARIES(SerialPortModule
+	MY_SDK_LIB
+	pthreads) 	
+	
 ENDIF () 
 ############################################################ 
 ############################################################
 		
-ADD_LIBRARY(SerialPort   STATIC    ${DIR_SRCS}  )
 
-TARGET_LINK_LIBRARIES(SerialPort
-	MY_SDK_LIB
-	pthreads) 
 ################################################################################

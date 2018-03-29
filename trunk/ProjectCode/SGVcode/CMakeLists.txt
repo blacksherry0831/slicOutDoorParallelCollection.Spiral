@@ -45,37 +45,45 @@ endif(NEED_WEBSOCKETPP)
 function(CONFIGPTHREADS)
 
 #CMAKE的内建变量，如果是true，就说明编译器的64位的，自然可以编译64bit的程序
-
-INCLUDE_DIRECTORIES( #相关头文件的目录
-		${SGV_cmake_SOURCE_DIR}/CuiLib/pthreads-w32-2-9-1-release/include
-	)
-
-if(CMAKE_CL_64)    
+IF (CMAKE_SYSTEM_NAME MATCHES "Linux")  
+   
+ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")  
+   if(CMAKE_CL_64)    
 	
-	SET(LIB_PTHREADS
-		pthreadVC2.lib)
+			SET(LIB_PTHREADS
+				pthreadVC2.lib)
 
-   LINK_DIRECTORIES(		
-		${SGV_cmake_SOURCE_DIR}/CuiLib/pthreads-w32-2-9-1-release/lib/x64)
+			 LINK_DIRECTORIES(		
+				${SGV_cmake_SOURCE_DIR}/CuiLib/pthreads-w32-2-9-1-release/lib/x64)
 
-else()
-	SET(LIB_PTHREADS
-		pthreadVC2.lib
-		pthreadVCE2.lib
-		pthreadVSE2.lib)
+	else()
+			SET(LIB_PTHREADS
+				pthreadVC2.lib
+				pthreadVCE2.lib
+				pthreadVSE2.lib)
 
-  LINK_DIRECTORIES(		
-		${SGV_cmake_SOURCE_DIR}/CuiLib/pthreads-w32-2-9-1-release/lib/x86)
+			LINK_DIRECTORIES(		
+				${SGV_cmake_SOURCE_DIR}/CuiLib/pthreads-w32-2-9-1-release/lib/x86)
 
-endif()
-
-   link_libraries(${LIB_PTHREADS})  
+	endif()
+			INCLUDE_DIRECTORIES( #相关头文件的目录
+				${SGV_cmake_SOURCE_DIR}/CuiLib/pthreads-w32-2-9-1-release/include
+			)
+			link_libraries(${LIB_PTHREADS}) 
+ELSE ()  
+    MESSAGE(STATUS "other platform: ${CMAKE_SYSTEM_NAME}")  
+ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")  
   
 endfunction(CONFIGPTHREADS)
 #############################################################################
 macro(CONFIGCURLHTTP)
 
-	if(NEED_HTTP)
+if(NEED_HTTP)
+
+IF (CMAKE_SYSTEM_NAME MATCHES "Linux")  
+   
+ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")  
+
 
 		if(CMAKE_CL_64)  
 
@@ -94,8 +102,13 @@ macro(CONFIGCURLHTTP)
 
 		endif()
 
-	endif(NEED_HTTP)
-  
+
+ELSE ()  
+    MESSAGE(STATUS "other platform: ${CMAKE_SYSTEM_NAME}")  
+ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux") 
+
+endif(NEED_HTTP)
+	
 endmacro(CONFIGCURLHTTP)
 #############################################################################
 #############################################################################
@@ -177,6 +190,7 @@ CONFIG_LOCAL_MODULE()
 ADD_SUBDIRECTORY(CuiLib)
 ADD_SUBDIRECTORY(main_test)
 ADD_SUBDIRECTORY(main_gui_crack)
+ADD_SUBDIRECTORY(main_qt_test)
 ###############################################################################
 MESSAGE(STATUS "operation system is ${CMAKE_SYSTEM}")  
 ############配置OPENCV#########################################################
@@ -236,11 +250,12 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 
 		ADD_EXECUTABLE(TEST_GPS main_test/gps_test.cpp)
 		TARGET_LINK_LIBRARIES(TEST_GPS
-			SerialPort)
+			SerialPortModule)
 
 		ADD_EXECUTABLE(EXE_HW_Hello main_test/hw_hello.cpp)
 		TARGET_LINK_LIBRARIES(EXE_HW_Hello
-			HW_SDK_LIB)
+			HW_SDK_LIB
+			SerialPortModule)
 
 	endif(CBB_BUILDING_AGV_CAR)
 	################################################
@@ -294,7 +309,7 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 
 		ADD_EXECUTABLE(TEST_BE_1105 main_test/be1105_test.cpp)
 		TARGET_LINK_LIBRARIES(TEST_BE_1105
-			SerialPort) 
+			SerialPortModule) 
 
 		ADD_EXECUTABLE(EXE_CRACK main_gui_crack/main_crack.cpp)
 		TARGET_LINK_LIBRARIES(EXE_CRACK

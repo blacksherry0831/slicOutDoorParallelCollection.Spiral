@@ -6,30 +6,33 @@ ConfigOpenCv()
 #####################################################
 macro (ConfigPthreadsWindowsLib)
 
-#CMAKE的内建变量，如果是true，就说明编译器的64位的，自然可以编译64bit的程序
-INCLUDE_DIRECTORIES( 
-					./include)
+	IF (CMAKE_SYSTEM_NAME MATCHES "Windows")  
+			INCLUDE_DIRECTORIES( 
+								./include)
 						
-	if(CMAKE_CL_64)    
+				if(CMAKE_CL_64)    
 	
-			SET(LIB_PTHREADS
-				pthreadVC2.lib)
+						SET(LIB_PTHREADS
+							pthreadVC2.lib)
 
-		    LINK_DIRECTORIES(		
-				./lib/x64)
+						LINK_DIRECTORIES(		
+							./lib/x64)
 
-	else()
-			SET(LIB_PTHREADS
-				pthreadVC2.lib
-				pthreadVCE2.lib
-				pthreadVSE2.lib)
+				else()
+						SET(LIB_PTHREADS
+							pthreadVC2.lib
+							pthreadVCE2.lib
+							pthreadVSE2.lib)
 
-			LINK_DIRECTORIES(		
-				./lib/x86)
+						LINK_DIRECTORIES(		
+							./lib/x86)
 
-	endif()
+				endif()
 
-	link_libraries(${LIB_PTHREADS})
+				link_libraries(${LIB_PTHREADS})
+	ENDIF ()  
+#CMAKE的内建变量，如果是true，就说明编译器的64位的，自然可以编译64bit的程序
+
   
 endmacro(ConfigPthreadsWindowsLib) 
 #####################################################

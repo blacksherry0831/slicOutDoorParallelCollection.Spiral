@@ -48,7 +48,7 @@ IF(Boost_FOUND)
 		ADD_EXECUTABLE(TEST_AGV_CAR agv_car_test.cpp)
 		TARGET_LINK_LIBRARIES(TEST_AGV_CAR	
 			libcurl_http
-			SerialPort
+			SerialPortModule
 			Comm2ServerLib) 		
 	endif()
 	####################################

@@ -4,12 +4,6 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
    
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")  
 	
-	if(MSVC)
-	 ConfigMFC_2()
-	 CONFIG_HOWELL_CAMERA()
-	 CONFIGPTHREADS()
-	 ConfigOpenCv()
-	endif(MSVC)
 ELSE ()  
     MESSAGE(STATUS "other platform: ${CMAKE_SYSTEM_NAME}")  
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
@@ -37,25 +31,27 @@ set(CMAKE_AUTOMOC ON)
 # Find the QtWidgets library
 find_package(Qt5Widgets)
 find_package(Qt5SerialPort REQUIRED) 
+find_package(Qt5Core  REQUIRED)
+
+include_directories(
+					${Qt5Widgets_INCLUDES}
+					${Qt5SerialPort_INCLUDES})
 
 qt5_wrap_ui(ui_FILES mainwindow.ui)
 ######################################
 IF (CBB_BUILDING_CRACK_DETECTION)  
    
 # Tell CMake to create the helloworld executable
-add_executable(EXE_GUI_CRACK_DETECTION WIN32
+add_executable(TEST_QT  WIN32
                             main.cpp
                             mainwindow.cpp
-							DoWork.cpp
                             ${ui_FILES})
 
 
 
-TARGET_LINK_LIBRARIES(EXE_GUI_CRACK_DETECTION
-			HW_SDK_LIB
-			SerialPortModule
-			${Qt5Widgets_LIBRARIES}
-			${Qt5SerialPort_LIBRARIES}) 
+TARGET_LINK_LIBRARIES(TEST_QT 
+							${Qt5Widgets_LIBRARIES}
+							${Qt5SerialPort_LIBRARIES}) 
 
 ENDIF (CBB_BUILDING_CRACK_DETECTION)
 ######################################

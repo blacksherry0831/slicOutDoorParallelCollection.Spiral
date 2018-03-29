@@ -53,6 +53,8 @@ using namespace std;
 #define  ASSERT(Exp) assert(Exp)
 #endif
 
+#include<stdbool.h>
+
 #endif
 /*-----------------------------------------*/
 /**
