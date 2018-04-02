@@ -2972,6 +2972,33 @@ void ImageProcess::crack_get_long_crack(IplImage * diff_org,
 *
 */
 /*----------------------------------------------------------------*/
+void ImageProcess::VVC2Image(vector<vector<CvPoint>> vvc, IplImage* img)
+{
+	/*const int WIDTH = img->width;
+	const int HEIGHT = img->height;*/
+	cvZero(img);
+	for (unsigned long i = 0; i <vvc.size(); i++) {
+
+		vector<CvPoint> fps = vvc.at(i);
+
+		const int fps_size = fps.size();
+
+
+		for (unsigned long pi = 0; pi<fps_size; pi++) {
+
+			cvSetReal2D(img, fps[pi].y, fps[pi].x, 255);
+
+		}
+
+
+
+	}
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
 void ImageProcess::CRACK_get_block_sets(
 	IplImage * gray,
 	IplImage * avg,
@@ -3050,6 +3077,18 @@ void ImageProcess::CRACK_get_block_sets(
 	}
 	cvReleaseImage(&image_visit);
 
+
+#if _DEBUG
+	{
+		IplImage* img = cvCreateImage(cvSize(WIDTH, HEIGHT), IPL_DEPTH_8U, 1);
+
+		VVC2Image(point_sets, img);
+
+		cvReleaseImage(&img);
+
+	}
+#endif // _DEBUG
+
 }
 /*----------------------------------------------------------------*/
 /**
@@ -3108,7 +3147,11 @@ vector<float> ImageProcess::CRACK_get_block_feature(const vector<vector<CvPoint>
 {
 	vector<float> number0;//图块数量，数组
 	vector<float> number1;
+	const int WIDTH = diff->width;
+	const int HEIGHT = diff->height;
 	float t;
+	float n_3_sigma = 0;
+
 	frame_point_sets_out.clear();
 	for (unsigned long i = 0; i <frame_point_sets.size(); i++){
 		
@@ -3126,6 +3169,10 @@ vector<float> ImageProcess::CRACK_get_block_feature(const vector<vector<CvPoint>
 			if (diff_f<3*sigma0){
 				number1.push_back(number0.at(i));//保留较小的部分
 			}
+			else
+			{
+				n_3_sigma += number0.at(i);//大于3倍方差，
+			}
 	}
 
 	const float avg1 = Base::Math_GetAverageValueF(number1.data(), number1.size());
@@ -3134,6 +3181,7 @@ vector<float> ImageProcess::CRACK_get_block_feature(const vector<vector<CvPoint>
 	float f_1;
 	float f_2;
 	float f_3;
+	//float f_4;
 	
 	vector<float> deltaL;
 	for (unsigned long i = 0; i <frame_point_sets.size(); i++) {
@@ -3151,6 +3199,17 @@ vector<float> ImageProcess::CRACK_get_block_feature(const vector<vector<CvPoint>
 		}
 
 	}
+
+#if _DEBUG
+	{
+		IplImage* img = cvCreateImage(cvSize(WIDTH, HEIGHT), IPL_DEPTH_8U, 1);
+
+		VVC2Image(frame_point_sets_out, img);
+
+		cvReleaseImage(&img);
+
+	}
+#endif // _DEBUG
 
 
 	if (avg0>0)
@@ -3173,11 +3232,17 @@ vector<float> ImageProcess::CRACK_get_block_feature(const vector<vector<CvPoint>
 
 	f_3 = Base::Math_GetAverageValueF(deltaL.data(),deltaL.size())/255.0;
 
+	
+
+	//f_4 =1.0 * n_3_sigma / (WIDTH*HEIGHT);
+	
+	
 	vector<float> f;
 
 	f.push_back(f_1);
 	f.push_back(f_2);
 	f.push_back(fabs(f_3));
+	//f.push_back(f_4);
 
 	return f;
 }

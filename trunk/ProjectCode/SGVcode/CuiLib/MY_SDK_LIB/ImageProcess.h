@@ -96,6 +96,7 @@ public:
 	static vector<float> crack_get_image_feature_one_line(string org);
 	
 	static void crack_get_long_crack(IplImage * diff_org,IplImage *image_4_delta,int delta_idx, vector<vector<CvPoint>>&   point_setsstring,string file_base,int CIRCLE ,int CHANNEL, int frame_idx,boolean SAVE_FLAG);
+	static void VVC2Image(vector<vector<CvPoint>> vvc, IplImage * img);
 	static void CRACK_get_block_sets(
 		IplImage * gray,
 		IplImage * avg,

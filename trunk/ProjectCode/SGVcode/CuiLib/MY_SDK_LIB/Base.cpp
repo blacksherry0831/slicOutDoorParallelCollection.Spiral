@@ -547,7 +547,7 @@ void Base::FS_getFiles(string path, string exd, vector<string>& files)
 					
 					const string ext_t=Base::file_name_ext(file_name_t);
 
-					if (file_name_t.find(exd)){
+					if (file_name_t.find(exd) != string::npos){
 							files.push_back(pathName.assign(path).append(fileinfo.name));
 					}
 					
