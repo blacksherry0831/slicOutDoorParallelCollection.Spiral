@@ -207,11 +207,7 @@ void ImageProcess::SaveCutImage(IplImage* img_t,CvRect cut_t,string readfile_nam
 	cvReleaseImage(&img_cut_t);
 	
 	cvResetImageROI(img_t);
-
-
-
 	
-
 }
 /*--------------------------------------------------------------*/
 /**

@@ -10,14 +10,13 @@
 */
 /*-------------------------------------------------------------------------*/
 
-int main()
+int main(int argc, char *argv[])
 {
+	QCoreApplication a(argc, argv);
 
 	BE_1105_Driver *be_1105 = BE_1105_Driver::getInstance();
-
 	
-
-	
+	be_1105->PrintAllSerialPort();
 
 	while (be_1105->IsThreadRun()) {
 		
@@ -27,20 +26,27 @@ int main()
 		if (cmd.compare("run neg") == 0) {
 			be_1105->SendCmd(BE_1105_RUN_NEG,63000);
 		}else if (cmd.compare("open") == 0) {
-			be_1105->open(3);
-		}else if (cmd.compare("status") == 0) {
+
+#if defined(linux) || defined(__linux) || defined(__linux__)
+			be_1105->open_ttyUSB();			
+#endif
+#if  defined(_WIN32) || defined(_WIN64)
+			be_1105->open(3);			
+#endif
+
+		}else if (cmd.compare("close") == 0) {
+			be_1105->close();
+		}else if (cmd.compare("X") == 0) {
 			
-		}else if (cmd.compare("start record") == 0) {
+		}else if (cmd.compare("X") == 0) {
 			
-		}else if (cmd.compare("stop record") == 0) {
-			
-		}else if (cmd.compare("set manual") == 0) {
+		}else if (cmd.compare("X") == 0) {
 		
-		}else if (cmd.compare("reboot") == 0) {
+		}else if (cmd.compare("X") == 0) {
 			
-		}else if (cmd.compare("hard disk") == 0) {
+		}else if (cmd.compare("X") == 0) {
 			
-		}else if (cmd.compare("format disk") == 0) {
+		}else if (cmd.compare("X") == 0) {
 			
 		}else if (cmd.compare("q") == 0) {
 				break;

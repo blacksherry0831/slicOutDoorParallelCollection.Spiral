@@ -92,17 +92,17 @@
 #define  Ground11  (-11)
 #define  Ground12  (-12)
 #define  Ground13  (-13)
-#define  Ground (1)
+//#define  Ground (1)
 #if 0
 #define  NotSky   (1.5)
 #endif
-#define  Vertical (2)
+//#define  EARTH_Vertical (2)
 #if 0
 #define  NotGround (2.5)
 #endif 
-#define  Sky  (3)
+//#define  Sky  (3)
 
-
+enum EARTH_POS{Sky=3,Vertical=2, Ground=1};
 /*********************************************/
 #define Gray_Sky FALSE
 #define   OUT_NOGROUND_IMG FALSE

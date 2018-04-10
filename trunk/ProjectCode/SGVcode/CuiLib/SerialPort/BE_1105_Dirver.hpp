@@ -2,11 +2,15 @@
 
 #include "cpp_stl.h"
 
-#include "pt_mutex.h"
+#include "../pthreads-w32-2-9-1-release/include/pt_mutex.h"
 
-#include "SerialPort.h"
-#include "SerialPortBase.hpp"
+
+#include "SerialPortBase/SerialPortBase.hpp"
+
 #include "IStepMotor.hpp"
+
+#include <QtCore>
+
 /*-------------------------------------*/
 /**
 *
@@ -28,17 +32,19 @@ private:
 	BE_1105_Driver(void);
 	~BE_1105_Driver(void);	
 public:
-	bool open(int com_num);
-	bool open(string com);
-	void init();
+	int open(int com_num);
+	int open(string com);
+	
 	void close();
 	void Join();
 	static void* readResultThread(void* lpParam);
 	boolean IsThreadRun();
 	void ReadRespData();
 	
-	bool IsReady();
-	bool Wait4CmdDone();
+	int IsReady();
+	int Wait4CmdDone();
+
+	
 
 private:
 	void ProcessData();
@@ -66,7 +72,9 @@ private:
 	static  BE_1105_Driver* _instance;
 public:	
 	static BE_1105_Driver* getInstance();
+#if TRUE
 private:
+
 	class CGarbo // 它的唯一工作就是在析构函数中删除实例      
 	{
 	public:
@@ -83,5 +91,5 @@ private:
 	static CGarbo Garbo; 
 	// 定义一个静态成员，在程序结束时，系统会调用它的析构函数    
 /*-------------------------------------------------------*/
-
+#endif
 };

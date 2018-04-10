@@ -1,9 +1,5 @@
 #include "StdAfx.h"
 #include "BE_1105_Dirver.hpp"
-//#include "opencv_stl.h"
-#include "pt_mutex.h"
-
-#include "MY_SDK_LIB/Base.h"
 /*-------------------------------------*/
 /**
 *
@@ -41,44 +37,34 @@ BE_1105_Driver::~BE_1105_Driver(void)
 *
 */
 /*-------------------------------------*/
-bool BE_1105_Driver::open(int com_num)
+int BE_1105_Driver::open(int com_num)
 {
-	if (m_sp.IsOpen() == false) {
-			m_sp.Open(com_num,m_baudrate);
-			{
-				COMMTIMEOUTS Timeouts;//unit ms 
-				Timeouts.ReadIntervalTimeout = 100;//ms
-				Timeouts.ReadTotalTimeoutConstant = 100;
-				Timeouts.ReadTotalTimeoutMultiplier = 100;
-				Timeouts.WriteTotalTimeoutConstant = 100;
-				Timeouts.WriteTotalTimeoutMultiplier = 100;
-				m_sp.SetTimeouts(Timeouts);
-			}
-			std::cout << "open serial port£º"<<com_num<<std::endl;
-#if TRUE		
-			int ret = 0;	
-			this->m_read_thread_run = true;
-			ret = pthread_create(&m_pt_handle, NULL, readResultThread,this);
-			if (ret != 0)
-			{
-				std::cout << "Create pthread error!" << std::endl;
-				ASSERT(ret != 0);
-			}
-#endif			
 
+	if (SerialPortBase::open(com_num) == TRUE) {
+		#if TRUE		
+					int ret = 0;	
+					this->m_read_thread_run = true;
+					ret = pthread_create(&m_pt_handle, NULL, readResultThread,this);
+					if (ret != 0)
+					{
+						std::cout << "Create pthread error!" << std::endl;
+						ASSERT(ret != 0);
+					}
+		#endif		
 	}
 
-	return m_sp.IsOpen();
+	return init();
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-bool BE_1105_Driver::open(string com)
+int BE_1105_Driver::open(string com)
 {
 	const size_t length= com.length();
 	string com_num;
+	
 	for (size_t i = 0; i < length; i++)
 	{
 		char char_t = com.at(i);
@@ -99,10 +85,7 @@ bool BE_1105_Driver::open(string com)
 *
 */
 /*-------------------------------------*/
-void BE_1105_Driver::init()
-{
 
-}
 /*-------------------------------------*/
 /**
 *
@@ -161,6 +144,13 @@ boolean BE_1105_Driver::IsThreadRun()
 {
 	return m_read_thread_run;
 }
+
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+
 /*-------------------------------------*/
 /**
 *
@@ -175,7 +165,7 @@ void BE_1105_Driver::ReadRespData()
 
 	//TimeCountStart();
 	do {
-		read_count = m_sp.Read(&m_resp_data[buffer_result_idx], 1);
+		read_count =serial_read(&m_resp_data[buffer_result_idx], 1);
 
 		if (read_count==1) {
 
@@ -221,7 +211,8 @@ void BE_1105_Driver::ReadRespData()
 				}
 				
 		}else if (read_count == 0) {
-			Sleep(1000);
+			
+			QThread::msleep(1000);
 			Timeout_t++;
 			//TimeCountStop("BE_1105>>>Read Serial Port Timeout!");
 
@@ -244,21 +235,21 @@ void BE_1105_Driver::ReadRespData()
 /*-------------------------------------*/
 void BE_1105_Driver::ProcessData()
 {
-	m_MUTEX.Lock();
+	m_MUTEX.lock();
 
 	memcpy(m_status, m_resp_data, 2);
 
 
-	m_MUTEX.UnLock();
+	m_MUTEX.unlock();
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-bool BE_1105_Driver::IsReady()
+int BE_1105_Driver::IsReady()
 {
-	bool FLAG = false;
+	int FLAG = false;
 	m_MUTEX.lock();
 
 	if (m_status[0] == 0xB1) {
@@ -285,7 +276,7 @@ bool BE_1105_Driver::IsReady()
 	}
 
 	
-	m_MUTEX.Unlock();
+	m_MUTEX.unlock();
 
 	return FLAG;
 }
@@ -294,13 +285,12 @@ bool BE_1105_Driver::IsReady()
 *
 */
 /*-------------------------------------*/
-bool BE_1105_Driver::Wait4CmdDone()
+int BE_1105_Driver::Wait4CmdDone()
 {
 
 	int COUNT = 0;
 	do {
-	
-		Base::sleep(100);		
+		QThread::msleep(100);
 		if (COUNT++ > 5*60*10*m_circle) {
 			break;//³¬Ê±ÍË³ö
 		}
@@ -308,6 +298,7 @@ bool BE_1105_Driver::Wait4CmdDone()
 
 	return IsReady();
 }
+
 /*-------------------------------------*/
 /**
 *
@@ -407,6 +398,12 @@ int BE_1105_Driver::SendQueryCmd(int mode)
 	}
 	return this->serial_write(get_query_cmd(), 5);
 }
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+
 /*-------------------------------------*/
 /**
 *

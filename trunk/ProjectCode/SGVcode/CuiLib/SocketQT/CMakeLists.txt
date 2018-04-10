@@ -1,0 +1,35 @@
+############≈‰÷√OPENCV#########################################################
+C11_Config()
+ConfigOpenCv()
+CONFIGQT()
+###############################################################################
+
+IF (CMAKE_SYSTEM_NAME MATCHES "Linux")  
+
+	
+
+ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
+
+		ConfigMFC_2()	
+	
+ENDIF () 
+	
+	if (CBB_BUILDING_CRACK_DETECTION)
+		SET(DIR_SRCS				
+				QtTcpServer.cpp
+				QtTcpClient.cpp
+				QtThreadBase.cpp
+				QtThreadClient.cpp
+				QtThreadServer.cpp)		
+	
+	endif (CBB_BUILDING_CRACK_DETECTION)
+ 
+ADD_LIBRARY(SOCKET_SERVER   STATIC    ${DIR_SRCS}  )
+
+TARGET_LINK_LIBRARIES(SOCKET_SERVER
+	) 
+############################################################ 
+############################################################
+		
+
+################################################################################

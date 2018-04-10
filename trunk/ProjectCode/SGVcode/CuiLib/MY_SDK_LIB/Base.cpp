@@ -649,7 +649,7 @@ int Base::CRACK_FILE_NAME_get_channel(string file_full_name)
 	}
 
 	ASSERT(0);
-
+	return -1;
 }
 int Base::CRACK_FILE_NAME_get_FRAME(string file_full_name)
 {
@@ -668,6 +668,7 @@ int Base::CRACK_FILE_NAME_get_FRAME(string file_full_name)
 	}
 
 	ASSERT(0);
+	return -1;
 }
 int Base::CRACK_FILE_NAME_get_PROPERTY(string file_full_name, string _property)
 {
@@ -710,6 +711,7 @@ int  Base::CRACK_FILE_NAME_get_circle(string file_full_name)
 	}
 
 	ASSERT(0);
+	return -1;
 }
 /*-----------------------------------------*/
 /**

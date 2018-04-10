@@ -1,10 +1,9 @@
 #pragma once
 
 #include "cpp_stl.h"
-
-#include "SerialPort.h"
-
-#include "pt_mutex.h"
+#include <QtCore>
+#include <QSerialPort>  
+#include <QSerialPortInfo>
 
 
 /*-------------------------------------*/
@@ -15,13 +14,17 @@
 /*-------------------------------------*/
 class SerialPortBase
 {
+public:
+	SerialPortBase(void);
+private:
+	QSerialPort m_qsp;
+	vector<QSerialPortInfo> m_serialPorts;
 protected:
 	~SerialPortBase(void);
 protected:
-	ThreadMutex m_MUTEX;  
-#if _MSC_VER
-	CSerialPort m_sp;	
-#endif
+	QMutex m_MUTEX;  
+
+
 	DWORD m_baudrate;
 	char	buffer_result[1024];//Ω” ‹buffer
 	char	buffer_cmd[1024];//∑¢ÀÕbuffer
@@ -29,14 +32,21 @@ protected:
 	void close_port();
 	void close();
 	int serial_write(const void* buffer,DWORD num);
-protected:
-	 static  SerialPortBase* _instance;
+	int serial_read_all();
+	int serial_read(void* _data_out, int _size);
+	int serial_process_data(const char* _data,int _len);
+public:
+	void PrintAllSerialPort(void);
+private:
+		void initSerialPort();
+public:
+	int open_ttyUSB();
 
+	virtual int open(int com_num);
+	virtual int open_s(string com_name);
+	virtual int open_q(QSerialPortInfo _qspi);
+	virtual int init();
 public:
-		SerialPortBase(void);
-public:
-	virtual bool open(int com_num);
-	virtual void init();
 
 
 };

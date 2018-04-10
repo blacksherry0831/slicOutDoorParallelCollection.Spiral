@@ -76,6 +76,7 @@ ENDIF (CMAKE_SYSTEM_NAME MATCHES "Linux")
   
 endfunction(CONFIGPTHREADS)
 #############################################################################
+#############################################################################
 macro(CONFIGCURLHTTP)
 
 if(NEED_HTTP)
@@ -161,7 +162,9 @@ macro(CONFIG_ALL_MODULE)
 endmacro(CONFIG_ALL_MODULE)
 ###############################################################################
 function (CONFIG_LOCAL_MODULE)
-	
+
+	#############################################	
+	set(CMAKE_INCLUDE_CURRENT_DIR ON) 
 	#############################################
 	INCLUDE_DIRECTORIES( #相关头文件的目录
 					${SGV_cmake_SOURCE_DIR}/CuiLib
@@ -183,6 +186,8 @@ INCLUDE(cmake/SetMFC.cmake)
 INCLUDE(cmake/FindOpencv.cmake)
 INCLUDE(cmake/SetBoost.cmake)
 INCLUDE(cmake/setCUDA.cmake)
+INCLUDE(cmake/FindQT.cmake)
+INCLUDE(cmake/SetPthreads.cmake)
 ###############################################################################
 #放在最前面
 CONFIG_LOCAL_MODULE()
@@ -199,38 +204,27 @@ ConfigOpenCv()
 ############配置CUDA#########################################################
 ConfigCUDA()
 #############################################################################
+CONFIGQT()
+#############################################################################
+CONFIG_LINUX_BASE()
+#############################################################################
 FIND_PACKAGE(Boost)
 #################编译器配置####################################################
 CONFIG_ALL_MODULE()
 ##################################################################################
+ 
 ##################################################################################
 ##################################################################################
 ##################################################################################
 ##################################################################################
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")  
 	
+	################################################
 	ADD_EXECUTABLE(SpectralClusteringGndVSkyOutDoor main.cpp)
-	
-	find_package(Threads REQUIRED)
-	if(THREADS_HAVE_PTHREAD_ARG)
-	  target_compile_options(PUBLIC SpectralClusteringGndVSkyOutDoor "-pthread")
-	endif()
-	
-	if(CMAKE_THREAD_LIBS_INIT)
-	 
-		TARGET_LINK_LIBRARIES(SpectralClusteringGndVSkyOutDoor 
-									SGVcode
-									"${CMAKE_THREAD_LIBS_INIT}"
-						  ) 
-		
-	ELSE()
-	
+			
 	TARGET_LINK_LIBRARIES(SpectralClusteringGndVSkyOutDoor 
-									SGVcode
-						  ) 
-	
-	endif()
-	
+									SGVcode)
+	################################################
 
 	
 	
@@ -307,10 +301,6 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	#################################################
 	if(CBB_BUILDING_CRACK_DETECTION)
 
-		ADD_EXECUTABLE(TEST_BE_1105 main_test/be1105_test.cpp)
-		TARGET_LINK_LIBRARIES(TEST_BE_1105
-			SerialPortModule) 
-
 		ADD_EXECUTABLE(EXE_CRACK main_gui_crack/main_crack.cpp)
 		TARGET_LINK_LIBRARIES(EXE_CRACK
 							MY_SDK_LIB
@@ -334,5 +324,12 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
 ELSE ()  
    
 ENDIF ()  
+##################################################################################
+if(CBB_BUILDING_CRACK_DETECTION)
 
+		ADD_EXECUTABLE(TEST_BE_1105 main_test/be1105_test.cpp)
+		TARGET_LINK_LIBRARIES(TEST_BE_1105
+			SerialPortModule) 
+		
+	endif() 
 ##################################################################################

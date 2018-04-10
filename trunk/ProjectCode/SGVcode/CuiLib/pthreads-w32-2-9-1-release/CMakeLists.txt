@@ -3,6 +3,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.8.1)
 #####################################################
 C11_Config()  
 ConfigOpenCv()
+CONFIG_LINUX_BASE()
 #####################################################
 macro (ConfigPthreadsWindowsLib)
 
@@ -57,4 +58,3 @@ SET(pthreads_SRCS
 		./include/pt_mutex.cpp)
 
 ADD_LIBRARY(pthreads   STATIC    ${pthreads_SRCS})
-SET_TARGET_PROPERTIES(pthreads PROPERTIES LINKER_LANGUAGE CXX)

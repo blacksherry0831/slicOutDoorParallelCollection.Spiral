@@ -224,7 +224,17 @@ typedef unsigned char boolean;
 #endif // !boolean
 
 
+#if defined(linux) || defined(__linux) || defined(__linux__)
 
+#endif
+
+#if defined(_WIN32) || defined(_WIN64)
+
+
+//#include <crtdbg.h>
+
+
+#endif
 /*-----------------------------------------*/
 /**
 *
