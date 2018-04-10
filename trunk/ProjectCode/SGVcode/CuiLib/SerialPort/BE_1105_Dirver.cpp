@@ -403,9 +403,18 @@ int BE_1105_Driver::SendQueryCmd(int mode)
 *
 */
 /*-------------------------------------*/
-
+int BE_1105_Driver::ReadResp()
+{
+	return 0;
+}
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
+int BE_1105_Driver::readComDataSlot()
+{
+
+	this->ReadRespData();
+	return 0;
+}

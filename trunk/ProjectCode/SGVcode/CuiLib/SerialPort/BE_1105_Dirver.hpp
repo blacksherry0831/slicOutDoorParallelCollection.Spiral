@@ -28,6 +28,7 @@
 /*-------------------------------------*/
 class BE_1105_Driver :public SerialPortBase,public IStepMotor
 {
+	Q_OBJECT
 private:
 	BE_1105_Driver(void);
 	~BE_1105_Driver(void);	
@@ -67,6 +68,8 @@ public:
 	unsigned char * get_query_cmd();
 	int  SendCmd(int run_mode, int speed, int circle=1);
 	int  SendQueryCmd(int mode);
+	int  ReadResp();
+
 /*-------------------------------------------------------*/
 private:	
 	static  BE_1105_Driver* _instance;
@@ -92,4 +95,6 @@ private:
 	// 定义一个静态成员，在程序结束时，系统会调用它的析构函数    
 /*-------------------------------------------------------*/
 #endif
+	public slots :
+	int readComDataSlot();
 };

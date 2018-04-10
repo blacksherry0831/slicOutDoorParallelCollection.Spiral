@@ -12,12 +12,14 @@
 *
 */
 /*-------------------------------------*/
-class SerialPortBase
+class SerialPortBase :public QObject
 {
+	Q_OBJECT
 public:
 	SerialPortBase(void);
 private:
-	QSerialPort m_qsp;
+	QSharedPointer<QSerialPort> m_qsp;
+	QSharedPointer<QTimer> m_timer;
 	vector<QSerialPortInfo> m_serialPorts;
 protected:
 	~SerialPortBase(void);
@@ -33,6 +35,7 @@ protected:
 	void close();
 	int serial_write(const void* buffer,DWORD num);
 	int serial_read_all();
+
 	int serial_read(void* _data_out, int _size);
 	int serial_process_data(const char* _data,int _len);
 public:
@@ -46,7 +49,6 @@ public:
 	virtual int open_s(string com_name);
 	virtual int open_q(QSerialPortInfo _qspi);
 	virtual int init();
-public:
-
-
+public slots :
+	int readComDataSlot();
 };

@@ -10,6 +10,7 @@ SerialPortBase::SerialPortBase(void)
 {
 	
 	this->initSerialPort();
+	this->m_timer =QSharedPointer<QTimer>(new QTimer());
 }
 /*-------------------------------------*/
 /**
@@ -21,7 +22,7 @@ SerialPortBase::~SerialPortBase(void)
 {
 
 	this->close_port();
-
+	
 }
 /*-------------------------------------*/
 /**
@@ -68,7 +69,10 @@ int SerialPortBase::open_ttyUSB()
 			if (this->open_s(ttysusb)==false) {
 				std::cout << "sudo gedit /etc/udev/rules.d/70-ttyusb.rules" << std::endl
 					<< " KERNEL==\"ttyUSB[0 - 9] * \", MODE=\"0666\" " << std::endl;
-			};
+			}else{
+				connect(m_timer.data(), SIGNAL(timeout()), this, SLOT(readComDataSlot()));
+				m_timer->start(1000);
+			}
 		}
 	}
 	return init();
@@ -119,15 +123,15 @@ int SerialPortBase::open_q(QSerialPortInfo _qspi)
 
 	std::cout << "ready to open serial port: " << com_name<< std::endl;
 	
-	m_qsp.setPort(_qspi);
+	m_qsp->setPort(_qspi);
 
-	m_qsp.setBaudRate(m_baudrate, QSerialPort::AllDirections);
-	m_qsp.setDataBits(QSerialPort::Data8);
-	m_qsp.setParity(QSerialPort::NoParity);
-	m_qsp.setStopBits(QSerialPort::OneStop);
-	m_qsp.setFlowControl(QSerialPort::NoFlowControl);
+	m_qsp->setBaudRate(m_baudrate, QSerialPort::AllDirections);
+	m_qsp->setDataBits(QSerialPort::Data8);
+	m_qsp->setParity(QSerialPort::NoParity);
+	m_qsp->setStopBits(QSerialPort::OneStop);
+	m_qsp->setFlowControl(QSerialPort::NoFlowControl);
 
-	bool com = m_qsp.open(QIODevice::ReadWrite);//打
+	bool com = m_qsp->open(QIODevice::ReadWrite);//打
 
 	if (com)
 	{
@@ -152,7 +156,7 @@ int SerialPortBase::open_q(QSerialPortInfo _qspi)
 /*-------------------------------------*/
 int SerialPortBase::init()
 {
-	return m_qsp.isOpen()==true ? TRUE: FALSE;
+	return m_qsp->isOpen()==true ? TRUE: FALSE;
 }
 /*-------------------------------------*/
 /**
@@ -168,8 +172,8 @@ int SerialPortBase::init()
 void SerialPortBase::close_port()
 {	
 
-	if (m_qsp.isOpen()) {
-		m_qsp.close();
+	if (m_qsp->isOpen()) {
+		m_qsp->close();
 	}
 
 }
@@ -191,19 +195,14 @@ int SerialPortBase::serial_write(const void * buffer, DWORD num)
 {
 	int WriteNum = -1;	
 
-	if (m_qsp.isOpen()) {
+	if (m_qsp->isOpen()) {
 	
-		WriteNum=m_qsp.write((char*)buffer, num);
+		WriteNum=m_qsp->write((char*)buffer, num);
 	
 	}
 
 	return WriteNum;
-
-
-
-
-
-
+	
 }
 /*-------------------------------------*/
 /**
@@ -212,7 +211,7 @@ int SerialPortBase::serial_write(const void * buffer, DWORD num)
 /*-------------------------------------*/
 int SerialPortBase::serial_read_all()
 {
-	QByteArray showdata = m_qsp.readAll();
+	QByteArray showdata = m_qsp->readAll();
 
 	const char* DATA = showdata.data();
 	const int LEN = showdata.size();
@@ -226,9 +225,29 @@ int SerialPortBase::serial_read_all()
 *
 */
 /*-------------------------------------*/
+int SerialPortBase::readComDataSlot()
+{
+
+	//读取串口数据  
+	QByteArray readComData = m_qsp->readAll();
+
+	//将读到的数据显示到数据接收区的te中  
+	if (readComData.size()>0){
+		
+	}
+
+	//清除缓冲区  
+	readComData.clear();
+	return 0;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 int SerialPortBase::serial_read(void * _data_out, int _size)
 {
-	int size_t= m_qsp.read((char*)_data_out, _size);
+	int size_t= m_qsp->read((char*)_data_out, _size);
 	
 	return size_t;
 }
