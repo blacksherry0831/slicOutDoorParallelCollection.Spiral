@@ -16,10 +16,11 @@ QtThreadServer::QtThreadServer()
 *
 */
 /*-------------------------------------*/
-QtThreadServer::QtThreadServer(QSharedPointer<QtTcpServer> _TcpServer)
+QtThreadServer::QtThreadServer(int _port,QSharedPointer<QtTcpServer> _TcpServer)
 {
 	m_TcpServer=_TcpServer;
 	m_TcpServer->moveToThread(this);
+	this->m_port = _port;
 }
 /*-------------------------------------*/
 /**
@@ -42,9 +43,9 @@ void QtThreadServer::run()
 
 	
 
-	if (m_TcpServer->listen(QHostAddress::AnyIPv4, 6665)) {
+	if (m_TcpServer->listen(QHostAddress::AnyIPv4,m_port)) {
 	  
-		qDebug() <<"TCP Server Is Start ."<< "Date:" << QDate::currentDate();
+		qDebug() <<"TCP Server Is Start ,Port."<<m_port<< "Date:" << QDate::currentDate();
 	
 	}	else {
 	

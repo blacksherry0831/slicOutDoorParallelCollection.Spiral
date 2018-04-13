@@ -1,5 +1,5 @@
 //#include "stdafx.h"
-#include "QtThreadClient.hpp"
+#include "DataFrame.hpp"
 /*-------------------------------------*/
 /**
 *
@@ -13,35 +13,20 @@
 *
 */
 /*-------------------------------------*/
+DataFrame::DataFrame()
+{
+
+}
 
 /*-------------------------------------*/
 /**
 *
-*/
-/*-------------------------------------*/
-QtThreadClient::QtThreadClient(qintptr p)
-{
-	this->write_ptr(p);
-}
-/*-------------------------------------*/
-/**
 *
 */
 /*-------------------------------------*/
-QtThreadClient::~QtThreadClient(void)
+DataFrame::~DataFrame() 
 {
-	qDebug() << "QtThreadClient is Release ! ";
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtThreadClient::write_ptr(qintptr p)
-{
-	this->ptr_sd = p;
-	m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
-	m_socket->moveToThread(this);
+
 }
 /*-------------------------------------*/
 /**
@@ -54,63 +39,37 @@ void QtThreadClient::write_ptr(qintptr p)
 *
 */
 /*-------------------------------------*/
-void QtThreadClient::run()
-{
-	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
-	
-	qDebug() << "Client Thread Start";
-	
 
-	m_socket->setSocketDescriptor(ptr_sd);//客户端的初始化  
-	
-	if (m_socket->waitForConnected(MAX_MSECS)) {
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 
-		
-/*-----------------------------*/		
-		while (M_THREAD_RUN && m_socket->IsSocketAlive())
-		{			
-					std::cout << "Send Start" << std::endl;
-					m_socket->Send_Start_CMD();
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 
-							do{
-									if (m_socket->Read_1_cmd(cmd_t.data()) == 0) {
-										break;
-									}
-											
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 
-										if (cmd_t->IsResp()) {
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 
-											std::cout << "Rcv Start Resp !" << std::endl;
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 
-										}else if (cmd_t->IsConvertDoneCmd()) {
-						
-											std::cout << "FPGA work Done!" << std::endl;
-					
-										}else if (cmd_t->IsImageData()) {
-					
-
-										}
-
-
-							} while (TRUE);
-			
-			}
-/*-----------------------------*/
-				
-
-		
-
-		m_socket->close();
-
-
-	}else {
-		qDebug() << "Connect Fail";
-	}
-
-
-	qDebug() << "Client Thread Exit";
-
-}
 /*-------------------------------------*/
 /**
 *

@@ -17,10 +17,12 @@ class SerialPortBase :public QObject
 	Q_OBJECT
 public:
 	SerialPortBase(void);
-private:
+protected:
 	QSharedPointer<QSerialPort> m_qsp;
 	QSharedPointer<QTimer> m_timer;
 	vector<QSerialPortInfo> m_serialPorts;
+	QQueue<unsigned char>  m_buffer;
+
 protected:
 	~SerialPortBase(void);
 protected:
@@ -41,7 +43,7 @@ protected:
 public:
 	void PrintAllSerialPort(void);
 private:
-		void initSerialPort();
+	void initSerialPort();
 public:
 	int open_ttyUSB();
 
@@ -49,6 +51,7 @@ public:
 	virtual int open_s(string com_name);
 	virtual int open_q(QSerialPortInfo _qspi);
 	virtual int init();
+	void StartTimer();
 public slots :
 	int readComDataSlot();
 };

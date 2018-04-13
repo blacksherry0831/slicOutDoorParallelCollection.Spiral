@@ -41,7 +41,7 @@ int BE_1105_Driver::open(int com_num)
 {
 
 	if (SerialPortBase::open(com_num) == TRUE) {
-		#if TRUE		
+		#if FALSE		
 					int ret = 0;	
 					this->m_read_thread_run = true;
 					ret = pthread_create(&m_pt_handle, NULL, readResultThread,this);
@@ -142,6 +142,8 @@ void* BE_1105_Driver::readResultThread(void* lpParam)
 /*-------------------------------------*/
 boolean BE_1105_Driver::IsThreadRun()
 {
+
+	/*m_timer->timeout();*/
 	return m_read_thread_run;
 }
 
@@ -167,47 +169,48 @@ void BE_1105_Driver::ReadRespData()
 	do {
 		read_count =serial_read(&m_resp_data[buffer_result_idx], 1);
 
+		
 		if (read_count==1) {
-
+			std::cout << hex << (unsigned int) (m_resp_data[buffer_result_idx])<<"-";
 				if (m_resp_data[0] ==0xB1){
 					if (++buffer_result_idx == 2) {
-						std::cout <<"OK收到信号"<<"按指令执行" << std::endl;
+						std::cout <<"###OK收到信号"<<"按指令执行" << std::endl;
 						break;						
 					}
 				}else if (m_resp_data[0] == 0xB5) {
 					if (++buffer_result_idx == 2) {
-						std::cout <<"ERROR收到信号" <<"没有执行"<< std::endl;
+						std::cout <<"###ERROR收到信号" <<"没有执行"<< std::endl;
 						break;				
 					}
 				}else if (m_resp_data[0] == 0xB2) {
 					if (++buffer_result_idx == 2) {
-						std::cout << "ERROR数据进行存储中发生错误" << std::endl;
+						std::cout << "###ERROR数据进行存储中发生错误" << std::endl;
 						break;					
 					}
 				}else if (m_resp_data[0] == 0xB0) {					
 					if (++buffer_result_idx == 2) {
-						std::cout << "OK执行位置控制完成：" << m_resp_data[1] << std::endl;
+						std::cout << "###OK执行位置控制完成：" << m_resp_data[1] << std::endl;
 						break;
 					} 
 				}else if (m_resp_data[0] == 0xA0) {					
 					if (++buffer_result_idx == 2) {
-						std::cout << "达负限位："<< m_resp_data[1] << std::endl;
+						std::cout << "###达负限位："<< m_resp_data[1] << std::endl;
 						break;
 					}
 				}else if (m_resp_data[0] == 0xA1) {					
 					if (++buffer_result_idx == 2) {
-						std::cout << "达正限位："<< m_resp_data[1] << std::endl;
+						std::cout << "###达正限位："<< m_resp_data[1] << std::endl;
 						break;
 					}
 				}else if (m_resp_data[0] ==m_be_1105_addr) {
 
 					if (++buffer_result_idx == 2) {
-						std::cout << "控制器编号："<<m_resp_data[0] <<"查询内容"<<m_resp_data[1]<< std::endl;
+						std::cout << "###控制器编号："<<m_resp_data[0] <<"查询内容"<<m_resp_data[1]<< std::endl;
 						break;
 					}
 
 				}else {
-					std::cout << "Error response" << std::endl;
+					std::cout << "###Error response" << std::endl;
 				}
 				
 		}else if (read_count == 0) {
@@ -225,6 +228,61 @@ void BE_1105_Driver::ReadRespData()
 
 	if (Timeout_t < 1 * 10 && IsThreadRun()) {
 		this->ProcessData();
+	}
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void BE_1105_Driver::ReadRespDataAndProcess()
+{
+	
+	QByteArray qba= this->m_qsp->readAll();
+
+	for (size_t i = 0; i <qba.size(); i++){
+		m_buffer.enqueue(qba.at(i));
+	}
+
+	const int BUF_SIZE = m_buffer.size();
+	
+	
+	while (m_buffer.size()>=2){
+
+		unsigned char header_t = m_buffer.dequeue();std::cout << hex <<(unsigned int)header_t << "-";
+		unsigned char dev_t;
+				
+		if (header_t == 0xB0) {
+			dev_t = m_buffer.dequeue(); std::cout << hex << (unsigned int)dev_t << "-"<< "###OK执行位置控制完成：" << (unsigned int)dev_t<< std::endl;
+			this->mLatestOrder = BE_RESP::RCV_EXEC_REACH_LOC;
+		}else	if (header_t == 0xB1) {
+			dev_t = m_buffer.dequeue(); std::cout << hex << (unsigned int)dev_t << "-"<< "###OK收到信号" << "按指令执行" << std::endl;
+			this->mLatestOrder = BE_RESP::RCV_EXEC;
+		}else	if (header_t == 0xB2) {
+			dev_t = m_buffer.dequeue(); std::cout << hex << (unsigned int)dev_t << "-"<< "###ERROR数据进行存储中发生错误" << std::endl;
+			this->mLatestOrder = BE_RESP::RCV_MEMORY_ERROR;
+		}else	if (header_t == 0xB5) {
+			dev_t = m_buffer.dequeue(); std::cout << hex << (unsigned int)dev_t << "-"<< "###ERROR收到信号" << "没有执行" << std::endl;
+			this->mLatestOrder = BE_RESP::RCV_NO_EXEC;
+		}else	if (header_t == 0xA0) {
+			dev_t = m_buffer.dequeue(); std::cout << hex << (unsigned int)dev_t << "-"<< "###达负限位：" << (unsigned int)dev_t << std::endl;
+			this->mLatestOrder = BE_RESP::REACH_NEG;
+		}else	if (header_t == 0xA1) {
+			dev_t = m_buffer.dequeue(); std::cout << hex << (unsigned int)dev_t << "-"<< "###达正限位：" << (unsigned int)dev_t << std::endl;
+			this->mLatestOrder = BE_RESP::REACH_POS;
+		}else	if (header_t == m_be_1105_addr){
+			dev_t = m_buffer.dequeue(); std::cout << hex << (unsigned int)dev_t << "-"<< "###控制器编号：" << (unsigned int)header_t << "查询内容" << (unsigned int)dev_t << std::endl;
+			if (dev_t == 1) {
+				this->mLatestOrder = BE_RESP::RUN_STATUS_RUN;
+			}else{
+				this->mLatestOrder = BE_RESP::RUN_STATUS_STOP;
+			}
+			
+		}else{
+
+		}
+		
 	}
 
 }
@@ -405,6 +463,15 @@ int BE_1105_Driver::SendQueryCmd(int mode)
 /*-------------------------------------*/
 int BE_1105_Driver::ReadResp()
 {
+	if (m_qsp->waitForReadyRead(1000)) {
+		ReadRespDataAndProcess();
+	}
+	else{
+		std::cout << "no response ! restart" << std::endl;
+	}
+
+	
+
 	return 0;
 }
 /*-------------------------------------*/

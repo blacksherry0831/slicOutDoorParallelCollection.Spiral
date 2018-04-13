@@ -25,6 +25,7 @@ int main(int argc, char *argv[])
 
 		if (cmd.compare("run neg") == 0) {
 			be_1105->SendCmd(BE_1105_RUN_NEG,63000);
+
 		}else if (cmd.compare("open") == 0) {
 
 #if defined(linux) || defined(__linux) || defined(__linux__)
@@ -36,10 +37,10 @@ int main(int argc, char *argv[])
 
 		}else if (cmd.compare("close") == 0) {
 			be_1105->close();
+		}else if (cmd.compare("readResp") == 0) {
+				be_1105->ReadResp();		
 		}else if (cmd.compare("X") == 0) {
-			
-		}else if (cmd.compare("X") == 0) {
-			
+
 		}else if (cmd.compare("X") == 0) {
 		
 		}else if (cmd.compare("X") == 0) {
@@ -51,13 +52,17 @@ int main(int argc, char *argv[])
 		}else if (cmd.compare("q") == 0) {
 				break;
 		}else {
-			std::cout << "you can use this cmd:" << std::endl;
+			std::cout << "please input a cmd :" << std::endl;
 			std::cout << "open" << std::endl;			
 			std::cout << "run neg" << std::endl;			
+			std::cout << "readResp" << std::endl;
 			std::cout << "q" << std::endl;
-			std::cout << "please input a cmd :" << std::endl;
+			std::cout << ":" << std::endl;
 
 		}
+
+
+
 
 
 	}

@@ -28,8 +28,23 @@ int mainConsole(int argc, char *argv[])
 	QCoreApplication a(argc, argv);
 
 	QSharedPointer<QtTcpServer>  tcpServer = QSharedPointer<QtTcpServer>(new QtTcpServer(Q_NULLPTR, Q_NULLPTR));
-	QSharedPointer<QtThreadServer> dataServer = QSharedPointer<QtThreadServer>(new QtThreadServer(tcpServer));
+	QSharedPointer<QtThreadServer> dataServer = QSharedPointer<QtThreadServer>(new QtThreadServer(10000,tcpServer));
 	
+	dataServer->start();
+
+
+
+	return a.exec();
+}
+
+
+int eightChannelVideo(int argc, char *argv[])
+{
+	QCoreApplication a(argc, argv);
+
+	QSharedPointer<QtTcpServer>  tcpServer = QSharedPointer<QtTcpServer>(new QtTcpServer(Q_NULLPTR, Q_NULLPTR));
+	QSharedPointer<QtThreadServer> dataServer = QSharedPointer<QtThreadServer>(new QtThreadServer(6666,tcpServer));
+
 	dataServer->start();
 
 	return a.exec();

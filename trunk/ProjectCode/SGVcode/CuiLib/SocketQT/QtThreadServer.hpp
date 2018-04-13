@@ -22,10 +22,11 @@ protected:
 	
 public:
 	QtThreadServer();
-	QtThreadServer(QSharedPointer<QtTcpServer> _TcpServer);
+	QtThreadServer(int _port,QSharedPointer<QtTcpServer> _TcpServer);
 	~QtThreadServer(void);
 private:
 	QSharedPointer<QtTcpServer> m_TcpServer;
+	int m_port;
 public:	
 	void run();
 

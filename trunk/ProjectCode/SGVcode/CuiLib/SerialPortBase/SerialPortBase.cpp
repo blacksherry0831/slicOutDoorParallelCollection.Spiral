@@ -11,6 +11,8 @@ SerialPortBase::SerialPortBase(void)
 	
 	this->initSerialPort();
 	this->m_timer =QSharedPointer<QTimer>(new QTimer());
+	this->m_qsp = QSharedPointer<QSerialPort>(new QSerialPort());
+	this->m_buffer.clear();
 }
 /*-------------------------------------*/
 /**
@@ -70,8 +72,7 @@ int SerialPortBase::open_ttyUSB()
 				std::cout << "sudo gedit /etc/udev/rules.d/70-ttyusb.rules" << std::endl
 					<< " KERNEL==\"ttyUSB[0 - 9] * \", MODE=\"0666\" " << std::endl;
 			}else{
-				connect(m_timer.data(), SIGNAL(timeout()), this, SLOT(readComDataSlot()));
-				m_timer->start(1000);
+				
 			}
 		}
 	}
@@ -108,6 +109,10 @@ int SerialPortBase::open_s(string com_name)
 	if (init()==false) {
 		std::cout << "Cant Open: " <<com_name<< std::endl;
 	}
+	else {
+		
+
+	}
 
 
 	return init();
@@ -123,6 +128,8 @@ int SerialPortBase::open_q(QSerialPortInfo _qspi)
 
 	std::cout << "ready to open serial port: " << com_name<< std::endl;
 	
+	
+
 	m_qsp->setPort(_qspi);
 
 	m_qsp->setBaudRate(m_baudrate, QSerialPort::AllDirections);
@@ -157,6 +164,17 @@ int SerialPortBase::open_q(QSerialPortInfo _qspi)
 int SerialPortBase::init()
 {
 	return m_qsp->isOpen()==true ? TRUE: FALSE;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void SerialPortBase::StartTimer()
+{
+	connect(m_timer.data(), SIGNAL(timeout()), this, SLOT(readComDataSlot()));
+	m_timer->start(1000);
+	std::cout << "Read Timer is Starting: " << std::endl;
 }
 /*-------------------------------------*/
 /**
@@ -198,6 +216,8 @@ int SerialPortBase::serial_write(const void * buffer, DWORD num)
 	if (m_qsp->isOpen()) {
 	
 		WriteNum=m_qsp->write((char*)buffer, num);
+
+		m_qsp->waitForBytesWritten();
 	
 	}
 
@@ -211,6 +231,10 @@ int SerialPortBase::serial_write(const void * buffer, DWORD num)
 /*-------------------------------------*/
 int SerialPortBase::serial_read_all()
 {
+	
+	
+	m_qsp->waitForReadyRead();
+
 	QByteArray showdata = m_qsp->readAll();
 
 	const char* DATA = showdata.data();

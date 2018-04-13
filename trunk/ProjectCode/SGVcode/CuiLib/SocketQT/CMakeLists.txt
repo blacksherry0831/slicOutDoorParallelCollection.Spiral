@@ -20,7 +20,9 @@ ENDIF ()
 				QtTcpClient.cpp
 				QtThreadBase.cpp
 				QtThreadClient.cpp
-				QtThreadServer.cpp)		
+				QtThreadServer.cpp
+				DataFrame.cpp
+				CMD_CTRL.cpp)		
 	
 	endif (CBB_BUILDING_CRACK_DETECTION)
  

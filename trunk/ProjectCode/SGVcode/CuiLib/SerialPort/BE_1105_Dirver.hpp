@@ -29,6 +29,17 @@
 class BE_1105_Driver :public SerialPortBase,public IStepMotor
 {
 	Q_OBJECT
+
+public:
+	enum BE_RESP {INIT=0X00,
+		RCV_EXEC=0xB1,
+		RCV_EXEC_REACH_LOC=0XB0,
+		RCV_MEMORY_ERROR=0xB2,
+		RCV_NO_EXEC=0xB5,
+		REACH_NEG=0xA0,
+		REACH_POS=0xA1,
+		RUN_STATUS_RUN,
+		RUN_STATUS_STOP};
 private:
 	BE_1105_Driver(void);
 	~BE_1105_Driver(void);	
@@ -41,7 +52,9 @@ public:
 	static void* readResultThread(void* lpParam);
 	boolean IsThreadRun();
 	void ReadRespData();
-	
+	void ReadRespDataAndProcess();
+
+
 	int IsReady();
 	int Wait4CmdDone();
 
@@ -49,6 +62,7 @@ public:
 
 private:
 	void ProcessData();
+	BE_RESP  mLatestOrder;
 private:
 	boolean m_read_thread_run;
 	int m_be_1105_addr;
