@@ -81,7 +81,7 @@ using namespace tinyxml2;
 #ifndef MAX
 #define MAX(A,B)	((A)>(B)?(A):(B))
 #endif
-
+#include <QtCore>
 
 class live_video_base :public ICamera
 {

@@ -95,14 +95,17 @@ int QtTcpClient::WriteMy(char * _data, int _size)
 *
 */
 /*-------------------------------------*/
-void QtTcpClient::Send_Start_CMD()
+void QtTcpClient::Send_Start_CMD(int _type)
 {
 	CMD_CTRL cmd;
-	cmd.getFpgaStartCmd();
-
+	cmd.getFpgaStartCmd(_type);
 	this->Send_1_cmd(&cmd);
+	if (_type) {
+		std::cout << "Send CMD START FPGA" << std::endl;
+	}else {
+		std::cout << "Send CMD STOP FPGA" << std::endl;
+	}
 
-	std::cout << "Send CMD START FPGA" << std::endl;
 }
 /*-------------------------------------*/
 /**

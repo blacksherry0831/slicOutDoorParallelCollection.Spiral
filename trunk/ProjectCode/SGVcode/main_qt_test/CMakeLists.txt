@@ -1,6 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.8.1)
 ######################################
 CONFIGQT()
+CONFIGPTHREADS()
 ######################################
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -20,7 +21,8 @@ add_executable(TEST_QT  WIN32
 
 
 TARGET_LINK_LIBRARIES(TEST_QT 
-							SOCKET_SERVER) 
+							SOCKET_SERVER
+							SerialPortModule) 
 
 ENDIF (CBB_BUILDING_CRACK_DETECTION)
 ######################################

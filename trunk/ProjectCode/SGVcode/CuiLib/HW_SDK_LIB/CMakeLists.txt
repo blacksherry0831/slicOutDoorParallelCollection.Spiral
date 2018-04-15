@@ -4,6 +4,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.8.1)
 #MESSAGE(STATUS "operation system is ${CMAKE_SYSTEM}")
 C11_Config()  
 ConfigOpenCv()
+CONFIGQT()
 ###############################################################################
 
 ###############################################################################

@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 		std::getline(std::cin, cmd);
 
 		if (cmd.compare("run neg") == 0) {
-			be_1105->SendCmd(BE_1105_RUN_NEG,63000);
+			be_1105->SendCmd(BE_1105_RUN_NEG, 55000);
 
 		}else if (cmd.compare("open") == 0) {
 

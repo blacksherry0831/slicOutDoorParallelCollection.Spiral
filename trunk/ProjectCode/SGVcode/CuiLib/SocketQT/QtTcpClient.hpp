@@ -7,6 +7,8 @@
 #include <QSharedPointer>
 
 #include "CMD_CTRL.hpp"
+
+#include "SerialPort/BE_1105_Dirver.hpp"
 /*-------------------------------------*/
 /**
 *
@@ -30,7 +32,7 @@ public:
 	int WriteMy(char* _data, int _size);
 
 public:
-	void Send_Start_CMD();
+	void Send_Start_CMD(int _type);
 
 	void Send_1_cmd(CMD_CTRL *_cmd);
 	int Read_1_cmd(CMD_CTRL *_cmd);

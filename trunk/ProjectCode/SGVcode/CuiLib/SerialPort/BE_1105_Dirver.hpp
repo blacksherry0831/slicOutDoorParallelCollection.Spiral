@@ -39,9 +39,11 @@ public:
 		REACH_NEG=0xA0,
 		REACH_POS=0xA1,
 		RUN_STATUS_RUN,
-		RUN_STATUS_STOP};
+		RUN_STATUS_STOP,
+		OK=0xFE,
+		TIME_OUT=0xFF};
 private:
-	BE_1105_Driver(void);
+	BE_1105_Driver(QObject *parent = nullptr);
 	~BE_1105_Driver(void);	
 public:
 	int open(int com_num);
@@ -57,12 +59,12 @@ public:
 
 	int IsReady();
 	int Wait4CmdDone();
-
+	int Wait4CmdPosDone();
 	
 
 private:
 	void ProcessData();
-	BE_RESP  mLatestOrder;
+	std::vector<BE_RESP>  mLatestOrder;
 private:
 	boolean m_read_thread_run;
 	int m_be_1105_addr;
@@ -81,14 +83,17 @@ public:
 	unsigned char * get_cmd(int run_mode, int speed, int circle=1);
 	unsigned char * get_query_cmd();
 	int  SendCmd(int run_mode, int speed, int circle=1);
+	int  SendRunStatusCmd();
+	int  SendCmd4Done(int run_mode, int speed, int circle = 1);
 	int  SendQueryCmd(int mode);
 	int  ReadResp();
+	void ClearResp();
 
 /*-------------------------------------------------------*/
 private:	
 	static  BE_1105_Driver* _instance;
 public:	
-	static BE_1105_Driver* getInstance();
+	static BE_1105_Driver* getInstance(QThread* _thread=Q_NULLPTR);
 #if TRUE
 private:
 

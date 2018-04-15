@@ -6,14 +6,14 @@
 *
 */
 /*-------------------------------------*/
-BE_1105_Driver* BE_1105_Driver::_instance = new BE_1105_Driver();
+BE_1105_Driver* BE_1105_Driver::_instance = new BE_1105_Driver(Q_NULLPTR);
 /*-------------------------------------*/
 /**
 *
 *
 */
 /*-------------------------------------*/
-BE_1105_Driver::BE_1105_Driver(void)
+BE_1105_Driver::BE_1105_Driver(QObject *parent):SerialPortBase(parent)
 {
 	this->m_baudrate = 9600;
 	m_read_thread_run = true;
@@ -112,8 +112,15 @@ void BE_1105_Driver::close()
 *
 */
 /*-------------------------------------*/
-BE_1105_Driver* BE_1105_Driver::getInstance()
-{
+BE_1105_Driver* BE_1105_Driver::getInstance(QThread* _thread)
+{	
+	
+
+	if (_thread != Q_NULLPTR) {
+			_instance->moveToThreadQSP(_thread);
+			_instance->moveToThread(_thread);
+	}
+
 	return _instance;
 }
 /*-------------------------------------*/
@@ -245,6 +252,7 @@ void BE_1105_Driver::ReadRespDataAndProcess()
 		m_buffer.enqueue(qba.at(i));
 	}
 
+
 	const int BUF_SIZE = m_buffer.size();
 	
 	
@@ -255,28 +263,28 @@ void BE_1105_Driver::ReadRespDataAndProcess()
 				
 		if (header_t == 0xB0) {
 			dev_t = m_buffer.dequeue(); std::cout << hex << (unsigned int)dev_t << "-"<< "###OK执行位置控制完成：" << (unsigned int)dev_t<< std::endl;
-			this->mLatestOrder = BE_RESP::RCV_EXEC_REACH_LOC;
+			this->mLatestOrder.push_back(BE_RESP::RCV_EXEC_REACH_LOC);
 		}else	if (header_t == 0xB1) {
 			dev_t = m_buffer.dequeue(); std::cout << hex << (unsigned int)dev_t << "-"<< "###OK收到信号" << "按指令执行" << std::endl;
-			this->mLatestOrder = BE_RESP::RCV_EXEC;
+			this->mLatestOrder.push_back(BE_RESP::RCV_EXEC);
 		}else	if (header_t == 0xB2) {
 			dev_t = m_buffer.dequeue(); std::cout << hex << (unsigned int)dev_t << "-"<< "###ERROR数据进行存储中发生错误" << std::endl;
-			this->mLatestOrder = BE_RESP::RCV_MEMORY_ERROR;
+			this->mLatestOrder.push_back(BE_RESP::RCV_MEMORY_ERROR);
 		}else	if (header_t == 0xB5) {
 			dev_t = m_buffer.dequeue(); std::cout << hex << (unsigned int)dev_t << "-"<< "###ERROR收到信号" << "没有执行" << std::endl;
-			this->mLatestOrder = BE_RESP::RCV_NO_EXEC;
+			this->mLatestOrder.push_back(BE_RESP::RCV_NO_EXEC);
 		}else	if (header_t == 0xA0) {
 			dev_t = m_buffer.dequeue(); std::cout << hex << (unsigned int)dev_t << "-"<< "###达负限位：" << (unsigned int)dev_t << std::endl;
-			this->mLatestOrder = BE_RESP::REACH_NEG;
+			this->mLatestOrder.push_back(BE_RESP::REACH_NEG);
 		}else	if (header_t == 0xA1) {
 			dev_t = m_buffer.dequeue(); std::cout << hex << (unsigned int)dev_t << "-"<< "###达正限位：" << (unsigned int)dev_t << std::endl;
-			this->mLatestOrder = BE_RESP::REACH_POS;
+			this->mLatestOrder.push_back(BE_RESP::REACH_POS);
 		}else	if (header_t == m_be_1105_addr){
 			dev_t = m_buffer.dequeue(); std::cout << hex << (unsigned int)dev_t << "-"<< "###控制器编号：" << (unsigned int)header_t << "查询内容" << (unsigned int)dev_t << std::endl;
 			if (dev_t == 1) {
-				this->mLatestOrder = BE_RESP::RUN_STATUS_RUN;
+				this->mLatestOrder.push_back(BE_RESP::RUN_STATUS_RUN);
 			}else{
-				this->mLatestOrder = BE_RESP::RUN_STATUS_STOP;
+				this->mLatestOrder.push_back(BE_RESP::RUN_STATUS_STOP);
 			}
 			
 		}else{
@@ -356,7 +364,56 @@ int BE_1105_Driver::Wait4CmdDone()
 
 	return IsReady();
 }
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int BE_1105_Driver::Wait4CmdPosDone()
+{
+	int COUNT = 0;
 
+	do {		
+			
+
+		this->ReadResp();//1s
+		
+		QThread::msleep(1000);
+
+		if (COUNT++ > 60  * m_circle) {
+			//30秒没有返回数据??	
+			std::cout << "M is time out !!!" << std::endl;
+			return BE_RESP::TIME_OUT;
+		}
+		
+		if (this->mLatestOrder.size() == 0) {
+			this->SendRunStatusCmd();
+		}
+
+		for (size_t i = 0; i < this->mLatestOrder.size(); i++)
+		{
+			const BE_RESP ORDER=this->mLatestOrder.at(i);
+			if (ORDER == BE_RESP::RCV_EXEC_REACH_LOC) {
+			
+				return ORDER;
+			
+			}else if(ORDER ==BE_RESP::RCV_EXEC){
+				continue;
+			}else if (ORDER == BE_RESP::RCV_NO_EXEC) {
+				return ORDER;
+			}else{
+
+			}
+		}
+		mLatestOrder.clear();
+		
+
+	} while (TRUE);
+
+	return BE_RESP::TIME_OUT;
+
+	
+}
 /*-------------------------------------*/
 /**
 *
@@ -437,8 +494,46 @@ int BE_1105_Driver::SendCmd(int run_mode, int speed, int circle)
 {
 	m_cmd_mode = 0xBA;
 	memset(m_status, 0x55, sizeof(m_status));
-
+	this->mLatestOrder.clear();
 	return this->serial_write(this->get_cmd(run_mode,speed,circle), 17);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int BE_1105_Driver::SendRunStatusCmd()
+{
+	unsigned char cmd_t[5] = { 0xB6,0x00,0x03,0xB5,0xFE };
+	
+	cmd_t[1] = m_be_1105_addr;
+	cmd_t[2] = 0;
+	cmd_t[3] = cmd_t[0] ^ cmd_t[1] ^ cmd_t[2];
+
+	return this->serial_write(cmd_t,sizeof(cmd_t)/sizeof(unsigned char));
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int BE_1105_Driver::SendCmd4Done(int run_mode, int speed, int circle)
+{
+	int IsDone;
+	this->ClearResp();
+	do {
+
+		this->SendCmd(BE_1105_RUN_NEG, 55000,circle);
+
+		IsDone =this->Wait4CmdPosDone();
+
+		if (IsDone == BE_RESP::RCV_EXEC_REACH_LOC) {
+			break;
+		}
+
+	} while (TRUE);
+
+	return 0;
 }
 /*-------------------------------------*/
 /**
@@ -463,6 +558,7 @@ int BE_1105_Driver::SendQueryCmd(int mode)
 /*-------------------------------------*/
 int BE_1105_Driver::ReadResp()
 {
+	QThread::msleep(200);
 	if (m_qsp->waitForReadyRead(1000)) {
 		ReadRespDataAndProcess();
 	}
@@ -473,6 +569,10 @@ int BE_1105_Driver::ReadResp()
 	
 
 	return 0;
+}
+void BE_1105_Driver::ClearResp()
+{
+	this->mLatestOrder.clear();
 }
 /*-------------------------------------*/
 /**

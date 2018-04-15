@@ -55,8 +55,8 @@ public:
 	void SetDataSize();
 	static int GetCMDBodySize(CMD_CTRL::CMD_CTRL_HEADER* _cmd);
 public:
-	void setFpgaConvertCmd();
-	std::vector<unsigned char>	getFpgaStartCmd();
+	void setFpgaConvertCmd(int _type);
+	std::vector<unsigned char>	getFpgaStartCmd(int _type);
 public:
 	std::vector<unsigned char> Data();
 public:

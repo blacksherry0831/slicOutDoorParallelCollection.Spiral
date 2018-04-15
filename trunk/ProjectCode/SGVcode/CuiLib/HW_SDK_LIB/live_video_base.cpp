@@ -1053,7 +1053,8 @@ bool live_video_base::init()
 	do {
 		login_success_t = this->play(NULL);
 		if (login_success_t == FALSE) {
-			Base::sleep(1000);
+			QThread::msleep(1000);
+			
 		}
 	} while (login_success_t == FALSE);
 #endif

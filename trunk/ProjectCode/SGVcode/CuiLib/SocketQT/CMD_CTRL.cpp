@@ -65,10 +65,24 @@ void CMD_CTRL::initPc2Arm()
 *
 */
 /*-------------------------------------*/
-void CMD_CTRL::setFpgaConvertCmd()
+void CMD_CTRL::setFpgaConvertCmd(int _type)
 {
-	f_header.f_cmd[0] = CMD_TYPE::CTRL;
-	f_header.f_cmd[1] = CMD_TYPE::START;
+	if (_type == TRUE) {
+		
+		f_header.f_cmd[0] = CMD_TYPE::CTRL;
+		f_header.f_cmd[1] = CMD_TYPE::START;
+
+	}else if(_type == FALSE){
+
+		f_header.f_cmd[0] = CMD_TYPE::CTRL;
+		f_header.f_cmd[1] = CMD_TYPE::STOP;
+
+	}else{
+
+		assert(0);
+	
+	}
+
 }
 /*-------------------------------------*/
 /**
@@ -142,9 +156,9 @@ int CMD_CTRL::IsImageData()
 *
 */
 /*-------------------------------------*/
-std::vector<unsigned char> CMD_CTRL::getFpgaStartCmd()
+std::vector<unsigned char> CMD_CTRL::getFpgaStartCmd(int _type)
 {
-	this->setFpgaConvertCmd();
+	this->setFpgaConvertCmd(_type);
 	this->initHeader();
 	this->initPc2Arm();
 	this->SetDataSize();
@@ -162,11 +176,21 @@ void CMD_CTRL::SetDataSize()
 	
 	}
 	this->f_data_size = f_data.size();
-	int high_8bit = this->f_data_size/256;
-	int low_8bit = this->f_data_size % 256;
+	
+	int low0_8bit = this->f_data_size % 256;
+	int high0_8bit = this->f_data_size/256%256;
+	
+	int low1_8bit = this->f_data_size/256/256 % 256;
+	int high1_8bit = this->f_data_size /256/256/256;
 
-	this->f_header.f_data_len[0] = low_8bit ;
-	this->f_header.f_data_len[1] = high_8bit;
+
+	
+
+	this->f_header.f_data_len[0] = low0_8bit ;
+	this->f_header.f_data_len[1] = high0_8bit;
+	
+	this->f_header.f_reserve[0] = low1_8bit;
+	this->f_header.f_reserve[1] = high1_8bit;
 	
 }
 
@@ -178,7 +202,10 @@ void CMD_CTRL::SetDataSize()
 /*-------------------------------------*/
 int CMD_CTRL::GetCMDBodySize(CMD_CTRL::CMD_CTRL_HEADER* _cmd)
 {
-	int size_t = _cmd->f_data_len[0] + _cmd->f_data_len[1] * 256;
+	int size_t =_cmd->f_data_len[0] +
+				_cmd->f_data_len[1] * 256 +
+				_cmd->f_reserve[0] * 256*256 +
+				_cmd->f_reserve[1] * 256*256*256;
 
 	return size_t;
 

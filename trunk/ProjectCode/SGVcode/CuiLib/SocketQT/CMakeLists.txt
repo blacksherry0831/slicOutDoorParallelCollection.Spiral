@@ -2,6 +2,7 @@
 C11_Config()
 ConfigOpenCv()
 CONFIGQT()
+	CONFIGPTHREADS()
 ###############################################################################
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")  
@@ -29,6 +30,7 @@ ENDIF ()
 ADD_LIBRARY(SOCKET_SERVER   STATIC    ${DIR_SRCS}  )
 
 TARGET_LINK_LIBRARIES(SOCKET_SERVER
+						pthreads
 	) 
 ############################################################ 
 ############################################################

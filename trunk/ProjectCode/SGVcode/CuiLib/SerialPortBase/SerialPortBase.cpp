@@ -6,7 +6,7 @@
 *
 */
 /*-------------------------------------*/
-SerialPortBase::SerialPortBase(void)
+SerialPortBase::SerialPortBase(QObject *parent):QObject(parent)
 {
 	
 	this->initSerialPort();
@@ -289,7 +289,10 @@ int SerialPortBase::serial_process_data(const char * _data, int _len)
 *
 */
 /*-------------------------------------*/
-
+void SerialPortBase::moveToThreadQSP(QThread* _thread)
+{
+	m_qsp->moveToThread(_thread);
+}
 /*-------------------------------------*/
 /**
 *

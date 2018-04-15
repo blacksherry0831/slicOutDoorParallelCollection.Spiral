@@ -16,19 +16,16 @@ class SerialPortBase :public QObject
 {
 	Q_OBJECT
 public:
-	SerialPortBase(void);
+	SerialPortBase(QObject *parent = nullptr);
+protected:
+	~SerialPortBase(void);
 protected:
 	QSharedPointer<QSerialPort> m_qsp;
 	QSharedPointer<QTimer> m_timer;
 	vector<QSerialPortInfo> m_serialPorts;
 	QQueue<unsigned char>  m_buffer;
-
 protected:
-	~SerialPortBase(void);
-protected:
-	QMutex m_MUTEX;  
-
-
+	QMutex m_MUTEX; 
 	DWORD m_baudrate;
 	char	buffer_result[1024];//Ω” ‹buffer
 	char	buffer_cmd[1024];//∑¢ÀÕbuffer
@@ -52,6 +49,7 @@ public:
 	virtual int open_q(QSerialPortInfo _qspi);
 	virtual int init();
 	void StartTimer();
+	void moveToThreadQSP(QThread* _thread);
 public slots :
 	int readComDataSlot();
 };
