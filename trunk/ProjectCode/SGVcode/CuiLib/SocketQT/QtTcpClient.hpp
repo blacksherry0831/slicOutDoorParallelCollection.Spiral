@@ -34,6 +34,10 @@ public:
 public:
 	void Send_Start_CMD(int _type);
 
+	void SendPlcResp(int _type);
+	void SendPlcIntoInter(int _step);
+	void SendPlcRollerQualified(int _qualified);
+
 	void Send_1_cmd(CMD_CTRL *_cmd);
 	int Read_1_cmd(CMD_CTRL *_cmd);
 

@@ -22,6 +22,7 @@ ENDIF ()
 				QtThreadBase.cpp
 				QtThreadClient.cpp
 				QtThreadServer.cpp
+				QtThreadPLC.cpp
 				DataFrame.cpp
 				CMD_CTRL.cpp)		
 	

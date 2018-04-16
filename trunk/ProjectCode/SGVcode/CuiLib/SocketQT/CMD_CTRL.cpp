@@ -50,6 +50,15 @@ void CMD_CTRL::initHeader()
 *
 */
 /*-------------------------------------*/
+void CMD_CTRL::setGeneral()
+{
+	this->initHeader();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void CMD_CTRL::initPc2Arm()
 {
 	//
@@ -59,6 +68,35 @@ void CMD_CTRL::initPc2Arm()
 	//
 	f_header.f_src_dev[0]=DEV::IPC;
 	f_header.f_src_dev[1]=0x00;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void CMD_CTRL::initpc2plcLR()
+{
+	//
+	f_header.f_dst_dev[0] = DEV::PLC;
+	f_header.f_dst_dev[1] = DEV::PLC_LR;
+
+	//
+	f_header.f_src_dev[0] = DEV::IPC;
+	f_header.f_src_dev[1] = 0x00;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void CMD_CTRL::initCRC()
+{
+	std::vector<unsigned char> data_t = this->Data();
+	int crc = data_t.at(0);
+	for (size_t i = 1; i <data_t.size()-1; i++){
+		crc ^= data_t.at(i);
+	}
+	this->f_crc = crc;
 }
 /*-------------------------------------*/
 /**
@@ -83,6 +121,68 @@ void CMD_CTRL::setFpgaConvertCmd(int _type)
 	
 	}
 
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void CMD_CTRL::setRespCmd(int _type)
+{
+	if (_type == TRUE) {
+
+		f_header.f_cmd[0] = CMD_TYPE::RESP;
+		f_header.f_cmd[1] = CMD_TYPE::OK;
+
+	}
+	else if (_type == FALSE) {
+
+		f_header.f_cmd[0] = CMD_TYPE::RESP;
+		f_header.f_cmd[1] = CMD_TYPE::ERROR;
+
+	}
+	else {
+
+		assert(0);
+
+	}
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void CMD_CTRL::setPlcLrIntoIn(int _step)
+{
+	f_header.f_cmd[0] = CMD_TYPE::CTRL;
+	f_header.f_cmd[1] = CMD_TYPE::LR_RUN_2;
+
+	int _step_h = _step / 256;
+	int _step_l = _step % 256;
+	
+	assert(f_data.size() >= 2);
+
+	f_data[0] = _step_l;
+	f_data[1] = _step_h;
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void CMD_CTRL::setRollerQualified(int _qualified)
+{
+	f_header.f_cmd[0] = CMD_TYPE::CTRL;
+	f_header.f_cmd[1] = CMD_TYPE::ROLLER_Q;
+
+	const int h_t = _qualified / 256;
+	const int l_t = _qualified % 256;
+
+	assert(f_data.size() >= 2);
+
+	f_data[0] = h_t;
+	f_data[1] = l_t;
 }
 /*-------------------------------------*/
 /**
@@ -156,12 +256,80 @@ int CMD_CTRL::IsImageData()
 *
 */
 /*-------------------------------------*/
+int CMD_CTRL::IsIntoInnerReady()
+{
+	//工件就绪
+	if (this->f_header.f_cmd[0] == 's' && this->f_header.f_cmd[1] == 0x20) {
+		return TRUE;
+	}
+	return FALSE;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int CMD_CTRL::IsRoolerReady()
+{
+	//工件就绪
+	if (this->f_header.f_cmd[0] == 's' && this->f_header.f_cmd[1] == 0x10) {
+		return TRUE;
+	}
+
+	return 0;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 std::vector<unsigned char> CMD_CTRL::getFpgaStartCmd(int _type)
 {
 	this->setFpgaConvertCmd(_type);
 	this->initHeader();
 	this->initPc2Arm();
+	
+	return this->Data();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+std::vector<unsigned char> CMD_CTRL::getRespPLCmd(int _type)
+{
+	this->setRespCmd(_type);
+	this->initHeader();
+	this->initpc2plcLR();
 	this->SetDataSize();
+	this->initCRC();
+	return this->Data();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+std::vector<unsigned char> CMD_CTRL::getPLCLRIntoCmd(int _step)
+{
+	
+	this->initHeader();
+	this->setPlcLrIntoIn(_step);
+	this->initpc2plcLR();
+	this->initCRC();
+	return this->Data();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+std::vector<unsigned char> CMD_CTRL::getRollerQualifiedCmd(int _qualified)
+{
+	this->initHeader();
+	this->setRollerQualified(_qualified);
+	this->initpc2plcLR();
+	this->initCRC();
 	return this->Data();
 }
 /*-------------------------------------*/
@@ -182,10 +350,7 @@ void CMD_CTRL::SetDataSize()
 	
 	int low1_8bit = this->f_data_size/256/256 % 256;
 	int high1_8bit = this->f_data_size /256/256/256;
-
-
 	
-
 	this->f_header.f_data_len[0] = low0_8bit ;
 	this->f_header.f_data_len[1] = high0_8bit;
 	

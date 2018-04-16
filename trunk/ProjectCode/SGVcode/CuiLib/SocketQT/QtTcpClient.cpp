@@ -112,6 +112,52 @@ void QtTcpClient::Send_Start_CMD(int _type)
 *
 */
 /*-------------------------------------*/
+void QtTcpClient::SendPlcResp(int _type)
+{
+	CMD_CTRL cmd;
+	cmd.getRespPLCmd(_type);
+	this->Send_1_cmd(&cmd);
+
+	std::cout << "Client:" << "Send Resp";
+	
+	if (_type) {
+		std::cout <<" OK  " << std::endl;
+	}else {
+		std::cout << " Error " << std::endl;
+	}
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtTcpClient::SendPlcIntoInter(int _step)
+{
+	CMD_CTRL cmd;
+	cmd.getPLCLRIntoCmd(_step);
+	this->Send_1_cmd(&cmd);
+	std::cout << "Client:" << "Send Into the internal!"<<_step << std::endl;
+	
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtTcpClient::SendPlcRollerQualified(int _qualified)
+{
+	CMD_CTRL cmd;
+	cmd.getRollerQualifiedCmd(_qualified);
+	this->Send_1_cmd(&cmd);
+
+	std::cout << "Client:" << "Send Roller qualified !" << ((_qualified ==1) ?"OK" :"Error") << std::endl;
+	
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void  QtTcpClient::Send_1_cmd(CMD_CTRL *_cmd)
 {
 	std::vector<unsigned char> data = _cmd->Data();
@@ -139,6 +185,8 @@ int  QtTcpClient::Read_1_cmd(CMD_CTRL *_cmd)
 
 			BodySize_=CMD_CTRL::GetCMDBodySize((CMD_CTRL::CMD_CTRL_HEADER*) header_data);
 			
+			(BodySize_ < 2) ? BodySize_=2 :BodySize_=BodySize_ ;
+
 			if (BodySize_ == 65535) {
 			
 			}else{
@@ -178,13 +226,13 @@ int QtTcpClient::IsSocketAlive()
 
 	if (stat_t == QAbstractSocket::SocketState::ClosingState) {
 
-		std::cout << "Remote socket is closing" << std::endl;
+		std::cout << "socket is closing" << std::endl;
 		this->waitForDisconnected();
 		return 0;
 
 	}else if (stat_t == QAbstractSocket::SocketState::UnconnectedState) {
 		
-		std::cout << "Remote socket is closed" << std::endl;
+		std::cout << "socket is closed" << std::endl;
 		return 0;
 
 	}else{

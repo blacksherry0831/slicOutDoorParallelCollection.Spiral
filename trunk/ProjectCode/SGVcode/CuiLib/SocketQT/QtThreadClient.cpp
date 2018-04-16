@@ -74,7 +74,7 @@ void QtThreadClient::run()
 	
 	if (m_socket->waitForConnected(MAX_MSECS)) {
 
-		
+			
 /*-----------------------------*/		
 		while (M_THREAD_RUN && m_socket->IsSocketAlive())
 		{	
