@@ -10,7 +10,7 @@ SerialPortBase::SerialPortBase(QObject *parent):QObject(parent)
 {
 	
 	this->initSerialPort();
-	this->m_timer =QSharedPointer<QTimer>(new QTimer());
+	/*this->m_timer =QSharedPointer<QTimer>(new QTimer());*/
 	this->m_qsp = QSharedPointer<QSerialPort>(new QSerialPort());
 	this->m_buffer.clear();
 }
@@ -52,10 +52,12 @@ void SerialPortBase::PrintAllSerialPort(void)
 /*-------------------------------------*/
 void SerialPortBase::initSerialPort()
 {
+	this->m_serialPorts.clear();
 	foreach(const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
 	
 		this->m_serialPorts.push_back(info);
 	}
+	QThread::sleep(0);
 }
 /*-------------------------------------*/
 /**
@@ -98,7 +100,7 @@ int SerialPortBase::open(int com_num)
 /*-------------------------------------*/
 int SerialPortBase::open_s(string com_name)
 {
-	
+	this->initSerialPort();
 	for (size_t i = 0; i <m_serialPorts.size(); i++) {
 		string ttysusb = m_serialPorts[i].portName().toStdString();
 		if (ttysusb.find(com_name) != std::string::npos) {
@@ -172,9 +174,13 @@ int SerialPortBase::init()
 /*-------------------------------------*/
 void SerialPortBase::StartTimer()
 {
+#if 0
 	connect(m_timer.data(), SIGNAL(timeout()), this, SLOT(readComDataSlot()));
 	m_timer->start(1000);
 	std::cout << "Read Timer is Starting: " << std::endl;
+#endif // 0
+
+
 }
 /*-------------------------------------*/
 /**

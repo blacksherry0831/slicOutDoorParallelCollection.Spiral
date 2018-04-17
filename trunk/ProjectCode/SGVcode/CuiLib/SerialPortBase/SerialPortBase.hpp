@@ -17,11 +17,11 @@ class SerialPortBase :public QObject
 	Q_OBJECT
 public:
 	SerialPortBase(QObject *parent = nullptr);
-protected:
+public:
 	~SerialPortBase(void);
 protected:
 	QSharedPointer<QSerialPort> m_qsp;
-	QSharedPointer<QTimer> m_timer;
+	/*QSharedPointer<QTimer> m_timer;*/
 	vector<QSerialPortInfo> m_serialPorts;
 	QQueue<unsigned char>  m_buffer;
 protected:

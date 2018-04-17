@@ -74,16 +74,30 @@ QtThreadPLC::~QtThreadPLC(void)
 void QtThreadPLC::run()
 {
 	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
-	BE_1105_Driver *be_1105 = BE_1105_Driver::getInstance(this);
-
+	QSharedPointer<BE_1105_Driver>	 be_1105 = QSharedPointer<BE_1105_Driver>(new BE_1105_Driver(Q_NULLPTR));
+	
+	do {
+	
 #if defined(linux) || defined(__linux) || defined(__linux__)
-	be_1105->open_ttyUSB();
+		be_1105->open_ttyUSB();
 #endif
 #if  defined(_WIN32) || defined(_WIN64)
-	be_1105->open(3);
-#endif
+		be_1105->open(3);
+#endif	
+		if (be_1105->init()==TRUE) {
+			break;
+		}
+		else
+		{
+			QThread::msleep(1000);
+			std::cout << "EVENT>>" << "Cant Open Serial Port !" << std::endl;
+		}
+
+	} while (be_1105->init()==FALSE);
+
 
 	while (M_THREAD_RUN){
+
 
 			if(m_socket->IsSocketAlive()==false) {
 			

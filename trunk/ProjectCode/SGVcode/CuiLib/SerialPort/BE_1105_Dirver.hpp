@@ -42,7 +42,7 @@ public:
 		RUN_STATUS_STOP,
 		OK=0xFE,
 		TIME_OUT=0xFF};
-private:
+public:
 	BE_1105_Driver(QObject *parent = nullptr);
 	~BE_1105_Driver(void);	
 public:
