@@ -37,7 +37,7 @@ CMD_CTRL::~CMD_CTRL()
 /*-------------------------------------*/
 void CMD_CTRL::initHeader()
 {
-	f_header.f_header[0] = 'y';
+	f_header.f_header[0] = 'Y';
 	f_header.f_header[1] = 'j';
 	f_header.f_header[2] = 'k';
 	f_header.f_header[3] = 'j';
@@ -181,8 +181,8 @@ void CMD_CTRL::setRollerQualified(int _qualified)
 
 	assert(f_data.size() >= 2);
 
-	f_data[0] = h_t;
-	f_data[1] = l_t;
+	f_data[0] = l_t;
+	f_data[1] = h_t;
 }
 /*-------------------------------------*/
 /**

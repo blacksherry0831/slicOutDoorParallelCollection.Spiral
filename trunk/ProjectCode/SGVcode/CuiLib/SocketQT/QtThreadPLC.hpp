@@ -28,7 +28,8 @@ protected:
 	QSharedPointer<QtTcpClient>  m_socket;//客户端的定义
 public:
 		
-	
+	void Run0();
+	void run1();
 protected: 
 	virtual void run();
 

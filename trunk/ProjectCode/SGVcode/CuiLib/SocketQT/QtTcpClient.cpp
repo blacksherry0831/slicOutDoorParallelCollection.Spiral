@@ -176,31 +176,50 @@ int  QtTcpClient::Read_1_cmd(CMD_CTRL *_cmd)
 	int READSIZE=HeaderSize;
 	do {
 	
-		this->readAllMy();
-		const int CurrentBuffSize = this->m_buffer.size();
+		if (this->m_buffer.size() < HeaderSize) {
+			this->readAllMy();
+		}
+		if (DataALLSize_ != -1 && this->m_buffer.size() < DataALLSize_) {
+			this->readAllMy();
+		}
 
-		if (CurrentBuffSize >= HeaderSize) {
-			
-			char *  header_data = m_buffer.data();
+		while (this->m_buffer.size()>=HeaderSize)
+		{
 
-			BodySize_=CMD_CTRL::GetCMDBodySize((CMD_CTRL::CMD_CTRL_HEADER*) header_data);
-			
-			(BodySize_ < 2) ? BodySize_=2 :BodySize_=BodySize_ ;
+			if(	(m_buffer[0]=='Y')&&
+				(m_buffer[1]=='j')&&
+				(m_buffer[2]=='k')&&
+				(m_buffer[3] == 'j')){
+#if TRUE
+				const int CurrentBuffSize = this->m_buffer.size();
+				if (CurrentBuffSize >= HeaderSize) {
 
-			if (BodySize_ == 65535) {
-			
-			}else{
-				DataALLSize_ = HeaderSize + BodySize_ + 1;
+					char *  header_data = m_buffer.data();
+
+					BodySize_ = CMD_CTRL::GetCMDBodySize((CMD_CTRL::CMD_CTRL_HEADER*) header_data);
+
+					(BodySize_ < 2) ? BodySize_ = 2 : QThread::usleep(0); ;
+
+					DataALLSize_ = HeaderSize + BodySize_ + 1;
+				
+					if (DataALLSize_ != -1 && this->m_buffer.size() >= DataALLSize_) {
+						_cmd->Parse(m_buffer.data(), DataALLSize_);
+						m_buffer.remove(0, DataALLSize_);
+						return TRUE;
+					}
+
+				}
+
+#endif // TRUE
+				break;
+			}
+			else
+			{
+				m_buffer.remove(0, 1);
 			}
 
-
-		
 		}
-
-		if (DataALLSize_ > 0 && CurrentBuffSize >= DataALLSize_) {
-			break;
-		}
-		
+					
 		if (this->IsSocketAlive()==FALSE) {
 			return FALSE;
 		}
@@ -209,9 +228,7 @@ int  QtTcpClient::Read_1_cmd(CMD_CTRL *_cmd)
 	// a frame is ok
 	
 
-	_cmd->Parse(m_buffer.data(),DataALLSize_);
 
-	m_buffer.remove(0, DataALLSize_);
 
 	return TRUE;
 }

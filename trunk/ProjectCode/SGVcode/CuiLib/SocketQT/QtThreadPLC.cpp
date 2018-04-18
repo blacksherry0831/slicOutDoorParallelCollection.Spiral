@@ -3,13 +3,6 @@
 /*-------------------------------------*/
 /**
 *
-###########  XXXXX  ###########   XXXXX  ?????  CCCCC  ZZZZZ  DDDDD  CRC
-PLC 59 6A 6B 6A  00 00  00 00 00 00   01 11  00 00  73 10  00 00  00 00  50 ready
-PC  59 6A 6B 6A  00 00  00 00 00 00   01 11  00 00  72 00  00 00  00 00  50工控机收到准备好
-PC  59 6A 6B 6A  00 00  00 00 00 00   01 11  00 00  63 20  00 00  00 01  60工控机发送位置
-PLC 59 6A 6B 6A  00 00  00 00 00 00   01 11  00 00  73 20  00 00  00 02  63
-59 6A 6B 6A  00 00  00 00 00 00   01 11  00 00  63 10  00 00  00 00  51工控机发送不合格判定
-59 6A 6B 6A  00 00  00 00 00 00   01 11  00 00  63 10  00 00  00 01  50
 *
 */
 /*-------------------------------------*/
@@ -18,16 +11,25 @@ PLC 59 6A 6B 6A  00 00  00 00 00 00   01 11  00 00  73 20  00 00  00 02  63
 /**
 *
 PLC
-59 6A 6B 6A  00 00  00 00 00 00   01 11  00 00  73 10  00 00  00 00 50  R ready
-59 6A 6B 6A  00 00  00 00 00 00   01 11  00 00  73 20  00 00  00 00 50  R into
-59 6A 6B 6A  00 00  00 00 00 00   01 11  00 00  73 20  00 00  00 00 50  R into
-79 6A 6B 6A 00 00 00 00 00 00 01 11 00 00 72 00 02 00 00 00 72
+59 6A 6B 6A  00 00  00 00 00 00   01 11  00 00  73 10  00 00  00 00 50 ready
+59 6A 6B 6A 00 00 00 00 00 00  01 11 00 00 72 00     00 00   00 00 50工控机收到准备好
+59 6A 6B 6A 00 00 00 00 00 00  01 11 00 00 63 20     00 00   00 01 60工控机发送位置
+59 6A 6B 6A 00 00 00 00 00 00  01 11 00 00 63 20     00 00   00 02 63
+59 6A 6B 6A 00 00 00 00 00 00  01 11 00 00 63 10     00 00   00 00 51工控机发送不合格判定
+59 6A 6B 6A 00 00 00 00 00 00  01 11 00 00 63 10     00 00   00 01 50
+###########################################################################
+59 6A 6B 6A 00 00 00 00 00 00  01 11 00 00 72 00     02 00   00 00   72 resp
+59 6A 6B 6A 00 00 00 00 00 00  01 11 00 00 63 20     02 00   01 00   42 into internal
+59 6A 6B 6A 00 00 00 00 00 00  01 11 00 00 63 20     02 00   02 00   42 into internal
+59 6A 6B 6A 00 00 00 00 00 00  01 11 00 00 63 10     02 00   01 00   72 ok合格
 
-IPC
-79 6A 6B 6A 00 00 00 00 00 00 01 11 00 00 72 00 02 00 00 00 72 resp
-79 6A 6B 6A 00 00 00 00 00 00 01 11 00 00 63 20 02 00 01 00 42 into internal
-79 6A 6B 6A 00 00 00 00 00 00 01 11 00 00 63 20 02 00 01 00 42 into internal
-79 6A 6B 6A 00 00 00 00 00 00 01 11 00 00 63 10 02 00 00 01 72 ok合格
+PLC send
+IPC send
+【2018-04-18 20:16:47收到数据(HEX),127.0.0.1:43557 Len:21resp】:59 6A 6B 6A 00 00 00 00 00 00 01 11 00 00 72 00 02 00 00 00 52
+【2018-04-18 20:16:47收到数据(HEX),127.0.0.1:43557 Len:21into 5】:59 6A 6B 6A 00 00 00 00 00 00 01 11 00 00 63 20 02 00 05 00 66
+【2018-04-18 20:17:43收到数据(HEX),127.0.0.1:43557 Len:21into 1】:59 6A 6B 6A 00 00 00 00 00 00 01 11 00 00 63 20 02 00 01 00 62
+【2018-04-18 20:18:10收到数据(HEX),127.0.0.1:43557 Len:21 ok】:59 6A 6B 6A 00 00 00 00 00 00 01 11 00 00 63 10 02 00 01 00 52
+
 *
 */
 /*-------------------------------------*/
@@ -40,8 +42,13 @@ IPC
 QtThreadPLC::QtThreadPLC(qintptr p)
 {
 	m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
+#if 1
+	mIpAddr = "192.168.100.101";
+#else
 	mIpAddr = "127.0.0.1";
-	mPort = 20000;
+#endif // 0
+
+	mPort = 2001;
 
 	m_socket->moveToThread(this);
 }
@@ -66,6 +73,14 @@ QtThreadPLC::~QtThreadPLC(void)
 */
 /*-------------------------------------*/
 
+void QtThreadPLC::Run0()
+{
+}
+
+void QtThreadPLC::run1()
+{
+}
+
 /*-------------------------------------*/
 /**
 *
@@ -75,7 +90,7 @@ void QtThreadPLC::run()
 {
 	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
 	QSharedPointer<BE_1105_Driver>	 be_1105 = QSharedPointer<BE_1105_Driver>(new BE_1105_Driver(Q_NULLPTR));
-	
+	int IS_SOCKET_OK = FALSE;
 	do {
 	
 #if defined(linux) || defined(__linux) || defined(__linux__)
@@ -105,7 +120,7 @@ void QtThreadPLC::run()
 					
 						m_socket->connectToHost(QHostAddress(mIpAddr.c_str()),mPort);
 						std::cout <<"Try Connect to IP: "<<mIpAddr <<"Port:"<<mPort<< std::endl;
-					
+						QThread::sleep(1);
 					}while (m_socket->waitForConnected(MAX_MSECS) == false);	
 
 			}
@@ -113,84 +128,110 @@ void QtThreadPLC::run()
 			while (m_socket->IsSocketAlive()) {
 #if TRUE
 //rooler ready
-						if (m_socket->Read_1_cmd(cmd_t.data()) == 0) {
+				do
+				{
+						IS_SOCKET_OK = m_socket->Read_1_cmd(cmd_t.data());
+						if ( IS_SOCKET_OK== 0) {
 							std::cout << "EVENT>>" << "Socket Error !" << std::endl;
 							break;
 						}
-
 						if (cmd_t->IsRoolerReady()) {
 							//roooler is ready !!!
 							std::cout <<"EVENT>>"<<"Rooler Ready !" << std::endl;
 							m_socket->SendPlcResp(TRUE);
-							
+							break;
 						}else{
 							std::cout << "EVENT>>" << "Error Cmd!" << std::endl;
 							continue;
 						}
+
+				} while (m_socket->IsSocketAlive());
+				if (IS_SOCKET_OK == 0) break;						
 #endif // 0
 #if TRUE
-
 						//Into Inter
-						m_socket->SendPlcIntoInter(2);
+						m_socket->SendPlcIntoInter(5);
 						
-						if (m_socket->Read_1_cmd(cmd_t.data()) == 0) {
-							std::cout << "EVENT>>" << "Socket Error !" << std::endl;
-							break;
-						}
+						do {
+						
+								IS_SOCKET_OK = m_socket->Read_1_cmd(cmd_t.data());
+								if (IS_SOCKET_OK == 0) {
+									std::cout << "EVENT>>" << "Socket Error !" << std::endl;
+									break;
+								}
 
-						if (cmd_t->IsIntoInnerReady()) {
-							//roooler is ready !!!
-							std::cout <<"EVENT>> "<<"Now into inter  !" << std::endl;
-							be_1105->SendCmd4Done(BE_1105_RUN_NEG, 55000);
-							be_1105->SendCmd4Done(BE_1105_RUN_NEG, 55000);
+								if (cmd_t->IsIntoInnerReady()) {
+											//roooler is ready !!!
+											std::cout <<"EVENT>> "<<"Now into inter  !" << std::endl;
+											be_1105->SendCmd4Done(BE_1105_RUN_NEG, 55000);
+											QThread::sleep(1);
+											be_1105->SendCmd4Done(BE_1105_RUN_NEG, 55000);
+											break;
 
-						}
-						else {
-							std::cout << "EVENT>>" << "Error Cmd!" << std::endl;
-							continue;
-						}
-
+								}else if(cmd_t->IsRoolerReady())	{
+											continue;
+								}else {
+											std::cout << "EVENT>>" << "Error Cmd!" << std::endl;
+											break;
+								}
+						} while (m_socket->IsSocketAlive());
+						if (IS_SOCKET_OK == FALSE) break;
 #endif // TRUE
 #if TRUE
 						//Into Inter
 						m_socket->SendPlcIntoInter(1);
 
-						if (m_socket->Read_1_cmd(cmd_t.data()) == 0) {
-							std::cout << "EVENT>>" << "Socket Error !" << std::endl;
-							break;
-						}
+						do {
 
-						if (cmd_t->IsIntoInnerReady()) {
-							//roooler is ready !!!
-							std::cout << "EVENT>> " << "Now out inter  !" << std::endl;
-							
+							IS_SOCKET_OK = m_socket->Read_1_cmd(cmd_t.data());
+							if (IS_SOCKET_OK == 0) {
+								std::cout << "EVENT>>" << "Socket Error !" << std::endl;
+								break;
+							}
 
-						}
-						else {
-							std::cout << "EVENT>>" << "Error Cmd!" << std::endl;
-							continue;
-						}
+							if (cmd_t->IsIntoInnerReady()) {
+								//roooler is ready !!!
+								std::cout << "EVENT>> " << "Now into inter  !" << std::endl;
+								//be_1105->SendCmd4Done(BE_1105_RUN_NEG, 55000);
+								//be_1105->SendCmd4Done(BE_1105_RUN_NEG, 55000);
+								break;
+
+							}
+							else if (cmd_t->IsRoolerReady()) {
+								continue;
+							}
+							else {
+								std::cout << "EVENT>>" << "Error Cmd!" << std::endl;
+								break;
+							}
+						} while (m_socket->IsSocketAlive());
+						if (IS_SOCKET_OK == FALSE) break;
 #endif // TRUE
 
 #if TRUE
 						//rooler is ok or bad
-						m_socket->SendPlcRollerQualified(TRUE);
-						if (m_socket->Read_1_cmd(cmd_t.data()) == 0) {
-							std::cout << "EVENT>>" << "Socket Error !" << std::endl;
-							break;
-						}
-
-						if (cmd_t->IsResp()) {
+						m_socket->SendPlcRollerQualified(CMD_CTRL::OK);
 							
-							std::cout << "Done !" << std::endl;
+						do {
 
+							IS_SOCKET_OK = m_socket->Read_1_cmd(cmd_t.data());
+							if (IS_SOCKET_OK == 0) {
+								std::cout << "EVENT>>" << "Socket Error !" << std::endl;
+								break;
+							}
 
-						}
-						else
-						{
-							std::cout << "EVENT>>" << "Error Cmd!" << std::endl;
-							continue;
-						}
+							if (cmd_t->IsResp()) {
+								std::cout << "Done !" << std::endl;
+								break;
+							}else if (cmd_t->IsRoolerReady()) {
+								continue;
+							}
+							else {
+								std::cout << "EVENT>>" << "Error Cmd!" << std::endl;
+								break;
+							}
+						} while (m_socket->IsSocketAlive());
+						if (IS_SOCKET_OK == FALSE) break;
 #endif // TRUE
 
 			}
