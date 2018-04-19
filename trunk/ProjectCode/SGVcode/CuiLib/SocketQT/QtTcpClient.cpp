@@ -198,8 +198,8 @@ int  QtTcpClient::Read_1_cmd(CMD_CTRL *_cmd)
 
 					BodySize_ = CMD_CTRL::GetCMDBodySize((CMD_CTRL::CMD_CTRL_HEADER*) header_data);
 
-					(BodySize_ < 2) ? BodySize_ = 2 : QThread::usleep(0); ;
-
+					if (BodySize_ < 2)	BodySize_ = 2;
+				
 					DataALLSize_ = HeaderSize + BodySize_ + 1;
 				
 					if (DataALLSize_ != -1 && this->m_buffer.size() >= DataALLSize_) {
