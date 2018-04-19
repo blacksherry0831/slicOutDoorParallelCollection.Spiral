@@ -80,6 +80,50 @@ void QtThreadPLC::Run0()
 void QtThreadPLC::run1()
 {
 }
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int QtThreadPLC::MoveSlidingThenRunMotor(QSharedPointer<BE_1105_Driver>	 be_1105,int _pos, int _isRun)
+{
+	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
+	int IS_SOCKET_OK = FALSE;
+#if TRUE
+	//Into Inter
+	m_socket->SendPlcIntoInter(_pos);
+
+	do {
+
+		IS_SOCKET_OK = m_socket->Read_1_cmd(cmd_t.data());
+		if (IS_SOCKET_OK == 0) {
+			std::cout << "EVENT>>" << "Socket Error !" << std::endl;
+			return FALSE;
+		}
+
+		if (cmd_t->IsIntoInnerReady()) {
+				//roooler is ready !!!
+			std::cout << "EVENT>> " << "Now into inter  !" <<_pos << std::endl;
+			if (_isRun) {
+				
+				be_1105->SendCmd4Done(BE_1105_RUN_NEG, 55000);
+				
+			}
+			return TRUE;
+
+		}
+		else if (cmd_t->IsRoolerReady()) {
+			continue;
+		}
+		else {
+			std::cout << "EVENT>>" << "Error Cmd!" << std::endl;
+			return FALSE;
+		}
+	} while (m_socket->IsSocketAlive());
+	
+#endif // TRUE
+	return IS_SOCKET_OK;
+}
 
 /*-------------------------------------*/
 /**
@@ -117,7 +161,7 @@ void QtThreadPLC::run()
 			if(m_socket->IsSocketAlive()==false) {
 			
 					do {
-					
+						m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
 						m_socket->connectToHost(QHostAddress(mIpAddr.c_str()),mPort);
 						std::cout <<"Try Connect to IP: "<<mIpAddr <<"Port:"<<mPort<< std::endl;
 						QThread::sleep(1);
@@ -148,64 +192,20 @@ void QtThreadPLC::run()
 				} while (m_socket->IsSocketAlive());
 				if (IS_SOCKET_OK == 0) break;						
 #endif // 0
+
 #if TRUE
-						//Into Inter
-						m_socket->SendPlcIntoInter(5);
-						
-						do {
-						
-								IS_SOCKET_OK = m_socket->Read_1_cmd(cmd_t.data());
-								if (IS_SOCKET_OK == 0) {
-									std::cout << "EVENT>>" << "Socket Error !" << std::endl;
-									break;
-								}
+				const  int STEP[2] = { 1,2};
+				const  int STEP_NUM = sizeof(STEP) / sizeof(int);
+				int IsOK=FALSE;
+				for (size_t i = 0; i<STEP_NUM ; i++){
+					int step_t = STEP[i];
+					int run_t =TRUE;
+					IsOK=this->MoveSlidingThenRunMotor(be_1105, step_t, run_t);
+					if (!IsOK) break;
+					
+				}
+				if (!IsOK) break;
 
-								if (cmd_t->IsIntoInnerReady()) {
-											//roooler is ready !!!
-											std::cout <<"EVENT>> "<<"Now into inter  !" << std::endl;
-											be_1105->SendCmd4Done(BE_1105_RUN_NEG, 55000);
-											QThread::sleep(1);
-											be_1105->SendCmd4Done(BE_1105_RUN_NEG, 55000);
-											break;
-
-								}else if(cmd_t->IsRoolerReady())	{
-											continue;
-								}else {
-											std::cout << "EVENT>>" << "Error Cmd!" << std::endl;
-											break;
-								}
-						} while (m_socket->IsSocketAlive());
-						if (IS_SOCKET_OK == FALSE) break;
-#endif // TRUE
-#if TRUE
-						//Into Inter
-						m_socket->SendPlcIntoInter(1);
-
-						do {
-
-							IS_SOCKET_OK = m_socket->Read_1_cmd(cmd_t.data());
-							if (IS_SOCKET_OK == 0) {
-								std::cout << "EVENT>>" << "Socket Error !" << std::endl;
-								break;
-							}
-
-							if (cmd_t->IsIntoInnerReady()) {
-								//roooler is ready !!!
-								std::cout << "EVENT>> " << "Now into inter  !" << std::endl;
-								//be_1105->SendCmd4Done(BE_1105_RUN_NEG, 55000);
-								//be_1105->SendCmd4Done(BE_1105_RUN_NEG, 55000);
-								break;
-
-							}
-							else if (cmd_t->IsRoolerReady()) {
-								continue;
-							}
-							else {
-								std::cout << "EVENT>>" << "Error Cmd!" << std::endl;
-								break;
-							}
-						} while (m_socket->IsSocketAlive());
-						if (IS_SOCKET_OK == FALSE) break;
 #endif // TRUE
 
 #if TRUE
@@ -233,7 +233,6 @@ void QtThreadPLC::run()
 						} while (m_socket->IsSocketAlive());
 						if (IS_SOCKET_OK == FALSE) break;
 #endif // TRUE
-
 			}
 
 

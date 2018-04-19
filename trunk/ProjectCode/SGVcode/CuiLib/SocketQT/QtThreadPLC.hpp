@@ -30,6 +30,9 @@ public:
 		
 	void Run0();
 	void run1();
+
+	int MoveSlidingThenRunMotor(QSharedPointer<BE_1105_Driver>	 be_1105,int _pos,int _isRun);
+
 protected: 
 	virtual void run();
 
