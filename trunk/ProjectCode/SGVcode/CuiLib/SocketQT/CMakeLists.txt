@@ -24,7 +24,9 @@ ENDIF ()
 				QtThreadServer.cpp
 				QtThreadPLC.cpp
 				DataFrame.cpp
-				CMD_CTRL.cpp)		
+				CMD_CTRL.cpp
+				QtThread8Video.cpp
+				QtThreadSocketClient.cpp)		
 	
 	endif (CBB_BUILDING_CRACK_DETECTION)
  

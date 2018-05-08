@@ -61,7 +61,44 @@ int eightChannelVideo(int argc, char *argv[])
 	return a.exec();
 }
 
+
+
+
+
+
+
+
 int main(int argc, char *argv[])
 {
-	return	mainConsole(argc,argv);
+	string cmd;
+
+	while (TRUE) {
+			
+			std::getline(std::cin, cmd);
+			if (cmd.compare("PLC_M") == 0) {
+				
+				return	mainConsole(argc, argv);
+
+			}else if (cmd.compare("8ChVideo") == 0) {
+
+				return eightChannelVideo(argc, argv);
+
+			}else if (cmd.compare("XXX") == 0) {
+
+			}else if (cmd.compare("XXX") == 0) {
+
+			}else if (cmd.compare("q") == 0) {
+				break;
+			}
+			else {
+				std::cout << "please input a cmd :" << std::endl;
+				std::cout << "8ChVideo" << std::endl;
+				std::cout << "PLC_M" << std::endl;
+				std::cout << "q" << std::endl;
+				std::cout << "......" << std::endl;
+
+			}
+
+	}	
+	
 }

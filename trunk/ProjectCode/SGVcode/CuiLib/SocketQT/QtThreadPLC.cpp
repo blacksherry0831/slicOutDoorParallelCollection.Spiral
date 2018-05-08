@@ -158,16 +158,7 @@ void QtThreadPLC::run()
 	while (M_THREAD_RUN){
 
 
-			if(m_socket->IsSocketAlive()==false) {
-			
-					do {
-						m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
-						m_socket->connectToHost(QHostAddress(mIpAddr.c_str()),mPort);
-						std::cout <<"Try Connect to IP: "<<mIpAddr <<"Port:"<<mPort<< std::endl;
-						QThread::sleep(1);
-					}while (m_socket->waitForConnected(MAX_MSECS) == false);	
-
-			}
+			this->connect2ServerIfNoConnected();
 
 			while (m_socket->IsSocketAlive()) {
 #if TRUE

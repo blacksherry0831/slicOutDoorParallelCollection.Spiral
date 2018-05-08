@@ -15,6 +15,15 @@
 *
 */
 /*-------------------------------------*/
+#define TCP_PORT_VIDEO_TRANS (10001)
+#define TCP_POET_CMD_CTRL    (10000)
+#define TCP_PORT_VIDEO_RAW	 (8888)
+/*-------------------------------------*/
+/**
+*
+*
+*/
+/*-------------------------------------*/
 class QtTcpClient :public QTcpSocket
 {
 	
