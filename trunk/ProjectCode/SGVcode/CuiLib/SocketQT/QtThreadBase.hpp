@@ -26,7 +26,7 @@ protected:
 	int  MAX_MSECS;
 	int IDENTIFY;
 public:
-		
+	void Sleep(int _ms);
 	void startServer();
 	void closeServer();
 	

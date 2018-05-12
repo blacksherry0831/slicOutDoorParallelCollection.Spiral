@@ -1,92 +1,68 @@
 //#include "stdafx.h"
-#include "QtThreadBase.hpp"
+#include "ChannelsData.hpp"
 /*-------------------------------------*/
 /**
 *
 *
 */
 /*-------------------------------------*/
-
+ChannelsData ChannelsData::gChannelsData;
 /*-------------------------------------*/
 /**
 *
 *
 */
 /*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-QtThreadBase::QtThreadBase(void)
+ChannelsData::ChannelsData()
 {
-	
-
-	this->M_THREAD_RUN = true;
-	this->MAX_MSECS = 30000;
-	
-	QTime t;
-	t = QTime::currentTime();
-	qsrand(t.msec() + t.second() * 1000);
-
-	this->IDENTIFY=qrand();
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-QtThreadBase::~QtThreadBase(void)
-{
-	this->closeServer();
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtThreadBase::Sleep(int _ms)
-{
-	do {
-
-		QThread::msleep(100);
-		_ms -= 100;
-		std::cout << "#";
-
-	} while (_ms > 0);
-
-	std::cout << std::endl;
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtThreadBase::startServer()
-{
-	this->M_THREAD_RUN = true;
-	this->start();
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtThreadBase::closeServer()
-{
-	this->M_THREAD_RUN = false;
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtThreadBase::run()
-{
-	while (M_THREAD_RUN)
+	mChannelsData.resize(CAMERA_CHANNELS);
+	const int length = CAMERA_CHANNELS;
+	for (size_t chi = 0; chi < length; chi++)
 	{
-
+		QSharedPointer<exCircleData> chidata = QSharedPointer<exCircleData>(new exCircleData(chi));
+		mChannelsData[chi] = chidata;
+	}
+}
+/*-------------------------------------*/
+/**
+*
+*
+*/
+/*-------------------------------------*/
+ChannelsData::~ChannelsData()
+{
+	mChannelsData.clear();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+QSharedPointer<exCircleData> ChannelsData::getChannelData(int _ch)
+{
+	QSharedPointer<exCircleData> circleData = mChannelsData.at(_ch);
+	return circleData;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+ChannelsData* ChannelsData::channelsData()
+{
+	return &gChannelsData;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void ChannelsData::init()
+{	
+	const int length = mChannelsData.size();
+	for (size_t chi = 0; chi < length; chi++)
+	{
+		mChannelsData[chi]->init();
 	}
 }
 /*-------------------------------------*/
@@ -94,19 +70,14 @@ void QtThreadBase::run()
 *
 */
 /*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
+void ChannelsData::destory()
+{
+	const int length = mChannelsData.size();
+	for (size_t chi = 0; chi < length; chi++)
+	{
+		mChannelsData[chi]->destory();
+	}
+}
 /*-------------------------------------*/
 /**
 *

@@ -1,29 +1,20 @@
 //#include "stdafx.h"
-#include "QtTcpServer.hpp"
+#include "QtThread8VideoProcess.hpp"
 /*-------------------------------------*/
 /**
 *
 *
 */
 /*-------------------------------------*/
-
+const unsigned char QtThread8VideoProcess::TaskMap[CAMERA_CHANNELS] = {0,1,2,3,4,5,6,7};
+QThreadPool   QtThread8VideoProcess::ThreadPool;
 /*-------------------------------------*/
 /**
 *
 *
 */
 /*-------------------------------------*/
-QtTcpServer::QtTcpServer(QObject *parent) :QTcpServer(parent)
-{
-
-}
-/*-------------------------------------*/
-/**
-*
-*
-*/
-/*-------------------------------------*/
-QtTcpServer::QtTcpServer(QObject *parent, QSharedPointer<QtThreadClientCtrl> _clientThread) :QTcpServer(parent)
+QtThread8VideoProcess::QtThread8VideoProcess()
 {
 	
 }
@@ -32,29 +23,11 @@ QtTcpServer::QtTcpServer(QObject *parent, QSharedPointer<QtThreadClientCtrl> _cl
 *
 */
 /*-------------------------------------*/
-
-QtTcpServer::~QtTcpServer()
+QtThread8VideoProcess::QtThread8VideoProcess(int _Channel)
 {
-
-	m_clientThreads.clear();
-	this->close();
-}
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtTcpServer::incomingConnection(qintptr socketDescriptor)
-{
-	qDebug() << "New Connect is connect" << socketDescriptor;
-	
-	QSharedPointer<QtThreadClientCtrl> client_thread=QSharedPointer<QtThreadClientCtrl>(new QtThreadClientCtrl(socketDescriptor));
-
-	client_thread->start();
-
-	
-	this->SaveRunningThread(client_thread);
+	this->CHANNEL = _Channel;
+	this->WINDOW_NAME ="Channel"+Base::int2str(_Channel) ;
+	cvNamedWindow(WINDOW_NAME.c_str(), CV_WINDOW_NORMAL);
 
 }
 /*-------------------------------------*/
@@ -62,72 +35,76 @@ void QtTcpServer::incomingConnection(qintptr socketDescriptor)
 *
 */
 /*-------------------------------------*/
-void QtTcpServer::RemoveDoneThread()
+QtThread8VideoProcess::~QtThread8VideoProcess(void)
 {
-	this->m_clients_mutex.lock();
+	qDebug() << "QtThread8Video is Release ! ";
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThread8VideoProcess::init()
+{
+	ThreadPool.setMaxThreadCount(CAMERA_CHANNELS);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThread8VideoProcess::run()
+{
+	QSharedPointer<exCircleData> circleData = ChannelsData::channelsData()->getChannelData(CHANNEL);
 		
+	while (M_THREAD_RUN) {
+				
+		if (circleData->IsValid() == FALSE) {
+			QThread::msleep(10);
+			continue;			
+		}		
 		
-	
-	QList<QSharedPointer<QtThreadClientCtrl>>::iterator item = m_clientThreads.begin();
 
-		while (item != m_clientThreads.end()){
+		QSharedPointer<CMD_CTRL> cmd_ctrl= circleData->getImg();
+		
 
-			if ((*item)->isFinished()) {
-			
-				m_clientThreads.removeOne(*item);
-				
-				
-			}
-			
-			item++;
+		IplImage *img_t = cmd_ctrl->getIplimage();
+		
+		cvShowImage(WINDOW_NAME.c_str(), img_t);
+		cvWaitKey(10);
 
-		}
-
-
-	this->m_clients_mutex.unlock();
+	}
+		
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void QtTcpServer::SaveRunningThread(QSharedPointer<QtThreadClientCtrl> _client)
+void QtThread8VideoProcess::startTask()
 {
-	this->m_clients_mutex.lock();
-			m_clientThreads.push_back(_client);
-	this->m_clients_mutex.unlock();
+	ThreadPool.setMaxThreadCount(CAMERA_CHANNELS+1);
 
-	this->RemoveDoneThread();
+	for (size_t chi = 0; chi < CAMERA_CHANNELS; chi++){
+			
+		QtThread8VideoProcess *task = new  QtThread8VideoProcess(chi);
+		ThreadPool.start(task);
+
+	}
+
 }
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtTcpServer::execMy()
-{
-	this->RemoveDoneThread();
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
 /*-------------------------------------*/
 /**
 *

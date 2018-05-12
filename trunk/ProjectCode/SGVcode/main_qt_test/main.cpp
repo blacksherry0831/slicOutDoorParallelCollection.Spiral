@@ -5,11 +5,15 @@
 #include <QApplication>
 
 #include "cpp_stl.h"
+#include "cv.h"
 
 #if TRUE
 
 #include "../SocketQT/QtThreadServer.hpp"
 #include "../SocketQT/QtThreadPLC.hpp"
+#include "../SocketQT/QtThreadClientCtrl.hpp"
+#include "../SocketQT/QtThread8Video.hpp"
+#include "../SocketQT/QtThread8VideoProcess.hpp"
 
 #endif // TRUE
 
@@ -51,13 +55,13 @@ int eightChannelVideo(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
 	
-	QSharedPointer<QtTcpServer>  tcpServer = QSharedPointer<QtTcpServer>(new QtTcpServer(Q_NULLPTR, Q_NULLPTR));
-	QSharedPointer<QtThreadServer> dataServer = QSharedPointer<QtThreadServer>(new QtThreadServer(6666,tcpServer));
+	QSharedPointer<QtThreadClientCtrl>		ctrlServer = QSharedPointer<QtThreadClientCtrl>(new QtThreadClientCtrl());
+	QSharedPointer<QtThread8Video>			videoDataServer = QSharedPointer<QtThread8Video>(new QtThread8Video());
+	ctrlServer->start();
+	videoDataServer->start();
 	
-	QSharedPointer<QtThreadPLC> plcdataServer = QSharedPointer<QtThreadPLC>(new QtThreadPLC(0));
-	
-	dataServer->start();
-	
+	QtThread8VideoProcess::startTask();
+
 	return a.exec();
 }
 

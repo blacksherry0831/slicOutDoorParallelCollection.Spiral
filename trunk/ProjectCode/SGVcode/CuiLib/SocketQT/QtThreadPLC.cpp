@@ -201,7 +201,7 @@ void QtThreadPLC::run()
 
 #if TRUE
 						//rooler is ok or bad
-						m_socket->SendPlcRollerQualified(CMD_CTRL::OK);
+						m_socket->SendPlcRollerQualified(CMD_CTRL::CT_OK);
 							
 						do {
 

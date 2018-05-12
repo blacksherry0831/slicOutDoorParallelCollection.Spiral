@@ -1,12 +1,49 @@
 #pragma once
 
 #include "cpp_stl.h"
-
+#include "opencv_stl.h"
+/*-----------------------------------*/
+/**
+*
+*/
+/*-----------------------------------*/
+#define CAMERA_CHANNELS (8)
+#define ALIGN_SIZE_T	(8)
+/*-----------------------------------*/
+/**
+*
+*/
+/*-----------------------------------*/
 #include <QtCore>
 #include <QtNetwork>
 #include <QSharedPointer>
 #include <QThread>
+/*-----------------------------------*/
+/**
+*
+*/
+/*-----------------------------------*/
+typedef struct _IplImageU
+{
+	unsigned char nSize[ALIGN_SIZE_T];//this struct size
+	char prefix[ALIGN_SIZE_T];
+	unsigned char IpAddrChannel[ALIGN_SIZE_T];
+	unsigned char frame[ALIGN_SIZE_T];
+	unsigned char width[ALIGN_SIZE_T];
+	unsigned char height[ALIGN_SIZE_T];
 
+	IplImage  	Iplimg;
+} IplImageU;
+/*-----------------------------------*/
+/**
+*
+*/
+/*-----------------------------------*/
+typedef union _IplImageUI
+{
+	unsigned char buff[ALIGN_SIZE_T * 32];
+	IplImageU iplImgU;
+}IplImageUI;
 /*-------------------------------------*/
 /**
 *
@@ -17,21 +54,23 @@ class CMD_CTRL
 {
 public:
 	enum DEV {
-		IPC = 0x00,
-		PLC = 0x01,
-		PLC_LR = 0x11,
-		FPGA_ARM=0x02};
+		DEV_IPC = 0x00,
+		DEV_PLC = 0x01,
+		DEV_PLC_LR = 0x11,
+		DEV_FPGA_ARM=0x02};
 
 	enum CMD_TYPE {
-		QUERY='q',
-		CTRL='c',
-		RESP='r',
-		START=0x00,
-		STOP=0x01,
-		OK=0x00,
-		ERROR=0x01,
-		LR_RUN_2=0x20,
-		ROLLER_Q=0x10};
+		CT_QUERY='q',
+		CT_CTRL='c',
+		CT_RESP='r',
+		CT_IMG='I',
+		CT_START=0x00,
+		CT_STOP=0x01,
+		CT_FRAME='F',
+		CT_OK=0x00,
+		CT_ERROR=0x01,
+		CT_LR_RUN_2=0x20,
+		CT_ROLLER_Q=0x10};
 
 	typedef struct {
 		unsigned char f_header[4];
@@ -51,6 +90,8 @@ public:
 		std::vector<unsigned char> f_data;
 		int f_data_size;
 		unsigned char f_crc;
+private:
+	IplImageU* m_img;
 private:
 	void initHeader();
 	void setGeneral();
@@ -79,8 +120,22 @@ public:
 public:
 	int IsConvertDoneCmd();
 	int IsResp();
-	int IsImageData();
+	
 	int IsIntoInnerReady();
 	int IsRoolerReady();
-
+	/*-------------------------------------*/
+	int IsImgStart();
+	int IsImgEnd();
+	int IsImgFrame();
+	int FrameCount();
+	int IsImg();
+	int InitImg();
+	int Channel();
+	int Width();
+	int Height();
+	IplImage* getIplimage();
+	/*-------------------------------------*/
+public:
+	static int UChar2Int(unsigned char *_data,int _size);
+	
 };

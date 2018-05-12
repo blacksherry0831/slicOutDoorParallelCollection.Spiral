@@ -9,6 +9,7 @@
 
 #include "QtThreadSocketClient.hpp"
 #include "QtTcpClient.hpp"
+#include "ChannelsData.hpp"
 /*-------------------------------------*/
 /**
 *
@@ -20,14 +21,15 @@ class QtThread8Video :public QtThreadSocketClient
 
 public:
 	QtThread8Video(qintptr p);
+	QtThread8Video();
 	~QtThread8Video(void);
 protected:
-	
+	void initIpPort();
 public:
 		
 	void Run0();
 	void run1();
-
+	void ProcessCmd(QSharedPointer<CMD_CTRL> cmd_t);
 protected: 
 	virtual void run();
 

@@ -1,5 +1,5 @@
 //#include "stdafx.h"
-#include "QtThreadClient.hpp"
+#include "QtThreadClientCtrl.hpp"
 /*-------------------------------------*/
 /**
 *
@@ -13,14 +13,22 @@
 *
 */
 /*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-QtThreadClient::QtThreadClient(qintptr p)
+QtThreadClientCtrl::QtThreadClientCtrl()
 {
+
+	initIpPort();
+	m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
+	m_socket->moveToThread(this);
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+QtThreadClientCtrl::QtThreadClientCtrl(qintptr p)
+{
+	initIpPort();
 	this->write_ptr(p);
 }
 /*-------------------------------------*/
@@ -28,9 +36,24 @@ QtThreadClient::QtThreadClient(qintptr p)
 *
 */
 /*-------------------------------------*/
-QtThreadClient::~QtThreadClient(void)
+QtThreadClientCtrl::~QtThreadClientCtrl(void)
 {
-	qDebug() << "QtThreadClient is Release ! ";
+	qDebug() << "QtThreadClientCtrl is Release ! ";
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadClientCtrl::initIpPort()
+{
+#if 1
+	mIpAddr = "192.168.100.102";
+#else
+	mIpAddr = "127.0.0.1";
+#endif // 0
+
+	mPort = TCP_POET_CMD_CTRL;
 }
 /*-------------------------------------*/
 /**
@@ -43,43 +66,23 @@ QtThreadClient::~QtThreadClient(void)
 *
 */
 /*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtThreadClient::run()
+void QtThreadClientCtrl::run()
 {
-	BE_1105_Driver *be_1105 = BE_1105_Driver::getInstance(this);
-
-#if defined(linux) || defined(__linux) || defined(__linux__)
-	be_1105->open_ttyUSB();
-#endif
-#if  defined(_WIN32) || defined(_WIN64)
-	be_1105->open(3);
-#endif
 
 	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
 	
-	qDebug() << "Client Thread Start";
-	
-
-	m_socket->setSocketDescriptor(ptr_sd);//客户端的初始化  
-	
-	if (m_socket->waitForConnected(MAX_MSECS)) {
-
+	qDebug() << "Ctrl Thread Start";
 			
 /*-----------------------------*/		
-		while (M_THREAD_RUN && m_socket->IsSocketAlive())
+		while (M_THREAD_RUN)
 		{	
 
-			be_1105->SendCmd4Done(BE_1105_RUN_NEG,55000);
-			be_1105->SendCmd4Done(BE_1105_RUN_NEG,55000);
-
-#if TRUE
-//step 1
+			this->connect2ServerIfNoConnected();
 				
+			while (M_THREAD_RUN) {
+			
+#if TRUE
+//step 1				
 					std::cout << "Send Start" << std::endl;
 					m_socket->Send_Start_CMD(TRUE);
 												
@@ -93,8 +96,11 @@ void QtThreadClient::run()
 					}else {
 						break;
 					}
-					QThread::sleep(10);
+					
 #endif // TRUE
+
+					 this->Sleep(27 * 1000);
+
 
 #if TRUE
 //step 2
@@ -112,21 +118,17 @@ void QtThreadClient::run()
 					else {
 						break;
 					}
-					QThread::sleep(10);
-#endif
-	 	}
-/*-----------------------------*/
-				
-
+#endif		
+					this->Sleep(3*1000);
+			
+			}
 		
 
+
+	 	}
+/*-----------------------------*/
+
 		m_socket->close();
-
-
-	}else {
-		qDebug() << "Connect Fail";
-	}
-
 
 	qDebug() << "Client Thread Exit";
 

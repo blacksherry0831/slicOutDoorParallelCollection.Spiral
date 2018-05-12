@@ -1,5 +1,5 @@
 //#include "stdafx.h"
-#include "QtTcpServer.hpp"
+#include "exCircleData.hpp"
 /*-------------------------------------*/
 /**
 *
@@ -13,19 +13,75 @@
 *
 */
 /*-------------------------------------*/
-QtTcpServer::QtTcpServer(QObject *parent) :QTcpServer(parent)
+exCircleData::exCircleData(int _ch)
 {
+	this->init();
+	this->Channel = _ch;
+}
 
+/*-------------------------------------*/
+/**
+*
+*
+*/
+/*-------------------------------------*/
+exCircleData::~exCircleData()
+{
+	this->clear();
 }
 /*-------------------------------------*/
 /**
 *
+*/
+/*-------------------------------------*/
+void exCircleData::init()
+{
+	this->clear();
+}
+/*-------------------------------------*/
+/**
 *
 */
 /*-------------------------------------*/
-QtTcpServer::QtTcpServer(QObject *parent, QSharedPointer<QtThreadClientCtrl> _clientThread) :QTcpServer(parent)
+void exCircleData::destory()
 {
+	this->clear();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void exCircleData::clear()
+{
+	mAverage = Q_NULLPTR;
+	mSigma = Q_NULLPTR;
+	STATUS = CIRCLE_STATUS::INVALID;
+	mImageFrame.clear();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+QSharedPointer<CMD_CTRL>  exCircleData::getImg()
+{
+	QSharedPointer<CMD_CTRL> cmd_ctrl;
 	
+
+	mutex.lock();
+
+	if (mImageFrame.isEmpty()) {
+		cmd_ctrl.clear();
+	}else{
+		cmd_ctrl = mImageFrame.dequeue();
+	}
+
+
+
+	mutex.unlock();
+
+	return cmd_ctrl;
 }
 /*-------------------------------------*/
 /**
@@ -33,119 +89,27 @@ QtTcpServer::QtTcpServer(QObject *parent, QSharedPointer<QtThreadClientCtrl> _cl
 */
 /*-------------------------------------*/
 
-QtTcpServer::~QtTcpServer()
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void exCircleData::setImg(QSharedPointer<CMD_CTRL> cmd_ctrl)
 {
-
-	m_clientThreads.clear();
-	this->close();
+	mutex.lock();
+		mImageFrame.enqueue(cmd_ctrl);
+		STATUS = CIRCLE_STATUS::VALID;
+	mutex.unlock();	
 }
-
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void QtTcpServer::incomingConnection(qintptr socketDescriptor)
+int exCircleData::IsValid()
 {
-	qDebug() << "New Connect is connect" << socketDescriptor;
-	
-	QSharedPointer<QtThreadClientCtrl> client_thread=QSharedPointer<QtThreadClientCtrl>(new QtThreadClientCtrl(socketDescriptor));
-
-	client_thread->start();
-
-	
-	this->SaveRunningThread(client_thread);
-
+	return (STATUS== CIRCLE_STATUS::VALID)&&(mImageFrame.size()>0);
 }
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtTcpServer::RemoveDoneThread()
-{
-	this->m_clients_mutex.lock();
-		
-		
-	
-	QList<QSharedPointer<QtThreadClientCtrl>>::iterator item = m_clientThreads.begin();
-
-		while (item != m_clientThreads.end()){
-
-			if ((*item)->isFinished()) {
-			
-				m_clientThreads.removeOne(*item);
-				
-				
-			}
-			
-			item++;
-
-		}
-
-
-	this->m_clients_mutex.unlock();
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtTcpServer::SaveRunningThread(QSharedPointer<QtThreadClientCtrl> _client)
-{
-	this->m_clients_mutex.lock();
-			m_clientThreads.push_back(_client);
-	this->m_clients_mutex.unlock();
-
-	this->RemoveDoneThread();
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtTcpServer::execMy()
-{
-	this->RemoveDoneThread();
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
 /*-------------------------------------*/
 /**
 *

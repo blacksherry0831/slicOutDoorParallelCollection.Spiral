@@ -2,6 +2,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.8.1)
 ######################################
 CONFIGQT()
 CONFIGPTHREADS()
+ConfigOpenCv()
 ######################################
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)

@@ -19,10 +19,11 @@ class QtThreadClientCtrl :public QtThreadSocketClient
 {
 
 public:
+	QtThreadClientCtrl();
 	QtThreadClientCtrl(qintptr p);
 	~QtThreadClientCtrl(void);
 protected:
-			
+	void initIpPort();
 	
 public:
 

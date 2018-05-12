@@ -28,7 +28,7 @@ CMD_CTRL::CMD_CTRL()
 /*-------------------------------------*/
 CMD_CTRL::~CMD_CTRL() 
 {
-
+	f_data.resize(0);
 }
 /*-------------------------------------*/
 /**
@@ -62,11 +62,11 @@ void CMD_CTRL::setGeneral()
 void CMD_CTRL::initPc2Arm()
 {
 	//
-	f_header.f_dst_dev[0]=DEV::FPGA_ARM;
+	f_header.f_dst_dev[0]=DEV::DEV_FPGA_ARM;
 	f_header.f_dst_dev[1]=0x00;
 
 	//
-	f_header.f_src_dev[0]=DEV::IPC;
+	f_header.f_src_dev[0]=DEV::DEV_IPC;
 	f_header.f_src_dev[1]=0x00;
 }
 /*-------------------------------------*/
@@ -77,11 +77,11 @@ void CMD_CTRL::initPc2Arm()
 void CMD_CTRL::initpc2plcLR()
 {
 	//
-	f_header.f_dst_dev[0] = DEV::PLC;
-	f_header.f_dst_dev[1] = DEV::PLC_LR;
+	f_header.f_dst_dev[0] = DEV::DEV_PLC;
+	f_header.f_dst_dev[1] = DEV::DEV_PLC_LR;
 
 	//
-	f_header.f_src_dev[0] = DEV::IPC;
+	f_header.f_src_dev[0] = DEV::DEV_IPC;
 	f_header.f_src_dev[1] = 0x00;
 }
 /*-------------------------------------*/
@@ -107,13 +107,13 @@ void CMD_CTRL::setFpgaConvertCmd(int _type)
 {
 	if (_type == TRUE) {
 		
-		f_header.f_cmd[0] = CMD_TYPE::CTRL;
-		f_header.f_cmd[1] = CMD_TYPE::START;
+		f_header.f_cmd[0] = CMD_TYPE::CT_CTRL;
+		f_header.f_cmd[1] = CMD_TYPE::CT_START;
 
 	}else if(_type == FALSE){
 
-		f_header.f_cmd[0] = CMD_TYPE::CTRL;
-		f_header.f_cmd[1] = CMD_TYPE::STOP;
+		f_header.f_cmd[0] = CMD_TYPE::CT_CTRL;
+		f_header.f_cmd[1] = CMD_TYPE::CT_STOP;
 
 	}else{
 
@@ -131,14 +131,14 @@ void CMD_CTRL::setRespCmd(int _type)
 {
 	if (_type == TRUE) {
 
-		f_header.f_cmd[0] = CMD_TYPE::RESP;
-		f_header.f_cmd[1] = CMD_TYPE::OK;
+		f_header.f_cmd[0] = CMD_TYPE::CT_RESP;
+		f_header.f_cmd[1] = CMD_TYPE::CT_OK;
 
 	}
 	else if (_type == FALSE) {
 
-		f_header.f_cmd[0] = CMD_TYPE::RESP;
-		f_header.f_cmd[1] = CMD_TYPE::ERROR;
+		f_header.f_cmd[0] = CMD_TYPE::CT_RESP;
+		f_header.f_cmd[1] = CMD_TYPE::CT_ERROR;
 
 	}
 	else {
@@ -154,8 +154,8 @@ void CMD_CTRL::setRespCmd(int _type)
 /*-------------------------------------*/
 void CMD_CTRL::setPlcLrIntoIn(int _step)
 {
-	f_header.f_cmd[0] = CMD_TYPE::CTRL;
-	f_header.f_cmd[1] = CMD_TYPE::LR_RUN_2;
+	f_header.f_cmd[0] = CMD_TYPE::CT_CTRL;
+	f_header.f_cmd[1] = CMD_TYPE::CT_LR_RUN_2;
 
 	int _step_h = _step / 256;
 	int _step_l = _step % 256;
@@ -173,8 +173,8 @@ void CMD_CTRL::setPlcLrIntoIn(int _step)
 /*-------------------------------------*/
 void CMD_CTRL::setRollerQualified(int _qualified)
 {
-	f_header.f_cmd[0] = CMD_TYPE::CTRL;
-	f_header.f_cmd[1] = CMD_TYPE::ROLLER_Q;
+	f_header.f_cmd[0] = CMD_TYPE::CT_CTRL;
+	f_header.f_cmd[1] = CMD_TYPE::CT_ROLLER_Q;
 
 	const int h_t = _qualified / 256;
 	const int l_t = _qualified % 256;
@@ -226,6 +226,11 @@ void CMD_CTRL::Parse(char * _data,int _size)
 	f_crc = _data[_size - 1];
 	/*----------------------------------------------------------*/
 }
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 int CMD_CTRL::IsConvertDoneCmd()
 {
 	return 0;
@@ -247,10 +252,23 @@ int CMD_CTRL::IsResp()
 *
 */
 /*-------------------------------------*/
-int CMD_CTRL::IsImageData()
+IplImage* CMD_CTRL::getIplimage()
 {
-	return 0;
+	IplImage*  IplImg_t = &(m_img->Iplimg);
+	return IplImg_t;
 }
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+
 /*-------------------------------------*/
 /**
 *
@@ -276,7 +294,7 @@ int CMD_CTRL::IsRoolerReady()
 		return TRUE;
 	}
 
-	return 0;
+	return FALSE;;
 }
 /*-------------------------------------*/
 /**
@@ -290,6 +308,161 @@ std::vector<unsigned char> CMD_CTRL::getFpgaStartCmd(int _type)
 	this->initPc2Arm();
 	
 	return this->Data();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int CMD_CTRL::IsImgStart()
+{
+	//工件就绪
+	if (IsImg() &&
+		this->f_header.f_cmd[1] == CMD_TYPE::CT_START) {
+		return TRUE;
+	}
+
+	return FALSE;;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int CMD_CTRL::IsImgEnd()
+{
+	//工件就绪
+	if (IsImg() &&
+		this->f_header.f_cmd[1] == CMD_TYPE::CT_STOP) {
+		return TRUE;
+	}
+
+	return FALSE;;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int CMD_CTRL::IsImgFrame()
+{
+	//工件就绪
+	if (IsImg() &&
+		this->f_header.f_cmd[1] == CMD_TYPE::CT_FRAME) {
+		return TRUE;
+	}
+
+	return FALSE;;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int  CMD_CTRL::FrameCount()
+{
+	if (IsImgFrame()) {
+		
+		return UChar2Int(m_img->frame, ALIGN_SIZE_T);
+		
+	}else{
+		
+		return -1;
+	
+	}
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int CMD_CTRL::InitImg()
+{
+	unsigned char* buff_t = this->f_data.data();
+	
+	m_img = (IplImageU*)(buff_t);
+	
+	IplImage* Iplimg_t = getIplimage();
+		cvInitImageHeader(Iplimg_t, cvSize(Width(),Height()), IPL_DEPTH_8U, 1);
+	Iplimg_t->imageData =(char*) &buff_t[sizeof(IplImageUI)];
+	return TRUE;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int CMD_CTRL::IsImg()
+{
+	//工件就绪
+	if (this->f_header.f_cmd[0] == CMD_TYPE::CT_IMG) {		
+		InitImg();
+		return TRUE;
+	}
+	return FALSE;;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int CMD_CTRL::Channel()
+{
+	int buff_size = sizeof(m_img->IpAddrChannel);
+
+	if (IsImg()) {
+		return this->UChar2Int(m_img->IpAddrChannel, ALIGN_SIZE_T);
+	}else{
+		return  -1;
+	}
+
+
+	
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int CMD_CTRL::Width()
+{
+	
+		return this->UChar2Int(m_img->width, ALIGN_SIZE_T);
+	
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int CMD_CTRL::Height()
+{
+	
+		return this->UChar2Int(m_img->height, ALIGN_SIZE_T);
+	
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int  CMD_CTRL::UChar2Int(unsigned char *_data, int _size)
+{
+	int value_t=0;
+	assert(_size == ALIGN_SIZE_T);
+	value_t =	_data[0]+
+				_data[1]*256+
+				_data[2]*256*256+
+				_data[3]*256*256*256;
+
+	return value_t;	
 }
 /*-------------------------------------*/
 /**

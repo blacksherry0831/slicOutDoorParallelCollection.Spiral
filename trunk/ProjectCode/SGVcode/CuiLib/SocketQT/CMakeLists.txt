@@ -2,7 +2,7 @@
 C11_Config()
 ConfigOpenCv()
 CONFIGQT()
-	CONFIGPTHREADS()
+CONFIGPTHREADS()
 ###############################################################################
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")  
@@ -20,13 +20,16 @@ ENDIF ()
 				QtTcpServer.cpp
 				QtTcpClient.cpp
 				QtThreadBase.cpp
-				QtThreadClient.cpp
+				QtThreadClientCtrl.cpp
 				QtThreadServer.cpp
 				QtThreadPLC.cpp
 				DataFrame.cpp
 				CMD_CTRL.cpp
 				QtThread8Video.cpp
-				QtThreadSocketClient.cpp)		
+				QtThreadSocketClient.cpp
+				exCircleData.cpp
+				ChannelsData.cpp
+				QtThread8VideoProcess.cpp)		
 	
 	endif (CBB_BUILDING_CRACK_DETECTION)
  
@@ -34,6 +37,7 @@ ADD_LIBRARY(SOCKET_SERVER   STATIC    ${DIR_SRCS}  )
 
 TARGET_LINK_LIBRARIES(SOCKET_SERVER
 						pthreads
+						MY_SDK_LIB
 	) 
 ############################################################ 
 ############################################################
