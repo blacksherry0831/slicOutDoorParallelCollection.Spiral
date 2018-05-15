@@ -43,7 +43,7 @@ QtThreadPLC::QtThreadPLC(qintptr p)
 {
 	m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
 #if 1
-	mIpAddr = "192.168.100.101";
+	mIpAddr = PLC_ADDR;
 #else
 	mIpAddr = "127.0.0.1";
 #endif // 0

@@ -9,7 +9,7 @@
 void QtThread8Video::initIpPort()
 {
 #if 1
-	mIpAddr = "192.168.100.102";
+	mIpAddr = BORD_VIDEO_OUT;
 #else
 	mIpAddr = "127.0.0.1";
 #endif // 0
