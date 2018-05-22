@@ -9,6 +9,9 @@
 const unsigned char QtThread8VideoProcess::TaskMap[CAMERA_CHANNELS] = {0,1,2,3,4,5,6,7};
 QThreadPool   QtThread8VideoProcess::ThreadPool;
 /*-------------------------------------*/
+int QtThread8VideoProcess::SCREEN_W;
+int QtThread8VideoProcess::SCREEM_H;
+/*-------------------------------------*/
 /**
 *
 *
@@ -16,6 +19,7 @@ QThreadPool   QtThread8VideoProcess::ThreadPool;
 /*-------------------------------------*/
 QtThread8VideoProcess::QtThread8VideoProcess()
 {
+	this->init_screen();
 	
 }
 /*-------------------------------------*/
@@ -25,10 +29,12 @@ QtThread8VideoProcess::QtThread8VideoProcess()
 /*-------------------------------------*/
 QtThread8VideoProcess::QtThread8VideoProcess(int _Channel)
 {
-	this->CHANNEL = _Channel;
-	this->WINDOW_NAME ="Channel"+Base::int2str(_Channel) ;
-	cvNamedWindow(WINDOW_NAME.c_str(), CV_WINDOW_NORMAL);
 
+	this->CHANNEL = _Channel;
+	this->WINDOW_NAME ="Channel"+Base::int2str(_Channel);
+
+	this->init_window();
+	
 }
 /*-------------------------------------*/
 /**
@@ -38,6 +44,39 @@ QtThread8VideoProcess::QtThread8VideoProcess(int _Channel)
 QtThread8VideoProcess::~QtThread8VideoProcess(void)
 {
 	qDebug() << "QtThread8Video is Release ! ";
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThread8VideoProcess::init_screen()
+{
+		QRect rec = QApplication::desktop()->screenGeometry();
+		SCREEM_H = rec.height();
+		SCREEN_W = rec.width();
+		
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThread8VideoProcess::init_window()
+{
+	this->init_screen();
+	
+	cvNamedWindow(WINDOW_NAME.c_str(), CV_WINDOW_NORMAL);
+
+	const int ImageARow = 4;
+	const int WidthSetp = SCREEN_W  / ImageARow;
+	const int HeightStep = SCREEM_H / std::ceil(CAMERA_CHANNELS / ImageARow);
+
+	const int pos_wx = (this->CHANNEL % ImageARow) *WidthSetp;
+	const int pos_hy = (this->CHANNEL / ImageARow) *HeightStep;
+
+	cvMoveWindow(WINDOW_NAME.c_str(),pos_wx,pos_hy);
+
 }
 /*-------------------------------------*/
 /**

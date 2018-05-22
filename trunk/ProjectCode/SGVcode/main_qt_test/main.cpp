@@ -17,6 +17,11 @@
 
 #endif // TRUE
 
+#ifdef _MSC_VER
+#ifndef NDEBUG
+#pragma comment(linker, "/SUBSYSTEM:CONSOLE")
+#endif
+#endif
 int mainGui(int argc, char *argv[]) 
 {
 	int EXEC_RESULT = 0;
@@ -53,7 +58,7 @@ int mainConsole(int argc, char *argv[])
 
 int eightChannelVideo(int argc, char *argv[])
 {
-	QCoreApplication a(argc, argv);
+	QApplication app(argc, argv);
 	
 	QSharedPointer<QtThreadClientCtrl>		ctrlServer = QSharedPointer<QtThreadClientCtrl>(new QtThreadClientCtrl());
 	QSharedPointer<QtThread8Video>			videoDataServer = QSharedPointer<QtThread8Video>(new QtThread8Video());
@@ -62,7 +67,7 @@ int eightChannelVideo(int argc, char *argv[])
 	
 	QtThread8VideoProcess::startTask();
 
-	return a.exec();
+	return app.exec();
 }
 
 

@@ -2996,16 +2996,9 @@ void ImageProcess::VVC2Image(vector<vector<CvPoint>> vvc, IplImage* img)
 */
 /*----------------------------------------------------------------*/
 void ImageProcess::CRACK_get_block_sets(
-	IplImage * gray,
-	IplImage * avg,
 	IplImage * image_binary,
-	const int SIGMA,
-	const int TARGET,
-	int CIRCLE,
-	int CHANNEL,
-	int frame_idx,
+	int TARGET,
 	vector<vector<CvPoint>>& point_sets,
-	string file_base,
 	boolean SAVE_FLAG)
 {
 	const int dx4[8] = { -1,-1,-1, 0, 0, 1,1,1 };
@@ -3075,7 +3068,7 @@ void ImageProcess::CRACK_get_block_sets(
 
 
 #if _DEBUG
-	{
+	if(SAVE_FLAG){
 		IplImage* img = cvCreateImage(cvSize(WIDTH, HEIGHT), IPL_DEPTH_8U, 1);
 
 		VVC2Image(point_sets, img);

@@ -53,6 +53,10 @@ public:
 	vector<vector<CvPoint>> frame_point_sets_out_n1;
 public:
 	void Process(IplImage* _image_gray, IplImage* avg, IplImage* sigma_scale_m);
+
+	void Process2stepP(IplImage* diff, IplImage* sigma_scale_m);
+	void Process2stepN(IplImage* diff, IplImage* sigma_scale_m);
+
 	void SaveB(IplImage* _image_gray);
 	static void cvThresholdMY(IplImage* src, IplImage* dst, const float T, const float MAX, const int RULE);
 	static void SaveImage2Disk(string file_base, int CIRCLE, int CHANNEL, int FRAME, string ImageType, string MatrixType, IplImage* img);

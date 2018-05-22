@@ -52,27 +52,14 @@ void OutCircleFeature::release()
 void OutCircleFeature::Process(IplImage* _image_gray,IplImage* avg, IplImage* sigma_scale_m)
 {
 
-	vector<vector<CvPoint>> frame_point_sets;
+	
 	cvConvert(_image_gray, image_gray_f);
 	//正值二值化，负值二值化;
-
 	cvSub(image_gray_f, avg, calc_temp_f);
 		
-	{
-		const int PN = 1;
-		cvSub(calc_temp_f, sigma_scale_m, calc_temp_f_p);//大于0，有效点
-		cvThresholdMY(calc_temp_f_p, image_gray_binary_P, COMP_MAX, TARGET_P, CV_THRESH_BINARY);//>0
-		ImageProcess::CRACK_get_block_sets(image_gray_f, avg, image_gray_binary_P, SIGMA, TARGET_P, CIRCLE, CHANNEL, frame_count, frame_point_sets, "", PN);
-		feature_p1 = ImageProcess::CRACK_get_block_feature(frame_point_sets, frame_point_sets_out_p1, calc_temp_f, PN);
-	}
+	this->Process2stepP(calc_temp_f,sigma_scale_m);
 
-	{
-		const int PN = -1;
-		cvAdd(calc_temp_f, sigma_scale_m, calc_temp_f_n);//小于0，有效点
-		cvThresholdMY(calc_temp_f_n, image_gray_binary_N, COMP_MAX, TARTET_N, CV_THRESH_BINARY_INV);//<0
-		ImageProcess::CRACK_get_block_sets(image_gray_f, avg, image_gray_binary_N, SIGMA, TARTET_N, CIRCLE, CHANNEL, frame_count, frame_point_sets, "", PN);
-		feature_n1 = ImageProcess::CRACK_get_block_feature(frame_point_sets, frame_point_sets_out_n1, calc_temp_f, PN);
-	}
+	this->Process2stepN(calc_temp_f,sigma_scale_m);
 
 }
 /*-----------------------------------------*/
@@ -194,6 +181,36 @@ void OutCircleFeature::SaveVectorFloat2Disk(string file_base, int CIRCLE, int CH
 	OutCircleFeature::SaveImage2Disk(file_base, CIRCLE, CHANNEL, FRAME, ImageType, MatrixType, img);
 
 	cvReleaseImage(&img);
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+void OutCircleFeature::Process2stepP(IplImage* diff, IplImage* sigma_scale_m)
+{
+	const int PN = 1;
+	vector<vector<CvPoint>> frame_point_sets;
+	cvSub(calc_temp_f, sigma_scale_m, calc_temp_f_p);//大于0，有效点
+	cvThresholdMY(calc_temp_f_p, image_gray_binary_P, COMP_MAX, TARGET_P, CV_THRESH_BINARY);//>0
+	ImageProcess::CRACK_get_block_sets(image_gray_binary_P, TARGET_P, frame_point_sets, 0);
+	feature_p1 = ImageProcess::CRACK_get_block_feature(frame_point_sets, frame_point_sets_out_p1, calc_temp_f, PN);
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+void OutCircleFeature::Process2stepN(IplImage* diff, IplImage* sigma_scale_m)
+{
+	const int PN = -1;
+	vector<vector<CvPoint>> frame_point_sets;
+	cvAdd(calc_temp_f, sigma_scale_m, calc_temp_f_n);//小于0，有效点
+	cvThresholdMY(calc_temp_f_n, image_gray_binary_N, COMP_MAX, TARTET_N, CV_THRESH_BINARY_INV);//<0
+	ImageProcess::CRACK_get_block_sets(image_gray_binary_N, TARTET_N, frame_point_sets, 0);
+	feature_n1 = ImageProcess::CRACK_get_block_feature(frame_point_sets, frame_point_sets_out_n1, calc_temp_f, PN);
 }
 /*-----------------------------------------*/
 /**

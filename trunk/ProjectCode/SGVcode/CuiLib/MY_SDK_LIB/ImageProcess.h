@@ -98,16 +98,9 @@ public:
 	static void crack_get_long_crack(IplImage * diff_org,IplImage *image_4_delta,int delta_idx, vector<vector<CvPoint>>&   point_setsstring,string file_base,int CIRCLE ,int CHANNEL, int frame_idx,boolean SAVE_FLAG);
 	static void VVC2Image(vector<vector<CvPoint>> vvc, IplImage * img);
 	static void CRACK_get_block_sets(
-		IplImage * gray,
-		IplImage * avg,
 		IplImage * image_binary,
-		const int SIGMA,
-		const int TARGET,
-		int CIRCLE,
-		int CHANNEL,
-		int frame_idx,
+		int TARGET,
 		vector<vector<CvPoint>>& point_sets,
-		string file_base,
 		boolean SAVE_FLAG);
 
 	static vector<float> CRACK_get_histgram(
