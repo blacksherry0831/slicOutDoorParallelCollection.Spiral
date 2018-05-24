@@ -89,12 +89,14 @@ void QtThread8Video::run()
 						
 					if (m_socket->Read_1_cmd(cmd_t.data()) == 0) {
 							break;
-					}
-				
-					assert(cmd_t->IsImg());
+					}					
 
 					if (cmd_t->IsImg()) {
-						this->ProcessCmd(cmd_t);
+						  this->ProcessCmd(cmd_t);
+					}else if (cmd_t->IsHeartbeat()) {
+						//std::cout << "@" << std::endl;
+					}else{
+						 std::cout << "ErrorCmd" << std::endl;
 					}
 
 			}

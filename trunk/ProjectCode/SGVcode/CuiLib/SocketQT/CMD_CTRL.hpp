@@ -31,6 +31,7 @@ typedef struct _IplImageU
 	unsigned char frame[ALIGN_SIZE_T];
 	unsigned char width[ALIGN_SIZE_T];
 	unsigned char height[ALIGN_SIZE_T];
+	unsigned char sensor_stat[ALIGN_SIZE_T];
 
 	IplImage  	Iplimg;
 } IplImageU;
@@ -60,6 +61,8 @@ public:
 		DEV_FPGA_ARM=0x02};
 
 	enum CMD_TYPE {
+		CT_HEART='h',
+		CT_BEAT='b',
 		CT_QUERY='q',
 		CT_CTRL='c',
 		CT_RESP='r',
@@ -85,6 +88,7 @@ public:
 public:
 	CMD_CTRL();
 	~CMD_CTRL();
+/*-------------------------------------*/
 public:
 		CMD_CTRL_HEADER f_header;
 		std::vector<unsigned char> f_data;
@@ -92,6 +96,7 @@ public:
 		unsigned char f_crc;
 private:
 	IplImageU* m_img;
+/*-------------------------------------*/
 private:
 	void initHeader();
 	void setGeneral();
@@ -99,6 +104,7 @@ protected:
 	void initPc2Arm();
 	void initpc2plcLR();
 	void initCRC();
+	void Clear();
 public:
 	void Convert2ByteStream();
 	void SetDataSize();
@@ -120,7 +126,7 @@ public:
 public:
 	int IsConvertDoneCmd();
 	int IsResp();
-	
+	int IsHeartbeat();
 	int IsIntoInnerReady();
 	int IsRoolerReady();
 	/*-------------------------------------*/
@@ -131,10 +137,12 @@ public:
 	int IsImg();
 	int InitImg();
 	int Channel();
+	int SensorStat();
 	int Width();
 	int Height();
 	IplImage* getIplimage();
 	/*-------------------------------------*/
+
 public:
 	static int UChar2Int(unsigned char *_data,int _size);
 	

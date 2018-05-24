@@ -120,7 +120,17 @@ void QtThread8VideoProcess::run()
 		
 
 		IplImage *img_t = cmd_ctrl->getIplimage();
-		
+	
+#if _DEBUG
+		if (cmd_ctrl->SensorStat() == 0) {
+			CvFont font;
+			cvInitFont(&font, CV_FONT_HERSHEY_COMPLEX, 4, 4, 1, 2);
+			cvPutText(img_t, "Sensor Error", cvPoint(10, img_t->height / 2),&font, CV_RGB(255, 255, 255));
+		}
+#endif // _DEBUG
+
+
+
 		cvShowImage(WINDOW_NAME.c_str(), img_t);
 		cvWaitKey(10);
 

@@ -98,6 +98,7 @@ void CMD_CTRL::initCRC()
 	}
 	this->f_crc = crc;
 }
+
 /*-------------------------------------*/
 /**
 *
@@ -218,13 +219,23 @@ void CMD_CTRL::Parse(char * _data,int _size)
 	const int BodySize_ = CMD_CTRL::GetCMDBodySize((CMD_CTRL::CMD_CTRL_HEADER*)_data);
 	const char* body_data_= _data + HeaderSize_;
 	/*----------------------------------------------------------*/
-	memcpy(&(this->f_header), _data, HeaderSize_);
+	this->Clear();
 	/*----------------------------------------------------------*/
-	f_data.clear();
-	f_data.insert(f_data.end(),body_data_,body_data_ +BodySize_);
-	/*----------------------------------------------------------*/
+	memcpy(&(this->f_header), _data, HeaderSize_);	
+	f_data.insert(f_data.end(),body_data_,body_data_ +BodySize_);	
+	f_data_size = f_data.size();	
 	f_crc = _data[_size - 1];
 	/*----------------------------------------------------------*/
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void CMD_CTRL::Clear()
+{
+	f_data.clear();
+	m_img = NULL;
 }
 /*-------------------------------------*/
 /**
@@ -252,6 +263,19 @@ int CMD_CTRL::IsResp()
 *
 */
 /*-------------------------------------*/
+int CMD_CTRL::IsHeartbeat()
+{
+	if (this->f_header.f_cmd[0] == CMD_TYPE::CT_HEART &&
+		this->f_header.f_cmd[1] == CMD_TYPE::CT_BEAT) {
+		return TRUE;
+	}
+	return FALSE;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 IplImage* CMD_CTRL::getIplimage()
 {
 	IplImage*  IplImg_t = &(m_img->Iplimg);
@@ -262,7 +286,16 @@ IplImage* CMD_CTRL::getIplimage()
 *
 */
 /*-------------------------------------*/
+int CMD_CTRL::SensorStat()
+{
+	const int buff_size = sizeof(m_img->sensor_stat);
 
+	if (IsImg()) {
+		return this->UChar2Int(m_img->sensor_stat, ALIGN_SIZE_T);
+	}else{
+		return  FALSE;
+	}
+}
 /*-------------------------------------*/
 /**
 *
@@ -379,13 +412,15 @@ int  CMD_CTRL::FrameCount()
 /*-------------------------------------*/
 int CMD_CTRL::InitImg()
 {
-	unsigned char* buff_t = this->f_data.data();
-	
-	m_img = (IplImageU*)(buff_t);
-	
-	IplImage* Iplimg_t = getIplimage();
-		cvInitImageHeader(Iplimg_t, cvSize(Width(),Height()), IPL_DEPTH_8U, 1);
-	Iplimg_t->imageData =(char*) &buff_t[sizeof(IplImageUI)];
+
+	if (m_img == NULL) {
+			unsigned char* buff_t = this->f_data.data();
+			m_img = (IplImageU*)(buff_t);
+			IplImage* Iplimg_t = getIplimage();
+			cvInitImageHeader(Iplimg_t, cvSize(Width(),Height()), IPL_DEPTH_8U, 1);
+			Iplimg_t->imageData =(char*) &buff_t[sizeof(IplImageUI)];
+	}
+
 	return TRUE;
 }
 /*-------------------------------------*/
