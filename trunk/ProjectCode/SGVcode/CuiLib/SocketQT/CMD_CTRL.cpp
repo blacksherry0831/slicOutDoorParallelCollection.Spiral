@@ -416,12 +416,42 @@ int CMD_CTRL::InitImg()
 	if (m_img == NULL) {
 			unsigned char* buff_t = this->f_data.data();
 			m_img = (IplImageU*)(buff_t);
-			IplImage* Iplimg_t = getIplimage();
-			cvInitImageHeader(Iplimg_t, cvSize(Width(),Height()), IPL_DEPTH_8U, 1);
-			Iplimg_t->imageData =(char*) &buff_t[sizeof(IplImageUI)];
+			this->InitIplimage();
 	}
 
 	return TRUE;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int CMD_CTRL::InitIplimage()
+{
+	unsigned char* buff_t = this->f_data.data();
+	IplImage* Iplimg_t = getIplimage();
+	
+	int WIDTH= this->UChar2Int(m_img->width, ALIGN_SIZE_T);
+	int HEIGHT= this->UChar2Int(m_img->height, ALIGN_SIZE_T);
+	int nChannels= this->UChar2Int(m_img->nChannels, ALIGN_SIZE_T);
+
+	if (nChannels == 1) {
+		
+		cvInitImageHeader(Iplimg_t, cvSize(WIDTH, HEIGHT), IPL_DEPTH_8U, 1);
+	
+	}else if (nChannels==8) {
+
+		cvInitImageHeader(Iplimg_t, cvSize(WIDTH, HEIGHT), IPL_DEPTH_64F, 1);
+	
+	}else {
+	
+		assert(0);
+	}
+
+	
+
+	Iplimg_t->imageData = (char*)&buff_t[sizeof(IplImageUI)];
+	return 0;
 }
 /*-------------------------------------*/
 /**
@@ -461,10 +491,8 @@ int CMD_CTRL::Channel()
 */
 /*-------------------------------------*/
 int CMD_CTRL::Width()
-{
-	
-		return this->UChar2Int(m_img->width, ALIGN_SIZE_T);
-	
+{	
+	return getIplimage()->width;
 }
 /*-------------------------------------*/
 /**
@@ -474,7 +502,7 @@ int CMD_CTRL::Width()
 int CMD_CTRL::Height()
 {
 	
-		return this->UChar2Int(m_img->height, ALIGN_SIZE_T);
+	return getIplimage()->height;
 	
 }
 /*-------------------------------------*/

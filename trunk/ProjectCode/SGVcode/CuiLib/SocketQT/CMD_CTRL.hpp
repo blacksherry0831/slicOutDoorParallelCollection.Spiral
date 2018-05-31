@@ -32,7 +32,7 @@ typedef struct _IplImageU
 	unsigned char width[ALIGN_SIZE_T];
 	unsigned char height[ALIGN_SIZE_T];
 	unsigned char sensor_stat[ALIGN_SIZE_T];
-
+	unsigned char nChannels[ALIGN_SIZE_T];
 	IplImage  	Iplimg;
 } IplImageU;
 /*-----------------------------------*/
@@ -136,6 +136,7 @@ public:
 	int FrameCount();
 	int IsImg();
 	int InitImg();
+	int InitIplimage();
 	int Channel();
 	int SensorStat();
 	int Width();
