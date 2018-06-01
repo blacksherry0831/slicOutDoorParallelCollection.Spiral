@@ -196,9 +196,11 @@ ADD_SUBDIRECTORY(CuiLib)
 ADD_SUBDIRECTORY(main_test)
 ADD_SUBDIRECTORY(main_gui_crack)
 ADD_SUBDIRECTORY(main_qt_test)
+ADD_SUBDIRECTORY(main_foxconn)
 ###############################################################################
 MESSAGE(STATUS "operation system is ${CMAKE_SYSTEM}")  
 ############≈‰÷√OPENCV#########################################################
+C11_Check()
 C11_Config()
 ConfigOpenCv()
 ############≈‰÷√CUDA#########################################################

@@ -1,11 +1,10 @@
-
 #include "mainwindow.h"
 
 
 #include <QApplication>
 
 #include "cpp_stl.h"
-#include "cv.h"
+#include "opencv_stl.h"
 
 #if TRUE
 

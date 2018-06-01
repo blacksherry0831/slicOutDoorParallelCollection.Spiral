@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 
-void print_mat(string name_t,cv::Mat mat_t)
+void print_mat(std::string name_t,cv::Mat mat_t)
 {
 
 	std::cout <<name_t<< " = " << std::endl;
@@ -12,7 +12,7 @@ void print_mat(string name_t,cv::Mat mat_t)
 void capture_frame() {
 	char FileName[80];
 	memset(FileName, 0, sizeof FileName);
-	string avi_1 = "C:\\Users\\cui-e460\\Desktop\\ch3_cal\\ch3.mp4out.avi";
+	std::string avi_1 = "C:\\Users\\cui-e460\\Desktop\\ch3_cal\\ch3.mp4out.avi";
 	CvCapture* capture = cvCaptureFromAVI(avi_1.c_str());
 	
 	int i = 99;
@@ -21,7 +21,7 @@ void capture_frame() {
 		i++;
 		if (i % 100 == 0)
 		{
-			Mat img = cvRetrieveFrame(capture);        // retrieve the captured frame
+			cv::Mat img = cvRetrieveFrame(capture);        // retrieve the captured frame
 			sprintf(FileName, "C:\\Users\\cui-e460\\Desktop\\ch3_cal\\002\\%d.png", i);
 			imwrite(FileName, img);
 
@@ -52,7 +52,7 @@ void  inv_test()
 }
 
 
-std::vector<std::string> b_split(const std::string &s, string delim)
+std::vector<std::string> b_split(const std::string &s, std::string delim)
 {
 	std::vector<std::string> v;
 	std::string::size_type pos1, pos2;
@@ -71,7 +71,7 @@ std::vector<std::string> b_split(const std::string &s, string delim)
 	return v;
 }
 
-void parse_line2byte(string linedata,unsigned char*data)
+void parse_line2byte(std::string linedata,unsigned char*data)
 {
 	data[0] = 0x00;
 	data[1] = 0x00;
@@ -119,7 +119,7 @@ void parse_line2byte(string linedata,unsigned char*data)
 }
 
 
-std::string read_buffer2str(string file_name) {
+std::string read_buffer2str(std::string file_name) {
 
 	std::ifstream t(file_name);
 
@@ -135,7 +135,7 @@ std::string read_buffer2str(string file_name) {
 
 void statistics255(std::vector<unsigned char> image_data)
 {
-	vector<float> data255;
+	std::vector<float> data255;
 
 	data255.resize(256,0);
 
@@ -200,11 +200,11 @@ void findff0000xy(std::vector<unsigned char> image_data)
 
 void readyuvrowData(std::string file_name_t,std::string file_name_out_t)
 {
-	ifstream fileTEXT(file_name_t);
+	std::ifstream fileTEXT(file_name_t);
 	
 	
 	
-	string line_new;
+	std::string line_new;
 	
 	std::vector<unsigned char> image_data;
 	//image_data.resize(1920*1080*2*10);
@@ -318,11 +318,9 @@ void readyuvrowData(std::string file_name_t,std::string file_name_out_t)
 void cal_yuv_raw_data(std::string file_name_t)
 {
 
-	ifstream fileTEXT(file_name_t);
-
-
-
-	string line_new;
+	std::ifstream fileTEXT(file_name_t);
+	
+	std::string line_new;
 
 	std::vector<unsigned char> image_data;
 	//image_data.resize(1920*1080*2*10);
