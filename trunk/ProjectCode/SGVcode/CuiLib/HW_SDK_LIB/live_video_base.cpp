@@ -377,7 +377,7 @@ bool live_video_base::play(HWND hwnd)
 	m_uh = HW_NET_Login(m_ip.c_str(),5198,"admin","12345");
 	if(m_uh < 0)
 	{
-		printf("login error s% !\n",m_ip.c_str());
+		printf("login error %s ! \n",m_ip.c_str());
 		return false;
 	}
 
@@ -398,7 +398,7 @@ bool live_video_base::play(HWND hwnd)
 	m_sh = HW_NET_OpenVideoEx(m_uh,m_slot,on_stream,(long)this);
 	if(m_sh < 0)
 	{
-		printf("open video error s% !\n",m_ip.c_str());
+		printf("open video error %s !\n",m_ip.c_str());
 		goto ONERR;
 	}
 
@@ -406,7 +406,7 @@ bool live_video_base::play(HWND hwnd)
 	int head_len = 0;
 	if(HW_NET_GetVideoHead(m_sh,head,100,&head_len) == FALSE)
 	{
-		printf("Get Video Head error s% !\n",m_ip.c_str());
+		printf("Get Video Head error %s !\n",m_ip.c_str());
 		goto ONERR;
 	}
 
@@ -414,7 +414,7 @@ bool live_video_base::play(HWND hwnd)
 	
 	if(m_ph == INVALID_HANDLE)
 	{
-		printf("open stream error s% !\n",m_ip.c_str());
+		printf("open stream error %s !\n",m_ip.c_str());
 		goto ONERR;
 	}
 

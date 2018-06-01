@@ -1,5 +1,5 @@
 //#include "stdafx.h"
-#include "SerialPortBase.hpp"
+#include "SerialPortBase/SerialPortBase.hpp"
 /*-------------------------------------*/
 /**
 *
@@ -68,7 +68,7 @@ int SerialPortBase::open_ttyUSB()
 {
 
 	for (size_t i = 0; i <m_serialPorts.size(); i++){
-		string ttysusb = m_serialPorts[i].portName().toStdString();
+		std::string ttysusb = m_serialPorts[i].portName().toStdString();
 		if (ttysusb.find("ttyUSB") != std::string::npos) {
 			if (this->open_s(ttysusb)==false) {
 				std::cout << "sudo gedit /etc/udev/rules.d/70-ttyusb.rules" << std::endl
@@ -98,11 +98,11 @@ int SerialPortBase::open(int com_num)
 *
 */
 /*-------------------------------------*/
-int SerialPortBase::open_s(string com_name)
+int SerialPortBase::open_s(std::string com_name)
 {
 	this->initSerialPort();
 	for (size_t i = 0; i <m_serialPorts.size(); i++) {
-		string ttysusb = m_serialPorts[i].portName().toStdString();
+		std::string ttysusb = m_serialPorts[i].portName().toStdString();
 		if (ttysusb.find(com_name) != std::string::npos) {
 			this->open_q(m_serialPorts[i]);
 		}
@@ -126,7 +126,7 @@ int SerialPortBase::open_s(string com_name)
 /*-------------------------------------*/
 int SerialPortBase::open_q(QSerialPortInfo _qspi)
 {
-	const string com_name = _qspi.portName().toStdString();
+	const std::string com_name = _qspi.portName().toStdString();
 
 	std::cout << "ready to open serial port: " << com_name<< std::endl;
 	

@@ -35,7 +35,7 @@ public:
 	~QtThread8VideoProcess(void);
 private:
 	int CHANNEL;	
-	string WINDOW_NAME;
+	std::string WINDOW_NAME;
 	
 	static  int SCREEN_W;
 	static  int SCREEM_H;

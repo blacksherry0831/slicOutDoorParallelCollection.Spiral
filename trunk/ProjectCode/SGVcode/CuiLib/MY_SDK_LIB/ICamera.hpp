@@ -12,8 +12,8 @@ public:
 	virtual bool init()=0;
 	virtual bool release()=0;
 	virtual IplImage* QueryFrame()=0;
-	virtual string IntrinsicName() = 0;
-	virtual string DistortionName() = 0;
+	virtual std::string IntrinsicName() = 0;
+	virtual std::string DistortionName() = 0;
 public:
 	ICamera() {
 		m_image_frame = NULL;

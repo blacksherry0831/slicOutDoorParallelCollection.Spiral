@@ -26,10 +26,10 @@ Base::~Base(void)
 *
 */
 /*-----------------------------------------*/
-int Base::str2int(int & int_temp, const string & string_temp)
+int Base::str2int(int & int_temp, const std::string & string_temp)
 {
 	
-		stringstream stream(string_temp);
+		std::stringstream stream(string_temp);
 		stream >> int_temp;
 		return int_temp;
 
@@ -40,9 +40,9 @@ int Base::str2int(int & int_temp, const string & string_temp)
 *
 */
 /*-----------------------------------------*/
-string Base::int2str(int value_t)
+std::string Base::int2str(int value_t)
 {
-	stringstream stream;
+	std::stringstream stream;
 	stream << value_t;
 
 	return stream.str();
@@ -53,7 +53,7 @@ string Base::int2str(int value_t)
 *
 */
 /*-----------------------------------------*/
-string Base::base_name(string const & path)
+std::string Base::base_name(std::string const & path)
 {
 	return path.substr(path.find_last_of("/\\") + 1);
 }
@@ -63,14 +63,14 @@ string Base::base_name(string const & path)
 *
 */
 /*-----------------------------------------*/
-std::string Base::file_name_without_ext(string const path)
+std::string Base::file_name_without_ext(std::string const path)
 {
 	std::string base_name = Base::base_name(path);
 	
 	std::vector<std::string> name_ext=split(base_name, ".");
 
-	string name;
-	string ext;
+	std::string name;
+	std::string ext;
 	
 	if (name_ext.size()==2) {
 		name=name_ext.at(0);
@@ -84,9 +84,9 @@ std::string Base::file_name_without_ext(string const path)
 *
 */
 /*-----------------------------------------*/
-std::string Base::file_name_ext(string const path)
+std::string Base::file_name_ext(std::string const path)
 {
-	string suffixStr = path.substr(path.find_last_of('.') + 1);//获取文件后缀 
+	std::string suffixStr = path.substr(path.find_last_of('.') + 1);//获取文件后缀 
 	return suffixStr;
 }
 /*-----------------------------------------*/
@@ -95,7 +95,7 @@ std::string Base::file_name_ext(string const path)
 *
 */
 /*-----------------------------------------*/
-string Base::comine_str(string f_str,string s_str)
+std::string Base::comine_str(std::string f_str, std::string s_str)
 {
 	return f_str.append(s_str);
 }
@@ -125,7 +125,7 @@ std::vector<std::string> Base::split  (const std::string &s, char delim)
 *
 */
 /*-----------------------------------------*/
-std::vector<std::string> Base::split  (const std::string &s, string delim)
+std::vector<std::string> Base::split  (const std::string &s, std::string delim)
 {
 	std::vector<std::string> v;
 	std::string::size_type pos1, pos2;
@@ -149,11 +149,11 @@ std::vector<std::string> Base::split  (const std::string &s, string delim)
 *
 */
 /*-----------------------------------------*/
-void Base::SaveString2Disk(string file_name_t,string str_t)
+void Base::SaveString2Disk(std::string file_name_t,std::string str_t)
 {
 #if _DEBUG	
 
-	ofstream ofs;
+	std::ofstream ofs;
 	ofs.open(file_name_t);
 
 	assert(ofs.is_open());
@@ -221,10 +221,10 @@ int  Base::is_file_exist(const char * file_path)
 *
 */
 /*-----------------------------------------*/
-int Base::get_number(string str_t)
+int Base::get_number(std::string str_t)
 {
 
-	string str_new_t;
+	std::string str_new_t;
 
 	for (size_t i = 0; i <str_t.size(); i++)
 	{
@@ -354,7 +354,7 @@ double Base::Math_GetMaxValue(double* Data, long DataNum)
 	double *Data_cp = new double[DataNum];
 	double  max_value;
 	memcpy(Data_cp, Data, sizeof(double)*DataNum);
-	std::sort(Data_cp, Data_cp + DataNum, greater<double>());
+	std::sort(Data_cp, Data_cp + DataNum, std::greater<double>());
 	max_value = Data_cp[0];
 	delete[]Data_cp;
 	return  max_value;
@@ -370,7 +370,7 @@ float Base::Math_GetMaxValueF(float * Data, long DataNum)
 	float *Data_cp = new float[DataNum];
 	float  max_value;
 	memcpy(Data_cp, Data, sizeof(float)*DataNum);
-	std::sort(Data_cp, Data_cp + DataNum, greater<float>());
+	std::sort(Data_cp, Data_cp + DataNum, std::greater<float>());
 	max_value = Data_cp[0];
 	delete[]Data_cp;
 	return  max_value;
@@ -454,9 +454,9 @@ float Base::Math_GetSumF(float * Data, int DataNum)
 *
 */
 /*-----------------------------------------*/
-vector<float> Base::CombineVector(vector<float> v0, vector<float> v1)
+std::vector<float> Base::CombineVector(std::vector<float> v0, std::vector<float> v1)
 {
-	vector<float> v_out;
+	std::vector<float> v_out;
 
 	v_out.insert(v_out.end(), v0.begin(), v0.end());
 
@@ -470,7 +470,7 @@ vector<float> Base::CombineVector(vector<float> v0, vector<float> v1)
 *
 */
 /*-----------------------------------------*/
-int Base::FS_deleteFile(const string file_full_path)
+int Base::FS_deleteFile(const std::string file_full_path)
 {
 	if (Base::is_file_exist(file_full_path.c_str())) {
 	
@@ -489,7 +489,7 @@ int Base::FS_deleteFile(const string file_full_path)
 *
 */
 /*-----------------------------------------*/
-int Base::FS_copyFile(const string src, const string dst)
+int Base::FS_copyFile(const std::string src, const std::string dst)
 {
 	Base::FS_deleteFile(dst);
 
@@ -515,13 +515,13 @@ files   :   获取的文件名列表
 shao, 20140707
 */
 /************************************************************************/
-void Base::FS_getFiles(string path, string exd, vector<string>& files)
+void Base::FS_getFiles(std::string path, std::string exd, std::vector<std::string>& files)
 {
 	//文件句柄  
 	long   hFile = 0;
 	//文件信息  
 	struct _finddata_t fileinfo;
-	string pathName, exdName;
+	std::string pathName, exdName;
 	
 	if (FS_checkUserPath(path) == false) {
 		path.append("\\");
@@ -542,12 +542,12 @@ void Base::FS_getFiles(string path, string exd, vector<string>& files)
 			}
 			else
 			{
-				const string file_name_t = fileinfo.name;
+				const std::string file_name_t = fileinfo.name;
 				if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0) {
 					
-					const string ext_t=Base::file_name_ext(file_name_t);
+					const std::string ext_t=Base::file_name_ext(file_name_t);
 
-					if (file_name_t.find(exd) != string::npos){
+					if (file_name_t.find(exd) != std::string::npos){
 							files.push_back(pathName.assign(path).append(fileinfo.name));
 					}
 					
@@ -566,14 +566,14 @@ void Base::FS_getFiles(string path, string exd, vector<string>& files)
 *
 */
 /*-----------------------------------------*/
-void Base::FS_getDirs(string path, string flag, vector<string>& files)
+void Base::FS_getDirs(std::string path, std::string flag, std::vector<std::string>& files)
 {
 	//文件句柄  
 	long   hFile = 0;
 	//文件信息  
 	struct _finddata_t fileinfo;
-	string pathName, exdName;
-	const string exd = "";
+	std::string pathName, exdName;
+	const std::string exd = "";
 	if (0 != strcmp(exd.c_str(), ""))
 	{
 		exdName = "\\*." + exd;
@@ -591,8 +591,8 @@ void Base::FS_getDirs(string path, string flag, vector<string>& files)
 			//如果不是,加入列表  
 			if ((fileinfo.attrib &  _A_SUBDIR))
 			{
-				string file_name = fileinfo.name;
-				if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0 && file_name.find(flag)!= string::npos) {
+				std::string file_name = fileinfo.name;
+				if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0 && file_name.find(flag)!= std::string::npos) {
 					files.push_back(pathName.assign(path).append("\\").append(fileinfo.name));
 				}
 					
@@ -611,10 +611,10 @@ void Base::FS_getDirs(string path, string flag, vector<string>& files)
 *
 */
 /*-----------------------------------------*/
-string Base::FS_getDirName(string path)
+std::string Base::FS_getDirName(std::string path)
 {
-	vector<string>  vs = Base::split(path, '\\');
-	string dir_name_t = vs.at(vs.size() - 1);//chX.
+	std::vector<std::string>  vs = Base::split(path, '\\');
+	std::string dir_name_t = vs.at(vs.size() - 1);//chX.
 	return dir_name_t;
 }
 /*-----------------------------------------*/
@@ -623,7 +623,7 @@ string Base::FS_getDirName(string path)
 *
 */
 /*-----------------------------------------*/
-int Base::CRACK_FILE_NAME_get_idx(string file_full_name)
+int Base::CRACK_FILE_NAME_get_idx(std::string file_full_name)
 {
 	return CRACK_FILE_NAME_get_channel(file_full_name);
 }
@@ -633,15 +633,15 @@ int Base::CRACK_FILE_NAME_get_idx(string file_full_name)
 *
 */
 /*-----------------------------------------*/
-int Base::CRACK_FILE_NAME_get_channel(string file_full_name)
+int Base::CRACK_FILE_NAME_get_channel(std::string file_full_name)
 {
-	string base_name = Base::base_name(file_full_name);
-	vector<string>  vs = Base::split(base_name, '.');
+	std::string base_name = Base::base_name(file_full_name);
+	std::vector<std::string>  vs = Base::split(base_name, '.');
 
-	const string CHANNEL_STR = "ch";
+	const std::string CHANNEL_STR = "ch";
 	for (size_t i = 0; i <vs.size(); i++){
-		const string str_t= vs.at(i);
-		if (str_t.find(CHANNEL_STR) ==string::npos) {
+		const std::string str_t= vs.at(i);
+		if (str_t.find(CHANNEL_STR) == std::string::npos) {
 		
 		}else{
 				return Base::get_number(str_t);
@@ -651,15 +651,15 @@ int Base::CRACK_FILE_NAME_get_channel(string file_full_name)
 	ASSERT(0);
 	return -1;
 }
-int Base::CRACK_FILE_NAME_get_FRAME(string file_full_name)
+int Base::CRACK_FILE_NAME_get_FRAME(std::string file_full_name)
 {
-	string base_name = Base::base_name(file_full_name);
-	vector<string>  vs = Base::split(base_name, '.');
+	std::string base_name = Base::base_name(file_full_name);
+	std::vector<std::string>  vs = Base::split(base_name, '.');
 
-	const string CHANNEL_STR = "frame";
+	const std::string CHANNEL_STR = "frame";
 	for (size_t i = 0; i <vs.size(); i++) {
-		const string str_t = vs.at(i);
-		if (str_t.find(CHANNEL_STR) == string::npos) {
+		const std::string str_t = vs.at(i);
+		if (str_t.find(CHANNEL_STR) == std::string::npos) {
 
 		}
 		else {
@@ -670,15 +670,15 @@ int Base::CRACK_FILE_NAME_get_FRAME(string file_full_name)
 	ASSERT(0);
 	return -1;
 }
-int Base::CRACK_FILE_NAME_get_PROPERTY(string file_full_name, string _property)
+int Base::CRACK_FILE_NAME_get_PROPERTY(std::string file_full_name, std::string _property)
 {
 
-	string base_name = Base::base_name(file_full_name);
-	vector<string>  vs = Base::split(base_name, '.');
+	std::string base_name = Base::base_name(file_full_name);
+	std::vector<std::string>  vs = Base::split(base_name, '.');
 	
 	for (size_t i = 0; i <vs.size(); i++) {
-		const string str_t = vs.at(i);
-		if (str_t.find(_property) == string::npos) {
+		const std::string str_t = vs.at(i);
+		if (str_t.find(_property) == std::string::npos) {
 
 		}
 		else {
@@ -694,15 +694,15 @@ int Base::CRACK_FILE_NAME_get_PROPERTY(string file_full_name, string _property)
 *
 */
 /*-----------------------------------------*/
-int  Base::CRACK_FILE_NAME_get_circle(string file_full_name)
+int  Base::CRACK_FILE_NAME_get_circle(std::string file_full_name)
 {
-	string base_name = Base::base_name(file_full_name);
-	vector<string>  vs = Base::split(base_name, '.');
+	std::string base_name = Base::base_name(file_full_name);
+	std::vector<std::string>  vs = Base::split(base_name, '.');
 
-	const string CHANNEL_STR = "circle";
+	const std::string CHANNEL_STR = "circle";
 	for (size_t i = 0; i <vs.size(); i++) {
-		const string str_t = vs.at(i);
-		if (str_t.find(CHANNEL_STR) == string::npos) {
+		const std::string str_t = vs.at(i);
+		if (str_t.find(CHANNEL_STR) == std::string::npos) {
 
 		}
 		else {
@@ -719,10 +719,10 @@ int  Base::CRACK_FILE_NAME_get_circle(string file_full_name)
 *
 */
 /*-----------------------------------------*/
-int Base::CRACK_FILE_NAME_get_circle_byPath(string path)
+int Base::CRACK_FILE_NAME_get_circle_byPath(std::string path)
 {	
-	vector<string>  vs = Base::split(path, '\\');
-	string number_t = vs.at(vs.size()-1);//chX.
+	std::vector<std::string>  vs = Base::split(path, '\\');
+	std::string number_t = vs.at(vs.size()-1);//chX.
 	return Base::get_number(number_t);
 }
 /*-----------------------------------------*/
@@ -733,7 +733,7 @@ int Base::CRACK_FILE_NAME_get_circle_byPath(string path)
 /*-----------------------------------------*/
 std::string Base::FS_createPath(std::string path_base, std::string path_sub, boolean CREATE_FLAG)
 {
-	stringstream ss_file_full_path;
+	std::stringstream ss_file_full_path;
 
 	if (FS_checkUserPath(path_base)==false) {
 		path_base.append("\\");
@@ -755,9 +755,9 @@ std::string Base::FS_createPath(std::string path_base, std::string path_sub, boo
 *
 */
 /*-----------------------------------------*/
-string Base::CRACK_FILR_NAME_get_ipAddr(string file_full_name)
+std::string Base::CRACK_FILR_NAME_get_ipAddr(std::string file_full_name)
 {
-	std::vector<string>  file_cal_t;
+	std::vector<std::string>  file_cal_t;
 		file_cal_t.push_back("192.168.9.0");
 		file_cal_t.push_back("192.168.9.1");
 		file_cal_t.push_back("192.168.9.2");
@@ -776,7 +776,7 @@ string Base::CRACK_FILR_NAME_get_ipAddr(string file_full_name)
 *
 */
 /*-----------------------------------------*/
-string Base::CRACK_PATH_GetFrameChannelDiff(std::string file_base, std::string file_name, std::string add_str,boolean create_flag)
+std::string Base::CRACK_PATH_GetFrameChannelDiff(std::string file_base, std::string file_name, std::string add_str,boolean create_flag)
 {
 	const int video_idx = Base::CRACK_FILE_NAME_get_idx(file_base + file_name);
 	const int CIRCLE = Base::CRACK_FILE_NAME_get_circle(file_base + file_name);
@@ -788,10 +788,10 @@ string Base::CRACK_PATH_GetFrameChannelDiff(std::string file_base, std::string f
 *
 */
 /*-----------------------------------------*/
-string Base::CRACK_PATH_GetFrameChannelDiff(std::string file_base, int CIRCLE, int CHANNEL, std::string add_str,boolean create_flag)
+std::string Base::CRACK_PATH_GetFrameChannelDiff(std::string file_base, int CIRCLE, int CHANNEL, std::string add_str,boolean create_flag)
 {
 	const int video_idx = CHANNEL;
-	stringstream ss_file_full_path;
+	std::stringstream ss_file_full_path;
 
 	if (FS_checkUserPath(file_base) == false) {
 		file_base.append("\\");
@@ -817,9 +817,9 @@ string Base::CRACK_PATH_GetFrameChannelDiff(std::string file_base, int CIRCLE, i
 *
 */
 /*-----------------------------------------*/
-bool  Base::FS_checkUserPath(string userPath)
+bool  Base::FS_checkUserPath(std::string userPath)
 {
-	string sub = userPath.substr(userPath.size()-1,1);
+	std::string sub = userPath.substr(userPath.size()-1,1);
 	if (sub == "\\" || sub == "/")
 	{
 		return true;

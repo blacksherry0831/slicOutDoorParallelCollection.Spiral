@@ -22,7 +22,7 @@ public:
 protected:
 	QSharedPointer<QSerialPort> m_qsp;
 	/*QSharedPointer<QTimer> m_timer;*/
-	vector<QSerialPortInfo> m_serialPorts;
+	std::vector<QSerialPortInfo> m_serialPorts;
 	QQueue<unsigned char>  m_buffer;
 protected:
 	QMutex m_MUTEX; 
@@ -45,7 +45,7 @@ public:
 	int open_ttyUSB();
 
 	virtual int open(int com_num);
-	virtual int open_s(string com_name);
+	virtual int open_s(std::string com_name);
 	virtual int open_q(QSerialPortInfo _qspi);
 	virtual int init();
 	void StartTimer();

@@ -67,9 +67,9 @@ IplImage* OpencvCamera::QueryFrame()
 *
 */
 /*-----------------------------------------*/
-string OpencvCamera::IntrinsicName()
+std::string OpencvCamera::IntrinsicName()
 {
-	stringstream ss;
+	std::stringstream ss;
 
 	ss << "Intrinsics";
 	ss << "_";
@@ -84,9 +84,9 @@ string OpencvCamera::IntrinsicName()
 *
 */
 /*-----------------------------------------*/
-string OpencvCamera::DistortionName()
+std::string OpencvCamera::DistortionName()
 {
-	stringstream ss;
+	std::stringstream ss;
 	ss << "Distortion";
 	ss << "_";
 	ss << this->global_cam_index;

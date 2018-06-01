@@ -10,17 +10,17 @@ class ResponseData
 {
 public:
 	ResponseData(void);
-	ResponseData(string data_t);
+	ResponseData(std::string data_t);
 	~ResponseData(void);
 private:
 	int		m_random_count;
 	int		m_resp_result;
-	string	m_resp_type;
+	std::string	m_resp_type;
 private:
-	string m_result;
-	string m_random;
+	std::string m_result;
+	std::string m_random;
 public:
-	int parse(string data_t);
+	int parse(std::string data_t);
 	int parseResp(Json::Value reader);
 	int parseCmd(Json::Value value_t);
 	
@@ -31,16 +31,16 @@ public:
 private:
 	void Clear();
 public:
-	string m_car_id;
-	string m_mode;
-	string m_cmd;
-	string m_longitude;
-	string m_latitude;
-	string m_speed;
+	std::string m_car_id;
+	std::string m_mode;
+	std::string m_cmd;
+	std::string m_longitude;
+	std::string m_latitude;
+	std::string m_speed;
 public:
-	string m_auto_task;
+	std::string m_auto_task;
 public:
-	string m_manual_turn;
-	string m_manual_run_direction;
+	std::string m_manual_turn;
+	std::string m_manual_run_direction;
 };
 

@@ -24,7 +24,7 @@ ResponseData::~ResponseData(void)
 *
 */
 /*----------------------------------*/
-ResponseData::ResponseData(string data_t)
+ResponseData::ResponseData(std::string data_t)
 {
 	this->parse(data_t);
 }
@@ -48,7 +48,7 @@ void ResponseData:: Clear()
 *
 */
 /*----------------------------------*/
-int ResponseData::parse(string data_t)
+int ResponseData::parse(std::string data_t)
 {
 	 Json::Reader Jreader;
 	 Json::Value Jvalue;

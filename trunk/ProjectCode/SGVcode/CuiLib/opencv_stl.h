@@ -18,7 +18,7 @@
 #if _MSC_VER
 #include <opencv2/gpu/gpu.hpp>
 #endif
-using namespace cv;
+
 /*********************************************************/
 #ifndef cvCopyImage
 #define cvCopyImage( src, dst ) cvCopy( src, dst, 0 )

@@ -145,8 +145,8 @@ public:
 	static string descriptorVectorFile;// = "genfiles/descriptorvector.dat";
 	/**********************************/
 	// HOG parameters for training that for some reason are not included in the HOG class
-	static  Size trainingPadding;// = Size(0, 0);
-	static  Size winStride;// = Size(8, 8); 
+	static  cv::Size trainingPadding;// = Size(0, 0);
+	static  cv::Size winStride;// = Size(8, 8); 
 	static string SVMDetectorxml;
 	static double winwidth;
 	static double winheight;
@@ -163,9 +163,9 @@ public:
 	static void resetCursor(void);
 	static void saveDescriptorVectorToFile(vector<float>& descriptorVector, vector<unsigned int>& _vectorIndices, string fileName);
 	static void getFilesInDirectory(const string& dirName, vector<string>& fileNames, const vector<string>& validExtensions);
-	static void calculateFeaturesFromInput(const string& imageFilename, vector<float>& featureVector, HOGDescriptor& hog);
-	static	void showDetections(const vector<Rect>& found, Mat& imageData);
-	static	void detectTest(const HOGDescriptor& hog, Mat& imageData);
+	static void calculateFeaturesFromInput(const string& imageFilename, vector<float>& featureVector, cv::HOGDescriptor& hog);
+	static	void showDetections(const vector<cv::Rect>& found, cv::Mat& imageData);
+	static	void detectTest(const cv::HOGDescriptor& hog, cv::Mat& imageData);
 	
 public:
 	static int StartProcess(void);

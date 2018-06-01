@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "SerialPortBase.hpp"
+#include "SerialPortBase/SerialPortBase.hpp"
 
 #include "ICompass.h"
 
@@ -19,9 +19,9 @@ private:
 	~Compass_HCM365(void);
 
 public:
-		bool open(int com_num);
+		int open(int com_num);
 		
-		void init();
+		int init();
 		
 		void SendCmdPitchRollHeading();
 		

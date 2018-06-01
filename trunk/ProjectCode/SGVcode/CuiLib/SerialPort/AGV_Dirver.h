@@ -1,5 +1,5 @@
 #pragma once
-#include "SerialPortBase.hpp"
+#include "SerialPortBase/SerialPortBase.hpp"
 #include "MY_SDK_LIB/LatLng.h"
 
 #define NO_TURN		0x00
@@ -31,9 +31,9 @@ private:
 		IGps*       m_gps_ptr;
 		ICompass*   m_compass_ptr;
 public:
-		bool open(int com_num);
+		int open(int com_num);
 		
-		void init();
+		int init();
 private:
 	int status_car_ready;
 	int status_car_battery_low;

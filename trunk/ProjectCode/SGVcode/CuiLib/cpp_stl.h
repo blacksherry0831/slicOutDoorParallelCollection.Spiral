@@ -6,7 +6,6 @@
 *
 */
 /*-----------------------------------------*/
-using namespace std;
 //C++
 #include<stdio.h>
 #include <iostream>
@@ -34,7 +33,7 @@ using namespace std;
 #include <io.h>
 #include <tchar.h>
 #include <assert.h>
-
+#include <memory.h> 
 #endif
 #if _MSC_VER==1900
 #include <functional>

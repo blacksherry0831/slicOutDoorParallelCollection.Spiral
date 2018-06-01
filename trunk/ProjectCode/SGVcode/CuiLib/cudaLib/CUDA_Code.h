@@ -77,8 +77,8 @@ void Get_Nighbour_E_matrix_cuda(
 	UINT32 *Matrix_E,
 	const int			width,
 	const int			height,	
-	const string		filename,
-	const string		path);
+	const std::string		filename,
+	const std::string		path);
 /*-------------------------------------------------------------*/
 void DrawContoursAroundSegments_cuda(
 	unsigned int*			ubuff,

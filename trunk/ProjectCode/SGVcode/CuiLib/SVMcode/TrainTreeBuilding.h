@@ -41,8 +41,8 @@ public:
 	static string descriptorVectorFile;// = "genfiles/descriptorvector.dat";
 	/**********************************/
 	// HOG parameters for training that for some reason are not included in the HOG class
-	static const Size trainingPadding;// = Size(0, 0);
-	static const Size winStride;// = Size(8, 8); 
+	static const cv::Size trainingPadding;// = Size(0, 0);
+	static const cv::Size winStride;// = Size(8, 8); 
 	static string SVMDetectorxml;
 	static double winwidth;
 	static double winheight;

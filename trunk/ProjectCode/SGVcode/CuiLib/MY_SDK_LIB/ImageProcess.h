@@ -20,8 +20,8 @@ public:
 	void FilterByMeanStdDev(IplImage* image_org_rgb, char *show_win);
 	IplImage* FilterByMeanStdDev(IplImage* image_org_rgb);
 public:
-	void SaveCutImage(IplImage* img_t, CvRect cut_t, string readfile_name_t);
-	static void wait_for_show_image(string window_name, IplImage* img_t);
+	void SaveCutImage(IplImage* img_t, CvRect cut_t, std::string readfile_name_t);
+	static void wait_for_show_image(std::string window_name, IplImage* img_t);
 public:
 	CvRect findTestArea(IplImage *image_gray, std::string readfile_name_t);
 public:
@@ -35,8 +35,8 @@ public:
 		int canny_threshold, int acc_threshold,
 		CvSeq* circles, int circles_max);
 public:
-	static void zhangjiagang_hongbao_duanzao_rgb(string filename);
-	static void zhangjiagang_hongbao_duanzao(string filename);
+	static void zhangjiagang_hongbao_duanzao_rgb(std::string filename);
+	static void zhangjiagang_hongbao_duanzao(std::string filename);
 
 	static  IplImage* cut_image(IplImage* src_color_t, int method, CvRect& cut_t, IplImage* src_binary_t);
 	static  IplImage* cut_image_01(CvMemStorage* memory, IplImage* src_color_cut, IplImage* src_binary_cut_part, CvRect& cut_t);
@@ -60,88 +60,88 @@ public:
 
 	static  void hough_image(IplImage* src_color_t, int method);
 
-	static Point3f hough_my(
+	static cv::Point3f hough_my(
 		IplImage *img_data,
 		IplImage *dist,
 		double threshold, int minRadius, int maxRadius, double distance,
 		IplImage *h_acc,
 		IplImage *coins);
 
-	static Point3f hough_my_fast(
+	static cv::Point3f hough_my_fast(
 		IplImage *img_data,
 		int method,
 		double threshold, int minRadius, int maxRadius, double distance);
 
-	static Point3f hough_my_fast_small(IplImage *img_data);
-	static Point3f hough_my_fast_big(IplImage *img_data);
+	static cv::Point3f hough_my_fast_small(IplImage *img_data);
+	static cv::Point3f hough_my_fast_big(IplImage *img_data);
 
-	static Point  find_central_line(CvSeq* maxContour, IplImage* des);
+	static cv::Point  find_central_line(CvSeq* maxContour, IplImage* des);
 
-	static void draw_duan_jian_result(IplImage* src_color, CvSeq* seq, Point3f circle1, Point3f circle0, IplImage* mask_img);
+	static void draw_duan_jian_result(IplImage* src_color, CvSeq* seq, cv::Point3f circle1, cv::Point3f circle0, IplImage* mask_img);
 	static void draw_dash_line(IplImage* src_color, double k, double b, IplImage* mask_img);
 
 	static void find_circle(IplImage* src_color_cut, IplImage* src_binary_cut_part);
 
-	static void process_max_min_rect(CvMemStorage* memory, IplImage* src_color_cut, IplImage* src_gary_cut, CvSeq* seq, IplImage* src_binary_cut, Point3f& circle0, Point3f& circle1);
+	static void process_max_min_rect(CvMemStorage* memory, IplImage* src_color_cut, IplImage* src_gary_cut, CvSeq* seq, IplImage* src_binary_cut, cv::Point3f& circle0, cv::Point3f& circle1);
 public:
 	static void CannyAdaptiveFindThreshold(IplImage* pImg, double *low, double *high);
 	static void HYAdaptiveFindThreshold(CvMat *dx, CvMat *dy, double *low, double *high);
 public:
 	static void HoughLine(IplImage* pImg, int *pR, int *pTh, int iThreshold, float rho_min, float rho_max, float theta_min, float theta_range);
-	static void Draw_line_on_image(float rho, float theta, CvRect rect_cut, IplImage* iplimg_tmp, Point& pt1, Point& pt2);
+	static void Draw_line_on_image(float rho, float theta, CvRect rect_cut, IplImage* iplimg_tmp, cv::Point& pt1, cv::Point& pt2);
 public:
-	static vector<float> crack_get_image_feature(IplImage *diff_org, string file_base, int frame_idx);
-	static vector<float> crack_get_image_feature_gauss(IplImage *diff_org, string file_base,string file_name,int CIRCLE, int CHANNEL, int frame_idx, IplImage *image_out,vector<float>& delta_out,boolean SAVE_FLAG);
+	static std::vector<float> crack_get_image_feature(IplImage *diff_org, std::string file_base, int frame_idx);
+	static std::vector<float> crack_get_image_feature_gauss(IplImage *diff_org, std::string file_base, std::string file_name,int CIRCLE, int CHANNEL, int frame_idx, IplImage *image_out, std::vector<float>& delta_out,boolean SAVE_FLAG);
 	
-	static vector<float> crack_get_image_feature_one_line(string org);
+	static std::vector<float> crack_get_image_feature_one_line(std::string org);
 	
-	static void crack_get_long_crack(IplImage * diff_org,IplImage *image_4_delta,int delta_idx, vector<vector<CvPoint>>&   point_setsstring,string file_base,int CIRCLE ,int CHANNEL, int frame_idx,boolean SAVE_FLAG);
-	static void VVC2Image(vector<vector<CvPoint>> vvc, IplImage * img);
+	static void crack_get_long_crack(IplImage * diff_org,IplImage *image_4_delta,int delta_idx, std::vector<std::vector<CvPoint>>&   point_setsstring, std::string file_base,int CIRCLE ,int CHANNEL, int frame_idx,boolean SAVE_FLAG);
+	static void VVC2Image(std::vector<std::vector<CvPoint>> vvc, IplImage * img);
 	static void CRACK_get_block_sets(
 		IplImage * image_binary,
 		int TARGET,
-		vector<vector<CvPoint>>& point_sets,
+		std::vector<std::vector<CvPoint>>& point_sets,
 		boolean SAVE_FLAG);
 
-	static vector<float> CRACK_get_histgram(
+	static std::vector<float> CRACK_get_histgram(
 		IplImage * diff,
-		vector<vector<CvPoint>> point_sets,
+		std::vector<std::vector<CvPoint>> point_sets,
 		int PN);
 
-	static  vector<float> CRACK_get_histgram_feature(
-		vector<float> histgram,
+	static  std::vector<float> CRACK_get_histgram_feature(
+		std::vector<float> histgram,
 		int WIDTH,
 		int  HEIGHT,
 		int PN);
 
-	static  vector<float> CRACK_get_block_feature(
-		const vector<vector<CvPoint>> frame_point_sets,
-		vector<vector<CvPoint>>& frame_point_sets_out,
+	static  std::vector<float> CRACK_get_block_feature(
+		const std::vector<std::vector<CvPoint>> frame_point_sets,
+		std::vector<std::vector<CvPoint>>& frame_point_sets_out,
 		IplImage * diff,
 		int PN);
 
 	static 	void CRACK_get_block_property(
 		IplImage * diff,
-		vector<CvPoint> point_set,
+		std::vector<CvPoint> point_set,
 		float& sum,
 		unsigned long& count,
 		int PN);
 	
-	static float CRACK_get_histgram_area(vector<float> histgram, int WIDTH, int HEIGHT, int PN);
+	static float CRACK_get_histgram_area(std::vector<float> histgram, int WIDTH, int HEIGHT, int PN);
 
-	static vector<float> process_histogram(vector<float>& histogram, vector<vector<CvPoint>>&  point_sets, vector<float>& delta_out, int HISTOGRAM_DIM, int width, int height);
-	static int GetLineProperty(vector<CvPoint> point_set, vector<float> delta, float& sum_delta, int& idx);
+	static std::vector<float> process_histogram(std::vector<float>& histogram, std::vector<std::vector<CvPoint>>&  point_sets, std::vector<float>& delta_out, int HISTOGRAM_DIM, int width, int height);
+	static int GetLineProperty(std::vector<CvPoint> point_set, std::vector<float> delta, float& sum_delta, int& idx);
 public:
-	static void Svm_Lean(vector<float> FeatureData, int FeatureDim, vector<INT32> FeatureClassify, int method, string path);
+	static void Svm_Lean(std::vector<float> FeatureData, int FeatureDim, std::vector<INT32> FeatureClassify, int method, std::string path);
 public:
 	static void CuiResize(IplImage * src, IplImage * dst, const int m_step, const int n_step);
 public:
-	static void  DrawHistogram(float *data, int size, string file_base, int CHANNEL, int frame_idx, vector<float> feature);
-	static void  DrawHistogram_fromImage(IplImage * img, string file_base, int CIRCLE, int CHANNEL, int frame_idx, int ColIdx, int hist_bar_height=255, int hist_bar_width=1);
+	static void  DrawHistogram(float *data, int size, std::string file_base, int CHANNEL, int frame_idx, std::vector<float> feature);
+	static void  DrawHistogram_fromImage(IplImage * img, std::string file_base, int CIRCLE, int CHANNEL, int frame_idx, int ColIdx, int hist_bar_height=255, int hist_bar_width=1);
 public:
-	static void  SaveArray2Disk(float *data, int size,int channel_t, int frame_count, string file_base);
+	static void  SaveArray2Disk(float *data, int size,int channel_t, int frame_count, std::string file_base);
 	
-	static void  Opencv_SaveVector2CvMatrix(string file_name,vector<float> vf);
+	static void  Opencv_SaveVector2CvMatrix(std::string file_name, std::vector<float> vf);
 
 	static float GetMaxValue(float* Data, long DataNum);
 	static void  GetMaxValueIndex(
@@ -160,5 +160,5 @@ public:
 public:
 	static int GetOneColumn(IplImage *image, IplImage* ColData,int IdxCol);
 public:
-	static void VIDEO_GetWidthHeight(string video_full_path,int* WIDTH,int* HEIGHT);
+	static void VIDEO_GetWidthHeight(std::string video_full_path,int* WIDTH,int* HEIGHT);
 };

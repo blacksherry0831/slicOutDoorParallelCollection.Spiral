@@ -136,7 +136,7 @@ public:
 	int GetXmlCfgData(CString filename);
 #endif	
 public:
-	vector<CvPoint> line_point;
+	std::vector<CvPoint> line_point;
 	PointWithDistance(void);
 	~PointWithDistance(void);
 	void clear(void);

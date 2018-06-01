@@ -1,8 +1,3 @@
-#check_for_cxx11_compiler########
-check_for_cxx11_compiler(CXX11_COMPILER_T)
-IF(CXX11_COMPILER_T)
- message(STATUS "Checking for C++11 compiler - available")
-ENDIF()
 #C11########
 C11_Config()
 #check_for_cxx11_compiler(C11Support)

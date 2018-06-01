@@ -172,15 +172,15 @@ if (method==KMean_Method_ORGColor){
 	
 }else if (method==KMean_Method_BLOCK){
 #if TRUE
-Scalar colorTab[] =     //因为最多只有5类，所以最多也就给5个颜色
+cv::Scalar colorTab[] =     //因为最多只有5类，所以最多也就给5个颜色
 	{
-		Scalar(0, 0, 255),
-		Scalar(0,255,0),
-		Scalar(255,100,100),
-		Scalar(255,0,255),
-		Scalar(0,255,255),
-		Scalar(255,0,0),
-		Scalar(0,0,0)
+	cv::Scalar(0, 0, 255),
+	cv::Scalar(0,255,0),
+	cv::Scalar(255,100,100),
+	cv::Scalar(255,0,255),
+	cv::Scalar(0,255,255),
+	cv::Scalar(255,0,0),
+	cv::Scalar(0,0,0)
 	};
 	for (int x=0;x<img3ch->width;x++){
 		for (int y=0;y<img3ch->height;y++){
@@ -254,15 +254,15 @@ Scalar colorTab[] =     //因为最多只有5类，所以最多也就给5个颜色
 
 		}else if (method==KMean_Method_BLOCK){
 #if TRUE
-			Scalar colorTab[] =     //因为最多只有5类，所以最多也就给5个颜色
+			cv::Scalar colorTab[] =     //因为最多只有5类，所以最多也就给5个颜色
 			{
-				Scalar(0, 0, 255),
-				Scalar(0,255,0),
-				Scalar(255,100,100),
-				Scalar(255,0,255),
-				Scalar(0,255,255),
-				Scalar(255,0,0),
-				Scalar(0,0,0)
+				cv::Scalar(0, 0, 255),
+				cv::Scalar(0,255,0),
+				cv::Scalar(255,100,100),
+				cv::Scalar(255,0,255),
+				cv::Scalar(0,255,255),
+				cv::Scalar(255,0,0),
+				cv::Scalar(0,0,0)
 			};
 			for (int x=0;x<img3ch->width;x++){
 				for (int y=0;y<img3ch->height;y++){

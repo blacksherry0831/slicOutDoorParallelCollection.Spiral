@@ -30,8 +30,8 @@ string TrainImgUseSvm::svmModelFile = "genfiles/svmlightmodel.dat";
 //// Set the file to write the resulting detecting descriptor vector to
 string TrainImgUseSvm::descriptorVectorFile = "genfiles/descriptorvector.dat";
 string TrainImgUseSvm:: SVMDetectorxml="SVMDetector.xml";
-Size TrainImgUseSvm:: trainingPadding = Size(0, 0);
-Size TrainImgUseSvm::winStride = Size(8, 8);
+cv::Size TrainImgUseSvm:: trainingPadding = cv::Size(0, 0);
+cv::Size TrainImgUseSvm::winStride = cv::Size(8, 8);
 
 #if USE_MFC
 CWinThread*  TrainImgUseSvm:: pThread=NULL;
@@ -108,8 +108,8 @@ TrainImgUseSvm::TrainImgUseSvm(void)
 	//// Set the file to write the resulting detecting descriptor vector to
 	descriptorVectorFile = "genfiles/descriptorvector.dat";
 	SVMDetectorxml="SVMDetector.xml";
-	trainingPadding = Size(0, 0);
-	winStride = Size(8, 8);
+	trainingPadding = cv::Size(0, 0);
+	winStride = cv::Size(8, 8);
 #if USE_MFC
 	pThread=NULL;
 #endif
@@ -331,7 +331,7 @@ void TrainImgUseSvm::getFilesInDirectory(
 void TrainImgUseSvm::calculateFeaturesFromInput(
 	const string& imageFilename,
 	vector<float>& featureVector,
-	HOGDescriptor& hog)
+	cv::HOGDescriptor& hog)
 {
 	 /** for imread flags from openCV documentation, 
      * @see http://docs.opencv.org/modules/highgui/doc/reading_and_writing_images_and_video.html?highlight=imread#Mat imread(const string& filename, int flags)
@@ -339,7 +339,7 @@ void TrainImgUseSvm::calculateFeaturesFromInput(
      * you either do not have a current openCV version (>2.0) 
      * or the linking order is incorrect, try g++ -o openCVHogTrainer main.cpp `pkg-config --cflags --libs opencv`
      */
-    Mat imageData = imread(imageFilename, 0);
+    cv::Mat imageData = cv::imread(imageFilename, 0);
     if (imageData.empty()) {
         featureVector.clear();
         printf("Error: HOG image '%s' is empty, features calculation skipped!\n", imageFilename.c_str());
@@ -364,7 +364,7 @@ void TrainImgUseSvm::calculateFeaturesFromInput(
 #endif
 		return;
     }
-    vector<Point> locations;
+    vector<cv::Point> locations;
     hog.compute(imageData, featureVector, winStride, trainingPadding, locations);
     imageData.release(); // Release the image again after features are extracted
 }
@@ -374,12 +374,12 @@ void TrainImgUseSvm::calculateFeaturesFromInput(
 *
 */
 /*-------------------------------------------------------------------------------------*/
-void TrainImgUseSvm::showDetections(const vector<Rect>& found, Mat& imageData)
+void TrainImgUseSvm::showDetections(const vector<cv::Rect>& found, cv::Mat& imageData)
 {
-	vector<Rect> found_filtered;
+	vector<cv::Rect> found_filtered;
 	size_t i, j;
 	for (i = 0; i < found.size(); ++i) {
-		Rect r = found[i];
+		cv::Rect r = found[i];
 		for (j = 0; j < found.size(); ++j)
 			if (j != i && (r & found[j]) == r)
 				break;
@@ -387,8 +387,8 @@ void TrainImgUseSvm::showDetections(const vector<Rect>& found, Mat& imageData)
 			found_filtered.push_back(r);
 	}
 	for (i = 0; i < found_filtered.size(); i++) {
-		Rect r = found_filtered[i];
-		rectangle(imageData, r.tl(), r.br(), Scalar(64, 255, 64), 3);
+		cv::Rect r = found_filtered[i];
+		rectangle(imageData, r.tl(), r.br(), cv::Scalar(64, 255, 64), 3);
 	}
 }
 
@@ -397,12 +397,12 @@ void TrainImgUseSvm::showDetections(const vector<Rect>& found, Mat& imageData)
 *
 */
 /*-------------------------------------------------------------------------------------*/
-void TrainImgUseSvm::detectTest(const HOGDescriptor& hog, Mat& imageData)
+void TrainImgUseSvm::detectTest(const cv::HOGDescriptor& hog, cv::Mat& imageData)
 {
-	vector<Rect> found;
+	vector<cv::Rect> found;
 	int groupThreshold = 2;
-	Size padding(Size(32, 32));
-	Size winStride(Size(8, 8));
+	cv::Size padding(cv::Size(32, 32));
+	cv::Size winStride(cv::Size(8, 8));
 	double hitThreshold = 0.; // tolerance
 	hog.detectMultiScale(imageData, found, hitThreshold, winStride, padding, 1.05, groupThreshold);
 	showDetections(found, imageData);
@@ -421,7 +421,7 @@ UINT TrainImgUseSvm::TRainTrainHog(LPVOID lpParam)
 #endif  
 	
      // <editor-fold defaultstate="collapsed" desc="Init">
-    HOGDescriptor hog(Size(winwidth,winheight),Size(16,16),Size(8,8),Size(8,8),9); // Use standard parameters here
+    cv::HOGDescriptor hog(cv::Size(winwidth,winheight),cv::Size(16,16),cv::Size(8,8),cv::Size(8,8),9); // Use standard parameters here
 	//hog.winSize = cv::Size(70,134);
     // Get the files to train from somewhere
     static vector<string> positiveTrainingImages;
@@ -552,7 +552,7 @@ UINT TrainImgUseSvm::TRainTrainHog(LPVOID lpParam)
    
 	/*hog.setSVMDetector(HOGDescriptor::getDefaultPeopleDetector());*/
 	
- FileStorage fsW(SVMDetectorxml, FileStorage::WRITE| FileStorage::FORMAT_XML);
+ cv::FileStorage fsW(SVMDetectorxml, cv::FileStorage::WRITE| cv::FileStorage::FORMAT_XML);
  fsW<<"SVMDetector"<<descriptorVector;
  fsW.release();
 #if 0	
@@ -1035,7 +1035,7 @@ UINT TrainImgUseSvm::GetFileNameFromPath(void)
 	 string SrcFileName)
  {
 	string filepath=SVMDetectorxml+"\\"+filename;
-	FileStorage fs(filepath, FileStorage::APPEND);
+	cv::FileStorage fs(filepath, cv::FileStorage::APPEND);
 	if (fs.isOpened()){
 		fs<<"SvmData";
 		fs<<"{";
@@ -1082,7 +1082,7 @@ UINT TrainImgUseSvm::GetFileNameFromPath(void)
  string SrcFileName=f_vb.SrcFileName;
 	 string filepath=SVMDetectorxml+"\\"+filename;
 	 vector<float> feature=f_vb.feature;
-	 FileStorage fs(filepath, FileStorage::APPEND);
+	 cv::FileStorage fs(filepath, cv::FileStorage::APPEND);
 	 if (fs.isOpened()){
 		 fs<<"SvmData";
 		 fs<<"{";

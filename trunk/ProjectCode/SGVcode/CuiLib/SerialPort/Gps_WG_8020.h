@@ -1,5 +1,5 @@
 #pragma once
-#include "SerialPortBase.hpp"
+#include "SerialPortBase/SerialPortBase.hpp"
 
 #include "IGps.h"
 
@@ -30,8 +30,8 @@ protected:
 private:
 	~GPS_WG_8020(void);
 public:
-		bool open(int com_num);
-		void init();
+		int open(int com_num);
+		int init();
 
 		void SendCmdEnterAT();
 		void SendCmdVERS();

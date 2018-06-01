@@ -143,7 +143,7 @@ if ((*src_img_t)->nChannels==3){
 	  cvDilate(gray_img,gray_img);
 	  cvCanny(gray_img,gray_binary_img, 40, 200, 3 );	*/
 	 // cvThreshold(gray_img,gray_binary_img,255,255,);
-	  cvAdaptiveThreshold(gray_img,gray_binary_img,255,ADAPTIVE_THRESH_MEAN_C,CV_THRESH_BINARY_INV,21);
+	  cvAdaptiveThreshold(gray_img,gray_binary_img,255, cv::ADAPTIVE_THRESH_MEAN_C,CV_THRESH_BINARY_INV,21);
 	  //cvAdaptiveThreshold(gray_img,gray_binary_img,255,ADAPTIVE_THRESH_MEAN_C,CV_THRESH_BINARY_INV);
 	  /*gray_binary_img.jpg,此图用作hough变换*/
   }

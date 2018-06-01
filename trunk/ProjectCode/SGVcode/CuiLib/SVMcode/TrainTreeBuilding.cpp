@@ -31,8 +31,8 @@ string TrainTreeBuilding::svmModelFile = "genfiles/svmlightmodel.dat";
 //// Set the file to write the resulting detecting descriptor vector to
 string TrainTreeBuilding::descriptorVectorFile = "genfiles/descriptorvector.dat";
 string TrainTreeBuilding:: SVMDetectorxml="SVMDetector.xml";
-const Size TrainTreeBuilding:: trainingPadding = Size(0, 0);
-const Size TrainTreeBuilding::winStride = Size(8, 8);
+const cv::Size TrainTreeBuilding:: trainingPadding = cv::Size(0, 0);
+const cv::Size TrainTreeBuilding::winStride = cv::Size(8, 8);
 #if USE_MFC
 CWinThread* TrainTreeBuilding:: pThread=NULL;
 #endif
@@ -376,7 +376,7 @@ UINT TrainTreeBuilding::GetFileNameFromPath(void)
 void TrainTreeBuilding::SaveFeature2XML(string filename,vector<float> feature,int Category,float FileIndex,string SrcFileName)
 {
 	string filepath=SVMDetectorxml+"\\"+filename;
-	FileStorage fs(filepath, FileStorage::APPEND);
+	cv::FileStorage fs(filepath, cv::FileStorage::APPEND);
 	if (fs.isOpened()){
 		fs<<"SvmData";
 		fs<<"{";
@@ -529,7 +529,7 @@ int cate_si=ClassifyTreeBuilding(&memData[si*Dim],Dim);
 	float Rate_0=1.0*Category_0_Success/Category_0_ALL;
 	float Rate_1=1.0*Category_1_Success/Category_1_ALL;
 	string filename=SVMDetectorxml+"\\RATEdata.xml";
-	FileStorage fsw(filename,FileStorage::WRITE);
+	cv::FileStorage fsw(filename, cv:: FileStorage::WRITE);
 	if (fsw.isOpened()){
 		fsw<<"Rate_0"<<Rate_0;
 		fsw<<"Rate_1"<<Rate_1;
@@ -602,7 +602,7 @@ void TrainTreeBuilding::Learning_samples_detection_rate(vector<float>& dataMatMe
 	float Rate_1=1.0*Category_1_Success/Category_1_ALL;
 	float Rate_sum=1.0*(Category_0_Success+Category_1_Success)/(Category_0_ALL+Category_1_ALL);
 	string filename=SVMDetectorxml+"\\RATEdata.xml";
-	FileStorage fsw(filename,FileStorage::WRITE);
+	cv::FileStorage fsw(filename,cv::FileStorage::WRITE);
 	if (fsw.isOpened()){
 		fsw<<"Rate_0"<<Rate_0;
 		fsw<<"Rate_1"<<Rate_1;

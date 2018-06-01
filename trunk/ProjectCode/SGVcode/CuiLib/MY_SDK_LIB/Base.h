@@ -8,34 +8,34 @@ public:
 	Base(void);
 	~Base(void);
 public:
-    static	int str2int(int &int_temp, const string &string_temp);
-	static  string int2str(int value_t);
+    static	int str2int(int &int_temp, const std::string &string_temp);
+	static  std::string int2str(int value_t);
 public:
 
 	//static string GetNameExt4path(void);
 
-	static std::string base_name(string const & path);	
+	static std::string base_name(std::string const & path);
 
-	static std::string file_name_without_ext(string const  path);
+	static std::string file_name_without_ext(std::string const  path);
 
-	static std::string file_name_ext(string const  path);
+	static std::string file_name_ext(std::string const  path);
 
-	static std::string comine_str(string f_str,string s_str);
+	static std::string comine_str(std::string f_str, std::string s_str);
 
 	static std::vector<std::string> split  (const std::string &s, char delim);
 
-	static std::vector<std::string> split  (const std::string &s, string delim);
+	static std::vector<std::string> split  (const std::string &s, std::string delim);
 
 	static void SaveString2Disk(
-		string ffile_name_t,
-		string str_t);
+		std::string ffile_name_t,
+		std::string str_t);
 	
 	static int IsEqual(std::string str_0,std::string str_1);
 	
 public:
 	static void sleep(int ms);
 	static int is_file_exist(const char * file_path);
-	static int get_number(string str_t);
+	static int get_number(std::string str_t);
 public:
 	static double Math_GetAverageValue(double* Data, int DataNum);
 
@@ -82,29 +82,29 @@ public:
 public:
 	static float Math_GetSumF(float * Data,int DataNum);
 public:
-	static vector<float> CombineVector(vector<float> v0, vector<float> v1);
+	static std::vector<float> CombineVector(std::vector<float> v0, std::vector<float> v1);
 public:
-	static int FS_deleteFile(const string file_full_path);
-	static int FS_copyFile(const string src,const string dst);
-	static void FS_getFiles(string path, string exd, vector<string>& files);
-	static void FS_getDirs(string path,string flag,vector<string>& files);
-	static string FS_getDirName(string path);
-	static bool FS_checkUserPath(string userPath);
+	static int FS_deleteFile(const std::string file_full_path);
+	static int FS_copyFile(const std::string src,const std::string dst);
+	static void FS_getFiles(std::string path, std::string exd, std::vector<std::string>& files);
+	static void FS_getDirs(std::string path, std::string flag, std::vector<std::string>& files);
+	static std::string FS_getDirName(std::string path);
+	static bool FS_checkUserPath(std::string userPath);
 	static std::string FS_createPath(std::string path_base, std::string path_sub, boolean CREATE_FLAG=true);
 
-	static int CRACK_FILE_NAME_get_idx(string file_full_name);
+	static int CRACK_FILE_NAME_get_idx(std::string file_full_name);
 	
-	static int CRACK_FILE_NAME_get_channel(string file_full_name);
+	static int CRACK_FILE_NAME_get_channel(std::string file_full_name);
 
-	static int CRACK_FILE_NAME_get_FRAME(string file_full_name);
-	static int CRACK_FILE_NAME_get_PROPERTY(string file_full_name,string _property);
+	static int CRACK_FILE_NAME_get_FRAME(std::string file_full_name);
+	static int CRACK_FILE_NAME_get_PROPERTY(std::string file_full_name, std::string _property);
 	
-	static int CRACK_FILE_NAME_get_circle(string file_full_name);
-	static int CRACK_FILE_NAME_get_circle_byPath(string path);
-	static string CRACK_FILR_NAME_get_ipAddr(string file_full_name);
+	static int CRACK_FILE_NAME_get_circle(std::string file_full_name);
+	static int CRACK_FILE_NAME_get_circle_byPath(std::string path);
+	static std::string CRACK_FILR_NAME_get_ipAddr(std::string file_full_name);
 
-	static string CRACK_PATH_GetFrameChannelDiff(std::string file_base, std::string file_name, std::string add_str="",boolean create_flag=true);
-	static string CRACK_PATH_GetFrameChannelDiff(std::string file_base,int CIRCLE,int CHANNEL, std::string add_str,boolean create_flag=true);
+	static std::string CRACK_PATH_GetFrameChannelDiff(std::string file_base, std::string file_name, std::string add_str="",boolean create_flag=true);
+	static std::string CRACK_PATH_GetFrameChannelDiff(std::string file_base,int CIRCLE,int CHANNEL, std::string add_str,boolean create_flag=true);
 
 };
 

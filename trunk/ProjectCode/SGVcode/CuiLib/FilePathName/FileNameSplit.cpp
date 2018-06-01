@@ -244,7 +244,7 @@ CvFileNode* FileNameSplit::IsNodExist(CvFileStorage *fsW)
 *@param validExtensions 文件扩展名 
 */
 /*-------------------------------------------------------------------------------------*/
-void FileNameSplit::getFilesInDirectory(const string& dirName, vector<string>& fileNames, const vector<string>& validExtensions)
+void FileNameSplit::getFilesInDirectory(const std::string& dirName, std::vector<std::string>& fileNames, const std::vector<std::string>& validExtensions)
 {
 	printf("Opening directory %s\n", dirName.c_str());
 	struct dirent* ep;
@@ -257,12 +257,12 @@ void FileNameSplit::getFilesInDirectory(const string& dirName, vector<string>& f
 			if (ep->d_type & DT_DIR) {
 				continue;
 			}
-			extensionLocation = string(ep->d_name).find_last_of("."); // Assume the last point marks beginning of extension like file.ext
+			extensionLocation = std::string(ep->d_name).find_last_of("."); // Assume the last point marks beginning of extension like file.ext
 			// Check if extension is matching the wanted ones
-			string tempExt = toLowerCase(string(ep->d_name).substr(extensionLocation + 1));
+			std::string tempExt = toLowerCase(std::string(ep->d_name).substr(extensionLocation + 1));
 			if (find(validExtensions.begin(), validExtensions.end(), tempExt) != validExtensions.end()) {
 				printf("Found matching data file '%s'\n", ep->d_name);
-				fileNames.push_back((string) dirName + ep->d_name);
+				fileNames.push_back((std::string) dirName + ep->d_name);
 			} else {
 				printf("Found file does not match required file type, skipping: '%s'\n", ep->d_name);
 			}
@@ -280,10 +280,10 @@ void FileNameSplit::getFilesInDirectory(const string& dirName, vector<string>& f
 *@return 小写字符串
 */
 /*-------------------------------------------------------------------------------------*/
-string FileNameSplit::toLowerCase(const string& in)
+std::string FileNameSplit::toLowerCase(const std::string& in)
 {
-	string t;
-	for (string::const_iterator i = in.begin(); i != in.end(); ++i) {
+	std::string t;
+	for (std::string::const_iterator i = in.begin(); i != in.end(); ++i) {
 		t += tolower(*i);
 	}
 	return t;

@@ -39,11 +39,11 @@ public:
 	void ReadData2Mem(CString filepath_t);
 	int GetXmlCfgData(CString filename);
 #endif
-	vector<CvPoint> line_point;/**<直线上的点集合*/
+	std::vector<CvPoint> line_point;/**<直线上的点集合*/
 	void clear(void);
 public:
-static string toLowerCase(const string& in);
-static void getFilesInDirectory(const string& dirName, vector<string>& fileNames, const vector<string>& validExtensions);
+static std::string toLowerCase(const std::string& in);
+static void getFilesInDirectory(const std::string& dirName, std::vector<std::string>& fileNames, const std::vector<std::string>& validExtensions);
 
 
 	

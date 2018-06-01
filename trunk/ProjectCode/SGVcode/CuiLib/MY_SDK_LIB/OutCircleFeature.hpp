@@ -42,15 +42,15 @@ public:
 	int SIGMA;
 	int frame_count;
 	int SAVE_FLAG;
-	string pn_base;
-	string org_gray_base;
-	string org_gray_feature;
-	string pn_sigma_base;
+	std::string pn_base;
+	std::string org_gray_base;
+	std::string org_gray_feature;
+	std::string pn_sigma_base;
 public:
-	vector<float> feature_p1;
-	vector<float> feature_n1;
-	vector<vector<CvPoint>> frame_point_sets_out_p1;
-	vector<vector<CvPoint>> frame_point_sets_out_n1;
+	std::vector<float> feature_p1;
+	std::vector<float> feature_n1;
+	std::vector<std::vector<CvPoint>> frame_point_sets_out_p1;
+	std::vector<std::vector<CvPoint>> frame_point_sets_out_n1;
 public:
 	void Process(IplImage* _image_gray, IplImage* avg, IplImage* sigma_scale_m);
 
@@ -59,9 +59,9 @@ public:
 
 	void SaveB(IplImage* _image_gray);
 	static void cvThresholdMY(IplImage* src, IplImage* dst, const float T, const float MAX, const int RULE);
-	static void SaveImage2Disk(string file_base, int CIRCLE, int CHANNEL, int FRAME, string ImageType, string MatrixType, IplImage* img);
-	static void SaveMat2Disk(string file_base, int CIRCLE, int CHANNEL, int FRAME, string ImageType, string MatrixType, vector<float> vf);
-	static void SaveVectorFloat2Disk(string file_base, int CIRCLE, int CHANNEL, int FRAME, string ImageType, string MatrixType, vector<vector<CvPoint>> vvc, int WIDTH, int HEIGHT);
+	static void SaveImage2Disk(std::string file_base, int CIRCLE, int CHANNEL, int FRAME, std::string ImageType, std::string MatrixType, IplImage* img);
+	static void SaveMat2Disk(std::string file_base, int CIRCLE, int CHANNEL, int FRAME, std::string ImageType, std::string MatrixType, std::vector<float> vf);
+	static void SaveVectorFloat2Disk(std::string file_base, int CIRCLE, int CHANNEL, int FRAME, std::string ImageType, std::string MatrixType, std::vector<std::vector<CvPoint>> vvc, int WIDTH, int HEIGHT);
 private:
 	void release();
 };

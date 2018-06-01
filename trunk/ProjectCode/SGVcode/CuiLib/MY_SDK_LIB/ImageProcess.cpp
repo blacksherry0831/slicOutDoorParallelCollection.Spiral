@@ -192,7 +192,7 @@ CvRect ImageProcess::findTestArea(IplImage *image_gray,std::string readfile_name
 *
 */
 /*--------------------------------------------------------------*/
-void ImageProcess::SaveCutImage(IplImage* img_t,CvRect cut_t,string readfile_name_t)
+void ImageProcess::SaveCutImage(IplImage* img_t,CvRect cut_t,std::string readfile_name_t)
 {
 	cvSetImageROI(img_t , cut_t);
 
@@ -732,7 +732,7 @@ void ImageProcess::icvHoughCirclesGradient( CvMat* img, float dp, float min_dist
 *
 */
 /*--------------------------------------------------------------*/
-void ImageProcess::zhangjiagang_hongbao_duanzao_rgb(string filename)
+void ImageProcess::zhangjiagang_hongbao_duanzao_rgb(std::string filename)
 {
 	
 	
@@ -760,7 +760,7 @@ void ImageProcess::zhangjiagang_hongbao_duanzao_rgb(string filename)
 *
 */
 /*--------------------------------------------------------------*/
-void  ImageProcess::wait_for_show_image(string window_name,IplImage* img_t)
+void  ImageProcess::wait_for_show_image(std::string window_name,IplImage* img_t)
 {
 #if _DEBUG
 
@@ -773,7 +773,7 @@ void  ImageProcess::wait_for_show_image(string window_name,IplImage* img_t)
 		cvWaitKey(0);
 	}
 
-	string file_name_t="done//"+window_name+".png";
+	std::string file_name_t="done//"+window_name+".png";
 	cvSaveImage(file_name_t.c_str(),img_t);
 
 #endif
@@ -784,7 +784,7 @@ void  ImageProcess::wait_for_show_image(string window_name,IplImage* img_t)
 *
 */
 /*--------------------------------------------------------------*/
-void ImageProcess::zhangjiagang_hongbao_duanzao(string filename)
+void ImageProcess::zhangjiagang_hongbao_duanzao(std::string filename)
 {
 	IplImage* src_color = cvLoadImage(filename.c_str());
 #if _DEBUG
@@ -825,7 +825,7 @@ void ImageProcess::zhangjiagang_hongbao_duanzao(string filename)
 wait_for_show_image("src_binary_cut",src_binary_cut); 
 wait_for_show_image("src_gary_cut ",src_gary_cut); 
 #endif
-		Point3f circle1,circle0;
+		cv::Point3f circle1,circle0;
 	if(1){
 
 		process_max_min_rect(memory_g,src_color_cut,src_gary_cut,seq,src_binary_cut,circle1,circle0);
@@ -888,7 +888,7 @@ Point3f circle0=hough_my_fast(cut_0,
 *
 */
 /*--------------------------------------------------------------*/
-void ImageProcess::draw_duan_jian_result(IplImage* src_color,CvSeq* seq,Point3f circle1,Point3f circle0,IplImage* mask_img)
+void ImageProcess::draw_duan_jian_result(IplImage* src_color,CvSeq* seq,cv::Point3f circle1,cv::Point3f circle0,IplImage* mask_img)
 {
 #if _DEBUG
 	CvRect mask_rect = cvBoundingRect(seq,1);
@@ -904,15 +904,15 @@ void ImageProcess::draw_duan_jian_result(IplImage* src_color,CvSeq* seq,Point3f 
     int xCoord1 = circle1.x;
     int yCoord1 = circle1.y;
     int radius1 = circle1.z;
-    Point2f center1(xCoord1, yCoord1); 
+    cv::Point2f center1(xCoord1, yCoord1); 
 	 
 	int xCoord0 = circle0.x;
     int yCoord0 = circle0.y;
     int radius0 = circle0.z;
-    Point2f center0(xCoord0, yCoord0); 
+    cv::Point2f center0(xCoord0, yCoord0); 
 
-    cvCircle(src_color, center1, radius1-2, Scalar(0,255,255), lineThickness, lineType, shift);//黄色
-	cvCircle(src_color, center0, radius0-2, Scalar(0,255,255), lineThickness, lineType, shift);
+    cvCircle(src_color, center1, radius1-2, cv::Scalar(0,255,255), lineThickness, lineType, shift);//黄色
+	cvCircle(src_color, center0, radius0-2, cv::Scalar(0,255,255), lineThickness, lineType, shift);
 
 	//cvLine(src_color,center1,center0,Scalar(0),lineThickness);
 
@@ -959,7 +959,7 @@ void ImageProcess::draw_dash_line(IplImage* src_color,double k,double b,IplImage
 
 	//Point p1(20,20);                            // start & end points 
 	//Point p2(80,50);
-	LineIterator it(src_color, p1, p2);            // get a line iterator
+	cv::LineIterator it(src_color, p1, p2);            // get a line iterator
 	for(int i = 0; i < it.count; i++,it++){
 		const int STEP=30;
 		double pos=1.0*(i%STEP)/STEP;
@@ -1108,7 +1108,7 @@ CvSeq* ImageProcess::find_max_contour_adjust_binary(CvMemStorage* memory,IplImag
 #if _DEBUG
 	wait_for_show_image("src_bin_adjust",src_binary_t);
 #endif
-    Point rou=find_central_line(maxContour,des);
+    cv::Point rou=find_central_line(maxContour,des);
 
 	cvReleaseImage(&src);  
 #if _DEBUG
@@ -1122,9 +1122,9 @@ CvSeq* ImageProcess::find_max_contour_adjust_binary(CvMemStorage* memory,IplImag
 *
 */
 /*--------------------------------------------------------------*/
-Point  ImageProcess::find_central_line(CvSeq* maxContour,IplImage* des)
+cv::Point  ImageProcess::find_central_line(CvSeq* maxContour,IplImage* des)
 {
-	Point pt;
+	cv::Point pt;
 	int thickness_min_box=1;
 #if _DEBUG
     cvDrawContours(des, maxContour,
@@ -1164,14 +1164,14 @@ Point  ImageProcess::find_central_line(CvSeq* maxContour,IplImage* des)
 			float b=ellipse.center.y-k*ellipse.center.x;
 			float b1=box.center.y-k1*box.center.x;
 			{
-						Point p0,p1;
+						cv::Point p0,p1;
 						p0.x=0;p0.y=k*p0.x+b;
 						p1.x=des->width;p1.y=k*p1.x+b;
 						cvLine(des,p0,p1,CV_RGB(255,0,255));
 			}
 			
 			{
-						Point p0,p1;
+						cv::Point p0,p1;
 						p0.x=0;p0.y=k1*p0.x+b1;
 						p1.x=des->width;p1.y=k1*p1.x+b1;
 						cvLine(des,p0,p1,CV_RGB(255,0,255));		
@@ -1800,7 +1800,7 @@ void ImageProcess::hough_image(IplImage* src_color_t,int method)
 	
 
 #if _DEBUG
-	ostringstream stream;
+	std::stringstream stream;
 	
 	stream<<"hough_";
 	stream<<method;
@@ -1825,7 +1825,7 @@ void inc_if_inside(double *** H, int x, int y, int height, int width, int r )
 *
 */
 /*----------------------------------------------------------------*/
-void hough(Mat &img_data, Mat &dist, double threshold, int minRadius, int maxRadius, double distance, Mat &h_acc, Mat &coins){
+void hough(cv::Mat &img_data, cv::Mat &dist, double threshold, int minRadius, int maxRadius, double distance, cv::Mat &h_acc, cv::Mat &coins){
   int radiusRange = maxRadius - minRadius;
   int HEIGHT = img_data.rows;
   int WIDTH = img_data.cols;
@@ -1885,14 +1885,14 @@ void hough(Mat &img_data, Mat &dist, double threshold, int minRadius, int maxRad
     }
   }
 
-  std::vector<Point3f> bestCircles;
+  std::vector<cv::Point3f> bestCircles;
   
   //compute optimal circles
   for(int y0 = 0; y0 < HEIGHT; y0++) {
     for(int x0 = 0; x0 < WIDTH; x0++) {
       for(int r = minRadius; r < radiusRange; r++) { 
         if(H[y0][x0][r] > threshold){
-          Point3f circle(x0, y0, r);
+          cv::Point3f circle(x0, y0, r);
           int i;
           for(i = 0; i < bestCircles.size(); i++) {
             int xCoord = bestCircles[i].x;
@@ -1921,8 +1921,8 @@ void hough(Mat &img_data, Mat &dist, double threshold, int minRadius, int maxRad
     int xCoord = bestCircles[i].x;
     int yCoord = bestCircles[i].y;
     int radius = bestCircles[i].z;
-    Point2f center(xCoord, yCoord);      
-    circle(coins, center, radius-1, Scalar(255,0,0), lineThickness, lineType, shift);
+    cv::Point2f center(xCoord, yCoord);      
+    circle(coins, center, radius-1, cv::Scalar(255,0,0), lineThickness, lineType, shift);
   }
 }
 /*----------------------------------------------------------------*/
@@ -1930,7 +1930,7 @@ void hough(Mat &img_data, Mat &dist, double threshold, int minRadius, int maxRad
 *
 */
 /*----------------------------------------------------------------*/
-Point3f ImageProcess::hough_my(
+cv::Point3f ImageProcess::hough_my(
 	IplImage *img_data,
 	IplImage *dist,
 	double threshold, int minRadius, int maxRadius, double distance,
@@ -1991,14 +1991,14 @@ Point3f ImageProcess::hough_my(
     }
   }
 
-  std::vector<Point3f> bestCircles;
+  std::vector<cv::Point3f> bestCircles;
   
   //compute optimal circles
   for(int y0 = 0; y0 < HEIGHT; y0++) {
     for(int x0 = 0; x0 < WIDTH; x0++) {
       for(int r = minRadius; r < maxRadius; r++) { 
         if(H[y0][x0][r-minRadius] >= threshold){
-          Point3f circle(x0, y0, r);
+          cv::Point3f circle(x0, y0, r);
           int i;
           for(i = 0; i < bestCircles.size(); i++) {
             int xCoord = bestCircles[i].x;
@@ -2028,8 +2028,8 @@ Point3f ImageProcess::hough_my(
     int xCoord = bestCircles[i].x;
     int yCoord = bestCircles[i].y;
     int radius = bestCircles[i].z;
-    Point2f center(xCoord, yCoord);      
-    cvCircle(coins, center, radius-2, Scalar(255,0,0), lineThickness, lineType, shift);
+    cv::Point2f center(xCoord, yCoord);      
+    cvCircle(coins, center, radius-2, cv::Scalar(255,0,0), lineThickness, lineType, shift);
   }
 #endif
 
@@ -2044,7 +2044,7 @@ Point3f ImageProcess::hough_my(
   if(bestCircles.size()>0){
     return bestCircles.at(0);
   }else{
-	  Point3f null;null.x=0; null.y=0,null.z=0;
+	  cv::Point3f null;null.x=0; null.y=0,null.z=0;
    return null;
   }
 
@@ -2054,7 +2054,7 @@ Point3f ImageProcess::hough_my(
 *
 */
 /*----------------------------------------------------------------*/
-Point3f ImageProcess::hough_my_fast_big(IplImage *img_data)
+cv::Point3f ImageProcess::hough_my_fast_big(IplImage *img_data)
 {
 	double threshold=20;
 	int min_r=65;
@@ -2071,7 +2071,7 @@ Point3f ImageProcess::hough_my_fast_big(IplImage *img_data)
 *
 */
 /*----------------------------------------------------------------*/
-Point3f ImageProcess::hough_my_fast_small(IplImage *img_data)
+cv::Point3f ImageProcess::hough_my_fast_small(IplImage *img_data)
 {
 	double threshold=10;
 	int min_r=60;
@@ -2088,7 +2088,7 @@ Point3f ImageProcess::hough_my_fast_small(IplImage *img_data)
 *
 */
 /*----------------------------------------------------------------*/
-Point3f ImageProcess::hough_my_fast(IplImage *img_data,
+cv::Point3f ImageProcess::hough_my_fast(IplImage *img_data,
 			int method,
 			double threshold,
 			int minRadius,
@@ -2106,7 +2106,7 @@ Point3f ImageProcess::hough_my_fast(IplImage *img_data,
 	cvCvtColor(img_data,coins,CV_GRAY2RGB);
 
 
-	Point3f xyr=hough_my(
+	cv::Point3f xyr=hough_my(
 	img_data,
 	dist,
 	threshold,//10
@@ -2116,7 +2116,7 @@ Point3f ImageProcess::hough_my_fast(IplImage *img_data,
 	h_acc,
 	coins);
 #if _DEBUG
-	ostringstream stream;
+	std::stringstream stream;
 	
 	stream<<"hough_";
 	stream<<method;
@@ -2134,10 +2134,10 @@ Point3f ImageProcess::hough_my_fast(IplImage *img_data,
 *
 */
 /*----------------------------------------------------------------*/
-void ImageProcess::process_max_min_rect(CvMemStorage* memory,IplImage* src_color_cut,IplImage* src_gary_cut,CvSeq* seq,IplImage* src_binary_cut,Point3f& circle0,Point3f& circle1)
+void ImageProcess::process_max_min_rect(CvMemStorage* memory,IplImage* src_color_cut,IplImage* src_gary_cut,CvSeq* seq,IplImage* src_binary_cut,cv::Point3f& circle0,cv::Point3f& circle1)
 {
 	CvBox2D box=cvMinAreaRect2(seq);//最小外包矩形
-	Point cut_center_t=box.center;
+	cv::Point cut_center_t=box.center;
 	CvBox2D ellipse = cvFitEllipse2(seq);//最小二乘法的椭圆拟合    
 	CvRect rect_cut = cvBoundingRect(seq,1);
 	float k=0;
@@ -2281,7 +2281,7 @@ void ImageProcess::process_max_min_rect(CvMemStorage* memory,IplImage* src_color
 #if 1
 	//cvZero(src_binary_cut_part);	
 	cvDrawContours(src_binary_cut_part, maxContour,
-           Scalar(0),Scalar(255),
+           cv::Scalar(0),cv::Scalar(255),
            0,5);
 #endif
 
@@ -2464,7 +2464,7 @@ void ImageProcess::HoughLine(IplImage* pImg, int *pR, int *pTh, int iThreshold,f
 *
 */
 /*----------------------------------------------------------------*/
-void ImageProcess::Draw_line_on_image(float rho,float theta, CvRect rect_cut, IplImage* iplimg_tmp,Point& pt1,Point& pt2)
+void ImageProcess::Draw_line_on_image(float rho,float theta, CvRect rect_cut, IplImage* iplimg_tmp,cv::Point& pt1,cv::Point& pt2)
 {
 #if TRUE
 		
@@ -2519,7 +2519,7 @@ void ImageProcess::Draw_line_on_image(float rho,float theta, CvRect rect_cut, Ip
 *
 */
 /*----------------------------------------------------------------*/
-vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, string file_base,string file_name,int CIRCLE,int CHANNEL, int frame_idx, IplImage *image_out,vector<float>& delta_out, boolean SAVE_FLAG)
+vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, std::string file_base,std::string file_name,int CIRCLE,int CHANNEL, int frame_idx, IplImage *image_out,vector<float>& delta_out, boolean SAVE_FLAG)
 {
 #if TRUE
 
@@ -2527,15 +2527,15 @@ vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, s
 	assert(CHANNEL > 0);
 
 
-	const string four_delta_str = "4delta";
-	const string diff_str = "diff";
+	const std::string four_delta_str = "4delta";
+	const std::string diff_str = "diff";
 
 	
-	string channel_diff_path_str=Base::CRACK_PATH_GetFrameChannelDiff(file_base,CIRCLE,CHANNEL, diff_str,false);
+	std::string channel_diff_path_str=Base::CRACK_PATH_GetFrameChannelDiff(file_base,CIRCLE,CHANNEL, diff_str,false);
 
-	string sub2_path_str = Base::FS_createPath(channel_diff_path_str, four_delta_str,SAVE_FLAG);
+	std::string sub2_path_str = Base::FS_createPath(channel_diff_path_str, four_delta_str,SAVE_FLAG);
 	
-	const string path_diff_out = sub2_path_str+Base::int2str(frame_idx)+".png";
+	const std::string path_diff_out = sub2_path_str+Base::int2str(frame_idx)+".png";
 
 	CvSize diff_size = cvGetSize(diff_org);
 	const int SCALE = 1;
@@ -2702,7 +2702,7 @@ vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, s
 *
 */
 /*----------------------------------------------------------------*/
-vector<float> ImageProcess::crack_get_image_feature_one_line(string org)
+vector<float> ImageProcess::crack_get_image_feature_one_line(std::string org)
 {
 	vector<float> feature_one;
 	vector<float> feature_org;
@@ -2797,7 +2797,7 @@ void ImageProcess::crack_get_long_crack(IplImage * diff_org,
 										IplImage *image_4_delta,
 										int delta_idx,
 										vector<vector<CvPoint>>&   point_sets,
-										string file_base,
+										std::string file_base,
 										int CIRCLE,
 										int CHANNEL,
 										int frame_idx,
@@ -2949,10 +2949,10 @@ void ImageProcess::crack_get_long_crack(IplImage * diff_org,
 	cvWaitKey(1);
 	
 			if (SAVE_FLAG) {							
-					stringstream sub2_path_ss;
+					std::stringstream sub2_path_ss;
 					sub2_path_ss << "single_delta";
-					string sub2_path_str = Base::FS_createPath(file_base, sub2_path_ss.str());
-					string filesaveimg = sub2_path_str + Base::int2str(frame_idx) + ".png";
+					std::string sub2_path_str = Base::FS_createPath(file_base, sub2_path_ss.str());
+					std::string filesaveimg = sub2_path_str + Base::int2str(frame_idx) + ".png";
 					cvSaveImage(filesaveimg.c_str(),image_4_delta_out);		
 		
 			}
@@ -3514,13 +3514,13 @@ int ImageProcess::GetLineProperty(vector<CvPoint> point_set, vector<float> delta
 *
 */
 /*----------------------------------------------------------------*/
-vector<float> ImageProcess::crack_get_image_feature(IplImage *diff_org,string file_base,int frame_idx)
+vector<float> ImageProcess::crack_get_image_feature(IplImage *diff_org,std::string file_base,int frame_idx)
 {
 #if TRUE
-	stringstream path_diff_out_ss;
+	std::stringstream path_diff_out_ss;
 	path_diff_out_ss << file_base << "\\"
 		<< frame_idx << ".png";
-	const string path_diff_out = path_diff_out_ss.str();
+	const std::string path_diff_out = path_diff_out_ss.str();
 
 	CvSize diff_size = cvGetSize(diff_org);
 	const int SCALE = 3;
@@ -3628,13 +3628,13 @@ vector<float> ImageProcess::crack_get_image_feature(IplImage *diff_org,string fi
 *
 */
 /*----------------------------------------------------------------*/
-void ImageProcess::Svm_Lean(vector<float> FeatureData,int FeatureDim,vector<INT32> FeatureClassify,int method,string path)
+void ImageProcess::Svm_Lean(vector<float> FeatureData,int FeatureDim,vector<INT32> FeatureClassify,int method,std::string path)
 {
 #if (CV_MAJOR_VERSION==2)&&(CV_MINOR_VERSION==4)
 	
 	const unsigned long samplenum = FeatureClassify.size();//
-	const string data_file = "svm_data.xml";
-	const string classify_file = "svm_classifies.xml";
+	const std::string data_file = "svm_data.xml";
+	const std::string classify_file = "svm_classifies.xml";
 	static CvMat dataMatHeader;//
 	static CvMat resMatHeader;//
 	const int TotalClasses = 2;;
@@ -3691,7 +3691,7 @@ void ImageProcess::Svm_Lean(vector<float> FeatureData,int FeatureDim,vector<INT3
 		svm.train(data_mat, res_mat, NULL, NULL, params);//☆  
 	std::cout << "END SVM Train !" << std::endl;
 													 //☆☆利用训练数据和确定的学习参数,进行SVM学习☆☆☆☆  
-	//const	string svmsavepath =path+"SvmModule.xml";
+	//const	std::string svmsavepath =path+"SvmModule.xml";
 
 	svm.save(path.c_str(), 0);
 	
@@ -3758,7 +3758,7 @@ void ImageProcess::CuiResize(IplImage * src, IplImage * dst,const int m_step, co
 *
 */
 /*----------------------------------------------------------------*/
-void ImageProcess::DrawHistogram(float *data, int size,string file_base,int CHANNEL,int frame_idx,vector<float> feature)
+void ImageProcess::DrawHistogram(float *data, int size,std::string file_base,int CHANNEL,int frame_idx,vector<float> feature)
 {
 	/////////////////////////////////////////////////////////////////	
 	double max = GetMaxValue(&data[0],size);
@@ -3831,11 +3831,11 @@ void ImageProcess::DrawHistogram(float *data, int size,string file_base,int CHAN
 	}
 	
 	
-	stringstream sub2_path_ss;
+	std::stringstream sub2_path_ss;
 	sub2_path_ss << "histogram";
 	
-	string sub2_path_str = Base::FS_createPath(file_base, sub2_path_ss.str());
-	string filesaveimg = sub2_path_str + Base::int2str(frame_idx) + ".png";
+	std::string sub2_path_str = Base::FS_createPath(file_base, sub2_path_ss.str());
+	std::string filesaveimg = sub2_path_str + Base::int2str(frame_idx) + ".png";
 
 
 	cvSaveImage(filesaveimg.c_str(), hist_img);//在"H-S Histogtam"窗口中显示图像
@@ -3850,7 +3850,7 @@ void ImageProcess::DrawHistogram(float *data, int size,string file_base,int CHAN
 *
 */
 /*----------------------------------------------------------------*/
-void ImageProcess::DrawHistogram_fromImage(IplImage * img, string file_base, int CIRCLE, int CHANNEL, int frame_idx,int ColIdx,int hist_bar_height,int hist_bar_width)
+void ImageProcess::DrawHistogram_fromImage(IplImage * img, std::string file_base, int CIRCLE, int CHANNEL, int frame_idx,int ColIdx,int hist_bar_height,int hist_bar_width)
 {
 	/////////////////////////////////////////////////////////////////	
 	const int size = img->height;
@@ -3921,14 +3921,14 @@ void ImageProcess::DrawHistogram_fromImage(IplImage * img, string file_base, int
 
 	
 #if TRUE
-	  string ColImageName;
+	  std::string ColImageName;
 	 
 	  ColImageName.append("circle").append(Base::int2str(CIRCLE)).append(".")
 		  .append("ch").append(Base::int2str(CHANNEL)).append(".")
 		  .append("frame").append(Base::int2str(frame_idx)).append(".")
 		  .append("col").append(Base::int2str(ColIdx)).append(".hist.png");
 
-	const string ColSavePath_full = file_base + ColImageName;//列号 作为文件名
+	const std::string ColSavePath_full = file_base + ColImageName;//列号 作为文件名
 	cvSaveImage(ColSavePath_full.c_str(), hist_img);//在"H-S Histogtam"窗口中显示图像
 #endif
 	
@@ -3942,12 +3942,12 @@ void ImageProcess::DrawHistogram_fromImage(IplImage * img, string file_base, int
 *
 */
 /*----------------------------------------------------------------*/
-void ImageProcess::SaveArray2Disk(float * data, int size,int channel_t,int frame_count, string file_base)
+void ImageProcess::SaveArray2Disk(float * data, int size,int channel_t,int frame_count, std::string file_base)
 {
-	stringstream ss;
+	std::stringstream ss;
 	ss << file_base <<frame_count<<"."<<channel_t<< ".hist.txt";
 
-	string myfile_path=ss.str();
+	std::string myfile_path=ss.str();
 	ofstream myfile(myfile_path);
 
 	for (size_t i = 0; i < size; i++){
@@ -3958,7 +3958,7 @@ void ImageProcess::SaveArray2Disk(float * data, int size,int channel_t,int frame
 
 	myfile.close();
 }
-void ImageProcess::Opencv_SaveVector2CvMatrix(string file_name, vector<float> vf)
+void ImageProcess::Opencv_SaveVector2CvMatrix(std::string file_name, vector<float> vf)
 {
 	const int DIM = vf.size();
 
@@ -4076,7 +4076,7 @@ int ImageProcess::GetOneColumn(IplImage * image, IplImage * ColData, int IdxCol)
 *
 */
 /*----------------------------------------------------------------*/
-void ImageProcess::VIDEO_GetWidthHeight(string video_full_path, int* WIDTH, int* HEIGHT)
+void ImageProcess::VIDEO_GetWidthHeight(std::string video_full_path, int* WIDTH, int* HEIGHT)
 {
 #if TRUE
 
@@ -4086,7 +4086,7 @@ void ImageProcess::VIDEO_GetWidthHeight(string video_full_path, int* WIDTH, int*
 		//init 
 		if (cvGrabFrame(capture)) {
 
-			Mat matimg = cvRetrieveFrame(capture);        // retrieve the captured frame
+			cv::Mat matimg = cvRetrieveFrame(capture);        // retrieve the captured frame
 			IplImage iplimg = matimg.operator _IplImage();
 			
 

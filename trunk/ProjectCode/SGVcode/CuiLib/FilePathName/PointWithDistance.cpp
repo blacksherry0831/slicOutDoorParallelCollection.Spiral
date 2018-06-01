@@ -190,7 +190,7 @@ void PointWithDistance::SaveImgFile2()
 	}
 	this->CalculatePointOnImg();
 	/********************************/
-	string xml_save_path;
+	std::string xml_save_path;
 #if Use_CString&&_MSC_VER
    xml_save_path=ConvertCS2string(this->XmlSavePath);
 #endif
@@ -335,7 +335,7 @@ void PointWithDistance::SaveImgFile(void)
 		return;
 	}
 	this->CalculatePointOnImg();
-	string xml_save_path;
+	std::string xml_save_path;
 #if Use_CString&&_MSC_VER
 	xml_save_path=ConvertCS2string(this->XmlSavePath);
 #endif
@@ -360,7 +360,7 @@ void PointWithDistance::SaveImgFile(void)
 		 pRootEle = myDocument.NewElement("DataSet");
 		 myDocument.LinkEndChild(pRootEle);
 	 }
-	 string rootvalue=pRootEle->Value();
+	 std::string rootvalue=pRootEle->Value();
 	 if (rootvalue!="DataSet")
 	 {
 		 myDocument.DeleteNode(pRootEle);
@@ -371,7 +371,7 @@ void PointWithDistance::SaveImgFile(void)
 	 //ÔªËØ½Úµã
 	  tinyxml2::XMLElement *pdata= pRootEle->FirstChildElement("Data");  
 	  while(pdata){
-		  string attr=pdata->Attribute("File");
+		  std::string attr=pdata->Attribute("File");
 #if _MSC_VER&&Use_CString
         if (attr==ConvertCS2string(filename)){
 			 break;			
