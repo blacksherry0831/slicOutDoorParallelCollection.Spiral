@@ -102,12 +102,6 @@
     <ClCompile Include="CuiLib\SGVcode\SplitTreeandBuilding.cpp">
       <Filter>modules</Filter>
     </ClCompile>
-    <ClCompile Include="CuiLib\SGVcode\Harr\CuiHarrTransformLet.cpp">
-      <Filter>Harr</Filter>
-    </ClCompile>
-    <ClCompile Include="CuiLib\SGVcode\Harr\HarrWaveletTransImg.cpp">
-      <Filter>Harr</Filter>
-    </ClCompile>
     <ClCompile Include="CuiLib\tinyxml2\tinyxml2.cpp">
       <Filter>tinyxml2</Filter>
     </ClCompile>
@@ -171,6 +165,12 @@
     <ClCompile Include="CuiLib\cudaLib\CUDA_Code.cpp">
       <Filter>CUDA_CU</Filter>
     </ClCompile>
+    <ClCompile Include="CuiLib\Harr\CuiHarrTransformLet.cpp">
+      <Filter>Harr</Filter>
+    </ClCompile>
+    <ClCompile Include="CuiLib\Harr\HarrWaveletTransImg.cpp">
+      <Filter>Harr</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SLICSuperpixels.h">
@@ -229,24 +229,6 @@
     </ClInclude>
     <ClInclude Include="CuiLib\SGVcode\SplitTreeandBuilding.h">
       <Filter>modules</Filter>
-    </ClInclude>
-    <ClInclude Include="CuiLib\SGVcode\Harr\CuiHarrTransformLet.h">
-      <Filter>Harr</Filter>
-    </ClInclude>
-    <ClInclude Include="CuiLib\SGVcode\Harr\DIBapi.h">
-      <Filter>Harr</Filter>
-    </ClInclude>
-    <ClInclude Include="CuiLib\SGVcode\Harr\dirent.h">
-      <Filter>Harr</Filter>
-    </ClInclude>
-    <ClInclude Include="CuiLib\SGVcode\Harr\FilterApi.h">
-      <Filter>Harr</Filter>
-    </ClInclude>
-    <ClInclude Include="CuiLib\SGVcode\Harr\HarrWaveletTransImg.h">
-      <Filter>Harr</Filter>
-    </ClInclude>
-    <ClInclude Include="CuiLib\SGVcode\Harr\WaveletApi.h">
-      <Filter>Harr</Filter>
     </ClInclude>
     <ClInclude Include="CuiLib\tinyxml2\tinyxml2.h">
       <Filter>tinyxml2</Filter>
@@ -350,6 +332,24 @@
     </ClInclude>
     <ClInclude Include="CuiLib\cudaLib\CUDA_Code.h">
       <Filter>CUDA_CU</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\Harr\CuiHarrTransformLet.h">
+      <Filter>Harr</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\Harr\DIBapi.h">
+      <Filter>Harr</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\Harr\dirent.h">
+      <Filter>Harr</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\Harr\FilterApi.h">
+      <Filter>Harr</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\Harr\HarrWaveletTransImg.h">
+      <Filter>Harr</Filter>
+    </ClInclude>
+    <ClInclude Include="CuiLib\Harr\WaveletApi.h">
+      <Filter>Harr</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

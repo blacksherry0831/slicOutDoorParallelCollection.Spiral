@@ -1,10 +1,6 @@
 #pragma once
 #include <platform_cui.h>
-//#include <string>
-//#include <iostream>
-//using namespace std;
-//typedef  unsigned int UINT32;
-//#include "module_all_cui.h"
+#include "ImageType.h"
 /*----------------------------------------------------------------*/
 /**
 *
@@ -77,7 +73,7 @@ public:
 public:
 	int SpIndex;
 	int SpSize;
-	vector<int> pointSetIdx;
+	std::vector<int> pointSetIdx;
 	int BorderCategory;
 	int fuzzyCategory;
 	int ComputeCategory;

@@ -25,7 +25,8 @@ GPS_WG_8020::GPS_WG_8020(void)
 
 	buffer_result_idx=0;
 	memset(buffer_result,0,sizeof(buffer_result));
-//	this->open();
+	this->m_baudrate = 115200;
+
 }
 /*-------------------------------------*/
 /**
@@ -43,43 +44,32 @@ GPS_WG_8020::~GPS_WG_8020(void)
 *
 */
 /*-------------------------------------*/
-bool GPS_WG_8020::open(int com_num)
+int GPS_WG_8020::open(int com_num)
 {
-	try{
+	
+	if (SerialPortBase::open(com_num) == TRUE) {
 
-		if(m_sp.IsOpen()==false){
-		m_sp.Open(com_num,115200);
-		{
-			COMMTIMEOUTS Timeouts;
-			Timeouts.ReadIntervalTimeout = 100;
-			Timeouts.ReadTotalTimeoutConstant=100;
-			Timeouts.ReadTotalTimeoutMultiplier=100;
-			Timeouts.WriteTotalTimeoutConstant=100;
-			Timeouts.WriteTotalTimeoutMultiplier=100;
-			m_sp.SetTimeouts(Timeouts);
-		}
 #if _MSC_VER
 		HANDLE handle_t=::CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)readGpsThread,this,0,NULL);
-#endif
-		}
-	
-	}catch(CSerialException e){
-		printf("%s",e.what());
-		ASSERT(0);
-	}
+#endif	
 
-	return m_sp.IsOpen();
+	}
+	
+	return init();
+	
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void GPS_WG_8020::init()
+int GPS_WG_8020::init()
 {
 
-	if (m_sp.IsOpen()==TRUE){
-		return;
+
+
+	if (IsOpen()==TRUE){
+		return TRUE;
 	}
 
 	int  com_num=4;
@@ -89,7 +79,7 @@ void GPS_WG_8020::init()
 	scanf("%d",&com_num);
 
 	
-	this->open(com_num);
+	return this->open(com_num);
 
 
 }
@@ -98,16 +88,16 @@ void GPS_WG_8020::init()
 *
 */
 /*-------------------------------------*/
-string GPS_WG_8020::ReadString()
+std::string GPS_WG_8020::ReadString()
 {
 	DWORD read_count=0;
 	int  Timeout_t=0;
 	buffer_result_idx=0;
 	memset(buffer_result,0,sizeof(buffer_result));
-	string gps_str_t;
+	std::string gps_str_t;
 	TimeCountStart();
 	do{
-		read_count=m_sp.Read(&buffer_result[buffer_result_idx],1);
+		read_count=serial_read(&buffer_result[buffer_result_idx],1);
 
 		if(read_count==1){
 				
@@ -145,13 +135,13 @@ void GPS_WG_8020::SendCmdEnterAT()
 	int size=strlen(CMD_PPP);
 
 
-	string result_t;
+	std::string result_t;
 
 	do 
 	{
 		Sleep(2000);
 		
-		m_sp.Write(CMD_PPP,strlen(CMD_PPP));
+		serial_write(CMD_PPP,strlen(CMD_PPP));
 
 		result_t=this->ReadString();
 
@@ -171,7 +161,7 @@ void GPS_WG_8020::SendCmdEnterAT()
 void GPS_WG_8020::SendCmdVERS()
 {
 	char CMD_VERS[]="AT^VERS\n";
-	m_sp.Write(CMD_VERS,strlen(CMD_VERS));
+	serial_write(CMD_VERS,strlen(CMD_VERS));
 
 }
 /*-------------------------------------*/
@@ -182,7 +172,7 @@ void GPS_WG_8020::SendCmdVERS()
 void GPS_WG_8020::SendCmdGPRMC()
 {
 	char CMD_GPRMC[]="AT^GPRMC\n";
-	m_sp.Write(CMD_GPRMC,strlen(CMD_GPRMC));
+	serial_write(CMD_GPRMC,strlen(CMD_GPRMC));
 }
 /*-------------------------------------*/
 /**
@@ -198,7 +188,7 @@ void GPS_WG_8020::ReadGpsData()
 
 	TimeCountStart();
 	do{
-		read_count=m_sp.Read(&buffer_result[buffer_result_idx],1);
+		read_count=serial_write(&buffer_result[buffer_result_idx],1);
 
 		if(read_count>0){
 
@@ -254,12 +244,12 @@ void GPS_WG_8020::ReadGpsData()
 void GPS_WG_8020::process_gps_data()
 {
 
-	m_MUTEX.Lock();
+	m_MUTEX.lock();
 
 
-	string data_t=buffer_result;
+	std::string data_t=buffer_result;
 	int idx=0;
-	vector<std::string> gps_datas_t=Base::split(data_t,',');
+	std::vector<std::string> gps_datas_t=Base::split(data_t,',');
 
 	if (gps_datas_t.at(idx++).compare("$GPRMC")==0)
 	{
@@ -288,7 +278,7 @@ void GPS_WG_8020::process_gps_data()
 	}
 
 
-	m_MUTEX.Unlock();
+	m_MUTEX.unlock();
 
 
 }
@@ -363,11 +353,11 @@ DWORD GPS_WG_8020::readGpsThread(LPVOID lpParam)
 *
 */
 /*----------------------------------------------------*/
-string GPS_WG_8020::GetLatLonStr()
+std::string GPS_WG_8020::GetLatLonStr()
 {
-	String LatLon_t;
+	std::string LatLon_t;
 
-	m_MUTEX.Lock();
+	m_MUTEX.lock();
 
 	
 	if (this->g_Lat_float>0
@@ -380,7 +370,7 @@ string GPS_WG_8020::GetLatLonStr()
 	
 
 
-	m_MUTEX.Unlock();
+	m_MUTEX.unlock();
 
 	return LatLon_t;
 } 
@@ -389,11 +379,11 @@ string GPS_WG_8020::GetLatLonStr()
 *
 */
 /*----------------------------------------------------*/
-string GPS_WG_8020::GetLatStr()
+std::string GPS_WG_8020::GetLatStr()
 {
-	String Lat_t;
+	std::string Lat_t;
 
-	m_MUTEX.Lock();
+	m_MUTEX.lock();
 
 
 	if (this->g_Lat_float>0
@@ -406,7 +396,7 @@ string GPS_WG_8020::GetLatStr()
 
 
 
-	m_MUTEX.Unlock();
+	m_MUTEX.unlock();
 
 	return Lat_t;
 }
@@ -416,11 +406,11 @@ string GPS_WG_8020::GetLatStr()
 *
 */
 /*----------------------------------------------------*/
-string GPS_WG_8020::GetLonStr()
+std::string GPS_WG_8020::GetLonStr()
 {
-	String Lon_t;
+	std::string Lon_t;
 
-	m_MUTEX.Lock();
+	m_MUTEX.lock();
 
 
 	if (this->g_Lat_float>0
@@ -433,7 +423,7 @@ string GPS_WG_8020::GetLonStr()
 
 
 
-	m_MUTEX.Unlock();
+	m_MUTEX.unlock();
 
 	return Lon_t;
 }
@@ -444,11 +434,11 @@ string GPS_WG_8020::GetLonStr()
 /*----------------------------------------------------*/
 LatLng GPS_WG_8020::get()
 {
-	m_MUTEX.Lock();
+	m_MUTEX.lock();
 		
 		LatLng result_t=LatLng(g_Lon_float,g_Lat_float);
 	
-	m_MUTEX.UnLock();
+	m_MUTEX.unlock();
 	
 	return result_t;
 }

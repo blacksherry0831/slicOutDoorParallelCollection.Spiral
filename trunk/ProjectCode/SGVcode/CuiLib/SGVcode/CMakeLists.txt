@@ -29,10 +29,7 @@ SET(DIR_SRCS    ManhattanHistogram.cpp
 				####
 				CuiHough/CuiHough3.cpp
 				CuiHough/HoughAnalyze.cpp
-				CuiHough/HoughAnalyze.cpp
-				###
-				Harr/CuiHarrTransformLet.cpp
-				Harr/HarrWaveletTransImg.cpp)  
+				CuiHough/HoughAnalyze.cpp)  
  #ImageType.h
 SET(LINK_LIB 
 	         FilePathName
@@ -40,6 +37,7 @@ SET(LINK_LIB
 	         Kmean
 	         SVMcode
 	         SGVBaseCode
+			 Harr
 	)
 ###############################################################################
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")  

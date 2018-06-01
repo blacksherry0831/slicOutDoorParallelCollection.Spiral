@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "module_all_cui.h"
-//#include "CuiHarrTransformLet.h"
+/*---------------------------------------------------*/
+#include "CuiHarrTransformLet.h"
 /*---------------------------------------------------*/
 /**
 *初始化成员变量

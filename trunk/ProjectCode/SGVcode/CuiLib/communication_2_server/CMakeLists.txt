@@ -19,7 +19,6 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		MY_SDK_LIB
 		StompLib
 		jsoncpp_lib
-		SerialPort
 		libcurl_http
 		pthreads)
 

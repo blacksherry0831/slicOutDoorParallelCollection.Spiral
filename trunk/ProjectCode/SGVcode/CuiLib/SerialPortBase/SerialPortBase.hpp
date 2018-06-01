@@ -48,6 +48,7 @@ public:
 	virtual int open_s(std::string com_name);
 	virtual int open_q(QSerialPortInfo _qspi);
 	virtual int init();
+	int IsOpen();
 	void StartTimer();
 	void moveToThreadQSP(QThread* _thread);
 public slots :

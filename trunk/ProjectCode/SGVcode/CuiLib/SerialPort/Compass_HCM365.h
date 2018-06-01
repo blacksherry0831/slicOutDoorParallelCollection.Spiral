@@ -25,8 +25,8 @@ public:
 		
 		void SendCmdPitchRollHeading();
 		
-		string GetPitchRollHeadingStr();
-		string GetHeadingStr();
+		std::string GetPitchRollHeadingStr();
+		std::string GetHeadingStr();
 		double GetHead();
 
 		void ReadCompassData();

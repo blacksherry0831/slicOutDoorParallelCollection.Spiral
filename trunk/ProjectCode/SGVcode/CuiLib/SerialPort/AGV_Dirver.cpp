@@ -44,19 +44,11 @@ AGV_Dirver::~AGV_Dirver(void)
 *
 */
 /*-------------------------------------*/
-bool AGV_Dirver::open(int com_num)
+int AGV_Dirver::open(int com_num)
 {
-	if(m_sp.IsOpen()==false){
-		m_sp.Open(com_num,9600);
-		{
-			COMMTIMEOUTS Timeouts;//unit ms 
-			Timeouts.ReadIntervalTimeout = 100;//ms
-			Timeouts.ReadTotalTimeoutConstant=100;
-			Timeouts.ReadTotalTimeoutMultiplier=100;
-			Timeouts.WriteTotalTimeoutConstant=100;
-			Timeouts.WriteTotalTimeoutMultiplier=100;
-			m_sp.SetTimeouts(Timeouts);
-		}
+	if(IsOpen()==false){
+		this->m_baudrate = 9600;
+		this->open(com_num);
 		 pthread_t handle_t; 
 		 int ret=0; 
 		 ret=pthread_create(&handle_t,NULL,readResultThread,NULL);  
@@ -66,21 +58,21 @@ bool AGV_Dirver::open(int com_num)
 			 ASSERT(ret!=0);
 		 }  
 	}
-	return m_sp.IsOpen();
+	return IsOpen();
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void AGV_Dirver::init()
+int AGV_Dirver::init()
 {
-	if (m_sp.IsOpen()==TRUE){
-		return;
+	if (IsOpen()==TRUE){
+		return TRUE;
 	}
 
 	int  com_num=4;
-	int  com_baud=9600;
+	
 
 	printf("Input Compass Com:\n");
 	scanf("%d",&com_num);
@@ -107,7 +99,7 @@ void AGV_Dirver::ReadResultData()
 	TimeCountStart();
 
 	do{
-		read_count=m_sp.Read(&buffer_result[buffer_result_idx],1);
+		read_count=serial_read(&buffer_result[buffer_result_idx],1);
 
 		if(read_count==1){
 
@@ -395,9 +387,9 @@ int AGV_Dirver::Send2Car(void)
 
 	const int BUFF_SIZE=sizeof(cmd_current);
 	int  buf_send_t=-1;
-	if (m_sp.IsOpen()){
+	if (IsOpen()){
 			this->GetLRC(this->cmd_current);
-			buf_send_t=m_sp.Write(cmd_current,BUFF_SIZE);
+			buf_send_t=serial_write(cmd_current,BUFF_SIZE);
 	}else{
 		return FALSE;
 	}
@@ -414,9 +406,9 @@ int AGV_Dirver::Send2Car(void)
 void AGV_Dirver::Send2CarFeedBack(void)
 {
 
-	if (m_sp.IsOpen()){
+	if (IsOpen()){
 		this->GetLRC(this->buffer_result);
-		m_sp.Write(cmd_current,sizeof(this->buffer_result));	
+		serial_write(cmd_current,sizeof(this->buffer_result));	
 	}
 
 }

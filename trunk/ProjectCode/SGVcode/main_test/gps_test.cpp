@@ -5,7 +5,7 @@
 
 #if _MSC_VER
 
-#include <SerialPort/SerialPort.h>
+
 #include <SerialPort/Gps_WG_8020.h>
 #include <SerialPort/Compass_HCM365.h>
 
@@ -28,7 +28,8 @@ int Test_GPS()
 
 	int n_t=strlen(CMD_VERS);
 	TimeCountStart();
-	
+
+#if 0
 	{
 
 		CSerialPort sp_t;
@@ -112,26 +113,10 @@ int Test_GPS()
 
 
 
-		/*sp_t.InitPort(NULL,4,115200,'N',8,0);
 		
-
-		sp_t.StartMonitoring();
-
-		if(sp_t.IsOpen()){
-			printf("Serial Port Is Open !");
-		}else{
-			return -1;
-		}
-
-
-		sp_t.WriteToPort(CMD_VERS,sizeof(CMD_VERS));
-
-		
-		sp_t.ClosePort();*/
 	
 	}
-	
-
+#endif // 0
 
 	TimeCountStop("Threads Done : ");
 

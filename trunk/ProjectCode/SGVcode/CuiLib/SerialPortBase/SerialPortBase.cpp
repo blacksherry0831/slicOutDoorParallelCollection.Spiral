@@ -172,6 +172,15 @@ int SerialPortBase::init()
 *
 */
 /*-------------------------------------*/
+int SerialPortBase::IsOpen()
+{
+	return m_qsp->isOpen() == true ? TRUE : FALSE;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void SerialPortBase::StartTimer()
 {
 #if 0

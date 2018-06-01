@@ -19,7 +19,8 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		
 		ADD_EXECUTABLE(TEST_FOXCONN main_foxconn.cpp)
 		TARGET_LINK_LIBRARIES(TEST_FOXCONN
-								MY_SDK_LIB)			
+								MY_SDK_LIB
+								Harr)			
 	endif(NEED_OPENCV)
 ################################################
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")

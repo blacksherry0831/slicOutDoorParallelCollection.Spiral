@@ -258,6 +258,8 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClCompile Include="CuiLib\cudaLib\CUDA_Code.cpp" />
     <ClCompile Include="CuiLib\FilePathName\FileNameSplit.cpp" />
     <ClCompile Include="CuiLib\FilePathName\PointWithDistance.cpp" />
+    <ClCompile Include="CuiLib\Harr\CuiHarrTransformLet.cpp" />
+    <ClCompile Include="CuiLib\Harr\HarrWaveletTransImg.cpp" />
     <ClCompile Include="CuiLib\ML\Kmean\Kmean.cpp" />
     <ClCompile Include="CuiLib\SGVcode\ColorAnalyzeOnLab.cpp" />
     <ClCompile Include="CuiLib\SGVcode\ColorBarCluster.cpp" />
@@ -267,8 +269,6 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClCompile Include="CuiLib\SGVcode\CuiHough\HoughAnalyze.cpp" />
     <ClCompile Include="CuiLib\SGVcode\Cui_DrawDepth.cpp" />
     <ClCompile Include="CuiLib\SGVcode\cui_GeneralImgProcess.cpp" />
-    <ClCompile Include="CuiLib\SGVcode\Harr\CuiHarrTransformLet.cpp" />
-    <ClCompile Include="CuiLib\SGVcode\Harr\HarrWaveletTransImg.cpp" />
     <ClCompile Include="CuiLib\SGVcode\HsHg.cpp" />
     <ClCompile Include="CuiLib\SGVcode\ImageData.cpp" />
     <ClCompile Include="CuiLib\SGVcode\ImageMemData.cpp" />
@@ -305,6 +305,12 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="CuiLib\cudaLib\CUDA_Code.h" />
     <ClInclude Include="CuiLib\FilePathName\FileNameSplit.h" />
     <ClInclude Include="CuiLib\FilePathName\PointWithDistance.h" />
+    <ClInclude Include="CuiLib\Harr\CuiHarrTransformLet.h" />
+    <ClInclude Include="CuiLib\Harr\DIBapi.h" />
+    <ClInclude Include="CuiLib\Harr\dirent.h" />
+    <ClInclude Include="CuiLib\Harr\FilterApi.h" />
+    <ClInclude Include="CuiLib\Harr\HarrWaveletTransImg.h" />
+    <ClInclude Include="CuiLib\Harr\WaveletApi.h" />
     <ClInclude Include="CuiLib\ML\Kmean\Kmean.h" />
     <ClInclude Include="CuiLib\modules.h" />
     <ClInclude Include="CuiLib\opencv_stl.h" />
@@ -317,12 +323,6 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="CuiLib\SGVcode\CuiHough\HoughAnalyze.h" />
     <ClInclude Include="CuiLib\SGVcode\Cui_DrawDepth.h" />
     <ClInclude Include="CuiLib\SGVcode\cui_GeneralImgProcess.h" />
-    <ClInclude Include="CuiLib\SGVcode\Harr\CuiHarrTransformLet.h" />
-    <ClInclude Include="CuiLib\SGVcode\Harr\DIBapi.h" />
-    <ClInclude Include="CuiLib\SGVcode\Harr\dirent.h" />
-    <ClInclude Include="CuiLib\SGVcode\Harr\FilterApi.h" />
-    <ClInclude Include="CuiLib\SGVcode\Harr\HarrWaveletTransImg.h" />
-    <ClInclude Include="CuiLib\SGVcode\Harr\WaveletApi.h" />
     <ClInclude Include="CuiLib\SGVcode\HsHg.h" />
     <ClInclude Include="CuiLib\SGVcode\ImageData.h" />
     <ClInclude Include="CuiLib\SGVcode\ImageMemData.h" />

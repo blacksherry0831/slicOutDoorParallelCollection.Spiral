@@ -12,18 +12,18 @@ class GPS_WG_8020 :public SerialPortBase,public IGps
 	
 
 public:
-	string g_UtcTime_hhmmss;//UTC时间
-	string g_Location_status;//定位状态
-	string g_Lat;//维度
-	string g_NS;
-	string g_Lon;//经度
-	string g_EW;
-	string g_Speed;
-	string g_Direction;
-	string g_UtcTime_ddmmyy;
-	string g_CiPianJiao;//磁偏角方向
-	string g_CiPianJiaoFangXiang;
-	string g_Mode;
+	std::string g_UtcTime_hhmmss;//UTC时间
+	std::string g_Location_status;//定位状态
+	std::string g_Lat;//维度
+	std::string g_NS;
+	std::string g_Lon;//经度
+	std::string g_EW;
+	std::string g_Speed;
+	std::string g_Direction;
+	std::string g_UtcTime_ddmmyy;
+	std::string g_CiPianJiao;//磁偏角方向
+	std::string g_CiPianJiaoFangXiang;
+	std::string g_Mode;
 
 protected:
 	GPS_WG_8020(void);
@@ -37,13 +37,13 @@ public:
 		void SendCmdVERS();
 		void SendCmdGPRMC();
 		
-		string GetLatLonStr();
-		string GetLatStr();
-		string GetLonStr();
+		std::string GetLatLonStr();
+		std::string GetLatStr();
+		std::string GetLonStr();
 		LatLng get();
 
 		void ReadGpsData();
-		string ReadString();
+		std::string ReadString();
 		static DWORD readGpsThread(LPVOID lpParam);
 private:
 	void process_gps_data();

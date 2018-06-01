@@ -26,6 +26,7 @@ Compass_HCM365::Compass_HCM365(void)
 	memset(buffer_result,0,sizeof(buffer_result));
 //	this->open();
 	this->m_heading=0;
+	this->m_baudrate = 9600;
 }
 /*-------------------------------------*/
 /**
@@ -43,44 +44,43 @@ Compass_HCM365::~Compass_HCM365(void)
 *
 */
 /*-------------------------------------*/
-bool Compass_HCM365::open(int com_num)
+int Compass_HCM365::open(int com_num)
 {
-	if(m_sp.IsOpen()==false){
-		m_sp.Open(com_num,9600);
-		{
-			COMMTIMEOUTS Timeouts;//unit ms 
-			Timeouts.ReadIntervalTimeout = 100;//ms
-			Timeouts.ReadTotalTimeoutConstant=100;
-			Timeouts.ReadTotalTimeoutMultiplier=100;
-			Timeouts.WriteTotalTimeoutConstant=100;
-			Timeouts.WriteTotalTimeoutMultiplier=100;
-			m_sp.SetTimeouts(Timeouts);
-		}
+
+	if (SerialPortBase::open(com_num) == TRUE) {
+	
 #if _MSC_VER
 		HANDLE handle_t=::CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)readCompassThread,this,0,NULL);
 #endif
+
 	}
-	return m_sp.IsOpen();
+	return init();
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void Compass_HCM365::init()
+int Compass_HCM365::init()
 {
-	if (m_sp.IsOpen()==TRUE){
-		return;
+
+	if (this->IsOpen() == FALSE) {
+	
+		int  com_num=4;
+		int  com_baud=9600;
+		
+		printf("Input Compass Com:\n");
+		scanf("%d",&com_num);
+		return this->open(com_num);
 	}
+	else
+	{
+		return TRUE;
+	}
+	
 
-	int  com_num=4;
-	int  com_baud=9600;
-
-	printf("Input Compass Com:\n");
-	scanf("%d",&com_num);
 
 
-	this->open(com_num);
 }
 /*-------------------------------------*/
 /**
@@ -97,9 +97,9 @@ void Compass_HCM365::SendCmdPitchRollHeading()
 {
 	char cmd_t[]={0x68,0x04,0x00,0x04,0x08};
 	
-	if (m_sp.IsOpen())
+	if (init())
 	{
-		m_sp.Write(cmd_t,sizeof(cmd_t));
+		serial_write(cmd_t,sizeof(cmd_t));
 	}
 
 	
@@ -162,7 +162,7 @@ void Compass_HCM365::ReadCompassData()
 	TimeCountStart();
 
 	do{
-		read_count=m_sp.Read(&buffer_result[buffer_result_idx],1);
+		read_count= serial_read(&buffer_result[buffer_result_idx],1);
 
 		if(read_count==1){
 
@@ -213,13 +213,13 @@ void Compass_HCM365::process_compass_data()
 	unsigned	char *roll_t=&this->buffer_result[7];
 	unsigned	char *heading_t=&this->buffer_result[10];
 	
-	m_MUTEX.Lock();
+	m_MUTEX.lock();
 	
 	this->m_pitch=ConvertBCD2Float(pitch_t);
 	this->m_roll=ConvertBCD2Float(roll_t);
 	this->m_heading=ConvertBCD2Float(heading_t);
 
-	m_MUTEX.Unlock();
+	m_MUTEX.unlock();
 
 }
 /*-------------------------------------*/
@@ -296,9 +296,9 @@ DWORD Compass_HCM365::readCompassThread(LPVOID lpParam)
 /*----------------------------------------------------*/
 string Compass_HCM365::GetPitchRollHeadingStr()
 {
-	String LatLon_t;
+	std::string LatLon_t;
 
-	m_MUTEX.Lock();
+	m_MUTEX.lock();
 
 	
 	
@@ -310,7 +310,7 @@ string Compass_HCM365::GetPitchRollHeadingStr()
 	
 
 
-	m_MUTEX.Unlock();
+	m_MUTEX.unlock();
 
 	return LatLon_t;
 } 
@@ -321,9 +321,9 @@ string Compass_HCM365::GetPitchRollHeadingStr()
 /*----------------------------------------------------*/
 string Compass_HCM365::GetHeadingStr()
 {
-	String head_t;
+	std::string head_t;
 
-	m_MUTEX.Lock();
+	m_MUTEX.lock();
 	
 	{
 		char buffer_z[1024];
@@ -331,7 +331,7 @@ string Compass_HCM365::GetHeadingStr()
 		head_t=buffer_z;
 	}
 
-	m_MUTEX.Unlock();
+	m_MUTEX.unlock();
 
 	return head_t;
 } 
@@ -344,14 +344,14 @@ double  Compass_HCM365::GetHead()
 {
 	double head_t;
 
-	m_MUTEX.Lock();
+	m_MUTEX.lock();
 
 	
 		
 		head_t=m_heading;
 		
 
-	m_MUTEX.Unlock();
+	m_MUTEX.unlock();
 
 	return head_t;
 }

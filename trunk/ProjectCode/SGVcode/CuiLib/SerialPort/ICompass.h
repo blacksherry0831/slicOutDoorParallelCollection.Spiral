@@ -14,7 +14,7 @@ public:
 	virtual ~ICompass(void){}
 
 public:
-	virtual string GetPitchRollHeadingStr()=0;
-	virtual string GetHeadingStr()=0;
+	virtual std::string GetPitchRollHeadingStr()=0;
+	virtual std::string GetHeadingStr()=0;
 	virtual double GetHead()=0;
 };

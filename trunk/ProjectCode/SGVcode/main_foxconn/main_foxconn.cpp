@@ -4,6 +4,7 @@
 
 /*---------------------------------------*/
 #include "MY_SDK_LIB/Base.h"
+#include "Harr/CuiHarrTransformLet.h"
 /*---------------------------------------*/
 /**
 *

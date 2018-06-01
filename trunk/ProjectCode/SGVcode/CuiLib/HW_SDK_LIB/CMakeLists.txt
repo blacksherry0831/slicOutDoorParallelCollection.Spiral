@@ -31,6 +31,7 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 	SET(BASE_LINK_LIB 
 		 tinyxml2
 		 SerialPortModule
+		 MY_SDK_LIB
 		 pthreads)
 
 	if(NEED_CUDA)

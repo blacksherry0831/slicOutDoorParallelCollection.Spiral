@@ -8,6 +8,7 @@
 #else
 
 #endif
+
 #if TRUE
 #include <SGVcode/ImageType.h>
 #include <SGVcode/ManhattanHistogram.h>
@@ -32,8 +33,8 @@
 #include <SGVcode/CuiHough/CuiHough3.h>
 #include <SGVcode/CuiHough/HoughAnalyze.h>
 //#include <SGVcode/CuiHough/HoughAnalyze.h>
-#include <SGVcode/Harr/CuiHarrTransformLet.h>
-#include <SGVcode/Harr/HarrWaveletTransImg.h>
+#include <Harr/CuiHarrTransformLet.h>
+#include <Harr/HarrWaveletTransImg.h>
 //#include <SGVcode/PointWithDistance.h>
 #include <SGVcode/ColorAnalyzeOnLab.h>
 #include <SGVcode/rtthread.h>

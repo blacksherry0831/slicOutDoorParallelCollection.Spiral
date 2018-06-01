@@ -1,16 +1,16 @@
 #pragma once
-#if FALSE
-#pragma comment(lib, "wavelet_3_8.lib")
-#endif
+/*---------------------------------------------------*/
+#include <platform_cui.h>
+/*---------------------------------------------------*/
+#include <SGVcode/SpSetProperty.h>
+#include <SGVcode/ImageMemData.h>
+#include <SGVcode/cui_GeneralImgProcess.h>
+/*---------------------------------------------------*/
 #include "SGVcode/ImageType.h"
 #include "WaveletApi.h"
 #include "FilterApi.h"
 #include "DIBapi.h"
-//#include <math.h>
-//#include <iostream>
-//#include <fstream> 
-//using namespace std;
-#include <platform_cui.h>
+/*---------------------------------------------------*/
 #define SHOW_HARR_IMG FALSE
 /*---------------------------------------------------*/
 /**

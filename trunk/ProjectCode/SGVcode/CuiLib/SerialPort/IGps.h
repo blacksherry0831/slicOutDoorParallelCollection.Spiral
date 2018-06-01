@@ -17,9 +17,9 @@ public:
 
 
 public:
-	virtual string GetLatLonStr()=0;
-	virtual string GetLatStr()=0;
-	virtual string GetLonStr()=0;
+	virtual std::string GetLatLonStr()=0;
+	virtual std::string GetLatStr()=0;
+	virtual std::string GetLonStr()=0;
 	virtual LatLng get()=0;
 
 

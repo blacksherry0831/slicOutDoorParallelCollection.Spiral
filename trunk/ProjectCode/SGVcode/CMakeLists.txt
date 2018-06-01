@@ -246,6 +246,7 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 
 		ADD_EXECUTABLE(TEST_GPS main_test/gps_test.cpp)
 		TARGET_LINK_LIBRARIES(TEST_GPS
+			MY_SDK_LIB
 			SerialPortModule)
 
 		ADD_EXECUTABLE(EXE_HW_Hello main_test/hw_hello.cpp)
