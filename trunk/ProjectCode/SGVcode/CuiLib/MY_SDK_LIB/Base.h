@@ -61,7 +61,12 @@ public:
 		float avg);
 	
 	static double Math_GetMaxValue(double* Data, long DataNum);
+
 	static float Math_GetMaxValueF(float* Data, long DataNum);
+
+	static float Math_GetMinValueF(float* Data, long DataNum);
+	
+	
 	static void	  Math_AbsArray(double * Data, long Num);
 
 	static void  Math_GetMaxValueIndexF(

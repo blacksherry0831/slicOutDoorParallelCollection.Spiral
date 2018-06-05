@@ -2872,12 +2872,15 @@ float mstime=dfTim*1000;
  void cui_GeneralImgProcess::ConvertImg3ChTo4Ch(IplImage **src)
  {
 	 TRACE_FUNC();
+
+	 ASSERT(src!=nullptr);
+	 ASSERT(*src!=nullptr);
+
 	 CvSize SizeOld=cvGetSize(*src);
 	 int depth=(*src)->depth;
 	 int nChannels=(*src)->nChannels;
 
-	 ASSERT(src!=nullptr);
-	 ASSERT(*src!=nullptr);
+
 
 	 if (nChannels==3){
 		 IplImage *temp=cvCloneImage(*src);

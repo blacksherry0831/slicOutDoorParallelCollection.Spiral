@@ -6,7 +6,8 @@ ConfigOpenCv()
 ConfigMFC_2()
 ###############################################################################
 SET(DIR_SRCS    CuiHarrTransformLet.cpp
-				HarrWaveletTransImg.cpp)  
+				HarrWaveletTransImg.cpp
+				HarrTransformUser.cpp)  
 ###############################################################################
 SET(LINK_LIB 
 

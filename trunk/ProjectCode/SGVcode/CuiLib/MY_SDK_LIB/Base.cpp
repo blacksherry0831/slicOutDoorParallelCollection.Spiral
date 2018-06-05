@@ -381,6 +381,22 @@ float Base::Math_GetMaxValueF(float * Data, long DataNum)
 *
 */
 /*-----------------------------------------*/
+float Base::Math_GetMinValueF(float * Data, long DataNum)
+{
+	float *Data_cp = new float[DataNum];
+	float  max_value;
+	memcpy(Data_cp, Data, sizeof(float)*DataNum);
+	std::sort(Data_cp, Data_cp + DataNum, std::less<float>());
+	max_value = Data_cp[0];
+	delete[]Data_cp;
+	return  max_value;
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
 void Base::Math_AbsArray(double * Data, long Num)
 {
 	for (size_t i = 0; i <Num; i++) {
