@@ -56,12 +56,13 @@ void HarrTransformUser::setImageData(IplImage *_img_bgra)
 *
 */
 /*---------------------------------------------------*/
-float HarrTransformUser::CalculateEnergy(int _col_step)
+float HarrTransformUser::CalculateEnergyCol(int _col_step)
 {
 
 	IplImage* img_diff = cvCreateImage(cvGetSize(img_org_bgra),IPL_DEPTH_32F,1);
 	float feature=0;
 	float sub_v = 0;
+	unsigned int  effect_t = 0;
 				//cvZero(&img_diff);
 					{
 						
@@ -73,6 +74,7 @@ float HarrTransformUser::CalculateEnergy(int _col_step)
 											if (ci + _col_step < mWIDTH) {
 								
 												sub_v=PixelColSub(img_org_gray, ci+ _col_step, ci , ri);
+												effect_t++;
 																		
 											}
 											else {
@@ -91,13 +93,61 @@ float HarrTransformUser::CalculateEnergy(int _col_step)
 	
 					}
 
-		feature=CalDiffEnergy(img_diff);
+		feature=CalDiffEnergy(img_diff,effect_t);
 
 
 	cvReleaseImage(&img_diff);
 
 	return feature;
 
+}
+/*---------------------------------------------------*/
+/**
+*
+*
+*/
+/*---------------------------------------------------*/
+float HarrTransformUser::CalculateEnergyRow(int _row_step)
+{
+	IplImage* img_diff = cvCreateImage(cvGetSize(img_org_bgra), IPL_DEPTH_32F, 1);
+	float feature = 0;
+	float sub_v = 0;
+	unsigned int  effect_t=0;
+	//cvZero(&img_diff);
+	{
+
+
+		for (size_t ri = 0; ri <mHEIGHT; ri++) {
+
+			for (size_t ci = 0; ci <mWIDTH; ci++) {
+
+				if (ri + _row_step < mHEIGHT) {
+
+					sub_v = PixelRowSub(img_org_gray, ri + _row_step, ri, ci);
+					effect_t++;
+				}
+				else {
+
+					sub_v = 0;
+				}
+
+
+				cvSetReal2D(img_diff, ri, ci, sub_v);
+
+			}
+		}
+
+
+
+
+	}
+
+	feature = CalDiffEnergy(img_diff,effect_t);
+
+
+	cvReleaseImage(&img_diff);
+
+	return feature;
 }
 /*---------------------------------------------------*/
 /**
@@ -129,11 +179,23 @@ float HarrTransformUser::PixelColSub(IplImage *_img_gary, int ci, int cj, int ro
 *
 */
 /*---------------------------------------------------*/
-float  HarrTransformUser::CalDiffEnergy(IplImage *_img_gary)
+float HarrTransformUser::PixelRowSub(IplImage * _img_gary, int ri, int rj, int col)
+{
+	return PixelSub(_img_gary, col, ri, col, rj);
+}
+/*---------------------------------------------------*/
+/**
+*
+*
+*/
+/*---------------------------------------------------*/
+float  HarrTransformUser::CalDiffEnergy(IplImage *_img_gary,float effect)
 {
 	const int WIDTH = _img_gary->width;
     const int HEIGHT = _img_gary->height;
  
+	ASSERT(effect>0 && effect < WIDTH*HEIGHT);
+
 	float sum = 0;
 
 
@@ -149,7 +211,7 @@ float  HarrTransformUser::CalDiffEnergy(IplImage *_img_gary)
 
 	}
 
-	sum = sum / (WIDTH*HEIGHT);
+	sum = sum /effect;
 	
 	return sum;
 

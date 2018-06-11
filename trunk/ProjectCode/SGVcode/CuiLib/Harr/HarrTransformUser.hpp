@@ -25,9 +25,11 @@ private:
 	int mHEIGHT;
 public:
 	void setImageData(IplImage *_img_bgra);
-	float CalculateEnergy(int _col_step);
+	float CalculateEnergyCol(int _col_step);
+	float CalculateEnergyRow(int _col_step);
 	static float PixelSub(IplImage *_img_gary, int ci, int ri, int cj, int rj);
 	static float PixelColSub(IplImage *_img_gary, int ci,  int cj,int ri);
-	static float CalDiffEnergy(IplImage *_img_gary);
+	static float PixelRowSub(IplImage *_img_gary, int ri, int rj, int col);
+	static float CalDiffEnergy(IplImage *_img_gary, float _effect);
 };
 

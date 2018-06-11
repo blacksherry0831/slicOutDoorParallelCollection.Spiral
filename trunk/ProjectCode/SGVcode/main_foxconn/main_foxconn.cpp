@@ -203,7 +203,7 @@ Energy_Harr processHarrEnergy(IplImage* _img)
 *
 */
 /*---------------------------------------*/
-std::vector<float> processHarrEnergyUser(IplImage* _img)
+std::vector<float> processHarrEnergyUserCol(IplImage* _img)
 {
 
 	std::vector<float> feature;
@@ -214,19 +214,39 @@ std::vector<float> processHarrEnergyUser(IplImage* _img)
 	
 		Harr_Origin.setImageData(_img);
 
-		float data_t=Harr_Origin.CalculateEnergy(i);
+		float data_t=Harr_Origin.CalculateEnergyCol(i);
 		
 		feature.push_back(data_t);
 
 	}
-
 	
-
-
+	return feature;
 	
+}
+/*---------------------------------------*/
+/**
+*
+*
+*/
+/*---------------------------------------*/
+std::vector<float> processHarrEnergyUserRow(IplImage* _img)
+{
+
+	std::vector<float> feature;
+
+	for (size_t i = 1; i <= 100; i++)
+	{
+		HarrTransformUser Harr_Origin;
+
+		Harr_Origin.setImageData(_img);
+
+		float data_t = Harr_Origin.CalculateEnergyRow(i);
+
+		feature.push_back(data_t);
+
+	}
 
 	return feature;
-
 
 }
 /*---------------------------------------*/
@@ -260,10 +280,16 @@ outfile.close();
 int main(int argc, char *argv[])
 {
 	
-
+#if 0
 	std::string  file_base = "X:\\MyProjectTemp\\Project\\yjkj\\FOXCONN\\0524";
+	std::string  file_base = "X:\\MyProjectTemp\\Project\\yjkj\\FOXCONN\\127G50";
+	
+#else
+	std::string  file_base = "X:\\MyProjectTemp\\Project\\yjkj\\FOXCONN\\blackScreen";
+#endif // 0
+	
 	std::vector<std::string> files;
-	std::string ext = "bmp";
+	std::string ext = "BMP";
 	Base::FS_getFiles(file_base,ext, files);
 	const string WINDOW_NAME = "TEST";
 	cvNamedWindow(WINDOW_NAME.c_str(),CV_WINDOW_NORMAL);
@@ -305,7 +331,7 @@ int main(int argc, char *argv[])
 
 				cvResetImageROI(img_org_t);
 
-#if 0
+#if 1
 				EnergyHarr eh= processHarrEnergy(img_gray_detection);
 				
 
@@ -320,10 +346,15 @@ int main(int argc, char *argv[])
 
 #endif // 0		
 
-#if TRUE
-			std::vector<float> feature_t = processHarrEnergyUser(img_gray_detection);
-			
-			outfile << files.at(i) << " "
+#ifdef XXXXXXXXXXXXXX
+#if 1
+				std::vector<float> feature_t = processHarrEnergyUserCol(img_gray_detection);
+#else
+				std::vector<float> feature_t = processHarrEnergyUserRow(img_gray_detection);
+#endif // TRUE
+
+
+	outfile << files.at(i) << " "
 					<< idx << " ";
 				
 				for (size_t i = 0; i <feature_t.size(); i++)
@@ -333,9 +364,10 @@ int main(int argc, char *argv[])
 				}
 
 			outfile << std::endl;
-#endif
 
 
+
+#endif // DEBUG
 			
 			}
 
