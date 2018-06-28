@@ -438,7 +438,8 @@ int CMD_CTRL::InitIplimage()
 	if (nChannels == 1) {
 		
 		cvInitImageHeader(Iplimg_t, cvSize(WIDTH, HEIGHT), IPL_DEPTH_8U, 1);
-	
+		
+
 	}else if (nChannels==8) {
 
 		cvInitImageHeader(Iplimg_t, cvSize(WIDTH, HEIGHT), IPL_DEPTH_64F, 1);
@@ -447,9 +448,9 @@ int CMD_CTRL::InitIplimage()
 	
 		assert(0);
 	}
-
-	
-
+#if _DEBUG
+	assert(Iplimg_t->widthStep == Iplimg_t->width* Iplimg_t->nChannels);
+#endif
 	Iplimg_t->imageData = (char*)&buff_t[sizeof(IplImageUI)];
 	return 0;
 }

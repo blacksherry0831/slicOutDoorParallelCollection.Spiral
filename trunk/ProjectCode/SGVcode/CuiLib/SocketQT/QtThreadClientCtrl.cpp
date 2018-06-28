@@ -99,7 +99,7 @@ void QtThreadClientCtrl::run()
 					
 #endif // TRUE
 
-					 this->Sleep(27 * 1000);
+					 this->Sleep(60 * 1000);
 
 
 #if TRUE
