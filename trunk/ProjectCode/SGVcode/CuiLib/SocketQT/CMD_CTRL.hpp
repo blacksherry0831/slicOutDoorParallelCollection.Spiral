@@ -107,7 +107,7 @@ protected:
 	void Clear();
 public:
 	void Convert2ByteStream();
-	void SetDataSize();
+	void SetDataSize(const int _body_size=2);
 	static int GetCMDBodySize(CMD_CTRL::CMD_CTRL_HEADER* _cmd);
 public:
 	void setFpgaConvertCmd(int _type);
@@ -135,6 +135,7 @@ public:
 	int IsImgFrame();
 	int FrameCount();
 	int IsImg();
+	int InitImgCtrlHeader(int VideoCh, int _width, int _height, int _nChannels);
 	int InitImg();
 	int InitIplimage();
 	int Channel();
@@ -146,5 +147,6 @@ public:
 
 public:
 	static int UChar2Int(unsigned char *_data,int _size);
+	static int Int2UChar(int _size,unsigned char *_data );
 	
 };

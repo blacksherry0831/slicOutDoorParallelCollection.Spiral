@@ -1,21 +1,20 @@
 //#include "stdafx.h"
-#include "QtTcpServer.hpp"
+#include "QtThread8VideoRaw.hpp"
 /*-------------------------------------*/
 /**
 *
 *
 */
 /*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*
-*/
-/*-------------------------------------*/
-QtTcpServer::QtTcpServer(QObject *parent) :QTcpServer(parent)
+void QtThread8VideoRaw::initIpPort()
 {
+#if 0
+	mIpAddr = BORD_VIDEO_OUT;
+#else
+	mIpAddr = "127.0.0.1";
+#endif // 0
 
+	mPort= TCP_PORT_VIDEO_RAW;
 }
 /*-------------------------------------*/
 /**
@@ -23,106 +22,83 @@ QtTcpServer::QtTcpServer(QObject *parent) :QTcpServer(parent)
 *
 */
 /*-------------------------------------*/
-QtTcpServer::QtTcpServer(QObject *parent, QSharedPointer<QtThreadSocketClient> _clientThread) :QTcpServer(parent)
+QtThread8VideoRaw::QtThread8VideoRaw()
+{
+	initIpPort();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+QtThread8VideoRaw::~QtThread8VideoRaw(void)
+{
+	qDebug() << "QtThread8Video is Release ! ";
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThread8VideoRaw::run()
 {
 	
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
+	int WIDTH = 1920;
+	int HEIGHT = 1080;
+	int nChannels = 1;
+	int VideoChannel = 0;
 
-QtTcpServer::~QtTcpServer()
-{
-
-	m_clientThreads.clear();
-	this->close();
-}
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtTcpServer::incomingConnection(qintptr socketDescriptor)
-{
-	qDebug() << "New Connect is connect" << socketDescriptor;
+	while (M_THREAD_RUN) {
 	
-	QSharedPointer<QtThreadSocketClient> client_thread=QSharedPointer<QtThreadSocketClient>(new QtThreadClientCtrl(socketDescriptor));
-
-	client_thread->start();
-
-	
-	this->SaveRunningThread(client_thread);
-
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtTcpServer::RemoveDoneThread()
-{
-	this->m_clients_mutex.lock();
+		this->connect2ServerIfNoConnected();
 		
+		while (M_THREAD_RUN) {
 		
-	
-	QList<QSharedPointer<QtThreadSocketClient>>::iterator item = m_clientThreads.begin();
-
-		while (item != m_clientThreads.end()){
-
-			if ((*item)->isFinished()) {
+#if 1
+		
 			
-				m_clientThreads.removeOne(*item);
-				
-				
-			}
+					QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
+					
+					cmd_t->InitImgCtrlHeader(VideoChannel++%8,WIDTH,HEIGHT,nChannels);
+
+					if (m_socket->Read_nSize_2_body(cmd_t.data()) == 0) {
+							break;
+					}					
+
+					if (cmd_t->IsImg()) {
+						QtThread8Video::ProcessCmd(cmd_t);
+					}else if (cmd_t->IsHeartbeat()) {
+						//std::cout << "@" << std::endl;
+					}else{
+						 std::cout << "ErrorCmd" << std::endl;
+					}
+
 			
-			item++;
+
+#endif // 1
 
 		}
-
-
-	this->m_clients_mutex.unlock();
+	
+	}
 }
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtTcpServer::SaveRunningThread(QSharedPointer<QtThreadSocketClient> _client)
-{
-	this->m_clients_mutex.lock();
-			m_clientThreads.push_back(_client);
-	this->m_clients_mutex.unlock();
-
-	this->RemoveDoneThread();
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtTcpServer::execMy()
-{
-	this->RemoveDoneThread();
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-int QtTcpServer::StartListen()
-{	
-	return this->listen(QHostAddress::Any, mPort);
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
 /*-------------------------------------*/
 /**
 *

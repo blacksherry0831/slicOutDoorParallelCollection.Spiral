@@ -35,9 +35,11 @@ public:
 public:
 	void write_ptr(qintptr p);
 	
-	
+	void SetSocketDesp();
 	
 protected: 
 	virtual void run();
+public:
+
 
 };

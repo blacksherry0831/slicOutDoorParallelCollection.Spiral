@@ -237,6 +237,40 @@ int  QtTcpClient::Read_1_cmd(CMD_CTRL *_cmd)
 *
 */
 /*-------------------------------------*/
+int QtTcpClient::Read_nSize_2_body(CMD_CTRL * _cmd)
+{
+	const int BODY_HEADER_SIZE = sizeof(IplImageUI);
+	unsigned int body_size=_cmd->f_data_size-BODY_HEADER_SIZE;
+
+	do
+	{
+		
+		this->readAllMy();
+
+		if (m_buffer.size() >= body_size) {
+			//read enough data
+			char *data_src = m_buffer.data();
+			uchar *data_dst = (_cmd->f_data.data())+BODY_HEADER_SIZE;
+
+			memcpy(data_dst, data_src, body_size);
+			m_buffer.remove(0, body_size);
+			break;	
+		}
+
+		if (this->IsSocketAlive() == FALSE) {
+			return FALSE;
+		}
+		
+
+	} while (TRUE);
+
+	return TRUE;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 int QtTcpClient::IsSocketAlive()
 {
 	QAbstractSocket::SocketState stat_t = this->state();

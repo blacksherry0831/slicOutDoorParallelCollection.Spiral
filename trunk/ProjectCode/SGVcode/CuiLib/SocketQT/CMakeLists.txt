@@ -21,6 +21,7 @@ ENDIF ()
 				QtTcpClient.cpp
 				QtThreadBase.cpp
 				QtThreadClientCtrl.cpp
+				QtThreadClientCtrlTest.cpp
 				QtThreadServer.cpp
 				QtThreadPLC.cpp
 				DataFrame.cpp
@@ -29,7 +30,9 @@ ENDIF ()
 				QtThreadSocketClient.cpp
 				exCircleData.cpp
 				ChannelsData.cpp
-				QtThread8VideoProcess.cpp)		
+				QtThread8VideoProcess.cpp
+				QtThread8VideoRaw.cpp
+				QtTcpServerTest.cpp)		
 	
 	endif (CBB_BUILDING_CRACK_DETECTION)
  

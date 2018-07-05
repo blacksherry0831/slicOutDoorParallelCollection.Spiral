@@ -12,7 +12,10 @@
 #include "../SocketQT/QtThreadPLC.hpp"
 #include "../SocketQT/QtThreadClientCtrl.hpp"
 #include "../SocketQT/QtThread8Video.hpp"
+#include "../SocketQT/QtThread8VideoRaw.hpp"
 #include "../SocketQT/QtThread8VideoProcess.hpp"
+
+#include "../SocketQT/QtTcpServerTest.hpp"
 
 #endif // TRUE
 
@@ -60,10 +63,22 @@ int eightChannelVideo(int argc, char *argv[])
 	QApplication app(argc, argv);
 	
 	QSharedPointer<QtThreadClientCtrl>		ctrlServer = QSharedPointer<QtThreadClientCtrl>(new QtThreadClientCtrl());
+	
 	QSharedPointer<QtThread8Video>			videoDataServer = QSharedPointer<QtThread8Video>(new QtThread8Video());
+	
+	QSharedPointer<QtThread8VideoRaw>		videoRawDataServer = QSharedPointer<QtThread8VideoRaw>(new QtThread8VideoRaw());
+
+
+	QSharedPointer<QtTcpServerTest>         data_test_Server = QSharedPointer<QtTcpServerTest>(new QtTcpServerTest(Q_NULLPTR,TCP_PORT_VIDEO_RAW));
+
 	ctrlServer->start();
+
 	videoDataServer->start();
 	
+	videoRawDataServer->start();
+
+	data_test_Server->StartListen();
+
 	QtThread8VideoProcess::startTask();
 
 	return app.exec();

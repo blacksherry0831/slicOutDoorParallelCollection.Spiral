@@ -39,11 +39,22 @@ private:
 	
 	static  int SCREEN_W;
 	static  int SCREEM_H;
+	int mWidthSetp;
+	int mHeightStep;
+
+	int mImageWidth;
+	int mImageHeight;
+	
+	int mWindowWidth;
+	int mWindowHeight;
+
+	int resizeWindowOnce(int _width, int _height);
 
 protected:
 	void init_screen();
 	void init_window();
 	void init();
+	void init_param();
 	bool M_THREAD_RUN;
 public:
 	static const unsigned char TaskMap[CAMERA_CHANNELS];

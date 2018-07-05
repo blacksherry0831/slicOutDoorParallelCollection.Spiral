@@ -22,6 +22,7 @@ QtThreadSocketClient::QtThreadSocketClient()
 #endif // 0
 	m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
 	m_socket->moveToThread(this);
+	this->ptr_sd =-1;
 }
 /*-------------------------------------*/
 /**
@@ -57,7 +58,14 @@ void QtThreadSocketClient::write_ptr(qintptr p)
 *
 */
 /*-------------------------------------*/
-
+void QtThreadSocketClient::SetSocketDesp()
+{
+	if (ptr_sd>=0) {
+		m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
+		m_socket->setSocketDescriptor(ptr_sd);
+	}
+	
+}
 /*-------------------------------------*/
 /**
 *

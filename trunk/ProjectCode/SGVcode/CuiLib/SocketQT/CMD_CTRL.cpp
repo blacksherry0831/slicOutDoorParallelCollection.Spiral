@@ -15,6 +15,7 @@
 /*-------------------------------------*/
 CMD_CTRL::CMD_CTRL() 
 {
+		this->Clear();
 		memset(&f_header,0,sizeof(CMD_CTRL_HEADER));
 		this->initHeader();
 		this->initPc2Arm();
@@ -28,7 +29,7 @@ CMD_CTRL::CMD_CTRL()
 /*-------------------------------------*/
 CMD_CTRL::~CMD_CTRL() 
 {
-	f_data.resize(0);
+	Clear();
 }
 /*-------------------------------------*/
 /**
@@ -473,6 +474,30 @@ int CMD_CTRL::IsImg()
 *
 */
 /*-------------------------------------*/
+int CMD_CTRL::InitImgCtrlHeader(int VideoCh,int _width, int _height, int _nChannels)
+{
+	
+	const int body_size_t = _width*_height*_nChannels + sizeof(IplImageUI);
+	unsigned char* buff_t = NULL;
+		SetDataSize(body_size_t);
+	this->f_header.f_cmd[0] = CMD_TYPE::CT_IMG;
+	this->f_header.f_cmd[1] = CMD_TYPE::CT_FRAME;
+	buff_t= this->f_data.data();
+
+	IplImageUI *img_ui = (IplImageUI*)(buff_t);
+	this->Int2UChar(_width, img_ui->iplImgU.width);
+	this->Int2UChar(_height, img_ui->iplImgU.height);
+	this->Int2UChar(_nChannels, img_ui->iplImgU.nChannels );
+	this->Int2UChar(1, img_ui->iplImgU.sensor_stat);
+	this->Int2UChar(VideoCh%8, img_ui->iplImgU.IpAddrChannel);
+
+	return 0;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 int CMD_CTRL::Channel()
 {
 	int buff_size = sizeof(m_img->IpAddrChannel);
@@ -533,6 +558,22 @@ int  CMD_CTRL::UChar2Int(unsigned char *_data, int _size)
 *
 */
 /*-------------------------------------*/
+int CMD_CTRL::Int2UChar(int _size, unsigned char * _data)
+{
+	
+	
+	_data[0]=_size%256;
+	_data[1]=_size/256%256;
+	_data[2]=_size/256/256%256;
+	_data[3]=_size/256/256/256%256;
+
+	return _data[0];
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 std::vector<unsigned char> CMD_CTRL::getRespPLCmd(int _type)
 {
 	this->setRespCmd(_type);
@@ -574,11 +615,12 @@ std::vector<unsigned char> CMD_CTRL::getRollerQualifiedCmd(int _qualified)
 *
 */
 /*-------------------------------------*/
-void CMD_CTRL::SetDataSize() 
+void CMD_CTRL::SetDataSize(const int _body_size)
 {
 	if (f_data.size() < 2) {
 		f_data.resize(2, 0);
-	
+	}else{
+		f_data.resize(_body_size);
 	}
 	this->f_data_size = f_data.size();
 	

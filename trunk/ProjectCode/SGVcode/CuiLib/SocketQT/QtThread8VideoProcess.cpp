@@ -19,8 +19,9 @@ int QtThread8VideoProcess::SCREEM_H;
 /*-------------------------------------*/
 QtThread8VideoProcess::QtThread8VideoProcess()
 {
-	this->init_screen();
-	
+	this->init_param();
+
+	this->init_screen();	
 }
 /*-------------------------------------*/
 /**
@@ -29,6 +30,7 @@ QtThread8VideoProcess::QtThread8VideoProcess()
 /*-------------------------------------*/
 QtThread8VideoProcess::QtThread8VideoProcess(int _Channel)
 {
+	this->init_param();
 
 	this->CHANNEL = _Channel;
 	this->WINDOW_NAME ="Channel"+Base::int2str(_Channel);
@@ -44,6 +46,37 @@ QtThread8VideoProcess::QtThread8VideoProcess(int _Channel)
 QtThread8VideoProcess::~QtThread8VideoProcess(void)
 {
 	qDebug() << "QtThread8Video is Release ! ";
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int QtThread8VideoProcess::resizeWindowOnce(int _width,int _height)
+{
+	mImageWidth =_width ;
+	mImageHeight = _height;
+
+	if (mWindowWidth + mWindowHeight < 0) {
+	
+		if (mImageWidth + mImageHeight > 0) {
+		
+				float w_scale =1.0*mWidthSetp/mImageWidth;
+				float h_scale = 1.0*mHeightStep / mImageHeight;
+				const float wh_scale = (w_scale < h_scale) ? w_scale:h_scale;
+	
+	
+				mWindowWidth = wh_scale*mImageWidth;	
+				mWindowHeight = wh_scale*mImageHeight;
+				cvResizeWindow(WINDOW_NAME.c_str(), mWindowWidth, mWindowHeight);
+		}
+		
+	
+	}
+
+	
+
+	return 0;
 }
 /*-------------------------------------*/
 /**
@@ -77,6 +110,8 @@ void QtThread8VideoProcess::init_window()
 
 	cvMoveWindow(WINDOW_NAME.c_str(),pos_wx,pos_hy);
 
+	mWidthSetp= WidthSetp;
+	mHeightStep= HeightStep;
 }
 /*-------------------------------------*/
 /**
@@ -92,7 +127,17 @@ void QtThread8VideoProcess::init()
 *
 */
 /*-------------------------------------*/
+void QtThread8VideoProcess::init_param()
+{
+	mWidthSetp = -1;
+	mHeightStep = -1;
 
+	mImageWidth = -1;
+	mImageHeight = -1;
+
+	mWindowWidth = -1;
+	mWindowHeight = -1;
+}
 /*-------------------------------------*/
 /**
 *
@@ -120,6 +165,8 @@ void QtThread8VideoProcess::run()
 		
 
 		IplImage *img_t = cmd_ctrl->getIplimage();
+
+		
 	
 #if _DEBUG
 		if (cmd_ctrl->SensorStat() == 0) {
@@ -129,10 +176,11 @@ void QtThread8VideoProcess::run()
 		}
 #endif // _DEBUG
 
-
+		this->resizeWindowOnce( img_t->width,img_t->height);
 
 		cvShowImage(WINDOW_NAME.c_str(), img_t);
-		cvWaitKey(10);
+
+		cvWaitKey(1);
 
 	}
 		

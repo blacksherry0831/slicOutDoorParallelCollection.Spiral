@@ -50,6 +50,8 @@ public:
 	void Send_1_cmd(CMD_CTRL *_cmd);
 	int Read_1_cmd(CMD_CTRL *_cmd);
 
+	int Read_nSize_2_body(CMD_CTRL *_cmd);
+
 	int IsSocketAlive();
 
 };
