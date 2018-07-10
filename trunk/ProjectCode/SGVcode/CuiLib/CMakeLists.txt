@@ -1,22 +1,31 @@
 #####################################
+INCLUDE_DIRECTORIES(
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
+#####################################
+
+#####################################
 ADD_SUBDIRECTORY(tinyxml2)
 #ADD_SUBDIRECTORY(tinyxml)
 ADD_SUBDIRECTORY(FilePathName)
 
+
+
 if(NEED_OPENCV)
 
 	ADD_SUBDIRECTORY(opencv_calibration)
+	
 
 endif()
 
 if (NEED_CUDA)
 
 	ADD_SUBDIRECTORY(cudaLib)	
-	ADD_SUBDIRECTORY(SGVcode)
+	
 
 endif()
 
-
+ADD_SUBDIRECTORY(SGVcode)
 
 ADD_SUBDIRECTORY(ML)
 ADD_SUBDIRECTORY(SVMcode)
@@ -46,7 +55,7 @@ endif()
 
 ADD_SUBDIRECTORY(pthreads-w32-2-9-1-release)
 
-
+ADD_SUBDIRECTORY(uCOS)
 
 if(NEED_WEBSOCKETPP)
 

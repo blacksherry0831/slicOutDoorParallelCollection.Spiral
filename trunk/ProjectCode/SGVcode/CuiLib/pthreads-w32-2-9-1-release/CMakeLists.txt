@@ -5,11 +5,13 @@ C11_Config()
 ConfigOpenCv()
 CONFIG_LINUX_BASE()
 #####################################################
-macro (ConfigPthreadsWindowsLib)
+macro (ConfigPthreads01)
 
+	SET(BASE_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/include/")
+	
 	IF (CMAKE_SYSTEM_NAME MATCHES "Windows")  
 			INCLUDE_DIRECTORIES( 
-								./include)
+								${BASE_INCLUDE})
 						
 				if(CMAKE_CL_64)    
 	
@@ -35,7 +37,7 @@ macro (ConfigPthreadsWindowsLib)
 #CMAKE的内建变量，如果是true，就说明编译器的64位的，自然可以编译64bit的程序
 
   
-endmacro(ConfigPthreadsWindowsLib) 
+endmacro(ConfigPthreads) 
 #####################################################
 
 ###############################################################################
@@ -44,7 +46,7 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 ###################################
 ConfigMFC_2() 
-ConfigPthreadsWindowsLib()
+ConfigPthreads01()
 ##################################
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
    

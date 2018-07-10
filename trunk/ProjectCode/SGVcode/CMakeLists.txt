@@ -173,6 +173,7 @@ function (CONFIG_LOCAL_MODULE)
 	#############################################
 	INCLUDE_DIRECTORIES( #相关头文件的目录
 					${SGV_cmake_SOURCE_DIR}/CuiLib/websocketpp-experimental
+					${SGV_cmake_SOURCE_DIR}/CuiLib/uCOS
 					)
 	#############################################
 
@@ -331,8 +332,12 @@ ENDIF ()
 if(CBB_BUILDING_CRACK_DETECTION)
 
 		ADD_EXECUTABLE(TEST_BE_1105 main_test/be1105_test.cpp)
-		TARGET_LINK_LIBRARIES(TEST_BE_1105
+		TARGET_LINK_LIBRARIES(TEST_BE_1105 
 			SerialPortModule) 
 		
 	endif() 
+##################################################################################
+	ADD_EXECUTABLE(TEST_UCOS_MEM main_test/ucos_mem_test.cpp)
+		TARGET_LINK_LIBRARIES(TEST_UCOS_MEM
+									uCOS) 
 ##################################################################################
