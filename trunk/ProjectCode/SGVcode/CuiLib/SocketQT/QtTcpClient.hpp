@@ -38,20 +38,20 @@ public:
 	int init();
 	QByteArray readAllMy();
 	int WriteMy(QByteArray _data);
-	int WriteMy(char* _data, int _size);
-
+	int WriteMy(const char* const _data,const int _size);
 public:
-	void Send_Start_CMD(int _type);
-
-	void SendPlcResp(int _type);
-	void SendPlcIntoInter(int _step);
-	void SendPlcRollerQualified(int _qualified);
-
-	void Send_1_cmd(CMD_CTRL *_cmd);
-	int Read_1_cmd(CMD_CTRL *_cmd);
-
-	int Read_nSize_2_body(CMD_CTRL *_cmd);
-
 	int IsSocketAlive();
+public:
+	int Send_1_cmd(CMD_CTRL *_cmd);
+	int Read_1_cmd(CMD_CTRL *_cmd);
+	int Read_nSize_2_body(CMD_CTRL *_cmd);
+public:
+	int Send_Start_CMD(int _type);
+	int SendHearbeatCmd();
+public:
+	int SendPlcResp(int _type);
+	int SendPlcIntoInter(int _step);
+	int SendPlcRollerQualified(int _qualified);
+public:
 
 };

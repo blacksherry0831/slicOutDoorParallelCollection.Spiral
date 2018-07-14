@@ -99,7 +99,16 @@ void QtThreadClientCtrl::run()
 					
 #endif // TRUE
 
-					 this->Sleep(60 * 1000);
+
+					do
+					{
+
+						m_socket->SendHearbeatCmd();
+						this->Sleep(1000);
+						
+
+					} while (m_socket->IsSocketAlive());
+
 
 
 #if TRUE

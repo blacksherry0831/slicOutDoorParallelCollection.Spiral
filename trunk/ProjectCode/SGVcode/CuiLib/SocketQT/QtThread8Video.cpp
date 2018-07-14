@@ -93,7 +93,7 @@ void QtThread8Video::run()
 
 					if (cmd_t->IsImg()) {
 						  this->ProcessCmd(cmd_t);
-					}else if (cmd_t->IsHeartbeat()) {
+					}else if (cmd_t->isHeartbeatCmd()) {
 						//std::cout << "@" << std::endl;
 					}else{
 						 std::cout << "ErrorCmd" << std::endl;

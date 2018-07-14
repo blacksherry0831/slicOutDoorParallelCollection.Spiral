@@ -15,12 +15,9 @@
 /*-------------------------------------*/
 CMD_CTRL::CMD_CTRL() 
 {
-		this->Clear();
-		memset(&f_header,0,sizeof(CMD_CTRL_HEADER));
-		this->initHeader();
-		this->initPc2Arm();
+		this->init();
+		
 }
-
 /*-------------------------------------*/
 /**
 *
@@ -29,7 +26,7 @@ CMD_CTRL::CMD_CTRL()
 /*-------------------------------------*/
 CMD_CTRL::~CMD_CTRL() 
 {
-	Clear();
+		this->destory();
 }
 /*-------------------------------------*/
 /**
@@ -37,13 +34,13 @@ CMD_CTRL::~CMD_CTRL()
 */
 /*-------------------------------------*/
 void CMD_CTRL::initHeader()
-{
+{	
+	
 	f_header.f_header[0] = 'Y';
 	f_header.f_header[1] = 'j';
 	f_header.f_header[2] = 'k';
 	f_header.f_header[3] = 'j';
-	memset(f_header.f_reserve, 0, sizeof(f_header.f_reserve));
-	this->f_data.resize(2, 0);
+		
 	this->SetDataSize();
 }
 /*-------------------------------------*/
@@ -51,10 +48,30 @@ void CMD_CTRL::initHeader()
 *
 */
 /*-------------------------------------*/
-void CMD_CTRL::setGeneral()
+void CMD_CTRL::init()
 {
+	memset(&f_header, 0, sizeof(CMD_CTRL_HEADER));
+	m_img = NULL;
 	this->initHeader();
+	this->initPc2Arm();
 }
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void CMD_CTRL::destory()
+{
+	m_img = NULL;
+	this->f_data.clear();
+	this->f_data_size = 0;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+
 /*-------------------------------------*/
 /**
 *
@@ -191,6 +208,16 @@ void CMD_CTRL::setRollerQualified(int _qualified)
 *
 */
 /*-------------------------------------*/
+void CMD_CTRL::initHearbeatCmd()
+{
+	f_header.f_cmd[0] = CMD_TYPE::CT_HEART;
+	f_header.f_cmd[1] = CMD_TYPE::CT_BEAT;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 std::vector<unsigned char> CMD_CTRL::Data()
 {
 	std::vector<unsigned char> cmd_data;
@@ -220,7 +247,7 @@ void CMD_CTRL::Parse(char * _data,int _size)
 	const int BodySize_ = CMD_CTRL::GetCMDBodySize((CMD_CTRL::CMD_CTRL_HEADER*)_data);
 	const char* body_data_= _data + HeaderSize_;
 	/*----------------------------------------------------------*/
-	this->Clear();
+	this->destory();
 	/*----------------------------------------------------------*/
 	memcpy(&(this->f_header), _data, HeaderSize_);	
 	f_data.insert(f_data.end(),body_data_,body_data_ +BodySize_);	
@@ -233,11 +260,7 @@ void CMD_CTRL::Parse(char * _data,int _size)
 *
 */
 /*-------------------------------------*/
-void CMD_CTRL::Clear()
-{
-	f_data.clear();
-	m_img = NULL;
-}
+
 /*-------------------------------------*/
 /**
 *
@@ -264,7 +287,7 @@ int CMD_CTRL::IsResp()
 *
 */
 /*-------------------------------------*/
-int CMD_CTRL::IsHeartbeat()
+int CMD_CTRL::isHeartbeatCmd()
 {
 	if (this->f_header.f_cmd[0] == CMD_TYPE::CT_HEART &&
 		this->f_header.f_cmd[1] == CMD_TYPE::CT_BEAT) {
@@ -607,6 +630,20 @@ std::vector<unsigned char> CMD_CTRL::getRollerQualifiedCmd(int _qualified)
 	this->initHeader();
 	this->setRollerQualified(_qualified);
 	this->initpc2plcLR();
+	this->initCRC();
+	return this->Data();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+std::vector<unsigned char> CMD_CTRL::getHeartBeatCmd(int _type)
+{
+
+	this->initHeader();
+	this->initHearbeatCmd();
+	
 	this->initCRC();
 	return this->Data();
 }

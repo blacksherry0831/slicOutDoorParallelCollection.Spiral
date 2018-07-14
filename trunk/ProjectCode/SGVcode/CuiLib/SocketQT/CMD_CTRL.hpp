@@ -99,12 +99,13 @@ private:
 /*-------------------------------------*/
 private:
 	void initHeader();
-	void setGeneral();
+	void init();
+	void destory();
 protected:
 	void initPc2Arm();
 	void initpc2plcLR();
 	void initCRC();
-	void Clear();
+	
 public:
 	void Convert2ByteStream();
 	void SetDataSize(const int _body_size=2);
@@ -114,10 +115,13 @@ public:
 	void setRespCmd(int _type);
 	void setPlcLrIntoIn(int _step);
 	void setRollerQualified(int _qualified);
+	void initHearbeatCmd();
+public:
 	std::vector<unsigned char>	getFpgaStartCmd(int _type);
 	std::vector<unsigned char>	getRespPLCmd(int _type);
 	std::vector<unsigned char>	getPLCLRIntoCmd(int _step);
 	std::vector<unsigned char>  getRollerQualifiedCmd(int _qualified);
+	std::vector<unsigned char>  getHeartBeatCmd(int _type= DEV::DEV_FPGA_ARM);
 
 public:
 	std::vector<unsigned char> Data();
@@ -126,7 +130,7 @@ public:
 public:
 	int IsConvertDoneCmd();
 	int IsResp();
-	int IsHeartbeat();
+	int isHeartbeatCmd();
 	int IsIntoInnerReady();
 	int IsRoolerReady();
 	/*-------------------------------------*/

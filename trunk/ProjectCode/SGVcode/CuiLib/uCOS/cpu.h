@@ -347,6 +347,7 @@ typedef  CPU_INT32U                 CPU_SR;                     /* Defines   CPU
 
 void        CPU_IntDis       (void);
 void        CPU_IntEn        (void);
+void        CPU_IntDestory	 (void);
 
 void        CPU_IntSrcDis    (CPU_INT08U  pos);
 void        CPU_IntSrcEn     (CPU_INT08U  pos);

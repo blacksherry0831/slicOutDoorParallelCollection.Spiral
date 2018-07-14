@@ -12,6 +12,7 @@ ConfigMFC_2()
 SET(DIR_SRCS   
 		os_mem.c	
 		cpu.c
+		mem_pool_fixed.c
 		 )
 
 ADD_LIBRARY(uCOS   STATIC    ${DIR_SRCS}  )

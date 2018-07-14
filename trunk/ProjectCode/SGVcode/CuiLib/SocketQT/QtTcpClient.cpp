@@ -73,50 +73,82 @@ int QtTcpClient::WriteMy(QByteArray _data)
 *
 */
 /*-------------------------------------*/
-int QtTcpClient::WriteMy(char * _data, int _size)
+int QtTcpClient::WriteMy(const char* const _data,const int _size)
 {
+	assert(_size > 0);
+	assert(_data!=NULL);
 
-	if (_size> 0) {
+	const char* buff_t = _data;
+	int left = _size;
 
-		int size = this->write(_data, _size);
-		
-		assert(size == _size);
-		
-		if (this->waitForBytesWritten(MAX_MSECS)) {
-			return size;
+	do
+	{
+		const int size = this->write(buff_t, left);
+
+		if (size==-1){
+			return FALSE;//error
+		}else if(size>=0){
+	
+				if (this->waitForBytesWritten(MAX_MSECS)) {
+					//success
+					left -= size;
+					buff_t += size;
+
+				}else{
+					return FALSE;//if the operation timed out, or if an error occurred
+				}
+
+
+		}else{
+			assert(0);
+
 		}
 		
-	}
 
-	return 0;
+	} while (left>0);	
+	
+	assert(left == 0);
+
+	return TRUE;
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void QtTcpClient::Send_Start_CMD(int _type)
+int QtTcpClient::Send_Start_CMD(int _type)
 {
 	CMD_CTRL cmd;
 	cmd.getFpgaStartCmd(_type);
-	this->Send_1_cmd(&cmd);
+	
 	if (_type) {
 		std::cout << "Send CMD START FPGA" << std::endl;
 	}else {
 		std::cout << "Send CMD STOP FPGA" << std::endl;
 	}
-
+	return this->Send_1_cmd(&cmd);
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void QtTcpClient::SendPlcResp(int _type)
+int QtTcpClient::SendHearbeatCmd()
+{
+	CMD_CTRL cmd;
+	cmd.getHeartBeatCmd(0);
+	return this->Send_1_cmd(&cmd);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int QtTcpClient::SendPlcResp(int _type)
 {
 	CMD_CTRL cmd;
 	cmd.getRespPLCmd(_type);
-	this->Send_1_cmd(&cmd);
+	
 
 	std::cout << "Client:" << "Send Resp";
 	
@@ -125,43 +157,43 @@ void QtTcpClient::SendPlcResp(int _type)
 	}else {
 		std::cout << " Error " << std::endl;
 	}
+	return this->Send_1_cmd(&cmd);
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void QtTcpClient::SendPlcIntoInter(int _step)
+int QtTcpClient::SendPlcIntoInter(int _step)
 {
 	CMD_CTRL cmd;
 	cmd.getPLCLRIntoCmd(_step);
-	this->Send_1_cmd(&cmd);
-	std::cout << "Client:" << "Send Into the internal!"<<_step << std::endl;
 	
+	std::cout << "Client:" << "Send Into the internal!"<<_step << std::endl;
+	return this->Send_1_cmd(&cmd);
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void QtTcpClient::SendPlcRollerQualified(int _qualified)
+int QtTcpClient::SendPlcRollerQualified(int _qualified)
 {
 	CMD_CTRL cmd;
 	cmd.getRollerQualifiedCmd(_qualified);
-	this->Send_1_cmd(&cmd);
-
 	std::cout << "Client:" << "Send Roller qualified !" << ((_qualified ==1) ?"OK" :"Error") << std::endl;
 	
+	return this->Send_1_cmd(&cmd);
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void  QtTcpClient::Send_1_cmd(CMD_CTRL *_cmd)
+int  QtTcpClient::Send_1_cmd(CMD_CTRL *_cmd)
 {
 	std::vector<unsigned char> data = _cmd->Data();
-	this->WriteMy((char*)data.data(), data.size());
+	return this->WriteMy((char*)data.data(), data.size());
 }
 /*-------------------------------------*/
 /**
@@ -291,6 +323,7 @@ int QtTcpClient::IsSocketAlive()
 		return 1;
 
 	}
+
 }
 /*-------------------------------------*/
 /**

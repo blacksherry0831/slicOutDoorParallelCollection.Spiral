@@ -65,8 +65,12 @@ int eightChannelVideo(int argc, char *argv[])
 	QSharedPointer<QtThreadClientCtrl>		ctrlServer = QSharedPointer<QtThreadClientCtrl>(new QtThreadClientCtrl());
 	
 	QSharedPointer<QtThread8Video>			videoDataServer = QSharedPointer<QtThread8Video>(new QtThread8Video());
+
+#if 0
+QSharedPointer<QtThread8VideoRaw>		videoRawDataServer = QSharedPointer<QtThread8VideoRaw>(new QtThread8VideoRaw());
+#endif // 0
+
 	
-	QSharedPointer<QtThread8VideoRaw>		videoRawDataServer = QSharedPointer<QtThread8VideoRaw>(new QtThread8VideoRaw());
 
 #if 0
 	QSharedPointer<QtTcpServerTest>         data_test_Server = QSharedPointer<QtTcpServerTest>(new QtTcpServerTest(Q_NULLPTR,TCP_PORT_VIDEO_RAW));
@@ -74,8 +78,12 @@ int eightChannelVideo(int argc, char *argv[])
 	ctrlServer->start();
 
 	videoDataServer->start();
-	
+
+#if 0
 	videoRawDataServer->start();
+#endif // 0
+
+
 #if 0
 	data_test_Server->StartListen();
 #endif // 0
