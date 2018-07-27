@@ -2,10 +2,7 @@
 
 #include "cpp_stl.h"
 
-#include <QtCore>
-#include <QtNetwork>
-#include <QSharedPointer>
-#include <QThread>
+
 
 #include "QtThreadBase.hpp"
 #include "QtTcpClient.hpp"
@@ -17,7 +14,7 @@
 /*-------------------------------------*/
 class QtThreadSocketClient :public QtThreadBase
 {
-
+	Q_OBJECT
 public:
 	QtThreadSocketClient(qintptr p);
 	QtThreadSocketClient();
@@ -34,12 +31,19 @@ public:
 	void  connect2ServerIfNoConnected();
 public:
 	void write_ptr(qintptr p);
-	
+	void init_socket();
 	void SetSocketDesp();
 	
+
+signals:
+void socket_connect_state(int);
+
+public slots:
+
+
+
 protected: 
 	virtual void run();
 public:
-
 
 };

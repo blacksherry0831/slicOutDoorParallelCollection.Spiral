@@ -17,8 +17,6 @@ QtThreadClientCtrl::QtThreadClientCtrl()
 {
 
 	initIpPort();
-	m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
-	m_socket->moveToThread(this);
 
 }
 /*-------------------------------------*/
@@ -54,6 +52,8 @@ void QtThreadClientCtrl::initIpPort()
 #endif // 0
 
 	mPort = TCP_POET_CMD_CTRL;
+
+	mWorkMode = CMD_CTRL::WorkMode::ORG_IMAGE;
 }
 /*-------------------------------------*/
 /**
@@ -68,6 +68,7 @@ void QtThreadClientCtrl::initIpPort()
 /*-------------------------------------*/
 void QtThreadClientCtrl::run()
 {
+	this->init_socket();
 
 	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
 	
@@ -84,7 +85,8 @@ void QtThreadClientCtrl::run()
 #if TRUE
 //step 1				
 					std::cout << "Send Start" << std::endl;
-					m_socket->Send_Start_CMD(TRUE);
+
+					m_socket->Send_Start_CMD(TRUE,mWorkMode);
 												
 					if (m_socket->Read_1_cmd(cmd_t.data()) == 0) {
 						break;
@@ -100,14 +102,14 @@ void QtThreadClientCtrl::run()
 #endif // TRUE
 
 
-					do
-					{
+					while(M_THREAD_RUN){
+						if (m_socket->SendHearbeatCmd()==0) {						
+							break;	
+						}else {
+							this->Sleep(1000);
+						}
 
-						m_socket->SendHearbeatCmd();
-						this->Sleep(1000);
-						
-
-					} while (m_socket->IsSocketAlive());
+					}
 
 
 
@@ -115,7 +117,7 @@ void QtThreadClientCtrl::run()
 //step 2
 					std::cout << "Send Stop" << std::endl;
 
-					m_socket->Send_Start_CMD(FALSE);
+					m_socket->Send_Start_CMD(FALSE, mWorkMode);
 					if (m_socket->Read_1_cmd(cmd_t.data()) == 0) {
 						break;
 					}
@@ -147,7 +149,10 @@ void QtThreadClientCtrl::run()
 *
 */
 /*-------------------------------------*/
-
+void	QtThreadClientCtrl::SetWorkMode(CMD_CTRL::WorkMode _wm)
+{
+	mWorkMode = _wm;
+}
 /*-------------------------------------*/
 /**
 *

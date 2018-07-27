@@ -8,6 +8,7 @@
 #include <highgui.h>
 
 #if (CV_MAJOR_VERSION==2)&&(CV_MINOR_VERSION==4)
+#include <opencv2/highgui/highgui.hpp>  
 #include <opencv2/ml/ml.hpp>
 #endif
 #if (CV_MAJOR_VERSION==3)

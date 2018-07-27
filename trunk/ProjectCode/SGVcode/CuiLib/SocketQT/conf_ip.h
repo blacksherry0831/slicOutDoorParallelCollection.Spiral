@@ -1,5 +1,5 @@
-#ifndef CFG_H
-#define CFG_H
+#ifndef CONF_IP_H
+#define CONF_IP_H
 /*-----------------------------------*/
 /**
 *
@@ -59,8 +59,18 @@
 */
 /*-------------------------------------*/
 #define PLC_ADDR	("192.168.100.101")
-#define IPC_ADDR	(192.168.100.100)
+#define IPC_ADDR	("192.168.100.100")
 #define BORD_VIDEO_OUT	("192.168.100.102")
+/*-------------------------------------*/
+/**
+*
+*
+*/
+/*-------------------------------------*/
+#define TCP_PORT_VIDEO_TRANS (10001)
+#define TCP_POET_CMD_CTRL    (10000)
+#define TCP_PORT_VIDEO_RAW	 (8888)
+#define TCP_PORT_SSH (22)
 /*-------------------------------------*/
 /**
 *

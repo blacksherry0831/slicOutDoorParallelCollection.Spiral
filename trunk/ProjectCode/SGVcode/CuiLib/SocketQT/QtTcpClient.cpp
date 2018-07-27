@@ -19,11 +19,19 @@
 *
 */
 /*-------------------------------------*/
-QtTcpClient::QtTcpClient(void)
+QtTcpClient::QtTcpClient(QObject *parent):QTcpSocket(parent)
 {
 	
 	MAX_MSECS =30000;
 	m_buffer.clear();
+#if _DEBUG
+
+#else
+m_buffer.reserve(2 * 1024 * 1024);
+#endif // _DEBUG
+
+
+	
 
 }
 /*-------------------------------------*/
@@ -50,14 +58,73 @@ int QtTcpClient::init()
 *
 */
 /*-------------------------------------*/
-QByteArray QtTcpClient::readAllMy()
+int QtTcpClient::ReadAllMy()
 {
 	QByteArray qba;
 	if (this->waitForReadyRead (MAX_MSECS)) {
 		qba = this->readAll();
 		m_buffer.append(qba);
+		return TRUE;
+	
+	}else {
+
+		SocketError error = this->error();
+		QString  error_str_t = this->errorString();
+		if (error == SocketError::ConnectionRefusedError
+			&&  error_str_t.isEmpty()) {
+			//maybe time out
+			return TRUE;
+		}
+		else {
+			qDebug() << error_str_t;
+			return FALSE;
+		}
+
 	}
-	return qba;
+	
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int QtTcpClient::ReadMy()
+{
+	//QByteArray qba;	
+	 char buff[16*1024];
+
+	if (this->waitForReadyRead(MAX_MSECS)) {
+	
+		
+
+		int len_t=this->read(buff, 16*1024);
+
+//		SocketError error = this->error();
+//		qDebug() << this->errorString();
+		
+		if (len_t > 0) {
+			m_buffer.append(buff,len_t);
+			return TRUE;
+		
+		}else{
+			return FALSE;
+		}
+	}else {
+
+		SocketError error=this->error();
+		QString  error_str_t = this->errorString();
+		if (error == SocketError::ConnectionRefusedError
+			&&  error_str_t.isEmpty()) {
+			//maybe time out
+			return TRUE;
+		}else{
+			qDebug() << error_str_t;
+			return FALSE;
+		}
+		
+	}
+
+	return IsSocketAlive();
 }
 /*-------------------------------------*/
 /**
@@ -116,10 +183,10 @@ int QtTcpClient::WriteMy(const char* const _data,const int _size)
 *
 */
 /*-------------------------------------*/
-int QtTcpClient::Send_Start_CMD(int _type)
+int QtTcpClient::Send_Start_CMD(int _type, CMD_CTRL::WorkMode _wm)
 {
 	CMD_CTRL cmd;
-	cmd.getFpgaStartCmd(_type);
+	cmd.getFpgaStartCmd(_type,_wm);
 	
 	if (_type) {
 		std::cout << "Send CMD START FPGA" << std::endl;
@@ -209,10 +276,10 @@ int  QtTcpClient::Read_1_cmd(CMD_CTRL *_cmd)
 	do {
 	
 		if (this->m_buffer.size() < HeaderSize) {
-			this->readAllMy();
+			if (this->ReadAllMy() == FALSE) return FALSE;
 		}
 		if (DataALLSize_ != -1 && this->m_buffer.size() < DataALLSize_) {
-			this->readAllMy();
+			if (this->ReadAllMy() == FALSE) return FALSE;
 		}
 
 		while (this->m_buffer.size()>=HeaderSize)
@@ -247,6 +314,7 @@ int  QtTcpClient::Read_1_cmd(CMD_CTRL *_cmd)
 			}
 			else
 			{
+			//	assert(0);
 				m_buffer.remove(0, 1);
 			}
 
@@ -269,6 +337,17 @@ int  QtTcpClient::Read_1_cmd(CMD_CTRL *_cmd)
 *
 */
 /*-------------------------------------*/
+int QtTcpClient::Read_1_cmd_fast(CMD_CTRL * _cmd)
+{
+	
+
+	return TRUE;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 int QtTcpClient::Read_nSize_2_body(CMD_CTRL * _cmd)
 {
 	const int BODY_HEADER_SIZE = sizeof(IplImageUI);
@@ -277,7 +356,7 @@ int QtTcpClient::Read_nSize_2_body(CMD_CTRL * _cmd)
 	do
 	{
 		
-		this->readAllMy();
+		if (this->ReadAllMy() == FALSE) return FALSE;
 
 		if (m_buffer.size() >= body_size) {
 			//read enough data
@@ -315,13 +394,33 @@ int QtTcpClient::IsSocketAlive()
 
 	}else if (stat_t == QAbstractSocket::SocketState::UnconnectedState) {
 		
-		std::cout << "socket is closed" << std::endl;
+		std::cout << "socket is un connected" << std::endl;
 		return 0;
 
 	}else{
 
 		return 1;
 
+	}
+
+
+	//if (this->isValid())
+
+
+		//return 0;
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtTcpClient::disconnectFromHostMy()
+{
+	QAbstractSocket::SocketState stat_t = this->state();
+	if (stat_t== QAbstractSocket::SocketState::ConnectedState) {
+		this->disconnectFromHost();
+		this->waitForDisconnected();
 	}
 
 }

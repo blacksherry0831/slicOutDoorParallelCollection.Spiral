@@ -58,6 +58,21 @@ void QtThreadSocketClient::write_ptr(qintptr p)
 *
 */
 /*-------------------------------------*/
+void QtThreadSocketClient::init_socket()
+{
+	if (m_socket.isNull()) {
+			m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
+	}	
+
+	m_socket->close();
+
+	emit socket_connect_state(false);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void QtThreadSocketClient::SetSocketDesp()
 {
 	if (ptr_sd>=0) {
@@ -66,6 +81,12 @@ void QtThreadSocketClient::SetSocketDesp()
 	}
 	
 }
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+
 /*-------------------------------------*/
 /**
 *
@@ -86,12 +107,25 @@ void  QtThreadSocketClient::connect2ServerIfNoConnected()
 	if (m_socket->IsSocketAlive() == false) {
 
 		do {
-			m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
+			this->init_socket();
 			m_socket->connectToHost(QHostAddress(mIpAddr.c_str()), mPort);
 			std::cout << "Try Connect to IP: " << mIpAddr << "Port:" << mPort << std::endl;
-			QThread::sleep(1);
-		} while (m_socket->waitForConnected(MAX_MSECS) == false);
-		std::cout << "Connect  Success: " << mIpAddr << "Port:" << mPort << std::endl;
+			
+			if (m_socket->waitForConnected(MAX_MSECS)==true) {
+				
+				emit socket_connect_state(true);
+
+				std::cout << "Connect  Success: " << mIpAddr << "Port:" << mPort << std::endl;
+				break;
+			}else{
+				
+				m_socket->disconnectFromHostMy();
+
+				emit socket_connect_state(false);
+			}
+
+		} while (true);
+		
 	}
 }
 /*-------------------------------------*/

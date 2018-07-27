@@ -6,18 +6,10 @@
 #include "cpp_stl.h"
 #include "opencv_stl.h"
 
-#if TRUE
 
-#include "../SocketQT/QtThreadServer.hpp"
-#include "../SocketQT/QtThreadPLC.hpp"
-#include "../SocketQT/QtThreadClientCtrl.hpp"
-#include "../SocketQT/QtThread8Video.hpp"
-#include "../SocketQT/QtThread8VideoRaw.hpp"
-#include "../SocketQT/QtThread8VideoProcess.hpp"
+#include "module_my.h"
 
-#include "../SocketQT/QtTcpServerTest.hpp"
 
-#endif // TRUE
 
 #ifdef _MSC_VER
 #ifndef NDEBUG
@@ -30,12 +22,13 @@ int mainGui(int argc, char *argv[])
 	QApplication a(argc, argv);
 	
 	MainWindow w;
+
 	w.show();
 		
 	return  EXEC_RESULT= a.exec();;
 }
 
-int mainConsole(int argc, char *argv[])
+int plcTest(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
 #if 0
@@ -111,14 +104,14 @@ int main(int argc, char *argv[])
 			std::getline(std::cin, cmd);
 			if (cmd.compare("PLC_M") == 0) {
 				
-				return	mainConsole(argc, argv);
+				return	plcTest(argc, argv);
 
 			}else if (cmd.compare("8ChVideo") == 0) {
 
 				return eightChannelVideo(argc, argv);
 
-			}else if (cmd.compare("XXX") == 0) {
-
+			}else if (cmd.compare("ShowUI") == 0) {
+				return mainGui(argc,argv);
 			}else if (cmd.compare("XXX") == 0) {
 
 			}else if (cmd.compare("q") == 0) {
@@ -127,6 +120,7 @@ int main(int argc, char *argv[])
 			else {
 				std::cout << "please input a cmd :" << std::endl;
 				std::cout << "8ChVideo" << std::endl;
+				std::cout << "ShowUI" << std::endl;
 				std::cout << "PLC_M" << std::endl;
 				std::cout << "q" << std::endl;
 				std::cout << "......" << std::endl;

@@ -29,10 +29,18 @@ typedef struct _IplImageU
 	char prefix[ALIGN_SIZE_T];
 	unsigned char IpAddrChannel[ALIGN_SIZE_T];
 	unsigned char frame[ALIGN_SIZE_T];
+	
 	unsigned char width[ALIGN_SIZE_T];
 	unsigned char height[ALIGN_SIZE_T];
+
+	unsigned char width_roi[ALIGN_SIZE_T];
+	unsigned char height_roi[ALIGN_SIZE_T];
+	unsigned char x_roi[ALIGN_SIZE_T];
+	unsigned char y_roi[ALIGN_SIZE_T];
+	
 	unsigned char sensor_stat[ALIGN_SIZE_T];
 	unsigned char nChannels[ALIGN_SIZE_T];
+
 	IplImage  	Iplimg;
 } IplImageU;
 /*-----------------------------------*/
@@ -74,7 +82,13 @@ public:
 		CT_ERROR=0x01,
 		CT_LR_RUN_2=0x20,
 		CT_ROLLER_Q=0x10};
-
+	enum WorkMode
+	{
+		CUT_AREA=1,
+		ORG_IMAGE=2,
+		DIFF=3,
+		RESP = 4
+	};
 	typedef struct {
 		unsigned char f_header[4];
 		unsigned char f_reserve[2];
@@ -111,13 +125,13 @@ public:
 	void SetDataSize(const int _body_size=2);
 	static int GetCMDBodySize(CMD_CTRL::CMD_CTRL_HEADER* _cmd);
 public:
-	void setFpgaConvertCmd(int _type);
-	void setRespCmd(int _type);
+	void setFpgaConvertCmd(int _type, WorkMode _wm);
+	void setRespCmd(int _type, int work_mode);
 	void setPlcLrIntoIn(int _step);
 	void setRollerQualified(int _qualified);
 	void initHearbeatCmd();
 public:
-	std::vector<unsigned char>	getFpgaStartCmd(int _type);
+	std::vector<unsigned char>	getFpgaStartCmd(int _type, WorkMode _wm);
 	std::vector<unsigned char>	getRespPLCmd(int _type);
 	std::vector<unsigned char>	getPLCLRIntoCmd(int _step);
 	std::vector<unsigned char>  getRollerQualifiedCmd(int _qualified);

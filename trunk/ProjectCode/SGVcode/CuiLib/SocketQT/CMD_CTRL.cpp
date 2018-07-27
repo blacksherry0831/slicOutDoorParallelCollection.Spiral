@@ -122,7 +122,7 @@ void CMD_CTRL::initCRC()
 *
 */
 /*-------------------------------------*/
-void CMD_CTRL::setFpgaConvertCmd(int _type)
+void CMD_CTRL::setFpgaConvertCmd(int _type, WorkMode _wm)
 {
 	if (_type == TRUE) {
 		
@@ -139,6 +139,11 @@ void CMD_CTRL::setFpgaConvertCmd(int _type)
 		assert(0);
 	
 	}
+	
+	assert(f_data.size() >= 2);
+
+	f_data[0] = _wm;//low
+	f_data[1] = _wm>>8;//height
 
 }
 /*-------------------------------------*/
@@ -146,7 +151,7 @@ void CMD_CTRL::setFpgaConvertCmd(int _type)
 *
 */
 /*-------------------------------------*/
-void CMD_CTRL::setRespCmd(int _type)
+void CMD_CTRL::setRespCmd(int _type, int work_mode)
 {
 	if (_type == TRUE) {
 
@@ -358,9 +363,9 @@ int CMD_CTRL::IsRoolerReady()
 *
 */
 /*-------------------------------------*/
-std::vector<unsigned char> CMD_CTRL::getFpgaStartCmd(int _type)
+std::vector<unsigned char> CMD_CTRL::getFpgaStartCmd(int _type, WorkMode _wm)
 {
-	this->setFpgaConvertCmd(_type);
+	this->setFpgaConvertCmd(_type,_wm);
 	this->initHeader();
 	this->initPc2Arm();
 	
@@ -439,7 +444,8 @@ int CMD_CTRL::InitImg()
 
 	if (m_img == NULL) {
 			unsigned char* buff_t = this->f_data.data();
-			m_img = (IplImageU*)(buff_t);
+			m_img = (IplImageU*)(buff_t);			
+			assert(UChar2Int(m_img->nSize, 8) == sizeof(IplImageU));
 			this->InitIplimage();
 	}
 
@@ -459,11 +465,18 @@ int CMD_CTRL::InitIplimage()
 	int HEIGHT= this->UChar2Int(m_img->height, ALIGN_SIZE_T);
 	int nChannels= this->UChar2Int(m_img->nChannels, ALIGN_SIZE_T);
 
+	int roi_width = this->UChar2Int(m_img->width_roi, ALIGN_SIZE_T);
+	int roi_height = this->UChar2Int(m_img->height_roi, ALIGN_SIZE_T);
+		
+	int roi_x= this->UChar2Int(m_img->x_roi, ALIGN_SIZE_T);
+	int roi_y= this->UChar2Int(m_img->y_roi, ALIGN_SIZE_T);
+	
+	
+
 	if (nChannels == 1) {
 		
 		cvInitImageHeader(Iplimg_t, cvSize(WIDTH, HEIGHT), IPL_DEPTH_8U, 1);
-		
-
+				
 	}else if (nChannels==8) {
 
 		cvInitImageHeader(Iplimg_t, cvSize(WIDTH, HEIGHT), IPL_DEPTH_64F, 1);
@@ -472,10 +485,16 @@ int CMD_CTRL::InitIplimage()
 	
 		assert(0);
 	}
+
 #if _DEBUG
 	assert(Iplimg_t->widthStep == Iplimg_t->width* Iplimg_t->nChannels);
 #endif
 	Iplimg_t->imageData = (char*)&buff_t[sizeof(IplImageUI)];
+	
+	if (roi_width + roi_height + roi_x + roi_y > 0) {
+		cvSetImageROI(Iplimg_t, cvRect(roi_x, roi_y, roi_width, roi_height));
+	}
+	
 	return 0;
 }
 /*-------------------------------------*/
@@ -599,7 +618,7 @@ int CMD_CTRL::Int2UChar(int _size, unsigned char * _data)
 /*-------------------------------------*/
 std::vector<unsigned char> CMD_CTRL::getRespPLCmd(int _type)
 {
-	this->setRespCmd(_type);
+	this->setRespCmd(_type, WorkMode::RESP);
 	this->initHeader();
 	this->initpc2plcLR();
 	this->SetDataSize();

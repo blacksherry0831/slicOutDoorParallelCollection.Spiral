@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 #include <QMainWindow>
 
+#include "module_my.h"
 
 
 #ifdef QT_VERSION
@@ -21,6 +22,8 @@
 	#include "cpp_stl.h"
 #endif
 
+#include <QtCore/QVariant>
+#include <qtimer.h>
 namespace Ui {
 class MainWindow;
 }
@@ -37,17 +40,32 @@ private:
 
 public:
 	void initUI();
-	void TestSerialPort();
+
 	bool m_test_result;
 public:
-	void WhenCfgDone(int enable);
+	
 	void WorkStart();
 	void WorkDone();
 public:
-	
+	QSharedPointer<QtThreadClientCtrl>		mCtrlServer;
 
+	QSharedPointer<QtThread8Video>			mVideoDataServer;
 
+	QSharedPointer<QThread>					mthread;
+
+	QSharedPointer<QtLink>					mLink;
 	
+	QSharedPointer<QTimer>					mTimer;
+private:
+	void init_class_member();
+public:
+	void message_test();
+public slots:
+	
+		void ClickButton_CutArea();
+		void StartVideo();
+		void StopVideo();
+		void ConnectVideo();
 
 public slots:
 	void ClickButton_Test();
@@ -55,6 +73,11 @@ public slots:
 	void ClickButton_CameraStart();
 	void ClickButton_MotorRun();
 	void WorkProgressShow(QString str);
+	void CheckBox_ping(int _stat_t);
+	void CheckBox_ssh(int _stat_t);
+	void CheckBox_fpga_ctrl(int _stat_t);
+	void CheckBox_fpga_image_video(int _stat_t);
+	void main_test();
 };
 
 #endif // MAINWINDOW_H

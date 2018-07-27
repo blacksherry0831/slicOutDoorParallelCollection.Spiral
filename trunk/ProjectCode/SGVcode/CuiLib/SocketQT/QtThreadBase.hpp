@@ -2,10 +2,7 @@
 
 #include "cpp_stl.h"
 
-#include <QtCore>
-#include <QtNetwork>
-#include <QSharedPointer>
-#include <QThread>
+#include "qt_all.h"
 
 /*-------------------------------------*/
 /**
@@ -15,9 +12,9 @@
 /*-------------------------------------*/
 class QtThreadBase :public QThread
 {
-
+	Q_OBJECT
 public:
-	QtThreadBase();
+	explicit QtThreadBase(QObject *parent = Q_NULLPTR);
 	~QtThreadBase(void);
 protected:
 

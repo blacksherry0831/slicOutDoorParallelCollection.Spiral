@@ -4,6 +4,8 @@ ConfigOpenCv()
 CONFIGQT()
 CONFIGPTHREADS()
 ###############################################################################
+set(CMAKE_AUTOMOC ON)
+###############################################################################
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")  
 
@@ -32,7 +34,8 @@ ENDIF ()
 				ChannelsData.cpp
 				QtThread8VideoProcess.cpp
 				QtThread8VideoRaw.cpp
-				QtTcpServerTest.cpp)		
+				QtTcpServerTest.cpp
+				QtLink.cpp)		
 	
 	endif (CBB_BUILDING_CRACK_DETECTION)
  

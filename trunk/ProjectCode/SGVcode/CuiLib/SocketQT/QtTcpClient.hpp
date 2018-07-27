@@ -2,9 +2,7 @@
 
 #include "cpp_stl.h"
 
-#include <QtCore>
-#include <QtNetwork>
-#include <QSharedPointer>
+#include "qt_all.h"
 
 #include "CMD_CTRL.hpp"
 
@@ -15,9 +13,7 @@
 *
 */
 /*-------------------------------------*/
-#define TCP_PORT_VIDEO_TRANS (10001)
-#define TCP_POET_CMD_CTRL    (10000)
-#define TCP_PORT_VIDEO_RAW	 (8888)
+
 /*-------------------------------------*/
 /**
 *
@@ -26,32 +22,39 @@
 /*-------------------------------------*/
 class QtTcpClient :public QTcpSocket
 {
-	
+	Q_OBJECT
 protected:
 	int  MAX_MSECS;
 public:
-	QtTcpClient();
+	explicit QtTcpClient(QObject *parent = Q_NULLPTR);
 	~QtTcpClient(void);
 private:
 	QByteArray m_buffer;
+	int m_buffer_Length;
 public:
 	int init();
-	QByteArray readAllMy();
+	int ReadAllMy();
+	int ReadMy();
 	int WriteMy(QByteArray _data);
 	int WriteMy(const char* const _data,const int _size);
 public:
 	int IsSocketAlive();
+	void disconnectFromHostMy();
 public:
 	int Send_1_cmd(CMD_CTRL *_cmd);
 	int Read_1_cmd(CMD_CTRL *_cmd);
+	int Read_1_cmd_fast(CMD_CTRL *_cmd);
 	int Read_nSize_2_body(CMD_CTRL *_cmd);
 public:
-	int Send_Start_CMD(int _type);
+	int Send_Start_CMD(int _type, CMD_CTRL::WorkMode _wm);
 	int SendHearbeatCmd();
 public:
 	int SendPlcResp(int _type);
 	int SendPlcIntoInter(int _step);
 	int SendPlcRollerQualified(int _qualified);
+
+signals:
+	void socket_connect_state(int);
 public:
 
 };

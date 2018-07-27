@@ -19,10 +19,8 @@
 *
 */
 /*-------------------------------------*/
-QtThreadBase::QtThreadBase(void)
+QtThreadBase::QtThreadBase(QObject *parent):QThread(parent)
 {
-	
-
 	this->M_THREAD_RUN = true;
 	this->MAX_MSECS = 30000;
 	
@@ -76,6 +74,12 @@ void QtThreadBase::startServer()
 void QtThreadBase::closeServer()
 {
 	this->M_THREAD_RUN = false;
+
+	while (this->isRunning())
+	{
+		QThread::sleep(1);
+		std::cout <<"wait for thread done";
+	}
 }
 /*-------------------------------------*/
 /**

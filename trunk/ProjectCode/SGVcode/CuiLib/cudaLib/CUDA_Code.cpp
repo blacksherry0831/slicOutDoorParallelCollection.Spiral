@@ -406,7 +406,7 @@ void DrawContoursAroundSegments_cuda(
 
 	{
 
-#if 0
+#if 1
 		DrawContoursAroundSegments_gpu(ubuff,labels,width,height,color,BlackColorPNG);
 #else
 		DrawContoursAroundSegments_gpu(ubuff,labels,width,height,0xffff6600,0xff33ffcc);
