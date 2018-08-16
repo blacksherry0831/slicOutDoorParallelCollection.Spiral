@@ -133,13 +133,20 @@ void  QtThreadSocketClient::connect2ServerIfNoConnected()
 *
 */
 /*-------------------------------------*/
-
+void QtThreadSocketClient::disconnect4Server()
+{
+	this->m_socket->disconnectFromHostMy();
+}
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-
+void QtThreadSocketClient::closeSocket4Server()
+{
+	this->m_socket->close();
+	emit socket_connect_state(false);
+}
 /*-------------------------------------*/
 /**
 *

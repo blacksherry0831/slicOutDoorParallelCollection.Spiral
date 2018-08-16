@@ -29,7 +29,7 @@
 /*-------------------------------------*/
 class QtThread8Video :public QtThreadSocketClient
 {
-
+	Q_OBJECT
 public:
 	QtThread8Video(qintptr p);
 	QtThread8Video();
@@ -41,6 +41,10 @@ public:
 	void Run0();
 	void run1();
 	static void ProcessCmd(QSharedPointer<CMD_CTRL> cmd_t);
+private:
+	void emit_img_signals(QSharedPointer<CMD_CTRL> cmd_t);
+signals:
+	void img_stat(int _p_stat,int _channel,int _frames);
 protected: 
 	virtual void run();
 

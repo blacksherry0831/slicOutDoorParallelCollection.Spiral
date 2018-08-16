@@ -28,6 +28,7 @@ ENDIF ()
 				QtThreadPLC.cpp
 				DataFrame.cpp
 				CMD_CTRL.cpp
+				CMD_CTRL_Q.cpp				
 				QtThread8Video.cpp
 				QtThreadSocketClient.cpp
 				exCircleData.cpp

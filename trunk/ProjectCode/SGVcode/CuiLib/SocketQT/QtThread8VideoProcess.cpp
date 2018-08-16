@@ -7,7 +7,7 @@
 */
 /*-------------------------------------*/
 const unsigned char QtThread8VideoProcess::TaskMap[CAMERA_CHANNELS] = {0,1,2,3,4,5,6,7};
-QtThread8VideoProcess* QtThread8VideoProcess::TaskObj[CAMERA_CHANNELS];
+QtThread8VideoProcess* QtThread8VideoProcess::TaskObj[CAMERA_CHANNELS] = {Q_NULLPTR};
 QThreadPool   QtThread8VideoProcess::ThreadPool;
 bool QtThread8VideoProcess::M_THREAD_RUN=true;
 
@@ -37,7 +37,7 @@ QtThread8VideoProcess::QtThread8VideoProcess(int _Channel)
 
 	this->CHANNEL = _Channel;
 	this->WINDOW_NAME ="Channel"+Base::int2str(_Channel);
-
+	
 	this->init_window();
 	
 }
@@ -48,10 +48,48 @@ QtThread8VideoProcess::QtThread8VideoProcess(int _Channel)
 /*-------------------------------------*/
 QtThread8VideoProcess::~QtThread8VideoProcess(void)
 {
-	qDebug() << "QtThread8Video is Release ! ";
+	qDebug() << "QtThread8Video is Release ! "<<"CHANNEL:"<<this->CHANNEL;
 	M_THREAD_RUN = FALSE;
 	cvDestroyWindow(WINDOW_NAME.c_str());
-
+	TaskObj[CHANNEL] = Q_NULLPTR;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThread8VideoProcess::SetCurrentCutArea(IplImage * img_t)
+{
+	mCutArea = cvGetImageROI(img_t);
+	cvResetImageROI(img_t);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThread8VideoProcess::DrawCurrentCutArea(IplImage * img_t)
+{
+	DrawArea(img_t, mCutArea);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThread8VideoProcess::DrawFutureCutArea(IplImage * img_t)
+{
+	DrawAreaGrid(img_t, mCutAreaSet);
+}
+void QtThread8VideoProcess::DrawSensorStatArea(IplImage * img_t)
+{
+#if _DEBUG
+	if (cmd_ctrl->SensorStat() == 0) {
+		CvFont font;
+		cvInitFont(&font, CV_FONT_HERSHEY_COMPLEX, 4, 4, 1, 2);
+		cvPutText(img_t, "Sensor Error", cvPoint(10, img_t->height / 2), &font, CV_RGB(255, 255, 255));
+	}
+#endif // _DEBUG
 }
 /*-------------------------------------*/
 /**
@@ -61,9 +99,9 @@ QtThread8VideoProcess::~QtThread8VideoProcess(void)
 void QtThread8VideoProcess::DrawSelectedBoder(IplImage* img_t)
 {
 	const CvPoint up_left = cvPoint(mCutAreaSet.x, mCutAreaSet.y);
-	const CvPoint up_right = cvPoint(mCutAreaSet.x+mCutArea.width, mCutAreaSet.y);
+	const CvPoint up_right = cvPoint(mCutAreaSet.x+mCutAreaSet.width, mCutAreaSet.y);
 	const CvPoint down_left = cvPoint(mCutAreaSet.x, mCutAreaSet.y+mCutAreaSet.height);
-	const CvPoint down_right = cvPoint(mCutAreaSet.x+mCutArea.width, mCutAreaSet.y+mCutAreaSet.height);
+	const CvPoint down_right = cvPoint(mCutAreaSet.x+mCutAreaSet.width, mCutAreaSet.y+mCutAreaSet.height);
 
 	if (this->mRectM==RectMode::DOWN){
 		cvDrawLine(img_t, down_left, down_right, CV_RGB(0,0,0 ), 3, CV_AA);
@@ -90,12 +128,130 @@ void QtThread8VideoProcess::DrawSelectedBoder(IplImage* img_t)
 *
 */
 /*-------------------------------------*/
+void QtThread8VideoProcess::SetCutRectBorder(CvPoint point_t,int flags)
+{
+	if (CutRectFlag[(int)mRectM] == (int)mRectM+1){
+
+						if (this->mRectM == RectMode::LEFT) {
+							mCutAreaSet.width=mCutAreaSet.width-(point_t.x- mCutAreaSet.x);
+							mCutAreaSet.x = point_t.x;
+						}else if (this->mRectM == RectMode::UP) {
+							mCutAreaSet.height=mCutAreaSet.height-(point_t.y- mCutAreaSet.y);
+							mCutAreaSet.y=point_t.y;
+						}else if (this->mRectM == RectMode::RIGHT) {
+							mCutAreaSet.width =(point_t.x - mCutAreaSet.x);
+						}else if (this->mRectM == RectMode::DOWN) {
+							mCutAreaSet.height= (point_t.y - mCutAreaSet.y);
+						}else if (this->mRectM == RectMode::IDLE) {
+
+						}else if (this->mRectM == RectMode::RECT){
+							
+						}else{
+
+						}
+	}
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThread8VideoProcess::SetRectBorderAdj(int flag)
+{
+	int step = 2*flag;
+
+	if (this->mRectM == RectMode::LEFT) {
+		mCutAreaSet.x += step;
+		mCutAreaSet.width -= step;
+	}else if (this->mRectM == RectMode::UP) {
+		mCutAreaSet.y += step;
+		mCutAreaSet.height -= step;
+	}else if (this->mRectM == RectMode::RIGHT) {				
+		mCutAreaSet.width += step;
+	}else if (this->mRectM == RectMode::DOWN) {
+		mCutAreaSet.height += step;
+	}else if (this->mRectM == RectMode::IDLE) {
+
+	}else if (this->mRectM == RectMode::RECT) {
+
+	}else {
+
+	}
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThread8VideoProcess::SetCutRect(int x, int y, int flags)
+{
+	if (CutRectFlag[(int)mRectM] == (int)mRectM + 1) {	
+			if (this->mRectM == RectMode::RECT) {
+						if ((flags & CV_EVENT_FLAG_CTRLKEY)) {
+							this->mCutAreaSet.width = std::abs(x - this->mCutAreaSet.x);
+							this->mCutAreaSet.height = std::abs(y - this->mCutAreaSet.y);
+						}
+			}	
+	}
+
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThread8VideoProcess::SetCutRectStart()
+{
+	CutRectFlag[(int)mRectM] = (int)mRectM+1;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThread8VideoProcess::SetCutRectStop()
+{
+	CutRectFlag[(int)mRectM] = 0;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThread8VideoProcess::SetProcessMode(ProcessMode _pm)
+{
+	this->mProcessM = _pm;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+QSharedPointer<CMD_CTRL> QtThread8VideoProcess::getCmdRectCfg()
+{
+	QSharedPointer<CMD_CTRL> cmd=QSharedPointer<CMD_CTRL>(new CMD_CTRL());
+		
+	if (IsEffectiveRect(&mCutAreaSet)) {
+		cmd->getRectCfgCmd(CHANNEL, mCutAreaSet);
+	}else{
+		cmd.clear();
+	}
+	
+	return cmd;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void QtThread8VideoProcess::drawTipText(IplImage* img_t,std::string txt)
 {
 	CvFont font;
 	const int scale = 2;
 	cvInitFont(&font, CV_FONT_HERSHEY_COMPLEX, scale, scale, 1, 2);
-	cvPutText(img_t, txt.c_str(), cvPoint(0,0), &font, CV_RGB(255, 255, 255));
+	cvPutText(img_t, txt.c_str(), cvPoint(50,50), &font, CV_RGB(255, 255, 255));
 
 }
 /*-------------------------------------*/
@@ -106,8 +262,8 @@ void QtThread8VideoProcess::drawTipText(IplImage* img_t,std::string txt)
 int QtThread8VideoProcess::IsEffectiveRect(CvRect * rect)
 {
 
-	if ((rect->x>0)&&
-		(rect->y>0)&&
+	if ((rect->x>=0)&&
+		(rect->y>=0)&&
 		(rect->width>0)&&
 		(rect->height>0)) {
 	
@@ -137,6 +293,39 @@ void QtThread8VideoProcess::DrawArea(IplImage* img_t,CvRect rect)
 		RectZoom(&rect, -1);
 		cvRectangleR(img_t, rect, CV_RGB(0, 0, 0));
 	
+	}
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThread8VideoProcess::DrawAreaGrid(IplImage * img_t, CvRect rect)
+{
+	const int W = img_t->width;
+	const int H = img_t->height;
+	  
+	const CvPoint line_v_1_top = cvPoint(rect.x,0);
+	const CvPoint line_v_1_bottom = cvPoint(rect.x, H);
+
+	const CvPoint line_v_2_top = cvPoint(rect.x+rect.width, 0);
+	const CvPoint line_v_2_bottom = cvPoint(rect.x + rect.width, H);
+
+	const CvPoint line_h_1_left = cvPoint(0, rect.y);
+	const CvPoint line_h_1_right = cvPoint(W, rect.y);
+
+	const CvPoint line_h_2_left = cvPoint(0,rect.y+rect.height);
+	const CvPoint line_h_2_right = cvPoint(W,rect.y+rect.height);
+
+
+
+	if (IsEffectiveRect(&rect)) {
+
+		cvLine(img_t, line_v_1_top, line_v_1_bottom, CV_RGB(255, 255, 255),3, CV_AA);
+		cvLine(img_t, line_v_2_top, line_v_2_bottom, CV_RGB(255, 255, 255), 3, CV_AA);
+		cvLine(img_t, line_h_1_left, line_h_1_right, CV_RGB(255, 255, 255), 3, CV_AA);
+		cvLine(img_t, line_h_2_left, line_h_2_right, CV_RGB(255, 255, 255), 3, CV_AA);
+
 	}
 }
 /*-------------------------------------*/
@@ -240,7 +429,7 @@ int QtThread8VideoProcess::WaitKey()
 /*-------------------------------------*/
 void QtThread8VideoProcess::ChangeRectMode()
 {
-	const static RectMode rm[] = {RectMode::LEFT,RectMode::UP,RectMode::RIGHT,RectMode::DOWN,RectMode::RECT};
+	const static RectMode rm[] = {RectMode::RECT,RectMode::LEFT,RectMode::UP,RectMode::RIGHT,RectMode::DOWN};
 	const int rm_size = sizeof(rm) / sizeof(RectMode);
 	static int current_mode = rm_size - 1;
 
@@ -255,71 +444,83 @@ void QtThread8VideoProcess::ChangeRectMode()
 void QtThread8VideoProcess::on_mouse(int event, int x, int y, int flags, void * ustc)
 {
 	QtThread8VideoProcess* const ptr_vp = (QtThread8VideoProcess*)ustc;
+	
+	if (event == CV_EVENT_MOUSEMOVE){
+
+						ptr_vp->SetCutRectBorder(cvPoint(x,y),flags);
+						ptr_vp->SetCutRect(x, y, flags);						
+
+	}else	if (event == CV_EVENT_LBUTTONDOWN){
+
+						if (CV_EVENT_FLAG_ALTKEY & flags){
+
+							ptr_vp->ChangeRectMode();
+
+						}else if (flags & CV_EVENT_FLAG_CTRLKEY){
+
+							if (ptr_vp->mRectM == RectMode::RECT){
+									ptr_vp->mCutAreaSet.x = x;
+									ptr_vp->mCutAreaSet.y = y;
+									ptr_vp->SetCutRectStart();
+							}
+
+					
+						}else{
+
+
+						}
+
+					
+		
+	}else	if (event == CV_EVENT_LBUTTONUP){
+		
+						if (ptr_vp->mRectM == RectMode::LEFT) {
+
+						}else if (ptr_vp->mRectM == RectMode::UP) {
+
+						}else if (ptr_vp->mRectM == RectMode::RIGHT) {
+
+						}else if (ptr_vp->mRectM == RectMode::DOWN) {
+
+						}else if (ptr_vp->mRectM == RectMode::IDLE) {
+
+						}else if(ptr_vp->mRectM == RectMode::RECT){
+			
+							if (flags & CV_EVENT_FLAG_CTRLKEY){
+								{
+									ptr_vp->mCutAreaSet.width = std::abs(x - ptr_vp->mCutAreaSet.x);
+									ptr_vp->mCutAreaSet.height = std::abs(y - ptr_vp->mCutAreaSet.y);
+									
+								}
+							}
+
+						}else{
+
+						}
+
+						
+
+
+	}else  if (event == CV_EVENT_RBUTTONDOWN){
+			ptr_vp->SetCutRectStart();
+	}else if (event == CV_EVENT_RBUTTONUP){
+			ptr_vp->SetCutRectStop();
+	}else if (event == CV_EVENT_LBUTTONDBLCLK){
+				
+	}else if (event == CV_EVENT_RBUTTONDBLCLK){	
+
+						if ((flags & CV_EVENT_FLAG_CTRLKEY) &&
+							(ptr_vp->mRectM == RectMode::RECT))	{
+								ptr_vp->mCutAreaSet = cvRect(0, 0, 0, 0);
+						}
+		
+	}else {
+
+
+	}
+
 
 	
-
-	if (event == CV_EVENT_MOUSEMOVE)
-	{
-		if ((flags & CV_EVENT_FLAG_CTRLKEY) &&
-			(ptr_vp->mRectM == RectMode::RECT))
-		{
-				if (ptr_vp->mCutAreaMode == 1) {
-					ptr_vp->mCutAreaSet.width = std::abs(x - ptr_vp->mCutAreaSet.x);
-					ptr_vp->mCutAreaSet.height = std::abs(y - ptr_vp->mCutAreaSet.y);
-				}	
-		}		
-	}
-	if (event == CV_EVENT_LBUTTONDOWN)
-	{
-		if ((flags & CV_EVENT_FLAG_CTRLKEY)&&
-			(ptr_vp->mRectM == RectMode::RECT) )
-		{
-					ptr_vp->mCutAreaSet.x = x;
-					ptr_vp->mCutAreaSet.y = y;
-					ptr_vp->mCutAreaMode = 1;
-		}
-		
-	}
-	if (event == CV_EVENT_LBUTTONUP)
-	{
-		if ((flags & CV_EVENT_FLAG_CTRLKEY)&&
-			(ptr_vp->mRectM == RectMode::RECT))
-		{
-				if (ptr_vp->mCutAreaMode == 1) {
-					ptr_vp->mCutAreaSet.width = std::abs(x - ptr_vp->mCutAreaSet.x);
-					ptr_vp->mCutAreaSet.height = std::abs(y - ptr_vp->mCutAreaSet.y);
-					ptr_vp->mCutAreaMode = 2;
-				}
-		
-		}		
-	}
-	if (event == CV_EVENT_RBUTTONDOWN)
-	{
-		
-	}
-	if (event == CV_EVENT_RBUTTONUP)
-	{
-		
-	}
-	if (event == CV_EVENT_LBUTTONDBLCLK)
-	{
-		
-		
-	}
-	if (event == CV_EVENT_RBUTTONDBLCLK)
-	{	
-		if ((flags & CV_EVENT_FLAG_CTRLKEY) &&
-			(ptr_vp->mRectM == RectMode::RECT))	{
-				ptr_vp->mCutAreaSet = cvRect(0, 0, 0, 0);
-		}
-		
-	}
-
-
-	if (CV_EVENT_FLAG_SHIFTKEY & flags) 
-	{
-				ptr_vp->ChangeRectMode();
-	}
 
 }
 /*-------------------------------------*/
@@ -393,14 +594,65 @@ void QtThread8VideoProcess::init_param()
 	
 	mKeyValue = -1;
 
-	mCutAreaMode = -1;
+	
+	mRectM = RectMode::RECT;
+	memset(CutRectFlag, 0, sizeof(CutRectFlag));
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
+void QtThread8VideoProcess::process_img_opencv_self()
+{
+	QSharedPointer<exCircleData> circleData = ChannelsData::channelsData()->getChannelData(CHANNEL);
+	cmd_ctrl = circleData->getImg();
 
+	IplImage *img_t = cmd_ctrl->getIplimage();
+
+#if TRUE	
+	this->SetCurrentCutArea(img_t);
+#endif // 0
+
+#if TRUE
+	this->DrawCurrentCutArea(img_t);
+	this->DrawFutureCutArea(img_t);
+	this->DrawSelectedBoder(img_t);
+#endif // TRUE
+
+
+
+
+
+	this->resizeWindowOnce(img_t->width, img_t->height);
+
+	cvShowImage(WINDOW_NAME.c_str(), img_t);
+
+	this->WaitKey();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThread8VideoProcess::process_nothing()
+{
+	QSharedPointer<exCircleData> circleData = ChannelsData::channelsData()->getChannelData(CHANNEL);
+	QSharedPointer<CMD_CTRL> cmd_ctrl = circleData->getImg();
+	cmd_ctrl.clear();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThread8VideoProcess::process_qtgui()
+{
+	QSharedPointer<exCircleData> circleData = ChannelsData::channelsData()->getChannelData(CHANNEL);
+
+	
+	emit img_incoming(CHANNEL,circleData->IsValid());
+}
 /*-------------------------------------*/
 /**
 *
@@ -412,45 +664,26 @@ void QtThread8VideoProcess::run()
 		
 	while (M_THREAD_RUN) {
 				
-		if (circleData->IsValid() == FALSE) {
-			QThread::msleep(10);
-			continue;			
-		}		
-		
+		if (circleData->IsValid()) {
+				
+				if (mProcessM== OPENCV){
+					this->process_img_opencv_self();
+				}else if (mProcessM == QTGUI){
+					this->process_qtgui();
+				}else if (mProcessM == NOTHING) {
+					this->process_nothing();
+				}else{
+					this->process_nothing();
+				}
 
-		QSharedPointer<CMD_CTRL> cmd_ctrl= circleData->getImg();
-		
-
-		IplImage *img_t = cmd_ctrl->getIplimage();
-
-#if TRUE
-	mCutArea= cvGetImageROI(img_t);
-	cvResetImageROI(img_t);
-
-	DrawArea(img_t, mCutArea);
-	
-#endif // 0
-
-#if TRUE
-	DrawArea(img_t, mCutAreaSet);
-	this->DrawSelectedBoder(img_t);
-#endif // TRUE
-
-	
-		
-#if _DEBUG
-		if (cmd_ctrl->SensorStat() == 0) {
-			CvFont font;
-			cvInitFont(&font, CV_FONT_HERSHEY_COMPLEX, 4, 4, 1, 2);
-			cvPutText(img_t, "Sensor Error", cvPoint(10, img_t->height / 2),&font, CV_RGB(255, 255, 255));
+		}else{
+				QThread::msleep(10);
 		}
-#endif // _DEBUG
+		
 
-		this->resizeWindowOnce( img_t->width,img_t->height);
 
-		cvShowImage(WINDOW_NAME.c_str(), img_t);
 
-		this->WaitKey();
+		
 
 	}
 		
@@ -460,15 +693,28 @@ void QtThread8VideoProcess::run()
 *
 */
 /*-------------------------------------*/
-void QtThread8VideoProcess::startTask()
+void QtThread8VideoProcess::startTask(ProcessMode _pm)
 {
-	ThreadPool.setMaxThreadCount(CAMERA_CHANNELS+1);
+	ThreadPool.clear();
+	ThreadPool.setMaxThreadCount(CAMERA_CHANNELS*2);
+	ThreadPool.setExpiryTimeout(1000);
+	qDebug() << "activeThreadCount: " << ThreadPool.activeThreadCount();
 
 	for (size_t chi = 0; chi < CAMERA_CHANNELS; chi++){
 		
 		TaskObj[chi]=new  QtThread8VideoProcess(chi);
+
+		TaskObj[chi]->SetProcessMode(_pm);
 		
-		ThreadPool.start(TaskObj[chi]);
+		if (TaskObj[chi]->autoDelete() == false) {
+			
+			TaskObj[chi]->setAutoDelete(true);
+		}
+
+		if (ThreadPool.tryStart(TaskObj[chi]) == false) {
+		
+			delete TaskObj[chi];
+		}
 
 	}
 
@@ -481,13 +727,28 @@ void QtThread8VideoProcess::startTask()
 void QtThread8VideoProcess::stopTask()
 {
 	M_THREAD_RUN = FALSE;
+
+#if 0
+	ThreadPool.waitForDone();
+#endif // 0
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
+void QtThread8VideoProcess::SetRectCmds()
+{
+	for (size_t chi = 0; chi < CAMERA_CHANNELS; chi++) {
 
+		if (TaskObj[chi]) {
+		
+			QSharedPointer<CMD_CTRL> cmd_t= TaskObj[chi]->getCmdRectCfg();
+			QtThreadClientCtrl::cmds.setCmd(cmd_t);
+		}	
+
+	}
+}
 /*-------------------------------------*/
 /**
 *

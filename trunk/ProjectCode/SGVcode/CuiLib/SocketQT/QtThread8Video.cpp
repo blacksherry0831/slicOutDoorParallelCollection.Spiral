@@ -93,6 +93,7 @@ void QtThread8Video::run()
 
 					if (cmd_t->IsImg()) {
 						  this->ProcessCmd(cmd_t);
+						  this->emit_img_signals(cmd_t);
 					}else if (cmd_t->isHeartbeatCmd()) {
 						//std::cout << "@" << std::endl;
 					}else{
@@ -104,8 +105,18 @@ void QtThread8Video::run()
 #endif // 1
 
 		}
+
+		this->closeSocket4Server();
 	
 	}
+
+
+#if _DEBUG
+	qDebug() << "Image Data Thread : shutdown !" ;
+#endif // _DEBUG
+
+
+
 }
 /*-------------------------------------*/
 /**
@@ -114,8 +125,6 @@ void QtThread8Video::run()
 /*-------------------------------------*/
 void QtThread8Video::ProcessCmd(QSharedPointer<CMD_CTRL> cmd_t)
 {
-	
-
 	if (cmd_t->IsImgStart()) {
 
 		std::cout << "Image Start!" << std::endl;
@@ -128,13 +137,18 @@ void QtThread8Video::ProcessCmd(QSharedPointer<CMD_CTRL> cmd_t)
 	}
 	else if (cmd_t->IsImgFrame()) {
 
-		std::cout << "Image Data!" <<
-			"Frame: " << cmd_t->FrameCount() <<
-			"Channel:" << cmd_t->Channel() <<
-			std::endl;
 		const int CHANNEL = cmd_t->Channel();
 		QSharedPointer<exCircleData> circleData = ChannelsData::channelsData()->getChannelData(CHANNEL);
 		circleData->setImg(cmd_t);
+#if _DEBUG
+
+		std::cout << "Image Data!" <<
+			"Frame: " << cmd_t->FrameCount() <<
+			"Channel:" << cmd_t->Channel() <<
+			"FPS: "<<circleData->fps()<<
+			std::endl;
+#endif // _DEBUG
+
 
 	}
 	else {
@@ -147,7 +161,20 @@ void QtThread8Video::ProcessCmd(QSharedPointer<CMD_CTRL> cmd_t)
 *
 */
 /*-------------------------------------*/
-
+void QtThread8Video::emit_img_signals(QSharedPointer<CMD_CTRL> cmd_t)
+{
+	if (cmd_t->IsImgStart()) {
+		emit img_stat(cmd_t->CmdStat(),0,0);
+	}else if (cmd_t->IsImgEnd()) {	
+		emit img_stat(cmd_t->CmdStat(),0,0);
+	}else if (cmd_t->IsImgFrame()) {	
+		const int CHANNEL = cmd_t->Channel();
+		QSharedPointer<exCircleData> circleData = ChannelsData::channelsData()->getChannelData(CHANNEL);
+		emit img_stat(cmd_t->CmdStat(),CHANNEL, circleData->QueueSize());
+	}else {
+			assert(FALSE);
+	}
+}
 /*-------------------------------------*/
 /**
 *

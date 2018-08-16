@@ -51,7 +51,7 @@ int plcTest(int argc, char *argv[])
 }
 
 
-int eightChannelVideo(int argc, char *argv[])
+int eightChannelVideo(int argc, char *argv[],int mode)
 {
 	QApplication app(argc, argv);
 	
@@ -59,36 +59,30 @@ int eightChannelVideo(int argc, char *argv[])
 	
 	QSharedPointer<QtThread8Video>			videoDataServer = QSharedPointer<QtThread8Video>(new QtThread8Video());
 
-#if 0
-QSharedPointer<QtThread8VideoRaw>		videoRawDataServer = QSharedPointer<QtThread8VideoRaw>(new QtThread8VideoRaw());
-#endif // 0
+	ctrlServer->SetWorkMode(CMD_CTRL::WorkMode(mode));
 
-	
 
-#if 0
-	QSharedPointer<QtTcpServerTest>         data_test_Server = QSharedPointer<QtTcpServerTest>(new QtTcpServerTest(Q_NULLPTR,TCP_PORT_VIDEO_RAW));
-#endif
 	ctrlServer->start();
 
 	videoDataServer->start();
-
-#if 0
-	videoRawDataServer->start();
-#endif // 0
-
-
-#if 0
-	data_test_Server->StartListen();
-#endif // 0
-
-	
 
 	QtThread8VideoProcess::startTask();
 
 	return app.exec();
 }
 
+int eightChannelVideoRaw(int argc, char *argv[])
+{
+	QApplication app(argc, argv);
+	
+	QSharedPointer<QtThread8VideoRaw>		videoRawDataServer = QSharedPointer<QtThread8VideoRaw>(new QtThread8VideoRaw());
+	
+	videoRawDataServer->start();
+	
+	QtThread8VideoProcess::startTask();
 
+	return app.exec();
+}
 
 
 
@@ -108,9 +102,20 @@ int main(int argc, char *argv[])
 
 			}else if (cmd.compare("8ChVideo") == 0) {
 
-				return eightChannelVideo(argc, argv);
+				return eightChannelVideo(argc, argv, (int)(CMD_CTRL::WorkMode::WM_ORG_IMG | CMD_CTRL::WorkMode::WM_SIZE_FULL));
 
-			}else if (cmd.compare("ShowUI") == 0) {
+			}
+			else if (cmd.compare("8ChVideoTest") == 0) {
+
+				return eightChannelVideo(argc,argv, (int)(CMD_CTRL::WorkMode::WM_DIFF_IMG | CMD_CTRL::WorkMode::WM_SIZE_FULL));
+
+			}
+			else if (cmd.compare("8ChVideoRaw") == 0) {
+
+				return eightChannelVideoRaw(argc, argv);
+
+			}
+			else if (cmd.compare("ShowUI") == 0) {
 				return mainGui(argc,argv);
 			}else if (cmd.compare("XXX") == 0) {
 
@@ -120,6 +125,8 @@ int main(int argc, char *argv[])
 			else {
 				std::cout << "please input a cmd :" << std::endl;
 				std::cout << "8ChVideo" << std::endl;
+				std::cout << "8ChVideoTest" << std::endl;
+				std::cout << "8ChVideoRaw" << std::endl;
 				std::cout << "ShowUI" << std::endl;
 				std::cout << "PLC_M" << std::endl;
 				std::cout << "q" << std::endl;

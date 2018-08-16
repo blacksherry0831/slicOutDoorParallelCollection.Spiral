@@ -39,6 +39,7 @@ public:
 	int WriteMy(const char* const _data,const int _size);
 public:
 	int IsSocketAlive();
+	int IsSocketError();
 	void disconnectFromHostMy();
 public:
 	int Send_1_cmd(CMD_CTRL *_cmd);

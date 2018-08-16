@@ -12,22 +12,29 @@
 /*-------------------------------------*/
 #include "ChannelsData.hpp"
 #include "MY_SDK_LIB/Base.h"
+
+#include "QtThreadClientCtrl.hpp"
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-class QtThread8VideoProcess : public QRunnable
+class QtThread8VideoProcess : public QObject,public QRunnable
 {
-	//Q_OBJECT
+	Q_OBJECT
 public:
 	enum RectMode {
-		LEFT=0,
-		RIGHT=1,
-		UP=2,
-		DOWN=3,
-		RECT=4,
-		IDLE=5,
+		IDLE=0,
+		LEFT=1,
+		RIGHT=2,
+		UP=3,
+		DOWN=4,
+		RECT=5,		
+	};
+	enum ProcessMode {
+		OPENCV,
+		QTGUI,
+		NOTHING,
 	};
 public:
 	QtThread8VideoProcess();
@@ -48,21 +55,40 @@ private:
 	
 	int mWindowWidth;
 	int mWindowHeight;
-public:
-	RectMode mRectM;
-	CvRect mCutAreaSet;
-	int    mCutAreaMode;
-	void DrawSelectedBoder(IplImage* img_t);
-	void drawTipText(IplImage* img_t,std::string txt);
 private:
 	CvRect mCutArea;
-	static int IsEffectiveRect(CvRect* rect);
+	int    mKeyValue;
+	QSharedPointer<CMD_CTRL> cmd_ctrl;
+public:
+	void SetCurrentCutArea(IplImage* img_t);
+	void DrawCurrentCutArea(IplImage* img_t);
+	void DrawFutureCutArea(IplImage* img_t);
+	void DrawSensorStatArea(IplImage* img_t);
+public:
+	RectMode mRectM;
+	ProcessMode mProcessM;
+	CvRect mCutAreaSet;
+	void DrawSelectedBoder(IplImage* img_t);
+	unsigned char CutRectFlag[10];
+	void SetCutRectBorder(CvPoint point_t,int flags);
+	void SetRectBorderAdj(int flag);
+	void SetCutRect(int x,int y, int flags);
+	void SetCutRectStart();
+	void SetCutRectStop();
+	void SetProcessMode(ProcessMode _pm);
+	QSharedPointer<CMD_CTRL> getCmdRectCfg();
+	void drawTipText(IplImage* img_t,std::string txt);
+public:
 	static void DrawArea(IplImage* img_t,CvRect rect);
+private:
+	static int IsEffectiveRect(CvRect* rect);
+	
+	static void DrawAreaGrid(IplImage* img_t, CvRect rect);
 	static void RectZoom(CvRect* rect,int scale);
 	void ReSizeRectByKey(int key);
-	int    mKeyValue;
 	int resizeWindowOnce(int _width, int _height);
 	int WaitKey();
+public:
 	void ChangeRectMode();
 protected:
 	static void on_mouse(int event, int x, int y, int flags, void *ustc);
@@ -71,13 +97,19 @@ protected:
 	void init_window();
 	void init();
 	void init_param();
+	void process_img_opencv_self();
+	void process_nothing();
+	void process_qtgui();
+signals:
+	void img_incoming(int _channel,int _frames);
 public:
 	static bool M_THREAD_RUN;
 	static const unsigned char TaskMap[CAMERA_CHANNELS];
 	static  QtThread8VideoProcess* TaskObj[CAMERA_CHANNELS];
 	static QThreadPool   ThreadPool;
-	static void startTask();
+	static void startTask(ProcessMode _pm= ProcessMode::OPENCV);
 	static void stopTask();
+	static void SetRectCmds();
 protected: 
 	virtual void run();
 

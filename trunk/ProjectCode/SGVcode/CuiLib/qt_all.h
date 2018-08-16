@@ -8,6 +8,7 @@
 #include <QtNetwork>
 #include <QSharedPointer>
 #include <QThread>
+#include <QImage>
 
 #endif
 

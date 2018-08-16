@@ -18,6 +18,7 @@
 #include <QtNetwork>
 #include <QSharedPointer>
 #include <QThread>
+#include <QImage>
 /*-----------------------------------*/
 /**
 *
@@ -70,24 +71,36 @@ public:
 
 	enum CMD_TYPE {
 		CT_HEART='h',
-		CT_BEAT='b',
 		CT_QUERY='q',
 		CT_CTRL='c',
 		CT_RESP='r',
-		CT_IMG='I',
-		CT_START=0x00,
-		CT_STOP=0x01,
+		CT_IMG='I'
+	};
+
+	enum CMD_TYPE_02 {
+		CT_START = 0x00,
+		CT_STOP = 0x01,
+
+		CT_BEAT = 'b',
 		CT_FRAME='F',
-		CT_OK=0x00,
-		CT_ERROR=0x01,
-		CT_LR_RUN_2=0x20,
-		CT_ROLLER_Q=0x10};
+
+		CT_IMG_RECT = 'R',
+		CT_IMG_MODE_CHANGE='M',
+
+		CT_OK = 0x00,
+		CT_ERROR = 0x01,
+
+		CT_LR_RUN_2 = 0x20,
+		CT_ROLLER_Q = 0x10
+	};
+
 	enum WorkMode
 	{
-		CUT_AREA=1,
-		ORG_IMAGE=2,
-		DIFF=3,
-		RESP = 4
+		WM_SIZE_FULL = 0x80,
+		WM_SIZE_CUT = 0x40,
+		WM_ORG_IMG = 0x20,
+		WM_DIFF_IMG = 0x10,
+		RESP = 0x01
 	};
 	typedef struct {
 		unsigned char f_header[4];
@@ -121,21 +134,26 @@ protected:
 	void initCRC();
 	
 public:
-	void Convert2ByteStream();
+	
 	void SetDataSize(const int _body_size=2);
 	static int GetCMDBodySize(CMD_CTRL::CMD_CTRL_HEADER* _cmd);
+	static QSharedPointer<QImage> IplImageToQImage(IplImage * const img);
 public:
 	void setFpgaConvertCmd(int _type, WorkMode _wm);
 	void setRespCmd(int _type, int work_mode);
 	void setPlcLrIntoIn(int _step);
 	void setRollerQualified(int _qualified);
 	void initHearbeatCmd();
+	void setRectCutCmd(int _channel, CvRect _rect_cut);
+	void setModeChangeCmd(int _wm);
 public:
 	std::vector<unsigned char>	getFpgaStartCmd(int _type, WorkMode _wm);
 	std::vector<unsigned char>	getRespPLCmd(int _type);
 	std::vector<unsigned char>	getPLCLRIntoCmd(int _step);
 	std::vector<unsigned char>  getRollerQualifiedCmd(int _qualified);
 	std::vector<unsigned char>  getHeartBeatCmd(int _type= DEV::DEV_FPGA_ARM);
+	std::vector<unsigned char>  getRectCfgCmd(int _channel, CvRect _rect_cut);
+	std::vector<unsigned char>  getModeChangeCmd(int _wm);
 
 public:
 	std::vector<unsigned char> Data();
@@ -151,6 +169,7 @@ public:
 	int IsImgStart();
 	int IsImgEnd();
 	int IsImgFrame();
+	int CmdStat();
 	int FrameCount();
 	int IsImg();
 	int InitImgCtrlHeader(int VideoCh, int _width, int _height, int _nChannels);
@@ -160,7 +179,12 @@ public:
 	int SensorStat();
 	int Width();
 	int Height();
+	
 	IplImage* getIplimage();
+	
+	QSharedPointer<QImage> getQimage();
+
+	IplImageU* getIplimageU();
 	/*-------------------------------------*/
 
 public:

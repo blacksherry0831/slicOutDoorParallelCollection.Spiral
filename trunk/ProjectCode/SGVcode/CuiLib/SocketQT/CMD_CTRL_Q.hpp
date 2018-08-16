@@ -15,26 +15,40 @@
 *
 */
 /*-----------------------------------*/
-#include "exCircleData.hpp"
+#include "CMD_CTRL.hpp"
 /*-------------------------------------*/
 /**
 *
+*/
+/*-------------------------------------*/
+
+/*-------------------------------------*/
+/**
 *
 */
 /*-------------------------------------*/
-class ChannelsData
+class CMD_CTRL_Q
 {
-private:
-	ChannelsData();
-	~ChannelsData();
-private:
-	std::vector<QSharedPointer<exCircleData>> mChannelsData;
 public:
-	QSharedPointer<exCircleData> getChannelData(int _ch);
+	
+public:
+	CMD_CTRL_Q();
+	~CMD_CTRL_Q();
+private:
+	QMutex mutex;
+	QQueue<QSharedPointer<CMD_CTRL>> mCmds;
+protected:
+
+private:
+	void clear();
 	void init();
 	void destory();
-private:
-	static ChannelsData gChannelsData;
+
 public:
-	static ChannelsData* channelsData();
+	int QueueSize();
+	int IsValid();
+public:
+	QSharedPointer<CMD_CTRL> getCmd();
+	void setCmd(QSharedPointer<CMD_CTRL> cmd_ctrl);
+
 };

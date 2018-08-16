@@ -10,13 +10,17 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
 qt5_wrap_ui(ui_FILES mainwindow.ui)
+qt5_wrap_ui(ui_FILES dialog.ui)
 ######################################
 IF (CBB_BUILDING_CRACK_DETECTION)  
    
 # Tell CMake to create the helloworld executable
 add_executable(TEST_QT  WIN32
                             main.cpp
-                            mainwindow.cpp
+							dialog.cpp
+							MouseLabel.cpp
+                            ClickableLabel.cpp
+							mainwindow.cpp
                             ${ui_FILES})
 
 

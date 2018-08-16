@@ -61,9 +61,9 @@ QtThread8VideoRaw::~QtThread8VideoRaw(void)
 void QtThread8VideoRaw::run()
 {
 	
-	int WIDTH = 1920;
-	int HEIGHT = 1080;
-	int nChannels = 1;
+	const int WIDTH = 1920;
+	const int HEIGHT = 1080;
+	const int nChannels = 1;
 	int VideoChannel = 0;
 
 	while (M_THREAD_RUN) {

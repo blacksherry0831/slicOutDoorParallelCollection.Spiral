@@ -127,12 +127,12 @@ void CMD_CTRL::setFpgaConvertCmd(int _type, WorkMode _wm)
 	if (_type == TRUE) {
 		
 		f_header.f_cmd[0] = CMD_TYPE::CT_CTRL;
-		f_header.f_cmd[1] = CMD_TYPE::CT_START;
+		f_header.f_cmd[1] = CMD_TYPE_02::CT_START;
 
 	}else if(_type == FALSE){
 
 		f_header.f_cmd[0] = CMD_TYPE::CT_CTRL;
-		f_header.f_cmd[1] = CMD_TYPE::CT_STOP;
+		f_header.f_cmd[1] = CMD_TYPE_02::CT_STOP;
 
 	}else{
 
@@ -156,13 +156,13 @@ void CMD_CTRL::setRespCmd(int _type, int work_mode)
 	if (_type == TRUE) {
 
 		f_header.f_cmd[0] = CMD_TYPE::CT_RESP;
-		f_header.f_cmd[1] = CMD_TYPE::CT_OK;
+		f_header.f_cmd[1] = CMD_TYPE_02::CT_OK;
 
 	}
 	else if (_type == FALSE) {
 
 		f_header.f_cmd[0] = CMD_TYPE::CT_RESP;
-		f_header.f_cmd[1] = CMD_TYPE::CT_ERROR;
+		f_header.f_cmd[1] = CMD_TYPE_02::CT_ERROR;
 
 	}
 	else {
@@ -179,7 +179,7 @@ void CMD_CTRL::setRespCmd(int _type, int work_mode)
 void CMD_CTRL::setPlcLrIntoIn(int _step)
 {
 	f_header.f_cmd[0] = CMD_TYPE::CT_CTRL;
-	f_header.f_cmd[1] = CMD_TYPE::CT_LR_RUN_2;
+	f_header.f_cmd[1] = CMD_TYPE_02::CT_LR_RUN_2;
 
 	int _step_h = _step / 256;
 	int _step_l = _step % 256;
@@ -198,7 +198,7 @@ void CMD_CTRL::setPlcLrIntoIn(int _step)
 void CMD_CTRL::setRollerQualified(int _qualified)
 {
 	f_header.f_cmd[0] = CMD_TYPE::CT_CTRL;
-	f_header.f_cmd[1] = CMD_TYPE::CT_ROLLER_Q;
+	f_header.f_cmd[1] = CMD_TYPE_02::CT_ROLLER_Q;
 
 	const int h_t = _qualified / 256;
 	const int l_t = _qualified % 256;
@@ -216,7 +216,52 @@ void CMD_CTRL::setRollerQualified(int _qualified)
 void CMD_CTRL::initHearbeatCmd()
 {
 	f_header.f_cmd[0] = CMD_TYPE::CT_HEART;
-	f_header.f_cmd[1] = CMD_TYPE::CT_BEAT;
+	f_header.f_cmd[1] = CMD_TYPE_02::CT_BEAT;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void CMD_CTRL::setRectCutCmd(int _channel, CvRect _rect_cut)
+{
+	f_header.f_cmd[0] = CMD_TYPE::CT_IMG;
+	f_header.f_cmd[1] = CMD_TYPE_02::CT_IMG_RECT;
+
+	const size_t data_size = sizeof(IplImageUI);
+
+	this->SetDataSize(data_size);
+	
+	Int2UChar(sizeof(IplImageU), f_data.data());
+
+	m_img=this->getIplimageU();
+
+	
+
+	Int2UChar(_channel, m_img->IpAddrChannel);
+
+	Int2UChar(_rect_cut.width, m_img->width_roi);
+	Int2UChar(_rect_cut.height, m_img->height_roi);
+	Int2UChar(_rect_cut.x, m_img->x_roi);
+	Int2UChar(_rect_cut.y, m_img->y_roi);
+	
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void CMD_CTRL::setModeChangeCmd(int _wm)
+{
+	f_header.f_cmd[0] = CMD_TYPE::CT_IMG;
+	f_header.f_cmd[1] = CMD_TYPE_02::CT_IMG_MODE_CHANGE;
+
+	assert(f_data.size() >= 2);
+
+	f_data[0] = _wm;//low
+	f_data[1] = _wm >> 8;//height
+	
+
 }
 /*-------------------------------------*/
 /**
@@ -295,7 +340,7 @@ int CMD_CTRL::IsResp()
 int CMD_CTRL::isHeartbeatCmd()
 {
 	if (this->f_header.f_cmd[0] == CMD_TYPE::CT_HEART &&
-		this->f_header.f_cmd[1] == CMD_TYPE::CT_BEAT) {
+		this->f_header.f_cmd[1] == CMD_TYPE_02::CT_BEAT) {
 		return TRUE;
 	}
 	return FALSE;
@@ -309,6 +354,36 @@ IplImage* CMD_CTRL::getIplimage()
 {
 	IplImage*  IplImg_t = &(m_img->Iplimg);
 	return IplImg_t;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+QSharedPointer<QImage> CMD_CTRL::getQimage()
+{
+	return IplImageToQImage(getIplimage());
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+IplImageU * CMD_CTRL::getIplimageU()
+{
+	IplImageU* img=NULL;
+
+	if (this->f_data.size()>= sizeof(IplImageU)){
+		
+			unsigned char* buff_t = this->f_data.data();
+			img = (IplImageU*)(buff_t);
+			assert(UChar2Int(img->nSize, 8) == sizeof(IplImageU));
+
+	}
+	
+
+
+	return img;
 }
 /*-------------------------------------*/
 /**
@@ -380,7 +455,7 @@ int CMD_CTRL::IsImgStart()
 {
 	//工件就绪
 	if (IsImg() &&
-		this->f_header.f_cmd[1] == CMD_TYPE::CT_START) {
+		this->f_header.f_cmd[1] == CMD_TYPE_02::CT_START) {
 		return TRUE;
 	}
 
@@ -395,7 +470,7 @@ int CMD_CTRL::IsImgEnd()
 {
 	//工件就绪
 	if (IsImg() &&
-		this->f_header.f_cmd[1] == CMD_TYPE::CT_STOP) {
+		this->f_header.f_cmd[1] == CMD_TYPE_02::CT_STOP) {
 		return TRUE;
 	}
 
@@ -410,11 +485,21 @@ int CMD_CTRL::IsImgFrame()
 {
 	//工件就绪
 	if (IsImg() &&
-		this->f_header.f_cmd[1] == CMD_TYPE::CT_FRAME) {
+		this->f_header.f_cmd[1] == CMD_TYPE_02::CT_FRAME) {
 		return TRUE;
 	}
 
 	return FALSE;;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int CMD_CTRL::CmdStat()
+{
+	int stat = (this->f_header.f_cmd[1] *256) + this->f_header.f_cmd[0];
+	return stat;
 }
 /*-------------------------------------*/
 /**
@@ -443,9 +528,9 @@ int CMD_CTRL::InitImg()
 {
 
 	if (m_img == NULL) {
-			unsigned char* buff_t = this->f_data.data();
-			m_img = (IplImageU*)(buff_t);			
-			assert(UChar2Int(m_img->nSize, 8) == sizeof(IplImageU));
+			
+			m_img = this->getIplimageU();
+			
 			this->InitIplimage();
 	}
 
@@ -481,6 +566,10 @@ int CMD_CTRL::InitIplimage()
 
 		cvInitImageHeader(Iplimg_t, cvSize(WIDTH, HEIGHT), IPL_DEPTH_64F, 1);
 	
+	}else if (nChannels == 2) {
+
+		cvInitImageHeader(Iplimg_t, cvSize(WIDTH, HEIGHT), IPL_DEPTH_8U, nChannels);
+
 	}else {
 	
 		assert(0);
@@ -520,18 +609,25 @@ int CMD_CTRL::InitImgCtrlHeader(int VideoCh,int _width, int _height, int _nChann
 {
 	
 	const int body_size_t = _width*_height*_nChannels + sizeof(IplImageUI);
-	unsigned char* buff_t = NULL;
+	
 		SetDataSize(body_size_t);
-	this->f_header.f_cmd[0] = CMD_TYPE::CT_IMG;
-	this->f_header.f_cmd[1] = CMD_TYPE::CT_FRAME;
-	buff_t= this->f_data.data();
 
-	IplImageUI *img_ui = (IplImageUI*)(buff_t);
-	this->Int2UChar(_width, img_ui->iplImgU.width);
-	this->Int2UChar(_height, img_ui->iplImgU.height);
-	this->Int2UChar(_nChannels, img_ui->iplImgU.nChannels );
-	this->Int2UChar(1, img_ui->iplImgU.sensor_stat);
-	this->Int2UChar(VideoCh%8, img_ui->iplImgU.IpAddrChannel);
+	this->f_header.f_cmd[0] = CMD_TYPE::CT_IMG;
+	this->f_header.f_cmd[1] = CMD_TYPE_02::CT_FRAME;
+	
+
+	
+	this->Int2UChar(sizeof(IplImageU),this->f_data.data());
+
+	IplImageU *img_u = this->getIplimageU();
+
+	this->Int2UChar(_width, img_u->width);
+
+	this->Int2UChar(_width, img_u->width);
+	this->Int2UChar(_height, img_u->height);
+	this->Int2UChar(_nChannels, img_u->nChannels );
+	this->Int2UChar(1, img_u->sensor_stat);
+	this->Int2UChar(VideoCh%8, img_u->IpAddrChannel);
 
 	return 0;
 }
@@ -671,6 +767,33 @@ std::vector<unsigned char> CMD_CTRL::getHeartBeatCmd(int _type)
 *
 */
 /*-------------------------------------*/
+std::vector<unsigned char> CMD_CTRL::getRectCfgCmd(int _channel,CvRect _rect_cut)
+{
+	this->initHeader();
+	
+	this->setRectCutCmd(_channel,_rect_cut);
+
+	this->initCRC();
+	return this->Data();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+std::vector<unsigned char> CMD_CTRL::getModeChangeCmd(int _wm)
+{
+	this->setModeChangeCmd(_wm);
+	this->initHeader();
+	this->initPc2Arm();
+
+	return this->Data();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void CMD_CTRL::SetDataSize(const int _body_size)
 {
 	if (f_data.size() < 2) {
@@ -715,7 +838,19 @@ int CMD_CTRL::GetCMDBodySize(CMD_CTRL::CMD_CTRL_HEADER* _cmd)
 *
 */
 /*-------------------------------------*/
+QSharedPointer<QImage> CMD_CTRL::IplImageToQImage(IplImage* const img)
+{	
+	const uchar * imgData = (uchar *)img->imageData;
+	
+	QImage::Format f = QImage::Format::Format_Grayscale8;
 
+	if (img->nChannels == 1) {
+		f = QImage::Format::Format_Grayscale8;
+	}
+
+	QSharedPointer<QImage> image = QSharedPointer<QImage>(new QImage(imgData, img->width, img->height,f));
+	return image;
+}
 /*-------------------------------------*/
 /**
 *

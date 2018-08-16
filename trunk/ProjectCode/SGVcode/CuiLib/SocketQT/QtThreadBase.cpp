@@ -75,11 +75,15 @@ void QtThreadBase::closeServer()
 {
 	this->M_THREAD_RUN = false;
 
+#if 0
 	while (this->isRunning())
 	{
 		QThread::sleep(1);
 		std::cout <<"wait for thread done";
 	}
+#endif // 0
+
+
 }
 /*-------------------------------------*/
 /**

@@ -31,10 +31,11 @@ private:
 
 	QSharedPointer<QTcpSocket> mTcpSocket;
 
+	int mRun;
 public:
 
 	void PingDevices(QString _ipStr, int _timeOut);
-
+	void Stop();
 
 public  slots :
 	   void ping_link_check();

@@ -8,7 +8,7 @@
 /*-------------------------------------*/
 QtLink::QtLink(void)
 {
-
+	mRun = TRUE;
 	m_ipAddr = BORD_VIDEO_OUT;
 }
 /*-------------------------------------*/
@@ -19,7 +19,8 @@ QtLink::QtLink(void)
 /*-------------------------------------*/
 QtLink::~QtLink(void)
 {
-
+	mTcpSocket.clear();
+	mPtrPingProcess.clear();
 }
 /*-------------------------------------*/
 /**
@@ -28,21 +29,37 @@ QtLink::~QtLink(void)
 /*-------------------------------------*/
 void QtLink::ping_link_check(void)
 {
-	if (mPtrPingProcess.isNull()) {
-		mPtrPingProcess = QSharedPointer<QProcess>(new QProcess(this));
-	}
+	if (mRun==TRUE){
+			if (mPtrPingProcess.isNull()) {
+					mPtrPingProcess = QSharedPointer<QProcess>(new QProcess(this));
+			}
+	 }
 
-	QProcess::ProcessState pState= mPtrPingProcess->state();
-
-	if (pState == QProcess::ProcessState::NotRunning) {
-				OnPing();
-	}else if (pState == QProcess::ProcessState::Running) {
+	if (!mPtrPingProcess.isNull()) {
 	
-	}else if (pState == QProcess::ProcessState::Starting) {
-	
-	}else{
+		QProcess::ProcessState pState= mPtrPingProcess->state();
 
+			if (pState == QProcess::ProcessState::NotRunning) {
+				
+				if (mRun == TRUE) {
+					OnPing();
+				}else{
+					mPtrPingProcess.clear();
+
+				}				
+
+			}else if (pState == QProcess::ProcessState::Running) {
+	
+			}else if (pState == QProcess::ProcessState::Starting) {
+	
+			}else{
+
+			}
+	
 	}
+			
+
+	
 
 
 }
@@ -75,6 +92,15 @@ void  QtLink ::PingDevices(QString _ipStr,int _timeOut)
 *
 */
 /*-------------------------------------*/
+void QtLink::Stop()
+{
+	mRun = FALSE;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void QtLink::OnPing()
 {
 	connect(mPtrPingProcess.data(), SIGNAL(finished(int)), this, SLOT(OnPingEnded(int)),Qt::ConnectionType::UniqueConnection);
@@ -94,15 +120,17 @@ void  QtLink::OnPingEnded(int exitCode)
 	QByteArray output = mPtrPingProcess->readAllStandardOutput();
 	if (!output.isEmpty())
 	{
-		qDebug() << QString::fromLocal8Bit(output);
+
+		if(exitCode!=0)	qDebug() << QString::fromLocal8Bit(output);
+		
 		if (-1 != QString(output).indexOf("ttl", 0, Qt::CaseInsensitive))
 		{
-			qDebug() << "PING OK";
+			if (exitCode != 0) qDebug() << "PING OK";
 			emit ping_status(TRUE);
 		}
 		else
 		{
-			qDebug() << "PING ERROR";
+			if (exitCode != 0) qDebug() << "PING ERROR";
 			emit ping_status(FALSE);
 
 		}
@@ -175,8 +203,12 @@ void QtLink::OnSshStateChange(QAbstractSocket::SocketState _sst)
 /*-------------------------------------*/
 void QtLink::line_check()
 {
-	ping_link_check();
-	ssh_link_check();
+#if 1
+ping_link_check();
+
+ssh_link_check();
+#endif // 0
+	
 }
 /*-------------------------------------*/
 /**

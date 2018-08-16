@@ -6,7 +6,7 @@
 *
 */
 /*-------------------------------------*/
-
+CMD_CTRL_Q QtThreadClientCtrl::cmds;
 /*-------------------------------------*/
 /**
 *
@@ -53,7 +53,7 @@ void QtThreadClientCtrl::initIpPort()
 
 	mPort = TCP_POET_CMD_CTRL;
 
-	mWorkMode = CMD_CTRL::WorkMode::ORG_IMAGE;
+	mWorkMode = CMD_CTRL::WorkMode( CMD_CTRL::WorkMode::WM_ORG_IMG| CMD_CTRL::WorkMode::WM_SIZE_FULL);
 }
 /*-------------------------------------*/
 /**
@@ -101,15 +101,25 @@ void QtThreadClientCtrl::run()
 					
 #endif // TRUE
 
-
+#if TRUE
 					while(M_THREAD_RUN){
-						if (m_socket->SendHearbeatCmd()==0) {						
-							break;	
+						
+						if (this->SendCmdCtrl()) {
+							//send success
 						}else {
-							this->Sleep(1000);
-						}
+							//no cmd
+							if (m_socket->SendHearbeatCmd()==0) {						
+								break;
+							}else {
+								this->Sleep(1000);
+							}
+						
+						}						
 
 					}
+#endif // TRUE
+
+
 
 
 
@@ -134,14 +144,35 @@ void QtThreadClientCtrl::run()
 			
 			}
 		
-
+			this->closeSocket4Server();
 
 	 	}
 /*-----------------------------*/
 
-		m_socket->close();
+	
 
-	qDebug() << "Client Thread Exit";
+	
+#if _DEBUG
+	 qDebug() << "Image Ctrl Thread : shutdown !" ;
+#endif // _DEBUG
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int QtThreadClientCtrl::SendCmdCtrl()
+{
+
+	if (cmds.IsValid()) {
+		
+		QSharedPointer<CMD_CTRL> cmd_ctrl_t=cmds.getCmd();
+		
+		return	m_socket->Send_1_cmd(cmd_ctrl_t.data());
+	
+	}
+			
+	return FALSE;	
 
 }
 /*-------------------------------------*/
@@ -159,6 +190,19 @@ void	QtThreadClientCtrl::SetWorkMode(CMD_CTRL::WorkMode _wm)
 */
 /*-------------------------------------*/
 
+void	QtThreadClientCtrl::SetWorkModeCmd(CMD_CTRL::WorkMode _wm)
+{
+	mWorkMode = _wm;
+	
+	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
+		
+	cmd_t->getModeChangeCmd(_wm);
+	
+	if (this->isRunning()) {
+		QtThreadClientCtrl::cmds.setCmd(cmd_t);
+	}
+	
+}
 /*-------------------------------------*/
 /**
 *

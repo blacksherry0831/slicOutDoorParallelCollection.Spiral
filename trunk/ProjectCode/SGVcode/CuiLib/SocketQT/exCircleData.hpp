@@ -15,7 +15,7 @@
 *
 */
 /*-----------------------------------*/
-#include "CMD_CTRL.hpp"
+#include "CMD_CTRL_Q.hpp"
 /*-------------------------------------*/
 /**
 *
@@ -27,35 +27,29 @@
 *
 */
 /*-------------------------------------*/
-class exCircleData
+class exCircleData : public CMD_CTRL_Q
 {
-public:
-	enum  CIRCLE_STATUS
-	{
-		INVALID=0,
-		VALID=1
-	};
+	
 public:
 	exCircleData(int _ch);
 	~exCircleData();
 private:
-	QMutex mutex;
-	CIRCLE_STATUS STATUS;
-public:
-	int Channel;
-	QSharedPointer<CMD_CTRL> mAverage;
-	QSharedPointer<CMD_CTRL> mSigma;
-	QQueue<QSharedPointer<CMD_CTRL>> mImageFrame;
-public:
-	std::vector<exCircleData> ChannelData;
+	clock_t mStartTime;
+	clock_t mCurrentTime;
+	int mFrameCount;
+	int mChannel;
 private:
 	void clear();
 public:
 	void init();
 	void destory();
-	int IsValid();
+public:
+	QSharedPointer<CMD_CTRL> mAverage;
+	QSharedPointer<CMD_CTRL> mSigma;
+	
 public:
 	QSharedPointer<CMD_CTRL> getImg();
 	void setImg(QSharedPointer<CMD_CTRL> cmd_ctrl);
+	float fps();
 
 };

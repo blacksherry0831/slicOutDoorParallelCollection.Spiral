@@ -4,11 +4,6 @@
 
 #include "module_my.h"
 
-
-#ifdef QT_VERSION
-
-#endif // QT_VERSION
-
 #if _MSC_VER
 	#ifndef _X86_
 		#define _X86_
@@ -22,8 +17,20 @@
 	#include "cpp_stl.h"
 #endif
 
+#ifdef QT_VERSION
+
 #include <QtCore/QVariant>
+#include <QtWidgets/QLabel>
 #include <qtimer.h>
+
+#endif // QT_VERSION
+
+#if TRUE
+#include "dialog.h"
+#endif // TRUE
+
+
+
 namespace Ui {
 class MainWindow;
 }
@@ -37,10 +44,17 @@ public:
     ~MainWindow();
 private:
     Ui::MainWindow *ui;
-
+	QLabel* labelImage[8];
+	QSharedPointer<CMD_CTRL> cmd_ctrl_image[8];
+	int mWorkMode;
+	QSharedPointer<QImage> mQimageGray;
+private:
+	void closeEvent(QCloseEvent *event);
 public:
 	void initUI();
-
+	void initUIlabelImage();
+	void initUIlabelImageView();
+	void SetMaxWidthMy();
 	bool m_test_result;
 public:
 	
@@ -58,15 +72,39 @@ public:
 	QSharedPointer<QTimer>					mTimer;
 private:
 	void init_class_member();
+	void init_ping_ssh();
+	
+	void destory_ping_ssh();
+	void init_menu();
+	void init_controls();
+	void disableInputCtrls(bool _flag=true);
+	void destory_all();
+	void connect_img_ch(int _connect, const QObject *receiver);
+public:
+	static void ShowImage(QLabel* _qlab, QImage *_p_qimg);
 public:
 	void message_test();
+static QImage * IplImageToQImage( IplImage* const img);
+
 public slots:
-	
+		
 		void ClickButton_CutArea();
-		void StartVideo();
+		void StartVideoBasic(int mode);
+		void StartVideoModeCutArea();
+		void StartVideoModeSelected();
 		void StopVideo();
+		void stopVideoBasic();
 		void ConnectVideo();
 
+#if TRUE
+		void img_stat_show(int  _p_stat, int _channel, int _frames);
+		void start_ping_ssh();
+#endif // TRUE
+
+
+
+
+		
 public slots:
 	void ClickButton_Test();
 	void ClickButton_SetSerialPort();
@@ -77,7 +115,10 @@ public slots:
 	void CheckBox_ssh(int _stat_t);
 	void CheckBox_fpga_ctrl(int _stat_t);
 	void CheckBox_fpga_image_video(int _stat_t);
+	void CheckBox_img_mode_update();
 	void main_test();
+	void SetCutRectMethod();
+	int openImageShowQDialog(QLabel* _qabel);
 };
 
 #endif // MAINWINDOW_H

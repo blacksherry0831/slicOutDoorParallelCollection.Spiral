@@ -1,5 +1,5 @@
 //#include "stdafx.h"
-#include "exCircleData.hpp"
+#include "CMD_CTRL_Q.hpp"
 /*-------------------------------------*/
 /**
 *
@@ -13,9 +13,10 @@
 *
 */
 /*-------------------------------------*/
-exCircleData::exCircleData(int _ch)
-{	
-	this->mChannel = _ch;
+CMD_CTRL_Q::CMD_CTRL_Q()
+{
+	this->init();
+	
 }
 /*-------------------------------------*/
 /**
@@ -23,7 +24,7 @@ exCircleData::exCircleData(int _ch)
 *
 */
 /*-------------------------------------*/
-exCircleData::~exCircleData()
+CMD_CTRL_Q::~CMD_CTRL_Q()
 {
 	this->clear();
 }
@@ -32,19 +33,7 @@ exCircleData::~exCircleData()
 *
 */
 /*-------------------------------------*/
-void exCircleData::clear()
-{
-		mAverage.clear();
-		mSigma.clear();
-		mStartTime = clock();
-		mFrameCount = 0;
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void exCircleData::init()
+void CMD_CTRL_Q::init()
 {
 	this->clear();
 }
@@ -53,7 +42,7 @@ void exCircleData::init()
 *
 */
 /*-------------------------------------*/
-void exCircleData::destory()
+void CMD_CTRL_Q::destory()
 {
 	this->clear();
 }
@@ -62,49 +51,79 @@ void exCircleData::destory()
 *
 */
 /*-------------------------------------*/
+void CMD_CTRL_Q::clear()
+{
+	QMutexLocker locker(&mutex);
+	mCmds.clear();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+QSharedPointer<CMD_CTRL> CMD_CTRL_Q::getCmd()
+{
+	QSharedPointer<CMD_CTRL> cmd_ctrl;
 
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-QSharedPointer<CMD_CTRL>  exCircleData::getImg()
-{
-	return this->getCmd();
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void exCircleData::setImg(QSharedPointer<CMD_CTRL> cmd_ctrl)
-{
-	this->setCmd(cmd_ctrl);
-	this->mFrameCount++;
+	QMutexLocker locker(&mutex);
+	
 
-	if (this->mFrameCount==1){
-		this->mStartTime = clock();
-	}else {
-		this->mCurrentTime = clock();	
+	if (mCmds.isEmpty()) {
+		cmd_ctrl.clear();
+	}else{
+		cmd_ctrl = mCmds.dequeue();
 	}
 
 
+
+	
+
+	return cmd_ctrl;
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-float exCircleData::fps()
+
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void CMD_CTRL_Q::setCmd(QSharedPointer<CMD_CTRL> cmd_ctrl)
 {
-	clock_t elapsed = mCurrentTime - mStartTime;
+	QMutexLocker locker(&mutex);
 
-	float fps=(this->mFrameCount-1) / (elapsed/1000.0);
-
-	//qDebug() << "FPS:" <<fps;
-
-	return fps;
+	if (!cmd_ctrl.isNull()){
+			mCmds.enqueue(cmd_ctrl);
+	}	
 }
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int CMD_CTRL_Q::QueueSize()
+{
+	QMutexLocker locker(&mutex);
+	return	mCmds.size();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int CMD_CTRL_Q::IsValid()
+{
+	return QueueSize();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+
 /*-------------------------------------*/
 /**
 *

@@ -68,17 +68,7 @@ int QtTcpClient::ReadAllMy()
 	
 	}else {
 
-		SocketError error = this->error();
-		QString  error_str_t = this->errorString();
-		if (error == SocketError::ConnectionRefusedError
-			&&  error_str_t.isEmpty()) {
-			//maybe time out
-			return TRUE;
-		}
-		else {
-			qDebug() << error_str_t;
-			return FALSE;
-		}
+		return this->IsSocketError();
 
 	}
 	
@@ -394,7 +384,7 @@ int QtTcpClient::IsSocketAlive()
 
 	}else if (stat_t == QAbstractSocket::SocketState::UnconnectedState) {
 		
-		std::cout << "socket is un connected" << std::endl;
+		std::cout << "socket is unconnected" << std::endl;
 		return 0;
 
 	}else{
@@ -403,13 +393,45 @@ int QtTcpClient::IsSocketAlive()
 
 	}
 
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int QtTcpClient::IsSocketError()
+{
 
-	//if (this->isValid())
+	if (this->IsSocketAlive()==TRUE) {	
+	
+		SocketError error = this->error();
+		QString  error_str_t = this->errorString();
+		
+		qDebug() << error_str_t;
 
+		if (error == SocketError::ConnectionRefusedError) {
 
-		//return 0;
+			if (error_str_t.isEmpty()) {				
+				return TRUE;//maybe time out
+			}
+
+		}else if (error == SocketError::SocketTimeoutError) {
+
+			return TRUE;//time out
+
+		} else {
+		
+
+		}
+
+		
+	
+	}
+
+	return FALSE;
 
 }
+
 /*-------------------------------------*/
 /**
 *
@@ -420,7 +442,8 @@ void QtTcpClient::disconnectFromHostMy()
 	QAbstractSocket::SocketState stat_t = this->state();
 	if (stat_t== QAbstractSocket::SocketState::ConnectedState) {
 		this->disconnectFromHost();
-		this->waitForDisconnected();
+		if (QAbstractSocket::ConnectedState == this->state())
+			this->waitForDisconnected();
 	}
 
 }

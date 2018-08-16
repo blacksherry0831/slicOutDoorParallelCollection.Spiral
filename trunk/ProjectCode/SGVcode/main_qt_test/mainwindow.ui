@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>623</width>
-    <height>579</height>
+    <width>806</width>
+    <height>412</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -36,56 +36,104 @@
     <item>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
-       <widget class="QLabel" name="label">
+       <widget class="MouseLabel" name="label_img_ch0">
+        <property name="minimumSize">
+         <size>
+          <width>192</width>
+          <height>108</height>
+         </size>
+        </property>
         <property name="text">
          <string>TextLabel</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QLabel" name="label_5">
+       <widget class="MouseLabel" name="label_img_ch1">
+        <property name="minimumSize">
+         <size>
+          <width>192</width>
+          <height>108</height>
+         </size>
+        </property>
         <property name="text">
          <string>TextLabel</string>
         </property>
        </widget>
       </item>
       <item row="0" column="2">
-       <widget class="QLabel" name="label_6">
+       <widget class="MouseLabel" name="label_img_ch2">
+        <property name="minimumSize">
+         <size>
+          <width>192</width>
+          <height>108</height>
+         </size>
+        </property>
         <property name="text">
          <string>TextLabel</string>
         </property>
        </widget>
       </item>
       <item row="0" column="3">
-       <widget class="QLabel" name="label_7">
+       <widget class="MouseLabel" name="label_img_ch3">
+        <property name="minimumSize">
+         <size>
+          <width>192</width>
+          <height>108</height>
+         </size>
+        </property>
         <property name="text">
          <string>TextLabel</string>
         </property>
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="label_2">
+       <widget class="MouseLabel" name="label_img_ch4">
+        <property name="minimumSize">
+         <size>
+          <width>192</width>
+          <height>108</height>
+         </size>
+        </property>
         <property name="text">
          <string>TextLabel</string>
         </property>
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QLabel" name="label_8">
+       <widget class="MouseLabel" name="label_img_ch5">
+        <property name="minimumSize">
+         <size>
+          <width>192</width>
+          <height>108</height>
+         </size>
+        </property>
         <property name="text">
          <string>TextLabel</string>
         </property>
        </widget>
       </item>
       <item row="1" column="2">
-       <widget class="QLabel" name="label_9">
+       <widget class="MouseLabel" name="label_img_ch6">
+        <property name="minimumSize">
+         <size>
+          <width>192</width>
+          <height>108</height>
+         </size>
+        </property>
         <property name="text">
          <string>TextLabel</string>
         </property>
        </widget>
       </item>
       <item row="1" column="3">
-       <widget class="QLabel" name="label_10">
+       <widget class="MouseLabel" name="label_img_ch7">
+        <property name="minimumSize">
+         <size>
+          <width>192</width>
+          <height>108</height>
+         </size>
+        </property>
         <property name="text">
          <string>TextLabel</string>
         </property>
@@ -94,17 +142,87 @@
      </layout>
     </item>
     <item>
-     <widget class="QPushButton" name="pushButton_cutArea">
-      <property name="text">
-       <string>启动画面裁剪</string>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetFixedSize</enum>
       </property>
-      <property name="flat">
-       <bool>false</bool>
-      </property>
-     </widget>
+      <item>
+       <widget class="QCheckBox" name="checkBox_ImgModeOrg">
+        <property name="text">
+         <string>原图</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBox_ImgModeSizeOrg">
+        <property name="text">
+         <string>原尺寸</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
     <item>
-     <layout class="QGridLayout" name="gridLayout_2">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetFixedSize</enum>
+      </property>
+      <item>
+       <widget class="QGroupBox" name="groupBox_ctrls">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>70</height>
+         </size>
+        </property>
+        <property name="title">
+         <string>Ctrls</string>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetDefaultConstraint</enum>
+         </property>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_ctrls">
+           <property name="sizeConstraint">
+            <enum>QLayout::SetDefaultConstraint</enum>
+           </property>
+           <item>
+            <widget class="QPushButton" name="pushButton_cutArea">
+             <property name="text">
+              <string>启动画面裁剪</string>
+             </property>
+             <property name="flat">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButton_preview">
+             <property name="text">
+              <string>画面预览</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButton_ImgCollect">
+             <property name="text">
+              <string>数据采集</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QGridLayout" name="gridLayout_stat">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetMinimumSize</enum>
+      </property>
       <item row="0" column="0">
        <widget class="QCheckBox" name="checkBox_ping">
         <property name="text">
@@ -142,7 +260,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>623</width>
+     <width>806</width>
      <height>23</height>
     </rect>
    </property>
@@ -157,9 +275,18 @@
     <property name="title">
      <string>设置</string>
     </property>
+    <addaction name="actionSetCutRect"/>
+    <addaction name="actionEnable_ping_SSH"/>
+   </widget>
+   <widget class="QMenu" name="menu_ctrl">
+    <property name="title">
+     <string>控制</string>
+    </property>
+    <addaction name="action_stop_bg_srv"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
+   <addaction name="menu_ctrl"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -180,8 +307,30 @@
     <string>close</string>
    </property>
   </action>
+  <action name="actionSetCutRect">
+   <property name="text">
+    <string>裁剪区域</string>
+   </property>
+  </action>
+  <action name="action_stop_bg_srv">
+   <property name="text">
+    <string>Stop bg service</string>
+   </property>
+  </action>
+  <action name="actionEnable_ping_SSH">
+   <property name="text">
+    <string>Enable ping SSH</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>MouseLabel</class>
+   <extends>QLabel</extends>
+   <header location="global">mouselabel.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

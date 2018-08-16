@@ -29,6 +29,8 @@ protected:
 	int mPort;
 public:
 	void  connect2ServerIfNoConnected();
+	void  disconnect4Server();
+	void  closeSocket4Server();
 public:
 	void write_ptr(qintptr p);
 	void init_socket();
