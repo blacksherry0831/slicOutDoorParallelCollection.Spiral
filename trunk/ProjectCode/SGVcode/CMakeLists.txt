@@ -144,14 +144,15 @@ macro(CONFIG_ALL_MODULE)
 						############################# 
 						CONFIGCURLHTTP()
 						#############################
-						IF(Boost_FOUND)
-							#ConfigBoost()
 
-						ELSE(Boost_FOUND)
+						if(NEED_BOOST)							
+							IF(Boost_FOUND)
+								#ConfigBoost()
+							ELSE(Boost_FOUND)
+							   MESSAGE(FATAL_ERROR ¡±Boost library not found¡±)
+							ENDIF(Boost_FOUND)
+						endif(NEED_BOOST)
 
-						   MESSAGE(FATAL_ERROR ¡±Boost library not found¡±)
-
-						ENDIF(Boost_FOUND)
 						#############################
 			ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
    
