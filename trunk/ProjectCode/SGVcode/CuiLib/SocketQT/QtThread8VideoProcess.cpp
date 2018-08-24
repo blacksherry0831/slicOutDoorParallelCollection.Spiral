@@ -31,14 +31,18 @@ QtThread8VideoProcess::QtThread8VideoProcess()
 *
 */
 /*-------------------------------------*/
-QtThread8VideoProcess::QtThread8VideoProcess(int _Channel)
+QtThread8VideoProcess::QtThread8VideoProcess(int _Channel,bool _showWindow)
 {
 	this->init_param();
 
+	this->SetShowWindow(_showWindow);
 	this->CHANNEL = _Channel;
 	this->WINDOW_NAME ="Channel"+Base::int2str(_Channel);
 	
-	this->init_window();
+	if (mShowWindow){
+		this->init_window();
+	}
+
 	
 }
 /*-------------------------------------*/
@@ -50,7 +54,12 @@ QtThread8VideoProcess::~QtThread8VideoProcess(void)
 {
 	qDebug() << "QtThread8Video is Release ! "<<"CHANNEL:"<<this->CHANNEL;
 	M_THREAD_RUN = FALSE;
-	cvDestroyWindow(WINDOW_NAME.c_str());
+
+	if (mShowWindow) {
+			cvDestroyWindow(WINDOW_NAME.c_str());
+	}
+
+	
 	TaskObj[CHANNEL] = Q_NULLPTR;
 }
 /*-------------------------------------*/
@@ -90,6 +99,15 @@ void QtThread8VideoProcess::DrawSensorStatArea(IplImage * img_t)
 		cvPutText(img_t, "Sensor Error", cvPoint(10, img_t->height / 2), &font, CV_RGB(255, 255, 255));
 	}
 #endif // _DEBUG
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThread8VideoProcess::SetShowWindow(bool _flag)
+{
+	this->mShowWindow = _flag;
 }
 /*-------------------------------------*/
 /**
@@ -594,7 +612,8 @@ void QtThread8VideoProcess::init_param()
 	
 	mKeyValue = -1;
 
-	
+	mShowWindow = true;
+
 	mRectM = RectMode::RECT;
 	memset(CutRectFlag, 0, sizeof(CutRectFlag));
 }

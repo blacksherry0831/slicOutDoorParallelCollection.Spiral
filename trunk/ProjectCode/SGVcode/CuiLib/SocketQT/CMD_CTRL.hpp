@@ -86,6 +86,7 @@ public:
 
 		CT_IMG_RECT = 'R',
 		CT_IMG_MODE_CHANGE='M',
+		CT_IMG_SIGMA_CHANGE = 'S',
 
 		CT_OK = 0x00,
 		CT_ERROR = 0x01,
@@ -126,6 +127,7 @@ private:
 /*-------------------------------------*/
 private:
 	void initHeader();
+	void SetValue2Data(int _data);
 	void init();
 	void destory();
 protected:
@@ -146,6 +148,7 @@ public:
 	void initHearbeatCmd();
 	void setRectCutCmd(int _channel, CvRect _rect_cut);
 	void setModeChangeCmd(int _wm);
+	void setSigmaChangeCmd(int _sigma);
 public:
 	std::vector<unsigned char>	getFpgaStartCmd(int _type, WorkMode _wm);
 	std::vector<unsigned char>	getRespPLCmd(int _type);
@@ -154,6 +157,7 @@ public:
 	std::vector<unsigned char>  getHeartBeatCmd(int _type= DEV::DEV_FPGA_ARM);
 	std::vector<unsigned char>  getRectCfgCmd(int _channel, CvRect _rect_cut);
 	std::vector<unsigned char>  getModeChangeCmd(int _wm);
+	std::vector<unsigned char>  getSigmaChangeCmd(int _sigma);
 
 public:
 	std::vector<unsigned char> Data();

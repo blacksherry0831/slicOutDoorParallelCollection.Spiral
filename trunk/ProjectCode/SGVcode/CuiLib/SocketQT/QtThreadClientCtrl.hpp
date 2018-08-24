@@ -36,6 +36,9 @@ public:
 	void SetWorkMode(CMD_CTRL::WorkMode _wm);
 
 	void SetWorkModeCmd(CMD_CTRL::WorkMode _wm);
+	
+	void SetImgSigmaCmd(int _sigma);
+
 
 public slots:
 	

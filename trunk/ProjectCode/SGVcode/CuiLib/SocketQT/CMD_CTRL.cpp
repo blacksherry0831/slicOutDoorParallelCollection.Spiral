@@ -48,6 +48,18 @@ void CMD_CTRL::initHeader()
 *
 */
 /*-------------------------------------*/
+void CMD_CTRL::SetValue2Data(int _data)
+{
+	assert(f_data.size() >= 2);
+
+	f_data[0] = _data%256;//low
+	f_data[1] = _data/256;//height
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void CMD_CTRL::init()
 {
 	memset(&f_header, 0, sizeof(CMD_CTRL_HEADER));
@@ -140,10 +152,7 @@ void CMD_CTRL::setFpgaConvertCmd(int _type, WorkMode _wm)
 	
 	}
 	
-	assert(f_data.size() >= 2);
-
-	f_data[0] = _wm;//low
-	f_data[1] = _wm>>8;//height
+	this->SetValue2Data(_wm);
 
 }
 /*-------------------------------------*/
@@ -181,13 +190,7 @@ void CMD_CTRL::setPlcLrIntoIn(int _step)
 	f_header.f_cmd[0] = CMD_TYPE::CT_CTRL;
 	f_header.f_cmd[1] = CMD_TYPE_02::CT_LR_RUN_2;
 
-	int _step_h = _step / 256;
-	int _step_l = _step % 256;
-	
-	assert(f_data.size() >= 2);
-
-	f_data[0] = _step_l;
-	f_data[1] = _step_h;
+	this->SetValue2Data(_step);
 
 }
 /*-------------------------------------*/
@@ -200,13 +203,7 @@ void CMD_CTRL::setRollerQualified(int _qualified)
 	f_header.f_cmd[0] = CMD_TYPE::CT_CTRL;
 	f_header.f_cmd[1] = CMD_TYPE_02::CT_ROLLER_Q;
 
-	const int h_t = _qualified / 256;
-	const int l_t = _qualified % 256;
-
-	assert(f_data.size() >= 2);
-
-	f_data[0] = l_t;
-	f_data[1] = h_t;
+	this->SetValue2Data(_qualified);
 }
 /*-------------------------------------*/
 /**
@@ -255,13 +252,20 @@ void CMD_CTRL::setModeChangeCmd(int _wm)
 {
 	f_header.f_cmd[0] = CMD_TYPE::CT_IMG;
 	f_header.f_cmd[1] = CMD_TYPE_02::CT_IMG_MODE_CHANGE;
-
-	assert(f_data.size() >= 2);
-
-	f_data[0] = _wm;//low
-	f_data[1] = _wm >> 8;//height
 	
+	this->SetValue2Data(_wm);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void CMD_CTRL::setSigmaChangeCmd(int _sigma)
+{
+	f_header.f_cmd[0] = CMD_TYPE::CT_IMG;
+	f_header.f_cmd[1] = CMD_TYPE_02::CT_IMG_SIGMA_CHANGE;
 
+	this->SetValue2Data(_sigma);
 }
 /*-------------------------------------*/
 /**
@@ -784,6 +788,19 @@ std::vector<unsigned char> CMD_CTRL::getRectCfgCmd(int _channel,CvRect _rect_cut
 std::vector<unsigned char> CMD_CTRL::getModeChangeCmd(int _wm)
 {
 	this->setModeChangeCmd(_wm);
+	this->initHeader();
+	this->initPc2Arm();
+
+	return this->Data();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+std::vector<unsigned char> CMD_CTRL::getSigmaChangeCmd(int _sigma)
+{
+	this->setSigmaChangeCmd(_sigma);
 	this->initHeader();
 	this->initPc2Arm();
 

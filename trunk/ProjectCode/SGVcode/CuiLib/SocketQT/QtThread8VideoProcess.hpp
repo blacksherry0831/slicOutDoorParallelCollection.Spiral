@@ -38,15 +38,16 @@ public:
 	};
 public:
 	QtThread8VideoProcess();
-	QtThread8VideoProcess(int _Channel);
+	QtThread8VideoProcess(int _Channel, bool _showWindow=true);
 	~QtThread8VideoProcess(void);
 private:
-	int CHANNEL;	
+	int CHANNEL;
 	std::string WINDOW_NAME;
 private:
 	static  int SCREEN_W;
 	static  int SCREEM_H;
 private:
+	bool mShowWindow;
 	int mWidthSetp;
 	int mHeightStep;
 
@@ -64,6 +65,8 @@ public:
 	void DrawCurrentCutArea(IplImage* img_t);
 	void DrawFutureCutArea(IplImage* img_t);
 	void DrawSensorStatArea(IplImage* img_t);
+public:
+	void SetShowWindow(bool _flag);
 public:
 	RectMode mRectM;
 	ProcessMode mProcessM;

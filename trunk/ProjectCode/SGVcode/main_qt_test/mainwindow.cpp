@@ -36,7 +36,7 @@ MainWindow::~MainWindow()
 
 	this->destory_all();
 	
-   delete ui;
+	 delete ui;
    
 }
 /*-------------------------------------*/
@@ -59,6 +59,10 @@ void MainWindow::init_class_member()
 	mLink = QSharedPointer<QtLink>(new QtLink());
 	mTimer = QSharedPointer<QTimer>(new QTimer());
 	//////////////////////////////////////////////////////////////////
+#if TRUE
+	this->mShowCutArea = TRUE;
+#endif // TRUE
+
 }
 /*-------------------------------------*/
 /**
@@ -134,6 +138,7 @@ void MainWindow::init_menu()
 	connect(ui->actionSetCutRect, SIGNAL(triggered()), this, SLOT(SetCutRectMethod()));
 	connect(ui->action_stop_bg_srv, SIGNAL(triggered()), this, SLOT(StopVideo()));
 	connect(ui->actionEnable_ping_SSH, SIGNAL(triggered()), this, SLOT(start_ping_ssh()));
+	connect(ui->actionShow_Cut_Area, SIGNAL(triggered()), this, SLOT(toggleShowCutArea()));
 #endif // TRUE
 }
 /*-------------------------------------*/
@@ -146,7 +151,13 @@ void MainWindow::init_controls()
 
 #if TRUE
 	connect(ui->checkBox_ImgModeOrg, SIGNAL(stateChanged(int)), this, SLOT(CheckBox_img_mode_update()));
+
 	connect(ui->checkBox_ImgModeSizeOrg, SIGNAL(stateChanged(int)), this, SLOT(CheckBox_img_mode_update()));
+
+	connect(ui->horizontalSlider_sigma,SIGNAL(valueChanged(int)),ui->label_sigma, SLOT(setNum(int)));
+
+	connect(ui->horizontalSlider_sigma, SIGNAL(valueChanged(int)), this, SLOT(Slider_img_sigma_change(int)));
+	
 #endif // TRUE
 
 #if TRUE
@@ -165,6 +176,42 @@ void MainWindow::disableInputCtrls(bool _flag)
 {
 	ui->horizontalLayout_ctrls->setEnabled(!_flag);
 	ui->groupBox_ctrls->setDisabled(_flag);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int MainWindow::IsBgThreadRunning()
+{
+
+#if _DEBUG
+	if (mCtrlServer->isRunning()) {
+		qDebug() << "Ctrl Server : Running !";
+	}
+	else
+	{
+		qDebug() << "Ctrl Server : Close !";
+	}
+	if (mVideoDataServer->isRunning()) {
+		qDebug() << "Video Data Server : Running !";
+	}
+	else
+	{
+		qDebug() << "Video Data : Close !";
+	}
+#endif // _DEBUG
+
+	if  (mCtrlServer->isRunning() ||
+		mVideoDataServer->isRunning())
+	{
+		return TRUE;
+	}
+	else
+	{
+		return FALSE;
+	}
+	
 }
 /*-------------------------------------*/
 /**
@@ -281,6 +328,7 @@ void MainWindow::CheckBox_ssh(int _stat_t)
 /*-------------------------------------*/
 void MainWindow::CheckBox_fpga_ctrl(int _stat_t)
 {
+
 	if (ui != NULL) {
 			if (_stat_t == 0)
 				ui->checkBox_ctrl_port->setCheckState(Qt::CheckState::Unchecked);
@@ -335,6 +383,15 @@ void MainWindow::CheckBox_img_mode_update()
 
 	mCtrlServer->SetWorkModeCmd((CMD_CTRL::WorkMode)mWorkMode);
 
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::Slider_img_sigma_change(int _sigma)
+{
+	mCtrlServer->SetImgSigmaCmd(_sigma);
 }
 /*-------------------------------------*/
 /**
@@ -502,6 +559,7 @@ int MainWindow::openImageShowQDialog(QLabel* _qabel)
 				{
 					//dialog->setAttribute(Qt::WA_DeleteOnClose);
 					dialog->SetChannel(Channel);
+					dialog->SetShowCutArea(this->mShowCutArea);
 					dialog->setModal(true);
 					dialog->showFullScreen();
 					dialog->show();
@@ -515,6 +573,21 @@ int MainWindow::openImageShowQDialog(QLabel* _qabel)
 	connect_img_ch(TRUE, this);
 
 	return result_t;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::toggleShowCutArea()
+{
+
+	if (ui->actionShow_Cut_Area->isChecked()) {
+		this->mShowCutArea = TRUE;
+	}else {
+		this->mShowCutArea = FALSE;
+	}
+
 }
 /*-------------------------------------*/
 /**
@@ -565,10 +638,19 @@ void MainWindow::StartVideoModeCutArea()
 /*-------------------------------------*/
 void MainWindow::ClickButton_CutArea()
 {
-	this->disableInputCtrls();
-	this->initUIlabelImageView();
+	
 
-	this->StartVideoModeCutArea();
+	if (!this->IsBgThreadRunning())
+	{
+			this->disableInputCtrls();
+			this->initUIlabelImageView();
+			this->StartVideoModeCutArea();
+	}
+	else
+	{
+		QMessageBox::critical(NULL, QStringLiteral("警告"), QStringLiteral("后台服务尚未停止"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+	}
+	
 }
 /*-------------------------------------*/
 /**
@@ -577,11 +659,19 @@ void MainWindow::ClickButton_CutArea()
 /*-------------------------------------*/
 void MainWindow::StartVideoModeSelected()
 {
-	this->CheckBox_img_mode_update();
-	this->initUIlabelImageView();
-	this->disableInputCtrls();
+	
 
-	this->StartVideoBasic(mWorkMode);
+	if (!this->IsBgThreadRunning())
+	{
+			this->CheckBox_img_mode_update();
+			this->initUIlabelImageView();
+			this->disableInputCtrls();
+			this->StartVideoBasic(mWorkMode);
+	}
+	else
+	{
+		QMessageBox::critical(NULL, QStringLiteral("警告"), QStringLiteral("后台服务尚未停止"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+	}
 
 }
 /*-------------------------------------*/
@@ -607,33 +697,23 @@ void MainWindow::stopVideoBasic()
 	
 	mCtrlServer->closeServer();
 
-	QThread::sleep(2);
+	QThread::sleep(1);
 
 	mVideoDataServer->closeServer();
-#if 0
-if (mCtrlServer->isFinished()){
+
+#if _DEBUG && 0
+
+	if (mCtrlServer->isFinished()){
 		qDebug() << "Ctrl Server : Closed !";
 	}
 	if (mVideoDataServer->isFinished()) {
 		qDebug() << "Video Data Server : Closed !";
 	}
+
 #endif // 0
 
 	
-	if (mCtrlServer->isRunning()) {
-		qDebug() << "Ctrl Server : Running !";
-	}
-	else
-	{
-		qDebug() << "Ctrl Server : Close !";
-	}	
-	if (mVideoDataServer->isRunning()) {
-		qDebug() << "Video Data Server : Running !";
-	}
-	else
-	{
-		qDebug() << "Video Data : Close !";
-	}
+	this->IsBgThreadRunning();
 }
 /*-------------------------------------*/
 /**
@@ -662,16 +742,18 @@ void MainWindow::img_stat_show(int _p_stat, int _channel, int _frames)
 		while (circleData->QueueSize()){
 
 				cmd_ctrl_image [_channel]=circleData->getImg();
+
 #if TRUE
-				IplImage* img_t = cmd_ctrl_image[_channel]->getIplimage();
-				CvRect rect = cvGetImageROI(img_t);
+				if (this->mShowCutArea){
 
-				cvResetImageROI(img_t); {
-				
-					QtThread8VideoProcess::DrawArea(img_t,rect);
+					IplImage* img_t = cmd_ctrl_image[_channel]->getIplimage();
 
-				}cvSetImageROI(img_t,rect);
-				
+					CvRect rect = cvGetImageROI(img_t);
+					cvResetImageROI(img_t); {				
+						QtThread8VideoProcess::DrawArea(img_t,rect);
+					}cvSetImageROI(img_t,rect);
+
+				}				
 				
 #endif // TRUE
 

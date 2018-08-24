@@ -16,6 +16,7 @@ Dialog::Dialog(QWidget *parent) :
 	m_WidthImg=0;
 	m_HeightImg = 0;
 	m_Scale=0;
+	mShowCutArea = TRUE;
 }
 /*-------------------------------------*/
 /**
@@ -180,7 +181,7 @@ void Dialog::mouseReleaseEvent(QMouseEvent * event)
 void Dialog::SetChannel(int _channel)
 {
 	this->mCurrentChannel =_channel;
-	this->mVideoProcessData = QSharedPointer<QtThread8VideoProcess>(new  QtThread8VideoProcess(_channel));
+	this->mVideoProcessData = QSharedPointer<QtThread8VideoProcess>(new  QtThread8VideoProcess(_channel,false));
 }
 /*-------------------------------------*/
 /**
@@ -233,6 +234,15 @@ void Dialog::ResizeWindowSize()
 
 
 
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void Dialog::SetShowCutArea(int _show)
+{
+	this->mShowCutArea = _show;
 }
 /*-------------------------------------*/
 /**
@@ -409,11 +419,15 @@ void Dialog::img_stat_show(int _p_stat, int _channel, int _frames)
 			if (mCurrentChannel == _channel) {
 					
 #if TRUE
+				if (this->mShowCutArea) {
+
 					IplImage* img_t = cmd_ctrl_image[_channel]->getIplimage();
 					mVideoProcessData->SetCurrentCutArea(img_t);
 					mVideoProcessData->DrawCurrentCutArea(img_t);
 					mVideoProcessData->DrawFutureCutArea(img_t);
 					mVideoProcessData->DrawSelectedBoder(img_t);
+
+				}
 #endif // TRUE
 
 #if TRUE

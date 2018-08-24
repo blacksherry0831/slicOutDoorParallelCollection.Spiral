@@ -48,6 +48,7 @@ private:
 	QSharedPointer<CMD_CTRL> cmd_ctrl_image[8];
 	int mWorkMode;
 	QSharedPointer<QImage> mQimageGray;
+	int mShowCutArea;
 private:
 	void closeEvent(QCloseEvent *event);
 public:
@@ -78,6 +79,7 @@ private:
 	void init_menu();
 	void init_controls();
 	void disableInputCtrls(bool _flag=true);
+	int  IsBgThreadRunning();
 	void destory_all();
 	void connect_img_ch(int _connect, const QObject *receiver);
 public:
@@ -100,11 +102,7 @@ public slots:
 		void img_stat_show(int  _p_stat, int _channel, int _frames);
 		void start_ping_ssh();
 #endif // TRUE
-
-
-
-
-		
+				
 public slots:
 	void ClickButton_Test();
 	void ClickButton_SetSerialPort();
@@ -116,9 +114,11 @@ public slots:
 	void CheckBox_fpga_ctrl(int _stat_t);
 	void CheckBox_fpga_image_video(int _stat_t);
 	void CheckBox_img_mode_update();
+	void Slider_img_sigma_change(int _sigma);
 	void main_test();
 	void SetCutRectMethod();
 	int openImageShowQDialog(QLabel* _qabel);
+	void toggleShowCutArea();
 };
 
 #endif // MAINWINDOW_H

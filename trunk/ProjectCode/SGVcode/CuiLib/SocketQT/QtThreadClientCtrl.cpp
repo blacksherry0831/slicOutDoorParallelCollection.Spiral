@@ -208,6 +208,21 @@ void	QtThreadClientCtrl::SetWorkModeCmd(CMD_CTRL::WorkMode _wm)
 *
 */
 /*-------------------------------------*/
+void QtThreadClientCtrl::SetImgSigmaCmd(int _sigma)
+{
+	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
+
+	cmd_t->getSigmaChangeCmd(_sigma);
+
+	if (this->isRunning()) {
+		QtThreadClientCtrl::cmds.setCmd(cmd_t);
+	}
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 
 /*-------------------------------------*/
 /**
