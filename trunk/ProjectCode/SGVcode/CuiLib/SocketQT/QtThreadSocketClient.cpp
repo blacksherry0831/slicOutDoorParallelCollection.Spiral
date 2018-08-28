@@ -104,7 +104,11 @@ void QtThreadSocketClient::run()
 /*-------------------------------------*/
 void  QtThreadSocketClient::connect2ServerIfNoConnected()
 {
-	if (m_socket->IsSocketAlive() == false) {
+
+	
+
+
+	if (this->IsSocketAliveEx() == false) {
 
 		do {
 			this->init_socket();
@@ -124,7 +128,7 @@ void  QtThreadSocketClient::connect2ServerIfNoConnected()
 				emit socket_connect_state(false);
 			}
 
-		} while (true);
+		} while (M_THREAD_RUN);
 		
 	}
 }
@@ -144,15 +148,29 @@ void QtThreadSocketClient::disconnect4Server()
 /*-------------------------------------*/
 void QtThreadSocketClient::closeSocket4Server()
 {
-	this->m_socket->close();
-	emit socket_connect_state(false);
+	if (!this->m_socket.isNull()) {
+			this->m_socket->close();
+			emit socket_connect_state(false);
+	}
+
+	if (this->M_THREAD_RUN==false){
+		this->m_socket.clear();
+	}
+	
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-
+int QtThreadSocketClient::IsSocketAliveEx()
+{
+	if (m_socket.isNull()) {
+		m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
+	}
+	
+	return m_socket->IsSocketAlive();
+}
 /*-------------------------------------*/
 /**
 *

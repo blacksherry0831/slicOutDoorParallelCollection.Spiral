@@ -95,7 +95,9 @@ public slots:
 		void StartVideoModeCutArea();
 		void StartVideoModeSelected();
 		void StopVideo();
+		void StopVideoForce();
 		void stopVideoBasic();
+		void stopVideoBasicForce();
 		void ConnectVideo();
 
 #if TRUE

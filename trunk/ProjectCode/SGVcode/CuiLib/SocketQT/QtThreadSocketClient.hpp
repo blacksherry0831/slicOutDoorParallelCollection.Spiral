@@ -31,6 +31,7 @@ public:
 	void  connect2ServerIfNoConnected();
 	void  disconnect4Server();
 	void  closeSocket4Server();
+	int   IsSocketAliveEx();
 public:
 	void write_ptr(qintptr p);
 	void init_socket();

@@ -117,7 +117,11 @@ void MainWindow::destory_ping_ssh()
 	
 		if (mthread->isRunning())
 		{			
-			mthread->quit();		
+			mthread->quit();
+#if 0
+			mLink.clear();
+#endif // 0
+
 
 		}
 
@@ -137,6 +141,7 @@ void MainWindow::init_menu()
 #if TRUE
 	connect(ui->actionSetCutRect, SIGNAL(triggered()), this, SLOT(SetCutRectMethod()));
 	connect(ui->action_stop_bg_srv, SIGNAL(triggered()), this, SLOT(StopVideo()));
+	connect(ui->action_stop_bg_srv_force, SIGNAL(triggered()), this, SLOT(StopVideoForce()));
 	connect(ui->actionEnable_ping_SSH, SIGNAL(triggered()), this, SLOT(start_ping_ssh()));
 	connect(ui->actionShow_Cut_Area, SIGNAL(triggered()), this, SLOT(toggleShowCutArea()));
 #endif // TRUE
@@ -692,15 +697,32 @@ void MainWindow::StopVideo()
 *
 */
 /*-------------------------------------*/
+void MainWindow::StopVideoForce()
+{
+	this->stopVideoBasicForce();
+
+	disableInputCtrls(false);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void MainWindow::stopVideoBasic()
 {
+	if (mCtrlServer->isRunning()) {
 	
-	mCtrlServer->closeServer();
+		mCtrlServer->closeServer();
 
-	QThread::sleep(1);
+		QThread::sleep(1);
+	
+	}
 
-	mVideoDataServer->closeServer();
-
+	if (mVideoDataServer->isRunning())
+	{
+		mVideoDataServer->closeServer();
+	}
+	
 #if _DEBUG && 0
 
 	if (mCtrlServer->isFinished()){
@@ -714,6 +736,32 @@ void MainWindow::stopVideoBasic()
 
 	
 	this->IsBgThreadRunning();
+
+
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::stopVideoBasicForce()
+{
+	this->stopVideoBasic();
+
+//#if TRUE
+//
+//	if (mCtrlServer->isRunning()) {
+//		mCtrlServer->closeSocket4Server();
+//	}
+//
+//	if (mVideoDataServer->isRunning()){
+//		mVideoDataServer->closeSocket4Server();
+//	}		
+//		
+//#endif
+
+
 }
 /*-------------------------------------*/
 /**
