@@ -249,6 +249,15 @@ void Dialog::SetShowCutArea(int _show)
 *
 */
 /*-------------------------------------*/
+void Dialog::SetShowBinary(int _show_bin)
+{
+	this->mShowBinaryImg = _show_bin;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void Dialog::mouseMoveEventSigImg(QMouseEvent * event)
 {
 	QPoint qp = event->pos();
@@ -417,11 +426,11 @@ void Dialog::img_stat_show(int _p_stat, int _channel, int _frames)
 			cmd_ctrl_image[_channel] = circleData->getImg();
 		
 			if (mCurrentChannel == _channel) {
-					
+				
+				IplImage* img_t = cmd_ctrl_image[_channel]->getIplimage();
 #if TRUE
 				if (this->mShowCutArea) {
-
-					IplImage* img_t = cmd_ctrl_image[_channel]->getIplimage();
+					
 					mVideoProcessData->SetCurrentCutArea(img_t);
 					mVideoProcessData->DrawCurrentCutArea(img_t);
 					mVideoProcessData->DrawFutureCutArea(img_t);
@@ -429,6 +438,8 @@ void Dialog::img_stat_show(int _p_stat, int _channel, int _frames)
 
 				}
 #endif // TRUE
+
+				MainWindow::ProcessImage(img_t, this->mShowCutArea,this->mShowBinaryImg);
 
 #if TRUE
 					QSharedPointer<QImage> qimg = cmd_ctrl_image[_channel]->getQimage();

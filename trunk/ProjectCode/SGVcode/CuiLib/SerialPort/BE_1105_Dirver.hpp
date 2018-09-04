@@ -46,6 +46,8 @@ public:
 	BE_1105_Driver(QObject *parent = nullptr);
 	~BE_1105_Driver(void);	
 public:
+
+	int open_auto();
 	int open(int com_num);
 	int open(string com);
 	

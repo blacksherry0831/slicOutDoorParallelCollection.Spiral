@@ -136,13 +136,9 @@ void QtThreadPLC::run()
 	QSharedPointer<BE_1105_Driver>	 be_1105 = QSharedPointer<BE_1105_Driver>(new BE_1105_Driver(Q_NULLPTR));
 	int IS_SOCKET_OK = FALSE;
 	do {
-	
-#if defined(linux) || defined(__linux) || defined(__linux__)
-		be_1105->open_ttyUSB();
-#endif
-#if  defined(_WIN32) || defined(_WIN64)
-		be_1105->open(3);
-#endif	
+
+		be_1105->open_auto();
+
 		if (be_1105->init()==TRUE) {
 			break;
 		}

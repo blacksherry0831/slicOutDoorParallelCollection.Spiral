@@ -158,7 +158,8 @@ public:
 	std::vector<unsigned char>  getRectCfgCmd(int _channel, CvRect _rect_cut);
 	std::vector<unsigned char>  getModeChangeCmd(int _wm);
 	std::vector<unsigned char>  getSigmaChangeCmd(int _sigma);
-
+public:
+	static void adjRect44(CvRect* rect);
 public:
 	std::vector<unsigned char> Data();
 public:

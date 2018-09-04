@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>806</width>
-    <height>414</height>
+    <width>1018</width>
+    <height>755</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -144,61 +144,89 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <property name="sizeConstraint">
-       <enum>QLayout::SetFixedSize</enum>
+       <enum>QLayout::SetDefaultConstraint</enum>
       </property>
       <item>
-       <widget class="QCheckBox" name="checkBox_ImgModeOrg">
+       <widget class="QGroupBox" name="groupBox_setting">
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>35</height>
+          <height>60</height>
          </size>
         </property>
-        <property name="text">
-         <string>原图</string>
+        <property name="title">
+         <string>设置</string>
         </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="checkBox_ImgModeSizeOrg">
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>35</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>原尺寸</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QSlider" name="horizontalSlider_sigma">
-        <property name="maximumSize">
-         <size>
-          <width>512</width>
-          <height>35</height>
-         </size>
-        </property>
-        <property name="maximum">
-         <number>255</number>
-        </property>
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_sigma">
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>35</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>σ</string>
-        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <widget class="QComboBox" name="comboBox_IpAddr"/>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkBox_ImgModeOrg">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>35</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>原图</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkBox_ImgModeSizeOrg">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>35</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>原尺寸</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSlider" name="horizontalSlider_sigma">
+             <property name="maximumSize">
+              <size>
+               <width>512</width>
+               <height>35</height>
+              </size>
+             </property>
+             <property name="maximum">
+              <number>255</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="tickPosition">
+              <enum>QSlider::TicksBelow</enum>
+             </property>
+             <property name="tickInterval">
+              <number>0</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_sigma">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>35</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>σ</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>
@@ -206,14 +234,14 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="sizeConstraint">
-       <enum>QLayout::SetFixedSize</enum>
+       <enum>QLayout::SetDefaultConstraint</enum>
       </property>
       <item>
        <widget class="QGroupBox" name="groupBox_ctrls">
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>70</height>
+          <height>60</height>
          </size>
         </property>
         <property name="title">
@@ -262,34 +290,53 @@
     <item>
      <layout class="QGridLayout" name="gridLayout_stat">
       <property name="sizeConstraint">
-       <enum>QLayout::SetMinimumSize</enum>
+       <enum>QLayout::SetDefaultConstraint</enum>
       </property>
       <item row="0" column="0">
-       <widget class="QCheckBox" name="checkBox_ping">
-        <property name="text">
-         <string>网际控制报文协议</string>
+       <widget class="QGroupBox" name="groupBox_status">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>60</height>
+         </size>
         </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QCheckBox" name="checkBox_ssh">
-        <property name="text">
-         <string>安全外壳协议</string>
+        <property name="title">
+         <string>状态</string>
         </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QCheckBox" name="checkBox_video_port">
-        <property name="text">
-         <string>视频数据任务</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QCheckBox" name="checkBox_ctrl_port">
-        <property name="text">
-         <string>视频控制任务</string>
-        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_7">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_6">
+           <item>
+            <widget class="QCheckBox" name="checkBox_ping">
+             <property name="text">
+              <string>网际控制报文协议</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkBox_ssh">
+             <property name="text">
+              <string>安全外壳协议</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkBox_ctrl_port">
+             <property name="text">
+              <string>视频控制任务</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkBox_video_port">
+             <property name="text">
+              <string>视频数据任务</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>
@@ -301,7 +348,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>806</width>
+     <width>1018</width>
      <height>23</height>
     </rect>
    </property>
@@ -331,6 +378,7 @@
      <string>画面</string>
     </property>
     <addaction name="actionShow_Cut_Area"/>
+    <addaction name="action_Show_Binary_Img"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
@@ -390,6 +438,14 @@
   <action name="action_stop_bg_srv_force">
    <property name="text">
     <string>强制停止后台任务</string>
+   </property>
+  </action>
+  <action name="action_Show_Binary_Img">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>图像二值化</string>
    </property>
   </action>
  </widget>

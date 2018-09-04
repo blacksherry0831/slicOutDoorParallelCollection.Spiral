@@ -45,10 +45,12 @@ public:
 private:
     Ui::MainWindow *ui;
 	QLabel* labelImage[8];
+	QString mFpgaArmLinuxIpAddr;
 	QSharedPointer<CMD_CTRL> cmd_ctrl_image[8];
 	int mWorkMode;
 	QSharedPointer<QImage> mQimageGray;
 	int mShowCutArea;
+	int mShowBinaryImg;
 private:
 	void closeEvent(QCloseEvent *event);
 public:
@@ -82,8 +84,10 @@ private:
 	int  IsBgThreadRunning();
 	void destory_all();
 	void connect_img_ch(int _connect, const QObject *receiver);
+	void SetFpgaArmLinuxIpAddr(QString _str);
 public:
 	static void ShowImage(QLabel* _qlab, QImage *_p_qimg);
+	static void ProcessImage(IplImage* img_t, int isShow, int isBinary);
 public:
 	void message_test();
 static QImage * IplImageToQImage( IplImage* const img);
@@ -116,11 +120,14 @@ public slots:
 	void CheckBox_fpga_ctrl(int _stat_t);
 	void CheckBox_fpga_image_video(int _stat_t);
 	void CheckBox_img_mode_update();
+	void ComboBox_IpAddr_changed(const QString& _str);
 	void Slider_img_sigma_change(int _sigma);
 	void main_test();
 	void SetCutRectMethod();
 	int openImageShowQDialog(QLabel* _qabel);
 	void toggleShowCutArea();
+	void toggleShowBinaryImg();
+	void statusBarshowMessage(QString _msg);
 };
 
 #endif // MAINWINDOW_H

@@ -16,6 +16,7 @@
 exCircleData::exCircleData(int _ch)
 {	
 	this->mChannel = _ch;
+	this->init();
 }
 /*-------------------------------------*/
 /**

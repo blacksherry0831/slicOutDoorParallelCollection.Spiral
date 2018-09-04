@@ -34,11 +34,13 @@ public:
 	void SetChannel(int _channel);
 	void ResizeWindowSize();
 	void SetShowCutArea(int _show);
+	void SetShowBinary(int _show_bin);
 private:
 	int m_WidthImg;
 	int m_HeightImg;
 	float m_Scale;
 	int mShowCutArea;
+	int mShowBinaryImg;
 	 int mCurrentChannel;
 	 QSharedPointer<CMD_CTRL> cmd_ctrl_image[8];
 	 QSharedPointer<QtThread8VideoProcess> mVideoProcessData;

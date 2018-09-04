@@ -237,6 +237,8 @@ void CMD_CTRL::setRectCutCmd(int _channel, CvRect _rect_cut)
 
 	Int2UChar(_channel, m_img->IpAddrChannel);
 
+	adjRect44(&_rect_cut);
+
 	Int2UChar(_rect_cut.width, m_img->width_roi);
 	Int2UChar(_rect_cut.height, m_img->height_roi);
 	Int2UChar(_rect_cut.x, m_img->x_roi);
@@ -805,6 +807,18 @@ std::vector<unsigned char> CMD_CTRL::getSigmaChangeCmd(int _sigma)
 	this->initPc2Arm();
 
 	return this->Data();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void CMD_CTRL::adjRect44(CvRect * rect)
+{
+	while (rect->x%4!=0) rect->x++;
+
+	while (rect->width % 4 != 0) rect->width--;	
+
 }
 /*-------------------------------------*/
 /**

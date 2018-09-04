@@ -46,7 +46,7 @@ QtThreadClientCtrl::~QtThreadClientCtrl(void)
 void QtThreadClientCtrl::initIpPort()
 {
 #if 1
-	mIpAddr = "192.168.100.102";
+	mIpAddr = BORD_VIDEO_OUT;
 #else
 	mIpAddr = "127.0.0.1";
 #endif // 0
@@ -54,6 +54,8 @@ void QtThreadClientCtrl::initIpPort()
 	mPort = TCP_POET_CMD_CTRL;
 
 	mWorkMode = CMD_CTRL::WorkMode( CMD_CTRL::WorkMode::WM_ORG_IMG| CMD_CTRL::WorkMode::WM_SIZE_FULL);
+
+	this->mThreadName = "Ctrl Thread";
 }
 /*-------------------------------------*/
 /**
@@ -71,8 +73,8 @@ void QtThreadClientCtrl::run()
 	this->init_socket();
 
 	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
-	
-	qDebug() << "Ctrl Thread Start";
+		
+	this->emit_status_message(mStatusMessage = "Thread>> Ctrl Thread Start");
 			
 /*-----------------------------*/		
 		while (M_THREAD_RUN)
@@ -84,16 +86,16 @@ void QtThreadClientCtrl::run()
 			
 #if TRUE
 //step 1				
-					std::cout << "Send Start" << std::endl;
+				this->emit_status_message(mStatusMessage = QString("CMD>> Send Start cmd"));
+				
 
 					m_socket->Send_Start_CMD(TRUE,mWorkMode);
 												
 					if (m_socket->Read_1_cmd(cmd_t.data()) == 0) {
-						break;
+							break;
 					}
 					if (cmd_t->IsResp()) {
-
-							std::cout << "Rcv Start Resp !" << std::endl;
+							this->emit_status_message(mStatusMessage = QString("CMD>> Rcv Start Resp "));
 
 					}else {
 						break;
@@ -119,28 +121,28 @@ void QtThreadClientCtrl::run()
 					}
 #endif // TRUE
 
-
-
-
-
 #if TRUE
 //step 2
-					std::cout << "Send Stop" << std::endl;
-
+					this->emit_status_message(mStatusMessage = QString("CMD>> Send Stop "));
 					m_socket->Send_Start_CMD(FALSE, mWorkMode);
+					
 					if (m_socket->Read_1_cmd(cmd_t.data()) == 0) {
-						break;
+								break;
+					}else{					
+								if (cmd_t->IsResp()) {
+									this->emit_status_message(mStatusMessage = QString("CMD>> Rcv  Resp "));
+								}else {
+									break;
+								}					
 					}
-					if (cmd_t->IsResp()) {
 
-						std::cout << "Rcv  Resp !" << std::endl;
-
-					}
-					else {
-						break;
-					}
 #endif		
+
+#if TRUE
 					this->Sleep(3*1000);
+#endif // TRUE
+
+
 			
 			}
 		
@@ -148,12 +150,9 @@ void QtThreadClientCtrl::run()
 
 	 	}
 /*-----------------------------*/
-
-	
-
 	
 #if _DEBUG
-	 qDebug() << "Image Ctrl Thread : shutdown !" ;
+		this->emit_status_message(mStatusMessage = "Thread>>  shutdown");
 #endif // _DEBUG
 }
 /*-------------------------------------*/

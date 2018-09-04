@@ -24,7 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	this->init_menu();
 	this->init_controls();
 	
-
+	
 }
 /*-------------------------------------*/
 /**
@@ -61,6 +61,7 @@ void MainWindow::init_class_member()
 	//////////////////////////////////////////////////////////////////
 #if TRUE
 	this->mShowCutArea = TRUE;
+	this->mShowBinaryImg = FALSE;
 #endif // TRUE
 
 }
@@ -144,6 +145,7 @@ void MainWindow::init_menu()
 	connect(ui->action_stop_bg_srv_force, SIGNAL(triggered()), this, SLOT(StopVideoForce()));
 	connect(ui->actionEnable_ping_SSH, SIGNAL(triggered()), this, SLOT(start_ping_ssh()));
 	connect(ui->actionShow_Cut_Area, SIGNAL(triggered()), this, SLOT(toggleShowCutArea()));
+	connect(ui->action_Show_Binary_Img, SIGNAL(triggered()), this, SLOT(toggleShowBinaryImg()));
 #endif // TRUE
 }
 /*-------------------------------------*/
@@ -171,6 +173,21 @@ void MainWindow::init_controls()
 #endif // TRUE
 
 
+#if TRUE
+
+	ui->comboBox_IpAddr->addItem(BORD_VIDEO_IN_LONG);
+	ui->comboBox_IpAddr->addItem(BORD_VIDEO_IN_SHORT);
+	ui->comboBox_IpAddr->addItem(BORD_VIDEO_OUT);
+
+	ui->comboBox_IpAddr->setCurrentIndex(ui->comboBox_IpAddr->findText(BORD_VIDEO_OUT));
+
+	connect(ui->comboBox_IpAddr, SIGNAL(currentIndexChanged(const QString &)), this, SLOT(ComboBox_IpAddr_changed(const QString &)));
+
+	this->ComboBox_IpAddr_changed(this->ui->comboBox_IpAddr->currentText());
+
+#endif // TRUE
+
+
 }
 /*-------------------------------------*/
 /**
@@ -181,6 +198,7 @@ void MainWindow::disableInputCtrls(bool _flag)
 {
 	ui->horizontalLayout_ctrls->setEnabled(!_flag);
 	ui->groupBox_ctrls->setDisabled(_flag);
+	ui->comboBox_IpAddr->setDisabled(_flag);
 }
 /*-------------------------------------*/
 /**
@@ -261,6 +279,38 @@ void MainWindow::ShowImage(QLabel* _qlab,QImage *_p_qimg)
 	QPixmap pixmap2(QPixmap::fromImage(*_p_qimg));
 
 	_qlab->setPixmap(pixmap2.scaled(_qlab->size(), Qt::KeepAspectRatio));
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::ProcessImage(IplImage* img_t,int isShowCut,int isShowBinary)
+{
+#if TRUE
+	if (isShowCut) {
+		CvRect rect = cvGetImageROI(img_t);
+		cvResetImageROI(img_t); {
+			QtThread8VideoProcess::DrawArea(img_t, rect);
+		}cvSetImageROI(img_t, rect);
+
+	}
+#endif // TRUE
+
+#if TRUE
+	if (isShowBinary) {
+
+		CvRect rect = cvGetImageROI(img_t);
+		cvResetImageROI(img_t); {
+			float threshold = 0.5;
+			float max_value = 255;
+			int threshold_type = CV_THRESH_BINARY;
+			cvThreshold(img_t, img_t, threshold, 255, threshold_type);//·§Öµ100
+
+		}cvSetImageROI(img_t, rect);
+
+	}
+#endif // TRUE
 }
 /*-------------------------------------*/
 /**
@@ -387,6 +437,19 @@ void MainWindow::CheckBox_img_mode_update()
 	}
 
 	mCtrlServer->SetWorkModeCmd((CMD_CTRL::WorkMode)mWorkMode);
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::ComboBox_IpAddr_changed(const QString& _str)
+{
+
+	statusBarshowMessage(_str);
+
+	this->SetFpgaArmLinuxIpAddr(_str);
 
 }
 /*-------------------------------------*/
@@ -565,6 +628,7 @@ int MainWindow::openImageShowQDialog(QLabel* _qabel)
 					//dialog->setAttribute(Qt::WA_DeleteOnClose);
 					dialog->SetChannel(Channel);
 					dialog->SetShowCutArea(this->mShowCutArea);
+					dialog->SetShowBinary(this->mShowBinaryImg);
 					dialog->setModal(true);
 					dialog->showFullScreen();
 					dialog->show();
@@ -591,6 +655,21 @@ void MainWindow::toggleShowCutArea()
 		this->mShowCutArea = TRUE;
 	}else {
 		this->mShowCutArea = FALSE;
+	}
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::toggleShowBinaryImg()
+{
+	if (ui->action_Show_Binary_Img->isChecked()) {
+		this->mShowBinaryImg = TRUE;
+	}
+	else {
+		this->mShowBinaryImg = FALSE;
 	}
 
 }
@@ -713,8 +792,6 @@ void MainWindow::stopVideoBasic()
 	if (mCtrlServer->isRunning()) {
 	
 		mCtrlServer->closeServer();
-
-		QThread::sleep(1);
 	
 	}
 
@@ -790,22 +867,11 @@ void MainWindow::img_stat_show(int _p_stat, int _channel, int _frames)
 		while (circleData->QueueSize()){
 
 				cmd_ctrl_image [_channel]=circleData->getImg();
-
-#if TRUE
-				if (this->mShowCutArea){
-
-					IplImage* img_t = cmd_ctrl_image[_channel]->getIplimage();
-
-					CvRect rect = cvGetImageROI(img_t);
-					cvResetImageROI(img_t); {				
-						QtThread8VideoProcess::DrawArea(img_t,rect);
-					}cvSetImageROI(img_t,rect);
-
-				}				
 				
-#endif // TRUE
+				IplImage* img_t = cmd_ctrl_image[_channel]->getIplimage();
 
-				
+				ProcessImage(img_t, this->mShowCutArea, this->mShowBinaryImg);
+
 
 				QSharedPointer<QImage> qimg = cmd_ctrl_image[_channel]->getQimage();
 		
@@ -850,6 +916,26 @@ void MainWindow::SetMaxWidthMy()
 
 	this->setFixedWidth(SCREEN_W);
 
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::statusBarshowMessage(QString _msg)
+{
+	ui->statusBar->showMessage(_msg);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void  MainWindow::SetFpgaArmLinuxIpAddr(QString _str)
+{
+	mFpgaArmLinuxIpAddr = _str;
+	mCtrlServer->SetIpAddr(mFpgaArmLinuxIpAddr);
+	mVideoDataServer->SetIpAddr(mFpgaArmLinuxIpAddr);
 }
 /*-------------------------------------*/
 /**

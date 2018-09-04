@@ -31,6 +31,8 @@ public:
 private:
 	QByteArray m_buffer;
 	int m_buffer_Length;
+protected:
+	int mSocketRun;
 public:
 	int init();
 	int ReadAllMy();
@@ -41,6 +43,9 @@ public:
 	int IsSocketAlive();
 	int IsSocketError();
 	void disconnectFromHostMy();
+public:
+	void startSocketRun();
+	void stopSocketRun();
 public:
 	int Send_1_cmd(CMD_CTRL *_cmd);
 	int Read_1_cmd(CMD_CTRL *_cmd);

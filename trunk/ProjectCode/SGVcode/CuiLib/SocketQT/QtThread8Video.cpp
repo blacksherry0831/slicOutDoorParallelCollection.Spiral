@@ -15,6 +15,8 @@ void QtThread8Video::initIpPort()
 #endif // 0
 
 	mPort=TCP_PORT_VIDEO_TRANS;
+
+	this->mThreadName = "Image Data Thread ";
 }
 /*-------------------------------------*/
 /**
@@ -75,14 +77,13 @@ void QtThread8Video::run1()
 /*-------------------------------------*/
 void QtThread8Video::run()
 {
-	
+	this->emit_status_message(mStatusMessage = "Thread>> Ctrl Thread Start");
 
 	while (M_THREAD_RUN) {
 	
 		this->connect2ServerIfNoConnected();
 		
 		while (M_THREAD_RUN) {
-		
 #if 1
 			{
 					QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
@@ -95,7 +96,9 @@ void QtThread8Video::run()
 						  this->ProcessCmd(cmd_t);
 						  this->emit_img_signals(cmd_t);
 					}else if (cmd_t->isHeartbeatCmd()) {
-						//std::cout << "@" << std::endl;
+#if 0
+						std::cout << "@" << std::endl;
+#endif // 0						
 					}else{
 						 std::cout << "ErrorCmd" << std::endl;
 					}
@@ -110,12 +113,9 @@ void QtThread8Video::run()
 	
 	}
 
-
 #if _DEBUG
-	qDebug() << "Image Data Thread : shutdown !" ;
+	this->emit_status_message(mStatusMessage = "Thread>>  shutdown");
 #endif // _DEBUG
-
-
 
 }
 /*-------------------------------------*/

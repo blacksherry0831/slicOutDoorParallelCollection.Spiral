@@ -23,6 +23,7 @@ QtTcpClient::QtTcpClient(QObject *parent):QTcpSocket(parent)
 {
 	
 	MAX_MSECS =30000;
+	mSocketRun = TRUE;
 	m_buffer.clear();
 #if _DEBUG
 
@@ -263,6 +264,11 @@ int  QtTcpClient::Read_1_cmd(CMD_CTRL *_cmd)
 	int DataALLSize_ = -1;
 	int BodySize_ = -1;
 	int READSIZE=HeaderSize;
+
+	if (mSocketRun==FALSE){
+		return FALSE;
+	}
+
 	do {
 	
 		if (this->m_buffer.size() < HeaderSize) {
@@ -314,7 +320,7 @@ int  QtTcpClient::Read_1_cmd(CMD_CTRL *_cmd)
 			return FALSE;
 		}
 
-	} while (TRUE);
+	} while (mSocketRun);
 	// a frame is ok
 	
 
@@ -363,7 +369,7 @@ int QtTcpClient::Read_nSize_2_body(CMD_CTRL * _cmd)
 		}
 		
 
-	} while (TRUE);
+	} while (mSocketRun);
 
 	return TRUE;
 }
@@ -452,7 +458,19 @@ void QtTcpClient::disconnectFromHostMy()
 *
 */
 /*-------------------------------------*/
-
+void QtTcpClient::startSocketRun()
+{
+	mSocketRun = TRUE;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtTcpClient::stopSocketRun()
+{
+	mSocketRun = FALSE;
+}
 /*-------------------------------------*/
 /**
 *

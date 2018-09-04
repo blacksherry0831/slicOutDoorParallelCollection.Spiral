@@ -37,6 +37,22 @@ BE_1105_Driver::~BE_1105_Driver(void)
 *
 */
 /*-------------------------------------*/
+int BE_1105_Driver::open_auto()
+{
+	int result_t = 0;
+#if defined(linux) || defined(__linux) || defined(__linux__)
+	this->open_ttyUSB();
+#endif
+#if  defined(_WIN32) || defined(_WIN64)
+	result_t=this->open(3);
+#endif	
+	return result_t;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 int BE_1105_Driver::open(int com_num)
 {
 

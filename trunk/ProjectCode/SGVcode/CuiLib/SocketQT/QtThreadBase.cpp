@@ -44,14 +44,25 @@ QtThreadBase::~QtThreadBase(void)
 *
 */
 /*-------------------------------------*/
+void QtThreadBase::emit_status_message(const QString & _msg)
+{
+	qDebug() << _msg;
+	emit status_message(_msg);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void QtThreadBase::Sleep(int _ms)
 {
 	do {
 
 		QThread::msleep(100);
 		_ms -= 100;
-		std::cout << "#";
-
+#if 0
+std::cout << "#";
+#endif // 0
 	} while (_ms > 0);
 
 	std::cout << std::endl;
