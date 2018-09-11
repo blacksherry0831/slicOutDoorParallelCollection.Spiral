@@ -50,7 +50,7 @@ public:
 	void SetImgSigmaCmd(int _sigma);
 
 	int SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C _start_stop);
-
+	int SendHearbeatCmd();
 	static void SetLocalCmd(int cmd_00);
 
 public slots:

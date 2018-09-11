@@ -205,6 +205,10 @@ void QtThreadClientCtrl::run_01()
 					}
 			}
 
+			if (SocketErrorMy == this->SendHearbeatCmd()) {
+					break;
+			}
+
 		}
 
 		this->closeSocket4Server();
@@ -267,20 +271,6 @@ int QtThreadClientCtrl::ProcessCmds()
 				}
 	}else{
 
-				this->Sleep(SleepInterval);
-				SleepTimes++;
-
-				if (SleepTimes%(mHeartBeatFreq/SleepInterval)==0)
-				{
-#if 1
-		//no cmd
-						if (0==m_socket->SendHearbeatCmd()) {
-							result_t=SocketErrorMy;
-						}else {
-							result_t=TRUE_MY;
-						}
-#endif // 0		
-				}
 
 	}
 	
@@ -430,6 +420,35 @@ int QtThreadClientCtrl::SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C _start_stop)
 
 
 
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int QtThreadClientCtrl::SendHearbeatCmd()
+{
+	static const int SleepInterval = 100;
+	static int SleepTimes = 0;
+	int result_t = INIT_MY;
+
+	this->Sleep(SleepInterval);
+
+	SleepTimes++;
+
+	if (SleepTimes % (mHeartBeatFreq / SleepInterval) == 0)
+	{
+#if 1
+		//no cmd
+		if (0 == m_socket->SendHearbeatCmd()) {
+			result_t = SocketErrorMy;
+		}
+		else {
+			result_t = TRUE_MY;
+		}
+#endif // 0		
+	}
+	return result_t;
 }
 /*-------------------------------------*/
 /**
