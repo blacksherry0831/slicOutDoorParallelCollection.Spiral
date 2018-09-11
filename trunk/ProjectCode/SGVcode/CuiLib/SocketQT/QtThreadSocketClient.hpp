@@ -15,6 +15,15 @@
 class QtThreadSocketClient :public QtThreadBase
 {
 	Q_OBJECT
+
+public:
+	enum ResultMy
+	{
+		INIT_MY = 255,
+		SocketErrorMy =-1,
+		TRUE_MY =1,
+		FALSE_MY =0,
+	};
 public:
 	QtThreadSocketClient(qintptr p);
 	QtThreadSocketClient();
@@ -25,10 +34,13 @@ protected:
 	QSharedPointer<QtTcpClient>  m_socket;//客户端的定义
 	std::string mIpAddr;
 	int mPort;
-
+	int mSocketConnected;
+public:
+	int IsSocketConnectedThreadRunning();
 public:
 	void  connect2ServerIfNoConnected();
 	void  disconnect4Server();
+	void  closeSocket();
 	void  closeSocket4Server();
 	int   IsSocketAliveEx();
 	void emit_status_message(const QString& _msg);

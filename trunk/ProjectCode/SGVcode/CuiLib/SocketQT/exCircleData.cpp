@@ -47,7 +47,10 @@ void exCircleData::clear()
 /*-------------------------------------*/
 void exCircleData::init()
 {
-	this->clear();
+	mAverage = Q_NULLPTR;
+	mSigma = Q_NULLPTR;
+	mStartTime = clock();
+	mFrameCount = 0;
 }
 /*-------------------------------------*/
 /**
@@ -63,7 +66,57 @@ void exCircleData::destory()
 *
 */
 /*-------------------------------------*/
+void exCircleData::start_record(std::string _time_t)
+{
+	this->init();
 
+	mSaveFrame.start_record()->SetTime(_time_t);
+		
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void exCircleData::stop_record()
+{
+	this->clear();
+	mSaveFrame.stop_record();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void exCircleData::SetSaveFrameCfg(QSharedPointer<CMD_CTRL> cmd_ctrl)
+{
+	const int CHANNEL = cmd_ctrl->Channel();
+	std::string IPADDR = cmd_ctrl->mIpAddrRemote;
+	assert(CHANNEL == mChannel);
+
+	this->mSaveFrame.SetChannel(mChannel)->SetFrameCount(mFrameCount)->SetIpAddr(IPADDR);
+
+	IplImage* img_t = cmd_ctrl->getIplimage();
+
+	this->mSaveFrame.SaveFrame2Disk(img_t);
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void exCircleData::IncFrameCount()
+{
+	this->mFrameCount++;
+
+	if (this->mFrameCount == 1) {
+		this->mStartTime = clock();
+	}
+	else {
+		this->mCurrentTime = clock();
+	}
+}
 /*-------------------------------------*/
 /**
 *
@@ -80,15 +133,22 @@ QSharedPointer<CMD_CTRL>  exCircleData::getImg()
 /*-------------------------------------*/
 void exCircleData::setImg(QSharedPointer<CMD_CTRL> cmd_ctrl)
 {
-	this->setCmd(cmd_ctrl);
-	this->mFrameCount++;
 
-	if (this->mFrameCount==1){
-		this->mStartTime = clock();
-	}else {
-		this->mCurrentTime = clock();	
-	}
+#if _DEBUG
+	const int CHANNEL = cmd_ctrl->Channel();
+	assert(CHANNEL==mChannel);
+#endif //
+		
+	this->SetSaveFrameCfg(cmd_ctrl);
 
+
+#if TRUE
+
+	this->setCmd(cmd_ctrl);	
+
+	this->IncFrameCount();
+
+#endif // TRUE
 
 }
 /*-------------------------------------*/

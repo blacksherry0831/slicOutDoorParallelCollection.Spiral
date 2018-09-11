@@ -26,7 +26,9 @@ ENDIF ()
 				QtThreadClientCtrlTest.cpp
 				QtThreadServer.cpp
 				QtThreadPLC.cpp
+				QtThreadStepMotor.cpp
 				DataFrame.cpp
+				CMD_CTRL_DATA.cpp
 				CMD_CTRL.cpp
 				CMD_CTRL_Q.cpp				
 				QtThread8Video.cpp
@@ -36,7 +38,8 @@ ENDIF ()
 				QtThread8VideoProcess.cpp
 				QtThread8VideoRaw.cpp
 				QtTcpServerTest.cpp
-				QtLink.cpp)		
+				QtLink.cpp
+				Saveframe.cpp)		
 	
 	endif (CBB_BUILDING_CRACK_DETECTION)
  
@@ -45,6 +48,7 @@ ADD_LIBRARY(SOCKET_SERVER   STATIC    ${DIR_SRCS}  )
 TARGET_LINK_LIBRARIES(SOCKET_SERVER
 						pthreads
 						MY_SDK_LIB
+						QT_SDK_LIB
 	) 
 ############################################################ 
 ############################################################

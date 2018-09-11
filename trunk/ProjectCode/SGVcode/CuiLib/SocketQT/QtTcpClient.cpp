@@ -174,16 +174,19 @@ int QtTcpClient::WriteMy(const char* const _data,const int _size)
 *
 */
 /*-------------------------------------*/
-int QtTcpClient::Send_Start_CMD(int _type, CMD_CTRL::WorkMode _wm)
+int QtTcpClient::Send_Start_CMD(CMD_CTRL::CMD_TYPE_02_C _type_c, CMD_CTRL::WorkMode _wm)
 {
 	CMD_CTRL cmd;
-	cmd.getFpgaStartCmd(_type,_wm);
-	
-	if (_type) {
+	cmd.getFpgaStartCmd(_type_c,_wm);
+
+#if 0
+	if (_type_c) {
 		std::cout << "Send CMD START FPGA" << std::endl;
 	}else {
 		std::cout << "Send CMD STOP FPGA" << std::endl;
 	}
+#endif // 0
+
 	return this->Send_1_cmd(&cmd);
 }
 /*-------------------------------------*/
@@ -260,10 +263,17 @@ int  QtTcpClient::Send_1_cmd(CMD_CTRL *_cmd)
 /*-------------------------------------*/
 int  QtTcpClient::Read_1_cmd(CMD_CTRL *_cmd)
 {
-	const int HeaderSize = sizeof(CMD_CTRL::CMD_CTRL_HEADER);
+	const int HeaderSize = sizeof(CMD_CTRL_DATA::CMD_CTRL_HEADER);
 	int DataALLSize_ = -1;
 	int BodySize_ = -1;
 	int READSIZE=HeaderSize;
+
+#if TRUE
+	_cmd->SetIpAddrRemote((QTcpSocket*)this);
+
+
+#endif // TRUE
+	
 
 	if (mSocketRun==FALSE){
 		return FALSE;
@@ -291,7 +301,7 @@ int  QtTcpClient::Read_1_cmd(CMD_CTRL *_cmd)
 
 					char *  header_data = m_buffer.data();
 
-					BodySize_ = CMD_CTRL::GetCMDBodySize((CMD_CTRL::CMD_CTRL_HEADER*) header_data);
+					BodySize_ = CMD_CTRL_DATA::GetCMDBodySize((CMD_CTRL_DATA::CMD_CTRL_HEADER*) header_data);
 
 					if (BodySize_ < 2)	BodySize_ = 2;
 				

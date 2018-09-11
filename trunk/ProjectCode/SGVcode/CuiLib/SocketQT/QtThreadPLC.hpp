@@ -7,10 +7,7 @@
 *
 */
 /*-------------------------------------*/
-#include <QtCore>
-#include <QtNetwork>
-#include <QSharedPointer>
-#include <QThread>
+#include "qt_all.h"
 /*-------------------------------------*/
 /**
 *

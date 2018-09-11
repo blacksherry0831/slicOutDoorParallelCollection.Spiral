@@ -26,12 +26,22 @@ public:
 	~QtThreadClientCtrl(void);
 protected:
 	void initIpPort();
+	QSharedPointer <QtThreadSocketClient> mDataPipe;
+public:
+	void SetDataPipe(QSharedPointer <QtThreadSocketClient> _dataPipe);
+	int IsDataPipeOK();
 private:
 	CMD_CTRL::WorkMode mWorkMode;
+	int mHeartBeatFreq;
 public:
 	static CMD_CTRL_Q cmds;
 
 	int SendCmdCtrl();
+
+	int ProcessCmds();
+
+	int ProcessLocalCmds(QSharedPointer<CMD_CTRL> cmd_ctrl_t);
+	int ProcessRemoteCmds(QSharedPointer<CMD_CTRL> cmd_ctrl_t);
 
 	void SetWorkMode(CMD_CTRL::WorkMode _wm);
 
@@ -39,9 +49,17 @@ public:
 	
 	void SetImgSigmaCmd(int _sigma);
 
+	int SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C _start_stop);
+
+	static void SetLocalCmd(int cmd_00);
 
 public slots:
-	
+
+protected:
+
+	void run_00();
+	void run_01();
+
 protected: 
 	virtual void run();
 

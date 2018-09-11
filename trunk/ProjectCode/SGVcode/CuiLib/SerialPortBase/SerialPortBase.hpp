@@ -24,9 +24,10 @@ protected:
 	/*QSharedPointer<QTimer> m_timer;*/
 	std::vector<QSerialPortInfo> m_serialPorts;
 	QQueue<unsigned char>  m_buffer;
+	int mIsSerialPortRun;
 protected:
 	QMutex m_MUTEX; 
-	DWORD m_baudrate;
+	DWORD  m_baudrate;
 	char	buffer_result[1024];//Ω” ‹buffer
 	char	buffer_cmd[1024];//∑¢ÀÕbuffer
 protected:
@@ -51,6 +52,10 @@ public:
 	int IsOpen();
 	void StartTimer();
 	void moveToThreadQSP(QThread* _thread);
+public:
+	void startSerialPortRun();
+	void stopSerialPortRun();
+	int  IsSerialPortRun();
 public slots :
 	int readComDataSlot();
 };

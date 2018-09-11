@@ -64,6 +64,9 @@ public:
 	void WorkStart();
 	void WorkDone();
 public:
+
+	QSharedPointer<QtThreadStepMotor>		mStepMotor;
+
 	QSharedPointer<QtThreadClientCtrl>		mCtrlServer;
 
 	QSharedPointer<QtThread8Video>			mVideoDataServer;

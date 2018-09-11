@@ -70,7 +70,7 @@ private:
 private:
 	boolean m_read_thread_run;
 	int m_be_1105_addr;
-	pthread_t m_pt_handle;
+	
 	unsigned char m_status[2];
 /*-------------------------------------------------------*/
 public:

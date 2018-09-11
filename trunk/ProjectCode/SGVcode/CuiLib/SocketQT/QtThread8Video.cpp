@@ -96,8 +96,8 @@ void QtThread8Video::run()
 						  this->ProcessCmd(cmd_t);
 						  this->emit_img_signals(cmd_t);
 					}else if (cmd_t->isHeartbeatCmd()) {
-#if 0
-						std::cout << "@" << std::endl;
+#if TRUE
+						std::cout << "@frame" << std::endl;
 #endif // 0						
 					}else{
 						 std::cout << "ErrorCmd" << std::endl;
@@ -125,17 +125,17 @@ void QtThread8Video::run()
 /*-------------------------------------*/
 void QtThread8Video::ProcessCmd(QSharedPointer<CMD_CTRL> cmd_t)
 {
-	if (cmd_t->IsImgStart()) {
 
+	if (cmd_t->IsImgStart()) {
 		std::cout << "Image Start!" << std::endl;
-		ChannelsData::channelsData()->init();
-	}
-	else if (cmd_t->IsImgEnd()) {
+		ChannelsData::channelsData()->start_record();
+
+	}else if (cmd_t->IsImgEnd()) {
 
 		std::cout << "Image Stop!" << std::endl;
-		ChannelsData::channelsData()->destory();
-	}
-	else if (cmd_t->IsImgFrame()) {
+		ChannelsData::channelsData()->stop_record();
+
+	}else if (cmd_t->IsImgFrame()) {
 
 		const int CHANNEL = cmd_t->Channel();
 		QSharedPointer<exCircleData> circleData = ChannelsData::channelsData()->getChannelData(CHANNEL);
@@ -153,7 +153,7 @@ void QtThread8Video::ProcessCmd(QSharedPointer<CMD_CTRL> cmd_t)
 	}
 	else {
 		std::cout << "Image ERROR!" << std::endl;
-		assert(FALSE);
+		Q_ASSERT(FALSE);
 	}
 }
 /*-------------------------------------*/
@@ -172,7 +172,7 @@ void QtThread8Video::emit_img_signals(QSharedPointer<CMD_CTRL> cmd_t)
 		QSharedPointer<exCircleData> circleData = ChannelsData::channelsData()->getChannelData(CHANNEL);
 		emit img_stat(cmd_t->CmdStat(),CHANNEL, circleData->QueueSize());
 	}else {
-			assert(FALSE);
+			Q_ASSERT(FALSE);
 	}
 }
 /*-------------------------------------*/

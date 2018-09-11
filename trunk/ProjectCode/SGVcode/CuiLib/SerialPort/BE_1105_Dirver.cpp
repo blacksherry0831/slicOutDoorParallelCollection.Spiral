@@ -17,6 +17,7 @@ BE_1105_Driver::BE_1105_Driver(QObject *parent):SerialPortBase(parent)
 {
 	this->m_baudrate = 9600;
 	m_read_thread_run = true;
+	
 	m_be_1105_addr = 0;
 	m_circle = 5;
 	memset(m_status, 0xAA, sizeof(m_status));
@@ -44,7 +45,7 @@ int BE_1105_Driver::open_auto()
 	this->open_ttyUSB();
 #endif
 #if  defined(_WIN32) || defined(_WIN64)
-	result_t=this->open(3);
+	result_t=this->open(4);
 #endif	
 	return result_t;
 }
@@ -57,6 +58,7 @@ int BE_1105_Driver::open(int com_num)
 {
 
 	if (SerialPortBase::open(com_num) == TRUE) {
+		
 		#if FALSE		
 					int ret = 0;	
 					this->m_read_thread_run = true;
@@ -66,7 +68,8 @@ int BE_1105_Driver::open(int com_num)
 						std::cout << "Create pthread error!" << std::endl;
 						ASSERT(ret != 0);
 					}
-		#endif		
+		#endif	
+		
 	}
 
 	return init();
@@ -109,7 +112,7 @@ int BE_1105_Driver::open(string com)
 /*-------------------------------------*/
 void BE_1105_Driver::Join()
 {
-	int ret = pthread_join(m_pt_handle, NULL);
+	
 }
 /*-------------------------------------*/
 /**

@@ -6,16 +6,14 @@
 *
 */
 /*-----------------------------------*/
-#include <QtCore>
-#include <QtNetwork>
-#include <QSharedPointer>
-#include <QThread>
+#include "qt_all.h"
 /*-----------------------------------*/
 /**
 *
 */
 /*-----------------------------------*/
 #include "exCircleData.hpp"
+#include "Saveframe.hpp"
 /*-------------------------------------*/
 /**
 *
@@ -28,13 +26,16 @@ private:
 	ChannelsData();
 	~ChannelsData();
 private:
-	std::vector<QSharedPointer<exCircleData>> mChannelsData;
-public:
-	QSharedPointer<exCircleData> getChannelData(int _ch);
-	void init();
-	void destory();
-private:
 	static ChannelsData gChannelsData;
+	std::vector<QSharedPointer<exCircleData>> mChannelsData;
+	std::string mTimeCurrent;
 public:
 	static ChannelsData* channelsData();
+public:
+	QSharedPointer<exCircleData> getChannelData(int _ch);
+
+	void start_record();
+	void stop_record();
+
+
 };

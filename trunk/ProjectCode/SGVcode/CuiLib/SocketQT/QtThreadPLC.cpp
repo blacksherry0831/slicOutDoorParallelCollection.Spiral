@@ -6,7 +6,7 @@
 *
 */
 /*-------------------------------------*/
-
+#include "SerialPort/BE_1105_Dirver.hpp"
 /*-------------------------------------*/
 /**
 *
@@ -75,10 +75,12 @@ QtThreadPLC::~QtThreadPLC(void)
 
 void QtThreadPLC::Run0()
 {
+
 }
 
 void QtThreadPLC::run1()
 {
+
 }
 /*-------------------------------------*/
 /**
@@ -212,11 +214,11 @@ void QtThreadPLC::run()
 								break;
 							}else if (cmd_t->IsRoolerReady()) {
 								continue;
-							}
-							else {
+							}else {
 								std::cout << "EVENT>>" << "Error Cmd!" << std::endl;
 								break;
 							}
+
 						} while (m_socket->IsSocketAlive());
 						if (IS_SOCKET_OK == FALSE) break;
 #endif // TRUE
@@ -224,11 +226,6 @@ void QtThreadPLC::run()
 
 
 	}
-
-
-	
-
-
 
 }
 /*-------------------------------------*/

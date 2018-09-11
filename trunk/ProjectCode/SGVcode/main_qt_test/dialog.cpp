@@ -418,7 +418,7 @@ void Dialog::keyReleaseEventSigImg(QKeyEvent * ev)
 /*-------------------------------------*/
 void Dialog::img_stat_show(int _p_stat, int _channel, int _frames)
 {
-	if ((_p_stat >> 8) == CMD_CTRL::CMD_TYPE_02::CT_FRAME) {
+	if ((_p_stat >> 8) == CMD_CTRL::CMD_TYPE_02_I::CT_IMG_FRAME) {
 		
 		QSharedPointer<exCircleData> circleData = ChannelsData::channelsData()->getChannelData(_channel);
 
@@ -452,9 +452,9 @@ void Dialog::img_stat_show(int _p_stat, int _channel, int _frames)
 
 		
 
-	}else if ((_p_stat >> 8) == CMD_CTRL::CMD_TYPE_02::CT_START) {
+	}else if ((_p_stat >> 8) == CMD_CTRL::CMD_TYPE_02_C::CT_START) {
 		
-	}else if ((_p_stat >> 8) == CMD_CTRL::CMD_TYPE_02::CT_STOP) {
+	}else if ((_p_stat >> 8) == CMD_CTRL::CMD_TYPE_02_C::CT_STOP) {
 
 	}else {
 

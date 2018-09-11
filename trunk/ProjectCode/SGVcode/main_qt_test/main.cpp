@@ -16,6 +16,7 @@
 #pragma comment(linker, "/SUBSYSTEM:CONSOLE")
 #endif
 #endif
+
 int mainGui(int argc, char *argv[]) 
 {
 	int EXEC_RESULT = 0;

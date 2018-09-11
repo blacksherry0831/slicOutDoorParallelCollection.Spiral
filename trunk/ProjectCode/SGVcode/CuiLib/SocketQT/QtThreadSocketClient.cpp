@@ -23,6 +23,7 @@ QtThreadSocketClient::QtThreadSocketClient()
 	m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
 	m_socket->moveToThread(this);
 	this->ptr_sd =-1;
+	this->mSocketConnected = FALSE;
 }
 /*-------------------------------------*/
 /**
@@ -64,9 +65,8 @@ void QtThreadSocketClient::init_socket()
 			m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
 	}	
 
-	m_socket->close();
+	this->closeSocket();
 
-	emit socket_connect_state(false);
 }
 /*-------------------------------------*/
 /**
@@ -149,6 +149,15 @@ void QtThreadSocketClient::run()
 *
 */
 /*-------------------------------------*/
+int QtThreadSocketClient::IsSocketConnectedThreadRunning()
+{
+	return  mSocketConnected && this->isRunning();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void  QtThreadSocketClient::connect2ServerIfNoConnected()
 {
 	if (this->IsSocketAliveEx() == false) {
@@ -164,7 +173,7 @@ void  QtThreadSocketClient::connect2ServerIfNoConnected()
 				
 				emit socket_connect_state(true);
 				this->emit_status_message(mStatusMessage = QString("Socket>> ").append("Connect  Success: "));
-				
+				mSocketConnected=TRUE;
 				break;
 			}else{
 				
@@ -191,13 +200,28 @@ void QtThreadSocketClient::disconnect4Server()
 *
 */
 /*-------------------------------------*/
-void QtThreadSocketClient::closeSocket4Server()
+void QtThreadSocketClient::closeSocket()
 {
 	if (!this->m_socket.isNull()) {
-			this->m_socket->close();
-			this->emit_status_message(mStatusMessage = QString("Socket>> ").append("close: ").append(QString(mIpAddr.c_str())).append("Port:").append(QString::number(mPort)));
+
+			if (this->m_socket->IsSocketAlive()) {
+						this->m_socket->close();						
+						this->emit_status_message(mStatusMessage = QString("Socket>> ").append("close: ").append(QString(mIpAddr.c_str())).append("Port:").append(QString::number(mPort)));
+			}	
+
+			mSocketConnected = FALSE;
 			emit socket_connect_state(false);
 	}
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadSocketClient::closeSocket4Server()
+{	
+	this->closeSocket();
 
 	if (this->M_THREAD_RUN==false){
 		this->m_socket.clear();

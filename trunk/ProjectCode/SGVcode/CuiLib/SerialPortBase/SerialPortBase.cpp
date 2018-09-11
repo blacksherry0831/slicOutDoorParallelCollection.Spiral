@@ -7,12 +7,11 @@
 */
 /*-------------------------------------*/
 SerialPortBase::SerialPortBase(QObject *parent):QObject(parent)
-{
-	
+{	
 	this->initSerialPort();
-	/*this->m_timer =QSharedPointer<QTimer>(new QTimer());*/
 	this->m_qsp = QSharedPointer<QSerialPort>(new QSerialPort());
 	this->m_buffer.clear();
+	this->mIsSerialPortRun=TRUE;
 }
 /*-------------------------------------*/
 /**
@@ -142,17 +141,12 @@ int SerialPortBase::open_q(QSerialPortInfo _qspi)
 
 	bool com = m_qsp->open(QIODevice::ReadWrite);//打
 
-	if (com)
-	{
+	if (com){
+		this->startSerialPortRun();
 		//"串口打开成功"
 		std::cout << "open serial port：" << com_name << std::endl;
-		/*connect(
-		m_qsp,
-		SIGNAL(readyRead()),
-		this,
-		SLOT(dealdata()));*/
-	}
-	else {
+			
+	}else {
 		std::cout << "open fail !" << std::endl;
 	}
 
@@ -218,6 +212,7 @@ void SerialPortBase::close_port()
 void SerialPortBase::close()
 {
 	this->close_port();
+	this->stopSerialPortRun();
 }
 /*-------------------------------------*/
 /**
@@ -313,7 +308,28 @@ void SerialPortBase::moveToThreadQSP(QThread* _thread)
 *
 */
 /*-------------------------------------*/
-
+void  SerialPortBase::startSerialPortRun()
+{
+	this->mIsSerialPortRun=TRUE;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void  SerialPortBase::stopSerialPortRun()
+{
+	this->mIsSerialPortRun=FALSE;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int SerialPortBase::IsSerialPortRun()
+{
+	return this->mIsSerialPortRun;
+}
 /*-------------------------------------*/
 /**
 *

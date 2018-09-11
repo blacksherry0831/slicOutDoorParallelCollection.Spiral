@@ -16,6 +16,7 @@
 */
 /*-----------------------------------*/
 #include "CMD_CTRL_Q.hpp"
+#include "Saveframe.hpp"
 /*-------------------------------------*/
 /**
 *
@@ -38,15 +39,20 @@ private:
 	clock_t mCurrentTime;
 	int mFrameCount;
 	int mChannel;
+	Saveframe mSaveFrame;
 private:
 	void clear();
 public:
 	void init();
 	void destory();
+	void start_record(std::string _time_t);
+	void stop_record();
 public:
 	QSharedPointer<CMD_CTRL> mAverage;
 	QSharedPointer<CMD_CTRL> mSigma;
-	
+private:
+	void SetSaveFrameCfg(QSharedPointer<CMD_CTRL> cmd_ctrl);
+	void IncFrameCount();
 public:
 	QSharedPointer<CMD_CTRL> getImg();
 	void setImg(QSharedPointer<CMD_CTRL> cmd_ctrl);

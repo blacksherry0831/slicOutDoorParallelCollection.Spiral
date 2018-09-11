@@ -7,8 +7,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.8.1)
 ###############################################################################
 
 C11_Config()  
-ConfigOpenCv()
 
+CONFIGQT()
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")  
  
@@ -20,15 +20,11 @@ ELSE ()
    
 ENDIF ()  
 ###############################################################################
-SET(MY_SDK_SRCS
-	Base.cpp
-	PathCfg.cpp
-	LatLng.cpp
-	OpencvCamera.cpp
-	ImageProcess.cpp
-	OutCircleFeature.cpp
-	VideoRecord.cpp)
-ADD_LIBRARY(MY_SDK_LIB   STATIC    ${MY_SDK_SRCS})
+
+SET(QT_SDK_SRCS
+	QBase.cpp)
+
+ADD_LIBRARY(QT_SDK_LIB   STATIC    ${QT_SDK_SRCS})
 ###############################################################################
 	
 ##############################################################################

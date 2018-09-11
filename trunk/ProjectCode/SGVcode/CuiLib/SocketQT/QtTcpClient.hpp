@@ -33,6 +33,7 @@ private:
 	int m_buffer_Length;
 protected:
 	int mSocketRun;
+	int mSocketConnected;
 public:
 	int init();
 	int ReadAllMy();
@@ -52,7 +53,7 @@ public:
 	int Read_1_cmd_fast(CMD_CTRL *_cmd);
 	int Read_nSize_2_body(CMD_CTRL *_cmd);
 public:
-	int Send_Start_CMD(int _type, CMD_CTRL::WorkMode _wm);
+	int Send_Start_CMD(CMD_CTRL::CMD_TYPE_02_C _type_c, CMD_CTRL::WorkMode _wm);
 	int SendHearbeatCmd();
 public:
 	int SendPlcResp(int _type);

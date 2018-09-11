@@ -72,6 +72,15 @@ std::cout << "#";
 *
 */
 /*-------------------------------------*/
+void QtThreadBase::SleepMy(int _ms)
+{
+	Sleep(_ms);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void QtThreadBase::startServer()
 {
 	this->M_THREAD_RUN = true;

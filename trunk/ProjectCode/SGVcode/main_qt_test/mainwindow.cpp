@@ -52,8 +52,13 @@ void MainWindow::init_class_member()
 	mQimageGray->fill(125);
 #endif
 
+	mStepMotor = QSharedPointer<QtThreadStepMotor>(new QtThreadStepMotor());
 	mCtrlServer = QSharedPointer<QtThreadClientCtrl>(new QtThreadClientCtrl());
-	mVideoDataServer = QSharedPointer<QtThread8Video>(new QtThread8Video());	
+	mVideoDataServer = QSharedPointer<QtThread8Video>(new QtThread8Video());
+
+	mCtrlServer->SetDataPipe(mVideoDataServer);
+	mStepMotor->SetCmdCtrlPipe(mCtrlServer);
+
 	//////////////////////////////////////////////////////////////////
 	mthread = QSharedPointer<QThread>(new QThread());
 	mLink = QSharedPointer<QtLink>(new QtLink());
@@ -128,9 +133,6 @@ void MainWindow::destory_ping_ssh()
 
 	}
 
-	
-	
-	
 }
 /*-------------------------------------*/
 /**
@@ -696,6 +698,7 @@ void MainWindow::StartVideoBasic(int mode)
 	mVideoDataServer->startServer();
 #endif // 0
 
+	mStepMotor->startServer();
 }
 /*-------------------------------------*/
 /**
@@ -789,28 +792,17 @@ void MainWindow::StopVideoForce()
 /*-------------------------------------*/
 void MainWindow::stopVideoBasic()
 {
-	if (mCtrlServer->isRunning()) {
-	
-		mCtrlServer->closeServer();
-	
+	if (mCtrlServer->isRunning()) {	
+		mCtrlServer->closeServer();	
 	}
 
-	if (mVideoDataServer->isRunning())
-	{
+	if (mVideoDataServer->isRunning()){
 		mVideoDataServer->closeServer();
 	}
 	
-#if _DEBUG && 0
-
-	if (mCtrlServer->isFinished()){
-		qDebug() << "Ctrl Server : Closed !";
+	if (mStepMotor->isRunning()) {
+		mStepMotor->closeServer();
 	}
-	if (mVideoDataServer->isFinished()) {
-		qDebug() << "Video Data Server : Closed !";
-	}
-
-#endif // 0
-
 	
 	this->IsBgThreadRunning();
 
@@ -825,19 +817,6 @@ void MainWindow::stopVideoBasic()
 void MainWindow::stopVideoBasicForce()
 {
 	this->stopVideoBasic();
-
-//#if TRUE
-//
-//	if (mCtrlServer->isRunning()) {
-//		mCtrlServer->closeSocket4Server();
-//	}
-//
-//	if (mVideoDataServer->isRunning()){
-//		mVideoDataServer->closeSocket4Server();
-//	}		
-//		
-//#endif
-
 
 }
 /*-------------------------------------*/
@@ -858,7 +837,7 @@ void MainWindow::ConnectVideo()
 /*-------------------------------------*/
 void MainWindow::img_stat_show(int _p_stat, int _channel, int _frames)
 {
-	if ((_p_stat >>8)== CMD_CTRL::CMD_TYPE_02::CT_FRAME){
+	if ((_p_stat >>8)== CMD_CTRL::CMD_TYPE_02_I::CT_IMG_FRAME){
 
 		
 
@@ -880,11 +859,11 @@ void MainWindow::img_stat_show(int _p_stat, int _channel, int _frames)
 		}		
 		
 
-	}else if ((_p_stat >> 8) == CMD_CTRL::CMD_TYPE_02::CT_START) {
+	}else if ((_p_stat >> 8) == CMD_CTRL::CMD_TYPE_02_C::CT_START) {
 
 
 
-	}else if((_p_stat >> 8) == CMD_CTRL::CMD_TYPE_02::CT_STOP) {
+	}else if((_p_stat >> 8) == CMD_CTRL::CMD_TYPE_02_C::CT_STOP) {
 
 	}else {
 
@@ -936,6 +915,7 @@ void  MainWindow::SetFpgaArmLinuxIpAddr(QString _str)
 	mFpgaArmLinuxIpAddr = _str;
 	mCtrlServer->SetIpAddr(mFpgaArmLinuxIpAddr);
 	mVideoDataServer->SetIpAddr(mFpgaArmLinuxIpAddr);
+	mStepMotor->SetBordIPaddr(mFpgaArmLinuxIpAddr);
 }
 /*-------------------------------------*/
 /**
