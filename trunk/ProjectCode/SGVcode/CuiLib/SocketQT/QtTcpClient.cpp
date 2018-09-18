@@ -471,6 +471,7 @@ void QtTcpClient::disconnectFromHostMy()
 void QtTcpClient::startSocketRun()
 {
 	mSocketRun = TRUE;
+	m_buffer.clear();
 }
 /*-------------------------------------*/
 /**

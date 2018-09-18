@@ -46,8 +46,16 @@ QtThreadBase::~QtThreadBase(void)
 /*-------------------------------------*/
 void QtThreadBase::emit_status_message(const QString & _msg)
 {
-	qDebug() << _msg;
-	emit status_message(_msg);
+	
+		QString msg_t;
+
+		msg_t.append(mThreadName).append(", ")
+			.append(_msg).append(" ");
+
+		qDebug() << msg_t;
+
+		emit status_message(msg_t);
+	
 }
 /*-------------------------------------*/
 /**
@@ -122,7 +130,16 @@ void QtThreadBase::run()
 *
 */
 /*-------------------------------------*/
+void QtThreadBase::wait4ServerClose()
+{
+	int count = 0;
+	while (this->isRunning()) {
 
+		QThread::sleep(1);
+		this->emit_status_message(QString("wait for thread done").append(QString::number(count++)));
+
+	}
+}
 /*-------------------------------------*/
 /**
 *

@@ -35,4 +35,6 @@ signals:
 protected: 
 	virtual void run();
 
+	void wait4ServerClose();
+
 };

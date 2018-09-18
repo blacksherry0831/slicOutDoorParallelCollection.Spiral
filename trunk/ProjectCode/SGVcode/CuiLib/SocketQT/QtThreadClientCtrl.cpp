@@ -464,13 +464,49 @@ void QtThreadClientCtrl::SetLocalCmd(int cmd_00)
 
 	QtThreadClientCtrl::cmds.setCmd(cmd_t);
 
+#if _DEBUG
+	if (cmd_00==(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START)) {
+
+		
+
+	}else if (cmd_00 == (CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_00)) {
+
+
+
+	}else if (cmd_00 == (CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00)) {
+
+
+
+	}else if (cmd_00 == (CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01)) {
+
+
+
+	}
+	else if (cmd_00 == (CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01)) {
+
+
+
+	}else if (cmd_00 == (CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP)) {
+
+
+
+	}else {
+
+	}
+
+#endif // _DEBUG
+
+	
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-
+void QtThreadClientCtrl::ClearCmd()
+{
+	QtThreadClientCtrl::cmds.clear();
+}
 /*-------------------------------------*/
 /**
 *

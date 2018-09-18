@@ -60,9 +60,9 @@
 /*-------------------------------------*/
 #define PLC_ADDR	("192.168.100.101")
 #define IPC_ADDR	("192.168.100.100")
-#define BORD_VIDEO_IN_LONG	("192.168.100.101")
-#define BORD_VIDEO_IN_SHORT	("192.168.100.102")
-#define BORD_VIDEO_OUT	("192.168.100.103")
+#define BORD_VIDEO_IN_LONG	("192.168.100.110")
+#define BORD_VIDEO_IN_SHORT	("192.168.100.120")
+#define BORD_VIDEO_OUT	("192.168.100.130")
 /*-------------------------------------*/
 /**
 *

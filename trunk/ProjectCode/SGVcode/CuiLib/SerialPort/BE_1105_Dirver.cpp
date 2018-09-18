@@ -16,7 +16,7 @@ BE_1105_Driver* BE_1105_Driver::_instance = new BE_1105_Driver(Q_NULLPTR);
 BE_1105_Driver::BE_1105_Driver(QObject *parent):SerialPortBase(parent)
 {
 	this->m_baudrate = 9600;
-	m_read_thread_run = true;
+	
 	
 	m_be_1105_addr = 0;
 	m_circle = 5;
@@ -30,7 +30,7 @@ BE_1105_Driver::BE_1105_Driver(QObject *parent):SerialPortBase(parent)
 BE_1105_Driver::~BE_1105_Driver(void)
 {
 	
-	m_read_thread_run=false;
+	
 
 }
 /*-------------------------------------*/
@@ -61,7 +61,7 @@ int BE_1105_Driver::open(int com_num)
 		
 		#if FALSE		
 					int ret = 0;	
-					this->m_read_thread_run = true;
+					
 					ret = pthread_create(&m_pt_handle, NULL, readResultThread,this);
 					if (ret != 0)
 					{
@@ -122,7 +122,7 @@ void BE_1105_Driver::Join()
 void BE_1105_Driver::close()
 {
 	
-	this->m_read_thread_run = false;
+	
 	this->Join();
 	SerialPortBase::close();
 }
@@ -168,9 +168,8 @@ void* BE_1105_Driver::readResultThread(void* lpParam)
 /*-------------------------------------*/
 boolean BE_1105_Driver::IsThreadRun()
 {
-
-	/*m_timer->timeout();*/
-	return m_read_thread_run;
+		
+	return  this->IsSerialPortRun();
 }
 
 /*-------------------------------------*/
@@ -427,7 +426,7 @@ int BE_1105_Driver::Wait4CmdPosDone()
 		mLatestOrder.clear();
 		
 
-	} while (TRUE);
+	} while (IsSerialPortRun());
 
 	return BE_RESP::TIME_OUT;
 
@@ -550,7 +549,7 @@ int BE_1105_Driver::SendCmd4Done(int run_mode, int speed, int circle)
 			break;
 		}
 
-	} while (TRUE);
+	} while (IsSerialPortRun());
 
 	return 0;
 }

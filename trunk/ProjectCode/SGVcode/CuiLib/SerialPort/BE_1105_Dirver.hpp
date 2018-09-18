@@ -68,7 +68,7 @@ private:
 	void ProcessData();
 	std::vector<BE_RESP>  mLatestOrder;
 private:
-	boolean m_read_thread_run;
+	
 	int m_be_1105_addr;
 	
 	unsigned char m_status[2];

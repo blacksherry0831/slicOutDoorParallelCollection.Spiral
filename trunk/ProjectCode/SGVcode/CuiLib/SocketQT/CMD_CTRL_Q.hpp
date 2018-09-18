@@ -39,8 +39,10 @@ private:
 	QQueue<QSharedPointer<CMD_CTRL>> mCmds;
 protected:
 
-private:
+public:
 	void clear();
+private:
+
 	void init();
 	void destory();
 

@@ -792,6 +792,11 @@ void MainWindow::StopVideoForce()
 /*-------------------------------------*/
 void MainWindow::stopVideoBasic()
 {
+
+	if (mStepMotor->isRunning()) {
+		mStepMotor->closeServer();
+	}
+
 	if (mCtrlServer->isRunning()) {	
 		mCtrlServer->closeServer();	
 	}
@@ -800,14 +805,8 @@ void MainWindow::stopVideoBasic()
 		mVideoDataServer->closeServer();
 	}
 	
-	if (mStepMotor->isRunning()) {
-		mStepMotor->closeServer();
-	}
-	
 	this->IsBgThreadRunning();
-
-
-
+	
 }
 /*-------------------------------------*/
 /**
