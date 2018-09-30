@@ -1,5 +1,5 @@
-#ifndef QT_ALL_STL
-#define QT_ALL_STL
+#ifndef QT_ALL_H
+#define QT_ALL_H
 
 #include <QtGlobal>
 #include <QApplication>
@@ -10,6 +10,10 @@
 #include <QSharedPointer>
 #include <QThread>
 #include <QImage>
+
+#include <QCryptographicHash>
+
+#include <QFileDialog>
 
 #endif
 

@@ -17,13 +17,7 @@ class QtThreadSocketClient :public QtThreadBase
 	Q_OBJECT
 
 public:
-	enum ResultMy
-	{
-		INIT_MY = 255,
-		SocketErrorMy =-1,
-		TRUE_MY =1,
-		FALSE_MY =0,
-	};
+	
 public:
 	QtThreadSocketClient(qintptr p);
 	QtThreadSocketClient();

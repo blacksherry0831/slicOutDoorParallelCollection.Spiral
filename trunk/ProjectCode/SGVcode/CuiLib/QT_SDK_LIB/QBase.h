@@ -5,6 +5,7 @@
 #include "qt_all.h"
 
 
+
 class QBase
 {
 public:
@@ -13,6 +14,6 @@ public:
 public:
    	static  std::string SYS_getCurrentTime(std::string _format);
 public:
-
+	static QString AesEncode(QString _key, QByteArray _body, int _mode);
 };
 

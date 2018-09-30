@@ -43,3 +43,19 @@ std::string QBase::SYS_getCurrentTime(std::string _format)
 *
 */
 /*-----------------------------------------*/
+QString QBase::AesEncode(QString _key, QByteArray _body,int _mode)
+{
+	
+	
+	QString decodedString;
+
+	
+
+	return decodedString;
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/

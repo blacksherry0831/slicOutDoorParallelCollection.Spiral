@@ -13,7 +13,14 @@
 *
 */
 /*-------------------------------------*/
-
+enum ResultMy
+{
+	INIT_MY = 255,
+	SocketErrorMy = -1,
+	SocketErrotTimeout=-2,
+	TRUE_MY = 1,
+	FALSE_MY = 0,
+};
 /*-------------------------------------*/
 /**
 *
@@ -34,8 +41,11 @@ private:
 protected:
 	int mSocketRun;
 	int mSocketConnected;
+	int mSocketErrorOccur;
 public:
 	int init();
+	ResultMy read_n_byte(int _n);
+	ResultMy write_n_byte(const char* const _data, const int _size);
 	int ReadAllMy();
 	int ReadMy();
 	int WriteMy(QByteArray _data);
@@ -52,6 +62,7 @@ public:
 	int Read_1_cmd(CMD_CTRL *_cmd);
 	int Read_1_cmd_fast(CMD_CTRL *_cmd);
 	int Read_nSize_2_body(CMD_CTRL *_cmd);
+	int getByteTcpRead();
 public:
 	int Send_Start_CMD(CMD_CTRL::CMD_TYPE_02_C _type_c, CMD_CTRL::WorkMode _wm);
 	int SendHearbeatCmd();

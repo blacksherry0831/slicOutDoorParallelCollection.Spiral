@@ -16,7 +16,6 @@ QtThreadClientCtrl::QtThreadClientCtrl()
 {
 	mHeartBeatFreq=5000;
 	initIpPort();
-
 }
 /*-------------------------------------*/
 /**

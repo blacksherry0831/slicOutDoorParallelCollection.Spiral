@@ -25,14 +25,12 @@ QtTcpClient::QtTcpClient(QObject *parent):QTcpSocket(parent)
 	MAX_MSECS =30000;
 	mSocketRun = TRUE;
 	m_buffer.clear();
+	mSocketErrorOccur=0;
 #if _DEBUG
 
 #else
 m_buffer.reserve(2 * 1024 * 1024);
 #endif // _DEBUG
-
-
-	
 
 }
 /*-------------------------------------*/
@@ -481,25 +479,139 @@ void QtTcpClient::startSocketRun()
 void QtTcpClient::stopSocketRun()
 {
 	mSocketRun = FALSE;
+	m_buffer.clear();
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
+ResultMy QtTcpClient::read_n_byte(int _n)
+{
+	int  len_t = 0;
+	char buff[1024];
+	ResultMy result_my_t=ResultMy::INIT_MY;
+	Q_ASSERT(_n<=1024);
 
+	if (this->waitForReadyRead(MAX_MSECS)) {
+		
+		len_t = this->read(buff, _n);
+		
+		if (len_t >= 0) {
+			m_buffer.append(buff, len_t);
+			result_my_t=ResultMy::TRUE_MY;
+
+		}else if(len_t==-1) {
+			this->mSocketErrorOccur = TRUE;
+			result_my_t = ResultMy::SocketErrorMy;
+		}else {
+			Q_ASSERT(FALSE);
+		}
+
+	}else {
+
+		SocketError error = this->error();
+		QString  error_str_t = this->errorString();
+		if ( error_str_t.isEmpty()) {
+			result_my_t = ResultMy::SocketErrotTimeout;
+		}
+		else {
+			result_my_t = ResultMy::SocketErrorMy;
+		}
+
+	}
+
+	if (!IsSocketAlive()) {
+
+		result_my_t = ResultMy::SocketErrorMy;
+
+	}
+
+	return result_my_t;
+}
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
+ResultMy QtTcpClient::write_n_byte(const char * const _data, const int _size)
+{
+	Q_ASSERT(_size > 0);
+	Q_ASSERT(_data != NULL);
 
+	const char* buff_t = _data;
+	int left = _size;
+	ResultMy result_my_t = ResultMy::INIT_MY;
+
+	do
+	{
+		const int size = this->write(buff_t, left);
+
+		if (size == -1) {
+
+			result_my_t = ResultMy::SocketErrorMy;
+			return result_my_t;
+		
+		}else if (size >= 0) {
+
+			if (this->waitForBytesWritten(MAX_MSECS)) {
+				//success
+				left -= size;
+				buff_t += size;
+
+			}
+			else {
+
+				result_my_t = ResultMy::SocketErrorMy;
+
+				//if the operation timed out, or if an error occurred
+			}
+
+
+		}
+		else {
+			Q_ASSERT(0);
+
+		}
+
+
+	} while (left>0);
+
+	Q_ASSERT(left == 0);
+	
+	if (left==0)
+	{
+		result_my_t = ResultMy::TRUE_MY;
+	}
+	else
+	{
+		result_my_t = ResultMy::FALSE_MY;
+	}
+
+	return result_my_t;
+}
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
+int QtTcpClient::getByteTcpRead()
+{
+	int data_result = 0xffffffff;
+	const int GET_IDX = 0;
+	const int GET_SIZE = 1;
+	
+	if (this->m_buffer.size()>0){
 
+		data_result = this->m_buffer.at(GET_IDX);
+
+		this->m_buffer.remove(GET_IDX, GET_SIZE);
+
+	}
+
+	return  data_result;
+
+}
 /*-------------------------------------*/
 /**
 *
