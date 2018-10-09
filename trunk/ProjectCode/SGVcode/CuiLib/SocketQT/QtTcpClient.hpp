@@ -46,13 +46,16 @@ public:
 	int init();
 	ResultMy read_n_byte(int _n);
 	ResultMy write_n_byte(const char* const _data, const int _size);
-	int ReadAllMy();
-	int ReadMy();
+	int ReadAllMy(const int _size);
+	int ReadMy(const int _size);
+	int ReadMy_seg(const int _size);
+	int ReadMy_all(const int _size);
 	int WriteMy(QByteArray _data);
 	int WriteMy(const char* const _data,const int _size);
 public:
 	int IsSocketAlive();
 	int IsSocketError();
+	
 	void disconnectFromHostMy();
 public:
 	void startSocketRun();

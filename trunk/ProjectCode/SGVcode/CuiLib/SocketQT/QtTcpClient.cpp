@@ -57,19 +57,17 @@ int QtTcpClient::init()
 *
 */
 /*-------------------------------------*/
-int QtTcpClient::ReadAllMy()
+int QtTcpClient::ReadAllMy(const int _size)
 {
-	QByteArray qba;
-	if (this->waitForReadyRead (MAX_MSECS)) {
-		qba = this->readAll();
-		m_buffer.append(qba);
-		return TRUE;
-	
-	}else {
+	Q_ASSERT(_size >= 0);
 
-		return this->IsSocketError();
+#if 0
 
-	}
+	return this->ReadMy_all(_size);
+#else
+	return ReadMy_seg(_size);
+#endif // 0
+
 	
 }
 /*-------------------------------------*/
@@ -77,7 +75,7 @@ int QtTcpClient::ReadAllMy()
 *
 */
 /*-------------------------------------*/
-int QtTcpClient::ReadMy()
+int QtTcpClient::ReadMy(const int _size)
 {
 	//QByteArray qba;	
 	 char buff[16*1024];
@@ -120,6 +118,64 @@ int QtTcpClient::ReadMy()
 *
 */
 /*-------------------------------------*/
+int QtTcpClient::ReadMy_seg(const int _size)
+{
+	QByteArray qba(_size,0);	
+	char* buff = qba.data();
+	int size_left = _size;
+
+	while (this->mSocketRun){
+		
+								if (this->waitForReadyRead(MAX_MSECS)) {
+
+											int len_t = this->readData(&buff[_size-size_left], size_left);
+		
+											if (len_t > 0) {
+												size_left -= len_t;
+											}else {
+												return FALSE;//socket error
+											}
+											
+											if (size_left==0) {
+												return TRUE;
+											}
+
+								}else {
+
+									return IsSocketError();
+								}
+				
+	}
+	
+	return IsSocketAlive();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int QtTcpClient::ReadMy_all(int _size)
+{
+	Q_ASSERT(_size >= 0);
+
+	QByteArray qba;
+	if (this->waitForReadyRead(MAX_MSECS)) {
+		qba = this->readAll();
+		m_buffer.append(qba);
+		return TRUE;
+
+	}
+	else {
+
+		return this->IsSocketError();
+
+	}
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 int QtTcpClient::WriteMy(QByteArray _data)
 {
 	return this->WriteMy(_data.data(),_data.size());
@@ -139,7 +195,7 @@ int QtTcpClient::WriteMy(const char* const _data,const int _size)
 
 	do
 	{
-		const int size = this->write(buff_t, left);
+		const int size = this->writeData(buff_t, left);
 
 		if (size==-1){
 			return FALSE;//error
@@ -280,10 +336,10 @@ int  QtTcpClient::Read_1_cmd(CMD_CTRL *_cmd)
 	do {
 	
 		if (this->m_buffer.size() < HeaderSize) {
-			if (this->ReadAllMy() == FALSE) return FALSE;
+			if (this->ReadAllMy(HeaderSize) == FALSE) return FALSE;
 		}
 		if (DataALLSize_ != -1 && this->m_buffer.size() < DataALLSize_) {
-			if (this->ReadAllMy() == FALSE) return FALSE;
+			if (this->ReadAllMy(DataALLSize_) == FALSE) return FALSE;
 		}
 
 		while (this->m_buffer.size()>=HeaderSize)
@@ -355,12 +411,12 @@ int QtTcpClient::Read_1_cmd_fast(CMD_CTRL * _cmd)
 int QtTcpClient::Read_nSize_2_body(CMD_CTRL * _cmd)
 {
 	const int BODY_HEADER_SIZE = sizeof(IplImageUI);
-	unsigned int body_size=_cmd->f_data_size-BODY_HEADER_SIZE;
+	const unsigned int body_size=_cmd->f_data_size-BODY_HEADER_SIZE;
 
 	do
 	{
 		
-		if (this->ReadAllMy() == FALSE) return FALSE;
+		if (this->ReadAllMy(body_size) == FALSE) return FALSE;
 
 		if (m_buffer.size() >= body_size) {
 			//read enough data
@@ -445,6 +501,11 @@ int QtTcpClient::IsSocketError()
 	return FALSE;
 
 }
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 
 /*-------------------------------------*/
 /**
