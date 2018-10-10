@@ -61,7 +61,7 @@ int QtTcpClient::ReadAllMy(const int _size)
 {
 	Q_ASSERT(_size >= 0);
 
-#if 0
+#if 1
 
 	return this->ReadMy_all(_size);
 #else
