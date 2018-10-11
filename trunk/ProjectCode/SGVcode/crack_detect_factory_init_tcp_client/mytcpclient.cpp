@@ -74,10 +74,17 @@ void MyTcpClient::ReadData()
             tcpClient->write(abyte0);
             tcpClient->write(byteArray);
         }else if(cmd == 1){
-            ctl = LC_CMD_SET_MAGIC;
+            
+			ctl = LC_CMD_SET_SERNO;
 			if (tcpClient->write(&ctl,sizeof(char)) == 1) {
 			
 			}
+#if 1
+			ctl = LC_CMD_SET_ONLINE;
+			if (tcpClient->write(&ctl, sizeof(char)) == 1) {
+
+			}
+#endif
             ctl = LC_CMD_END;
             tcpClient->write(&ctl,sizeof(char));
             ctl = LC_CMD_CLOSE;

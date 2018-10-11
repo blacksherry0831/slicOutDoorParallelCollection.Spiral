@@ -78,82 +78,155 @@ int QtThreadStepMotor::IsCmdCtrlPipeOK()
 *
 */
 /*-------------------------------------*/
-void  QtThreadStepMotor::run()
+void QtThreadStepMotor::run_no_step_motor()
 {
 	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
-
-	mBE_1105 = QSharedPointer<BE_1105_Driver>(new BE_1105_Driver(Q_NULLPTR));
-	
+		
 	/*-------------------------------------*/
 	this->emit_status_message(mStatusMessage = "Thread>> Ctrl Thread Start");
-	/*-------------------------------------*/	
-	do {
-
-		mBE_1105->open_auto();
-
-		if (mBE_1105->init()==TRUE) {
-			break;
-		}else{
-			this->SleepMy(1000);
-			std::cout << "EVENT>>" << "Cant Open Serial Port !" << std::endl;
-		}
-
-		if (M_THREAD_RUN==FALSE){
-			break;
-		}
-
-	} while (mBE_1105->init()==FALSE);
+	/*-------------------------------------*/
+	
 	/*-------------------------------------*/
 	QtThreadClientCtrl::ClearCmd();
 	/*-------------------------------------*/
 
-	while (M_THREAD_RUN){
+	while (M_THREAD_RUN) {
 
 
-		if (this->IsCmdCtrlPipeOK()){
+		if (this->IsCmdCtrlPipeOK()) {
 
 #if _DEBUG
-					this->SleepMy(5000);//wait
+			this->SleepMy(1000);//wait
 #endif // _DEBUG
 
-					QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
-					this->emit_status_message(mStatusMessage = "CT_FPGA_START");
-					
-					{
-						
-							DEBUG_TEST;
-									QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_00);
-									this->emit_status_message(mStatusMessage = "CT_FPGA_START_00");
-									{
-										DEBUG_TEST;
-										this->StepMotorRun();
+			QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
+			this->emit_status_message(mStatusMessage = "CT_FPGA_START");
+			this->SleepMy(1000);
+			{
+
 			
-									}
-									QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00);
-									this->emit_status_message(mStatusMessage = "CT_FPGA_STOP_00");
-							DEBUG_TEST;
-							this->SleepMy(5000);//wait
-									QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01);
-									this->emit_status_message(mStatusMessage = "CT_FPGA_START_01");
-									{
-										DEBUG_TEST;
-										this->StepMotorRun();
+				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_00);
+				this->emit_status_message(mStatusMessage = "CT_FPGA_START_00");
+				{
+					
+					this->SleepMy(10 * 1000);
+
+				}
+				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00);
+				this->emit_status_message(mStatusMessage = "CT_FPGA_STOP_00");
+				
+				this->SleepMy(1000);//wait
+
+				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01);
+				this->emit_status_message(mStatusMessage = "CT_FPGA_START_01");
+				{
 
 #if TRUE
-										while (this->M_THREAD_RUN) { this->SleepMy(200); }
+					while (this->M_THREAD_RUN) { this->SleepMy(200); }
 #endif // TRUE
-									}
-									QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01);
-									this->emit_status_message(mStatusMessage = "CT_FPGA_STOP_01");
-							DEBUG_TEST;
-		
-					}QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP);
-					this->emit_status_message(mStatusMessage = "CT_FPGA_STOP");
-					DEBUG_TEST;
 				}
+				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01);
+				this->emit_status_message(mStatusMessage = "CT_FPGA_STOP_01");
+				
 
-
+			}QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP);
+			this->emit_status_message(mStatusMessage = "CT_FPGA_STOP");
+			
 		}
+
+
+	}
+
+
+	/*-------------------------------------*/
+	
+#if _DEBUG
+	this->emit_status_message(mStatusMessage = "Thread>>  shutdown");
+#endif // _DEBUG
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadStepMotor::run_normal()
+{
+	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
+
+	mBE_1105 = QSharedPointer<BE_1105_Driver>(new BE_1105_Driver(Q_NULLPTR));
+
+	/*-------------------------------------*/
+	this->emit_status_message(mStatusMessage = "Thread>> Ctrl Thread Start");
+	/*-------------------------------------*/
+	do {
+
+		mBE_1105->open_auto();
+
+		if (mBE_1105->init() == TRUE) {
+			break;
+		}
+		else {
+			this->SleepMy(1000);
+			std::cout << "EVENT>>" << "Cant Open Serial Port !" << std::endl;
+		}
+
+		if (M_THREAD_RUN == FALSE) {
+			break;
+		}
+
+	} while (mBE_1105->init() == FALSE);
+	/*-------------------------------------*/
+	QtThreadClientCtrl::ClearCmd();
+	/*-------------------------------------*/
+
+	while (M_THREAD_RUN) {
+
+
+		if (this->IsCmdCtrlPipeOK()) {
+
+#if _DEBUG
+			this->SleepMy(5000);//wait
+#endif // _DEBUG
+
+			QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
+			this->emit_status_message(mStatusMessage = "CT_FPGA_START");
+
+			{
+
+				DEBUG_TEST;
+				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_00);
+				this->emit_status_message(mStatusMessage = "CT_FPGA_START_00");
+				{
+					DEBUG_TEST;
+					this->StepMotorRun();
+
+				}
+				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00);
+				this->emit_status_message(mStatusMessage = "CT_FPGA_STOP_00");
+				DEBUG_TEST;
+				this->SleepMy(5000);//wait
+				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01);
+				this->emit_status_message(mStatusMessage = "CT_FPGA_START_01");
+				{
+					DEBUG_TEST;
+					this->StepMotorRun();
+
+#if TRUE
+					while (this->M_THREAD_RUN) { this->SleepMy(200); }
+#endif // TRUE
+				}
+				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01);
+				this->emit_status_message(mStatusMessage = "CT_FPGA_STOP_01");
+				DEBUG_TEST;
+
+			}QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP);
+			this->emit_status_message(mStatusMessage = "CT_FPGA_STOP");
+			DEBUG_TEST;
+		}
+
+
+	}
 
 
 	/*-------------------------------------*/
@@ -162,6 +235,21 @@ void  QtThreadStepMotor::run()
 #if _DEBUG
 	this->emit_status_message(mStatusMessage = "Thread>>  shutdown");
 #endif // _DEBUG
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void  QtThreadStepMotor::run()
+{	
+#if 0
+		this->run_normal();
+#endif
+
+#if 1
+		this->run_no_step_motor();
+#endif
 }
 /*-------------------------------------*/
 /**

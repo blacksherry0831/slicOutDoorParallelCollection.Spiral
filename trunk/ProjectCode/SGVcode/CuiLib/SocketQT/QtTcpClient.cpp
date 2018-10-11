@@ -540,7 +540,6 @@ void QtTcpClient::startSocketRun()
 void QtTcpClient::stopSocketRun()
 {
 	mSocketRun = FALSE;
-	m_buffer.clear();
 }
 /*-------------------------------------*/
 /**

@@ -14,7 +14,8 @@
 
 #define LC_CMD_SET_TIME		(32)
 #define LC_CMD_SET_DEADLINE	(0x21)
-#define LC_CMD_SET_MAGIC	(0x22)
+#define LC_CMD_SET_ONLINE	(0x20)
+#define LC_CMD_SET_SERNO	(0x22)
 #define LC_CMD_END			(0x4)
 #define LC_CMD_CLOSE		(0x10)
 /*-------------------------------------*/
@@ -54,6 +55,7 @@ public:
 	static const QString KEY_STATUS;
 	static const QString KEY_DEADLINE;
 	static const QString KEY_IP_ADDR;
+	static const QString KEY_ON_LINE;
 
 	static bool SaveStringMy(QString _path,QString _str);
 	static QVector<QString> LoadStringMy(QString _path);

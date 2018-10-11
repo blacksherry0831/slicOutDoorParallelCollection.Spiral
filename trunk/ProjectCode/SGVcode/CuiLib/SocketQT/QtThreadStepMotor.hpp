@@ -35,6 +35,8 @@ public:
 	int IsCmdCtrlPipeOK();
 protected: 
 	virtual void run();
+	void run_no_step_motor();
+	void run_normal();
 public:
 	void startServer();
 	void closeServer();

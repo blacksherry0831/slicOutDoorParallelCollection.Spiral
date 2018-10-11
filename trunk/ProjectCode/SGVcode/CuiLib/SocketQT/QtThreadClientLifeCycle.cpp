@@ -13,6 +13,7 @@ const QString QtThreadClientLifeCycle::KEY_SERNO_3	=	"serno3";
 const QString QtThreadClientLifeCycle::KEY_STATUS	=	"status";
 const QString QtThreadClientLifeCycle::KEY_DEADLINE	=	"deadline";
 const QString QtThreadClientLifeCycle::KEY_IP_ADDR	=	"ip";
+const QString QtThreadClientLifeCycle::KEY_ON_LINE = "online";
 /*-------------------------------------*/
 /**
 *
@@ -86,7 +87,7 @@ void QtThreadClientLifeCycle::FactorySetting()
 
 						}else if (Ctrl_t == 1) {
 							//
-							this->SendCmd2SetParam(LC_CMD_SET_MAGIC);
+							this->SendCmd2SetParam(LC_CMD_SET_SERNO);
 							this->SendCmdEndClose();
 
 						}else {
@@ -355,7 +356,7 @@ QString QtThreadClientLifeCycle::GetFactorySettingCmd(
 
 	argsJson.insert(KEY_IP_ADDR, _ip_addr);
 
-	
+	argsJson.insert(KEY_ON_LINE, 0);
 
 	qDebug() << argsJson;
 
