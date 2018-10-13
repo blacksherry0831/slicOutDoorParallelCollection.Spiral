@@ -4157,7 +4157,7 @@ void SLIC::ConvertLab2oml(
 	assert(Y>=0&&Y<=m_height+1);
 #if 1
 	///////////////////////////////////////
-	sita_n=atan2(A,B);
+	sita_n=atan2(B,A);
 	sita_n=sita_n/(2*3.1415927)+0.5;
 	///////////////////////////////////////
 	m_n=sqrt(A*A+B*B);
@@ -4680,30 +4680,7 @@ for (int xi=0;xi<pMD->ImgWidth;xi++){
 }
 #endif
 #if 0
-/////////////////////////////////////////////////////////////////
-char data_t[1024];
-ofstream outfile;
-outfile.open("OriginalSeedLABData.txt",ios::out|ios::app);
 
-if (outfile.is_open()){
-	outfile<<FileReadFullPath<<"   ";
-		for (int i=0;i<vectorSize;i++){
-			double A=kseedsa[i];//-127--128
-			double B=kseedsb[i];//-127--128
-			double angle=atan2(A,B);//-PI---PI
-			double angule_360=(angle+M_PI)*180/M_PI;
-			assert(angule_360>=-0.1&&angule_360<=360.1);
-			//////////////			
-			outfile<<angule_360<<"  ";
-			///////////////////			
-		}
-		outfile<<endl;
-	
-}else{
-	assert(0);
-}
-outfile.close();	
-//////////////////////////////////////////////////////////////////
 #endif
 #if 1
 /////////////////////////////////////////////////////////////////
@@ -4720,7 +4697,7 @@ outfile.close();
 		double A=kseedsa[i];//-127--128
 		double B=kseedsb[i];//-127--128
 		double AB_length=sqrt(A*A+B*B);
-		double angle=atan2(A,B);//-PI---PI
+		double angle=atan2(B,A);//-PI---PI
 		double angule_360=(angle+M_PI)*180/M_PI;
 		assert(angule_360>=-0.1&&angule_360<=360.1);
 		int angle_index=cvFloor(angule_360/360*HistDimSPLAB);

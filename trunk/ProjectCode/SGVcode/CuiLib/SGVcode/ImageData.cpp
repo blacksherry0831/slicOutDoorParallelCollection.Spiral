@@ -634,7 +634,7 @@ inline void ImageData::ConvertLab2oml(
 	assert(Y>=0&&Y<=ImgHeight+1);
 #if 1
 	///////////////////////////////////////
-	sita_n=atan2(A,B);
+	sita_n=atan2(B,A);
 	sita_n=sita_n/(2*3.1415927)+0.5;
 	///////////////////////////////////////
 	m_n=sqrt(A*A+B*B);
