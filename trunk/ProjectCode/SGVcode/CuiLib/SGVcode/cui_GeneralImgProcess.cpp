@@ -3627,7 +3627,7 @@ void cui_GeneralImgProcess::Get_Kseeds_Histogram(
 		double A=kseedsa[i];//-127--128
 		double B=kseedsb[i];//-127--128
 		double AB_length=sqrt(A*A+B*B);
-		double angle=atan2(A,B);//-PI---PI
+		double angle=atan2(B,A);//-PI---PI
 		double angule_360=(angle+M_PI)*180/M_PI;
 		assert(angule_360>=-0.1&&angule_360<=360.1);
 		double	angule_idx_float=1.0*angule_360/360*HistDimSPLABColor;
