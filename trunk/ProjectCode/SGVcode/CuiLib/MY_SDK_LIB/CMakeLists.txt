@@ -27,6 +27,8 @@ SET(MY_SDK_SRCS
 	OpencvCamera.cpp
 	ImageProcess.cpp
 	OutCircleFeature.cpp
+	CrackDetection.cpp
+	TimeMeasure.cpp
 	VideoRecord.cpp)
 ADD_LIBRARY(MY_SDK_LIB   STATIC    ${MY_SDK_SRCS})
 ###############################################################################

@@ -37,6 +37,7 @@ public:
 	void  closeSocket();
 	void  closeSocket4Server();
 	int   IsSocketAliveEx();
+	int   IsSocketConnectedEx();
 	void emit_status_message(const QString& _msg);
 public:
 	void write_ptr(qintptr p);

@@ -51,7 +51,10 @@ QtThread8Video::~QtThread8Video(void)
 *
 */
 /*-------------------------------------*/
-
+void QtThread8Video::save_record(int _is_save)
+{
+	ChannelsData::channelsData()->save_record(_is_save);
+}
 /*-------------------------------------*/
 /**
 *

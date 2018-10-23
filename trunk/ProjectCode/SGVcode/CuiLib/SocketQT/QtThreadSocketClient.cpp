@@ -246,6 +246,21 @@ int QtThreadSocketClient::IsSocketAliveEx()
 *
 */
 /*-------------------------------------*/
+int QtThreadSocketClient::IsSocketConnectedEx()
+{
+
+	if (m_socket.isNull()) {
+		m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
+	}
+
+	return m_socket->IsSocketConnected();
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void QtThreadSocketClient::emit_status_message(const QString & _msg)
 {
 	QString msg_t;

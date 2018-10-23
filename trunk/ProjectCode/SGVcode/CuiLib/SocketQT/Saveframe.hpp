@@ -45,6 +45,7 @@ private:
 	std::string mTimeCurrent;
 	int mChannel;
 	int mFrameCount;
+	int mIsSaveFrame;
 public:
 	Saveframe* SetTime(std::string _time);
 	Saveframe* SetChannel(int _ch);
@@ -65,4 +66,5 @@ public:
 public:
 	Saveframe* start_record();
 	Saveframe* stop_record();
+	Saveframe* save_record(int _is_save);
 };

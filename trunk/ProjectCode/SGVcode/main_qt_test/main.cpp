@@ -26,7 +26,7 @@ int mainGui(int argc, char *argv[])
 
 	w.show();
 		
-	return  EXEC_RESULT= a.exec();;
+	return  EXEC_RESULT= a.exec();
 }
 
 int plcTest(int argc, char *argv[])

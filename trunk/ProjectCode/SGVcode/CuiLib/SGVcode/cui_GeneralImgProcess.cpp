@@ -3948,12 +3948,8 @@ void cui_GeneralImgProcess::THreadSuperPixel_DoOneImage(string picvec,string sav
 /*-------------------------------------------------------------------------*/
 void cui_GeneralImgProcess::THreadSuperPixel_DoOneImage_Spiral(string picvec,string saveLocation,int m_spcount)
 {
-	
-
 	//2017年2月21日13:02:40
-
 	
-
 #if _MSC_VER
 	LARGE_INTEGER litmp;
 	LONGLONG QPart1,QPart2;
@@ -3964,9 +3960,7 @@ void cui_GeneralImgProcess::THreadSuperPixel_DoOneImage_Spiral(string picvec,str
 	QPart1 = litmp.QuadPart;// 获得初始值
 	/////////////////////////////////////////////
 #endif
-
-
-
+	
 	TimeCountStart();
 	{
 							printf("1. ImageData \n");

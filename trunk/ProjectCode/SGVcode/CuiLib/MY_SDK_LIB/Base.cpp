@@ -312,7 +312,7 @@ double Base::Math_GetVarianceValue(
 *
 */
 /*-----------------------------------------*/
-float Base::Math_GetVarianceValueF(float * Data, int DataNum, float avg, float * variance)
+float Base::Math_GetVarianceValueF(float * Data,const int DataNum, const float avg, float * variance)
 {
 	*variance = 0;
 	if (DataNum>0)

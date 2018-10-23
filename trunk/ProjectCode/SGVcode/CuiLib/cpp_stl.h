@@ -95,6 +95,12 @@
 #define TimeCountStart()	double dur=0;clock_t start,end;start = clock();
 
 #define TimeCountStop(MESSAGE_TIME_END)		end = clock();dur = (double)(end - start);printf("%s(S):%0.3f\n",MESSAGE_TIME_END,(dur/CLOCKS_PER_SEC));
+
+
+
+
+
+
 #endif
 
 #if __GUNC__||linux||__linux||__linux__

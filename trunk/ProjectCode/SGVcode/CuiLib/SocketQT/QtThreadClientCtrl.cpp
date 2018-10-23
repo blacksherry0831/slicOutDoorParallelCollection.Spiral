@@ -198,15 +198,19 @@ void QtThreadClientCtrl::run_01()
 
 		while (M_THREAD_RUN) {
 
-			if (this->IsDataPipeOK()) {
-					if (SocketErrorMy==this->ProcessCmds()) {
-						break;
-					}
-			}
+						if (this->IsDataPipeOK()) {
+								if (SocketErrorMy==this->ProcessCmds()) {
+									break;
+								}
+						}
 
-			if (SocketErrorMy == this->SendHearbeatCmd()) {
-					break;
-			}
+						if (SocketErrorMy == this->SendHearbeatCmd()) {
+								break;
+						}
+						
+						if (!this->IsSocketConnectedEx()) {
+							break;
+						}
 
 		}
 

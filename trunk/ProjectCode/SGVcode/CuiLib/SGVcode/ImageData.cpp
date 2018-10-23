@@ -916,14 +916,7 @@ void ImageData::GetThetaMLXYSeeds_ByCircle_UseSpiral(void)
 
 #endif	
 
-		
-
-
-
-
-		
-
-
+	
 
 	}while(spi<SplitNumber);
 

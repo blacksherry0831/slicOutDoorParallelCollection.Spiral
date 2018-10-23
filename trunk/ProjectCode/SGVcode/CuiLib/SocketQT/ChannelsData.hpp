@@ -36,6 +36,7 @@ public:
 
 	void start_record();
 	void stop_record();
+	void save_record(int _is_save);
 
 
 };

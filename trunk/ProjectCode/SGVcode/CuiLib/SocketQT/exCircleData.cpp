@@ -51,6 +51,7 @@ void exCircleData::init()
 	mSigma = Q_NULLPTR;
 	mStartTime = clock();
 	mFrameCount = 0;
+	mIsSaveFrame = FALSE;
 }
 /*-------------------------------------*/
 /**
@@ -82,6 +83,15 @@ void exCircleData::stop_record()
 {
 	this->clear();
 	mSaveFrame.stop_record();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void exCircleData::save_record(int _is_save)
+{
+	mSaveFrame.save_record(_is_save);
 }
 /*-------------------------------------*/
 /**
@@ -136,7 +146,7 @@ void exCircleData::setImg(QSharedPointer<CMD_CTRL> cmd_ctrl)
 
 #if _DEBUG
 	const int CHANNEL = cmd_ctrl->Channel();
-	assert(CHANNEL==mChannel);
+	Q_ASSERT(CHANNEL==mChannel);
 #endif //
 		
 	this->SetSaveFrameCfg(cmd_ctrl);

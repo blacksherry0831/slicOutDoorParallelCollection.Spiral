@@ -77,6 +77,20 @@ void ChannelsData::stop_record()
 *
 */
 /*-------------------------------------*/
+void ChannelsData::save_record(int _is_save)
+{
+	const int length = mChannelsData.size();
+	for (size_t chi = 0; chi < length; chi++)
+	{
+		mChannelsData[chi]->save_record(_is_save);
+	}
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 ChannelsData* ChannelsData::channelsData()
 {
 	return &gChannelsData;

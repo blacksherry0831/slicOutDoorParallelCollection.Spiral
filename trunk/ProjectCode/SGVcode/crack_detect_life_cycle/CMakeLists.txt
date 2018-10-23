@@ -14,13 +14,13 @@ set(CMAKE_AUTOMOC ON)
 IF (CBB_BUILDING_CRACK_DETECTION)  
    
 # Tell CMake to create the helloworld executable
-add_executable(EXE_CRACK_DETCCT_LIFE_CYCLE  WIN32
+add_executable(EXE_CRACK_DETECT_LIFE_CYCLE  WIN32
                             main.cpp
 							)
 
 
 
-TARGET_LINK_LIBRARIES(EXE_CRACK_DETCCT_LIFE_CYCLE 
+TARGET_LINK_LIBRARIES(EXE_CRACK_DETECT_LIFE_CYCLE 
 							SOCKET_SERVER
 							SerialPortModule
 							) 

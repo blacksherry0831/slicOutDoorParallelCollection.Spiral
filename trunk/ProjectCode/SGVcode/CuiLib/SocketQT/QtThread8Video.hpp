@@ -37,7 +37,7 @@ public:
 protected:
 	void initIpPort();
 public:
-		
+	void save_record(int _is_save);
 	void Run0();
 	void run1();
 	static void ProcessCmd(QSharedPointer<CMD_CTRL> cmd_t);

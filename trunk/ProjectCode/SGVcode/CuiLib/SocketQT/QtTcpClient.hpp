@@ -54,6 +54,7 @@ public:
 	int WriteMy(const char* const _data,const int _size);
 public:
 	int IsSocketAlive();
+	int IsSocketConnected();
 	int IsSocketError();
 	
 	void disconnectFromHostMy();

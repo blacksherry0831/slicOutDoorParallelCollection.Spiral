@@ -122,7 +122,12 @@ void QtThreadStepMotor::run_no_step_motor()
 				{
 
 #if TRUE
-					while (this->M_THREAD_RUN) { this->SleepMy(200); }
+					while (this->M_THREAD_RUN) {
+						this->SleepMy(200); 
+						if (!this->IsCmdCtrlPipeOK()) {
+							break;
+						}
+					}
 #endif // TRUE
 				}
 				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01);

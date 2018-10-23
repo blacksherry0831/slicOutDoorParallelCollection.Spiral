@@ -380,10 +380,17 @@
     <addaction name="actionShow_Cut_Area"/>
     <addaction name="action_Show_Binary_Img"/>
    </widget>
+   <widget class="QMenu" name="menu_img_collect">
+    <property name="title">
+     <string>数据采集</string>
+    </property>
+    <addaction name="action_img_collect"/>
+   </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
    <addaction name="menu_ctrl"/>
    <addaction name="menu_view"/>
+   <addaction name="menu_img_collect"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -446,6 +453,14 @@
    </property>
    <property name="text">
     <string>图像二值化</string>
+   </property>
+  </action>
+  <action name="action_img_collect">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>采集</string>
    </property>
   </action>
  </widget>

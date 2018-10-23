@@ -444,24 +444,65 @@ int QtTcpClient::Read_nSize_2_body(CMD_CTRL * _cmd)
 /*-------------------------------------*/
 int QtTcpClient::IsSocketAlive()
 {
+	return this->IsSocketConnected();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int QtTcpClient::IsSocketConnected()
+{
 	QAbstractSocket::SocketState stat_t = this->state();
 
-	if (stat_t == QAbstractSocket::SocketState::ClosingState) {
+	if (stat_t == QAbstractSocket::SocketState::UnconnectedState) {
 
-		std::cout << "socket is closing" << std::endl;
-		this->waitForDisconnected();
-		return 0;
-
-	}else if (stat_t == QAbstractSocket::SocketState::UnconnectedState) {
+		std::cout << "socket is UnconnectedState" << std::endl;
 		
-		std::cout << "socket is unconnected" << std::endl;
-		return 0;
+	}
+	else if (stat_t == QAbstractSocket::SocketState::HostLookupState) {
 
-	}else{
-
-		return 1;
+		std::cout << "socket is HostLookupState" << std::endl;	
+		return TRUE;
 
 	}
+	else if (stat_t == QAbstractSocket::SocketState::ConnectingState) {
+
+		std::cout << "socket is ConnectingState" << std::endl;	
+	
+		return TRUE;
+		
+	}
+	else if (stat_t == QAbstractSocket::SocketState::ConnectedState) {
+#if FALSE
+		std::cout << "socket is ConnectedState" << std::endl;
+#endif // FALSE
+		return TRUE;
+
+	}
+	else if (stat_t == QAbstractSocket::SocketState::BoundState) {
+
+		std::cout << "socket is BoundState" << std::endl;		
+
+	}
+	else if (stat_t == QAbstractSocket::SocketState::ClosingState) {
+
+		std::cout << "socket is :ClosingState" << std::endl;
+
+	}
+	else if (stat_t == QAbstractSocket::SocketState::ListeningState) {
+
+		std::cout << "socket is ListeningState" << std::endl;	
+		return TRUE;
+
+	}
+	else {
+		
+
+	}
+
+	return FALSE;
+
 
 }
 /*-------------------------------------*/

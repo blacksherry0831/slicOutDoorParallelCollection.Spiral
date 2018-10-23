@@ -51,8 +51,8 @@ public:
 
 	static float Math_GetVarianceValueF(
 		float* Data,
-		int DataNum,
-		float avg,
+		const int DataNum,
+		const float avg,
 		float *variance);
 
 	static float Math_GetVarianceValue8U(

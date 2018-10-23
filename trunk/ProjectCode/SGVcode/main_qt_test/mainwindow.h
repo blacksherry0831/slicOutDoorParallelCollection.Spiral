@@ -130,6 +130,9 @@ public slots:
 	int openImageShowQDialog(QLabel* _qabel);
 	void toggleShowCutArea();
 	void toggleShowBinaryImg();
+	
+	void toggleImgCollect();
+
 	void statusBarshowMessage(QString _msg);
 };
 

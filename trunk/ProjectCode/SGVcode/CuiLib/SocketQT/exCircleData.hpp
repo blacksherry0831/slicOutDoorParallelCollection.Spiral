@@ -39,6 +39,7 @@ private:
 	clock_t mCurrentTime;
 	int mFrameCount;
 	int mChannel;
+	int mIsSaveFrame;
 	Saveframe mSaveFrame;
 private:
 	void clear();
@@ -47,6 +48,7 @@ public:
 	void destory();
 	void start_record(std::string _time_t);
 	void stop_record();
+	void save_record(int _is_save);
 public:
 	QSharedPointer<CMD_CTRL> mAverage;
 	QSharedPointer<CMD_CTRL> mSigma;

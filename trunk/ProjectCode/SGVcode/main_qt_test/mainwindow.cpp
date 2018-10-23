@@ -148,6 +148,7 @@ void MainWindow::init_menu()
 	connect(ui->actionEnable_ping_SSH, SIGNAL(triggered()), this, SLOT(start_ping_ssh()));
 	connect(ui->actionShow_Cut_Area, SIGNAL(triggered()), this, SLOT(toggleShowCutArea()));
 	connect(ui->action_Show_Binary_Img, SIGNAL(triggered()), this, SLOT(toggleShowBinaryImg()));
+	connect(ui->action_img_collect, SIGNAL(triggered()), this, SLOT(toggleImgCollect()));
 #endif // TRUE
 }
 /*-------------------------------------*/
@@ -673,6 +674,22 @@ void MainWindow::toggleShowBinaryImg()
 	else {
 		this->mShowBinaryImg = FALSE;
 	}
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::toggleImgCollect()
+{
+
+	if (ui->action_img_collect->isChecked()) {
+		this->mVideoDataServer->save_record(TRUE);
+	}else {
+		this->mVideoDataServer->save_record(FALSE);
+	}
+	
 
 }
 /*-------------------------------------*/
