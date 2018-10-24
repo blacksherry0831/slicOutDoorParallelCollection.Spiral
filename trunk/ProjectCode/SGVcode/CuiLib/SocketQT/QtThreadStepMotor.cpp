@@ -217,9 +217,14 @@ void QtThreadStepMotor::run_normal()
 					DEBUG_TEST;
 					this->StepMotorRun();
 
+
+					while (this->M_THREAD_RUN) { 
+						this->SleepMy(200); 
 #if TRUE
-					while (this->M_THREAD_RUN) { this->SleepMy(200); }
+						break;
 #endif // TRUE
+					}
+
 				}
 				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01);
 				this->emit_status_message(mStatusMessage = "CT_FPGA_STOP_01");
@@ -248,11 +253,11 @@ void QtThreadStepMotor::run_normal()
 /*-------------------------------------*/
 void  QtThreadStepMotor::run()
 {	
-#if 0
+#if 1
 		this->run_normal();
 #endif
 
-#if 1
+#if 0
 		this->run_no_step_motor();
 #endif
 }
