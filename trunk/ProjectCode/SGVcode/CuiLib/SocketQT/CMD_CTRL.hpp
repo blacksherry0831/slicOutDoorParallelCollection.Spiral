@@ -48,6 +48,7 @@ public:
 /*-------------------------------------*/
 public:
 	std::string mIpAddrRemote;
+	std::string mCurrentCircleTime;
 private:
 	int mCmdRemoteFlag;
 	

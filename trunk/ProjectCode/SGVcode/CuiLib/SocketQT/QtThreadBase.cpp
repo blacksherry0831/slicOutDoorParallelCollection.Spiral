@@ -68,12 +68,10 @@ void QtThreadBase::Sleep(int _ms)
 
 		QThread::msleep(100);
 		_ms -= 100;
-#if 0
-std::cout << "#";
-#endif // 0
-	} while (_ms > 0);
 
-	std::cout << std::endl;
+	} while ( M_THREAD_RUN  &&_ms > 0);
+
+	
 }
 /*-------------------------------------*/
 /**

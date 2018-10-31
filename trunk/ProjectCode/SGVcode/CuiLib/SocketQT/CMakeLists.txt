@@ -36,8 +36,12 @@ ENDIF ()
 				QtThreadSocketClient.cpp
 				exCircleData.cpp
 				ChannelsData.cpp
+				ChannelsData4Show.cpp
+				
 				QtThread8VideoProcess.cpp
 				QtThread8VideoRaw.cpp
+				QtImgProcess.cpp
+				QtThread8ImgProcess.cpp
 				QtTcpServerTest.cpp
 				QtLink.cpp
 				Saveframe.cpp)		

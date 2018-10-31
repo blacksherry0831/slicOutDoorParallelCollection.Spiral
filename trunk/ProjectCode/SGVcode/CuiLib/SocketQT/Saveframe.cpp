@@ -19,6 +19,7 @@
 /*-------------------------------------*/
 Saveframe::Saveframe()
 {	
+	this->save_record(FALSE);
 	this->initParam();
 }
 /*-------------------------------------*/
@@ -73,7 +74,7 @@ void Saveframe::initParam()
 	this->mTimeCurrent = "";
 	this->mChannel = -1;
 	this->mFrameCount = -1;
-	this->mIsSaveFrame =FALSE;
+	
 }
 /*-------------------------------------*/
 /**
@@ -154,13 +155,17 @@ void Saveframe::SaveFrame2Disk(IplImage* img_t)
 {
 
 	if (this->isInitParam()) {
-	
-		this->initFileName();
-		this->initPath();
+		
+		if (this->mIsSaveFrame) {
 
-		mImageNameFileFullPath = this->mChannelPath+mImageName;
+				this->initFileName();
+				this->initPath();
 
-		 if(this->mIsSaveFrame)  cvSaveImage(mImageNameFileFullPath.c_str(),img_t);	
+				mImageNameFileFullPath = this->mChannelPath + mImageName;
+				cvSaveImage(mImageNameFileFullPath.c_str(), img_t);
+
+		}
+
 	
 	}
 

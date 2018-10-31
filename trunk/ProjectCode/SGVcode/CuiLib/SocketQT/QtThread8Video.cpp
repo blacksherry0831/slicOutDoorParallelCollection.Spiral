@@ -1,5 +1,6 @@
 //#include "stdafx.h"
 #include "QtThread8Video.hpp"
+#include "QtThread8VideoProcess.hpp"
 /*-------------------------------------*/
 /**
 *
@@ -27,6 +28,7 @@ void QtThread8Video::initIpPort()
 QtThread8Video::QtThread8Video()
 {
 	initIpPort();
+
 }
 /*-------------------------------------*/
 /**
@@ -53,7 +55,7 @@ QtThread8Video::~QtThread8Video(void)
 /*-------------------------------------*/
 void QtThread8Video::save_record(int _is_save)
 {
-	ChannelsData::channelsData()->save_record(_is_save);
+	ChannelsData4Show::getInstance()->save_record(_is_save);
 }
 /*-------------------------------------*/
 /**
@@ -80,6 +82,9 @@ void QtThread8Video::run1()
 /*-------------------------------------*/
 void QtThread8Video::run()
 {
+	
+	this->setPriorityMy();
+
 	this->emit_status_message(mStatusMessage = "Thread>> Ctrl Thread Start");
 
 	while (M_THREAD_RUN) {
@@ -96,8 +101,11 @@ void QtThread8Video::run()
 					}					
 
 					if (cmd_t->IsImg()) {
-						  this->ProcessCmd(cmd_t);
-						  this->emit_img_signals(cmd_t);
+				
+						this->set_record_time(cmd_t);
+						this->ProcessCmd(cmd_t);
+						this->emit_img_signals(cmd_t);
+
 					}else if (cmd_t->isHeartbeatCmd()) {
 #if TRUE
 						std::cout << "@frame" << std::endl;
@@ -126,39 +134,61 @@ void QtThread8Video::run()
 *
 */
 /*-------------------------------------*/
-void QtThread8Video::ProcessCmd(QSharedPointer<CMD_CTRL> cmd_t)
+void QtThread8Video::ProcessCmd(QSharedPointer<CMD_CTRL> _cmd)
 {
+	ChannelsData* channelsData = ChannelsData::getInstance();
+	
+	if (_cmd->IsImgStart()) {
 
-	if (cmd_t->IsImgStart()) {
 		std::cout << "Image Start!" << std::endl;
-		ChannelsData::channelsData()->start_record();
+		channelsData->EnqueueImgStartEnd(_cmd);
 
-	}else if (cmd_t->IsImgEnd()) {
+	}else if (_cmd->IsImgEnd()) {
 
 		std::cout << "Image Stop!" << std::endl;
-		ChannelsData::channelsData()->stop_record();
+		channelsData->EnqueueImgStartEnd(_cmd);
 
-	}else if (cmd_t->IsImgFrame()) {
+	}else if (_cmd->IsImgFrame()) {	
 
-		const int CHANNEL = cmd_t->Channel();
-		QSharedPointer<exCircleData> circleData = ChannelsData::channelsData()->getChannelData(CHANNEL);
-		circleData->setImg(cmd_t);
+		
+
 #if _DEBUG
-
+		const int CHANNEL = _cmd->Channel();
+		QSharedPointer<exCircleData> circleData = channelsData->getChannelData(CHANNEL);
 		std::cout << "Image Data!" <<
-			"Frame: " << cmd_t->FrameCount() <<
-			"Channel:" << cmd_t->Channel() <<
-			"FPS: "<<circleData->fps()<<
+			"Frame: " << _cmd->FrameCount() <<
+			"Channel:" << _cmd->Channel() <<
+			"FPS: "<< circleData->fps()<<
 			std::endl;
 #endif // _DEBUG
-
-
-	}
-	else {
+		channelsData->EnqueueImg(_cmd);
+	
+	}else {
 		std::cout << "Image ERROR!" << std::endl;
 		Q_ASSERT(FALSE);
 	}
+
+
+
+
 }
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThread8Video::setPriorityMy()
+{
+
+	QThread::currentThread()->setPriority(QThread::Priority::HighPriority);
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+
 /*-------------------------------------*/
 /**
 *
@@ -166,13 +196,15 @@ void QtThread8Video::ProcessCmd(QSharedPointer<CMD_CTRL> cmd_t)
 /*-------------------------------------*/
 void QtThread8Video::emit_img_signals(QSharedPointer<CMD_CTRL> cmd_t)
 {
+	ChannelsData* channelsData = ChannelsData::getInstance();
+
 	if (cmd_t->IsImgStart()) {
 		emit img_stat(cmd_t->CmdStat(),0,0);
 	}else if (cmd_t->IsImgEnd()) {	
 		emit img_stat(cmd_t->CmdStat(),0,0);
 	}else if (cmd_t->IsImgFrame()) {	
 		const int CHANNEL = cmd_t->Channel();
-		QSharedPointer<exCircleData> circleData = ChannelsData::channelsData()->getChannelData(CHANNEL);
+		QSharedPointer<exCircleData> circleData = channelsData->getChannelData(CHANNEL);
 		emit img_stat(cmd_t->CmdStat(),CHANNEL, circleData->QueueSize());
 	}else {
 			Q_ASSERT(FALSE);
@@ -183,7 +215,31 @@ void QtThread8Video::emit_img_signals(QSharedPointer<CMD_CTRL> cmd_t)
 *
 */
 /*-------------------------------------*/
+void  QtThread8Video::set_record_time(QSharedPointer<CMD_CTRL> _cmd)
+{
+	
 
+	if (_cmd->IsImgStart()) {
+
+		if (mTimeCurrent.empty())
+		{
+			mTimeCurrent = QBase::SYS_getCurrentTime("yyyyMMddhhmmssdd");
+		}
+		_cmd->mCurrentCircleTime = mTimeCurrent;
+
+	}
+	else if (_cmd->IsImgEnd()) {
+
+		mTimeCurrent.clear();
+
+	}else if (_cmd->IsImgFrame()){
+
+		
+	}else {
+
+	}
+
+}
 /*-------------------------------------*/
 /**
 *

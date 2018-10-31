@@ -50,39 +50,16 @@ QSharedPointer<exCircleData> ChannelsData::getChannelData(int _ch)
 *
 */
 /*-------------------------------------*/
-void ChannelsData::start_record()
+void ChannelsData::EnqueueImgStartEnd(QSharedPointer<CMD_CTRL> _cmd)
 {
-	this->mTimeCurrent = QBase::SYS_getCurrentTime("yyyyMMddhhmmssdd");
-	const int length = mChannelsData.size();
-	for (size_t chi = 0; chi < length; chi++)
-	{
-		mChannelsData[chi]->start_record(this->mTimeCurrent);
-	}
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void ChannelsData::stop_record()
-{
-	const int length = mChannelsData.size();
-	for (size_t chi = 0; chi < length; chi++)
-	{
-		mChannelsData[chi]->stop_record();
-	}
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void ChannelsData::save_record(int _is_save)
-{
-	const int length = mChannelsData.size();
-	for (size_t chi = 0; chi < length; chi++)
-	{
-		mChannelsData[chi]->save_record(_is_save);
+
+	if ((_cmd->IsImgStart()) ||
+		(_cmd->IsImgEnd())) {
+
+		const int CHANNEL = _cmd->Channel();
+		Q_ASSERT(CHANNEL >= 0 && CHANNEL <= 7);
+		mChannelsData.at(CHANNEL)->setImg(_cmd);
+
 	}
 
 }
@@ -91,7 +68,29 @@ void ChannelsData::save_record(int _is_save)
 *
 */
 /*-------------------------------------*/
-ChannelsData* ChannelsData::channelsData()
+int ChannelsData::QueueSize()
+{
+	int queue_size_t = 0;
+
+	const int SIZE = mChannelsData.size();
+
+	for (size_t chi = 0; chi <SIZE; chi++)
+	{
+		if (!mChannelsData[chi].isNull())
+		{
+			queue_size_t+= mChannelsData[chi]->QueueSize();
+		}
+		
+	}
+
+	return queue_size_t;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+ChannelsData* ChannelsData::getInstance()
 {
 	return &gChannelsData;
 }
@@ -100,7 +99,26 @@ ChannelsData* ChannelsData::channelsData()
 *
 */
 /*-------------------------------------*/
+void ChannelsData::EnqueueImg(QSharedPointer<CMD_CTRL> _cmd)
+{
 
+	if (_cmd->IsImgStart()) {
+		
+	}else if (_cmd->IsImgEnd()) {
+		
+	}else if (_cmd->IsImgFrame()) {
+
+		const int CHANNEL = _cmd->Channel();
+		mChannelsData.at(CHANNEL)->setImg(_cmd);
+
+
+
+	}else {
+		
+		Q_ASSERT(FALSE);
+	}
+	
+}
 /*-------------------------------------*/
 /**
 *
@@ -113,50 +131,3 @@ ChannelsData* ChannelsData::channelsData()
 */
 /*-------------------------------------*/
 
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/

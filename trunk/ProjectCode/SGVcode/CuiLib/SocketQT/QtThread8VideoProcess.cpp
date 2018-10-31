@@ -1,5 +1,7 @@
 //#include "stdafx.h"
 #include "QtThread8VideoProcess.hpp"
+
+#include "ChannelsData4Show.hpp"
 /*-------------------------------------*/
 /**
 *
@@ -90,6 +92,11 @@ void QtThread8VideoProcess::DrawFutureCutArea(IplImage * img_t)
 {
 	DrawAreaGrid(img_t, mCutAreaSet);
 }
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void QtThread8VideoProcess::DrawSensorStatArea(IplImage * img_t)
 {
 #if _DEBUG
@@ -624,7 +631,7 @@ void QtThread8VideoProcess::init_param()
 /*-------------------------------------*/
 void QtThread8VideoProcess::process_img_opencv_self()
 {
-	QSharedPointer<exCircleData> circleData = ChannelsData::channelsData()->getChannelData(CHANNEL);
+	QSharedPointer<exCircleData> circleData = ChannelsData4Show::getInstance()->getChannelData(CHANNEL);
 	cmd_ctrl = circleData->getImg();
 
 	IplImage *img_t = cmd_ctrl->getIplimage();
@@ -656,7 +663,7 @@ void QtThread8VideoProcess::process_img_opencv_self()
 /*-------------------------------------*/
 void QtThread8VideoProcess::process_nothing()
 {
-	QSharedPointer<exCircleData> circleData = ChannelsData::channelsData()->getChannelData(CHANNEL);
+	QSharedPointer<exCircleData> circleData = ChannelsData::getInstance()->getChannelData(CHANNEL);
 	QSharedPointer<CMD_CTRL> cmd_ctrl = circleData->getImg();
 	cmd_ctrl.clear();
 }
@@ -667,7 +674,7 @@ void QtThread8VideoProcess::process_nothing()
 /*-------------------------------------*/
 void QtThread8VideoProcess::process_qtgui()
 {
-	QSharedPointer<exCircleData> circleData = ChannelsData::channelsData()->getChannelData(CHANNEL);
+	QSharedPointer<exCircleData> circleData = ChannelsData::getInstance()->getChannelData(CHANNEL);
 
 	
 	emit img_incoming(CHANNEL,circleData->IsValid());
@@ -679,7 +686,7 @@ void QtThread8VideoProcess::process_qtgui()
 /*-------------------------------------*/
 void QtThread8VideoProcess::run()
 {
-	QSharedPointer<exCircleData> circleData = ChannelsData::channelsData()->getChannelData(CHANNEL);
+	QSharedPointer<exCircleData> circleData = ChannelsData::getInstance()->getChannelData(CHANNEL);
 		
 	while (M_THREAD_RUN) {
 				

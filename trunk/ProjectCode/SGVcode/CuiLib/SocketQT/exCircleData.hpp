@@ -53,7 +53,7 @@ public:
 	QSharedPointer<CMD_CTRL> mAverage;
 	QSharedPointer<CMD_CTRL> mSigma;
 private:
-	void SetSaveFrameCfg(QSharedPointer<CMD_CTRL> cmd_ctrl);
+	void SetSaveFrameCfg(QSharedPointer<CMD_CTRL> _cmd_ctrl);
 	void IncFrameCount();
 public:
 	QSharedPointer<CMD_CTRL> getImg();

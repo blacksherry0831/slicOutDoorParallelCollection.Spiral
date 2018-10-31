@@ -20,7 +20,12 @@
 #include "QtThreadSocketClient.hpp"
 #include "QtTcpClient.hpp"
 #include "ChannelsData.hpp"
+#include "ChannelsData4Show.hpp"
 #include "conf_ip.h"
+#include "type_socket_qt.h"
+/*-------------------------------------*/
+#include "MY_SDK_LIB/CrackDetection.hpp"
+#include "QT_SDK_LIB\QBase.h"
 /*-------------------------------------*/
 /**
 *
@@ -40,9 +45,16 @@ public:
 	void save_record(int _is_save);
 	void Run0();
 	void run1();
-	static void ProcessCmd(QSharedPointer<CMD_CTRL> cmd_t);
+	
+	static void ProcessCmd(QSharedPointer<CMD_CTRL> _cmd);
+	
+	void setPriorityMy();
+public:
+	void set_record_time(QSharedPointer<CMD_CTRL> _cmd);
 private:
 	void emit_img_signals(QSharedPointer<CMD_CTRL> cmd_t);
+
+	std::string mTimeCurrent;
 signals:
 	void img_stat(int _p_stat,int _channel,int _frames);
 protected: 

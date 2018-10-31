@@ -8,8 +8,11 @@
 #include <QMessageBox>
 #endif // QT_VERSION
 
-
-
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -19,11 +22,12 @@ MainWindow::MainWindow(QWidget *parent) :
 	
 	this->init_class_member();
 	this->init_ping_ssh();
-	this->ConnectVideo();
+	
 
 	this->init_menu();
 	this->init_controls();
-	
+
+	this->ConnectVideo();
 	
 }
 /*-------------------------------------*/
@@ -56,6 +60,9 @@ void MainWindow::init_class_member()
 	mCtrlServer = QSharedPointer<QtThreadClientCtrl>(new QtThreadClientCtrl());
 	mVideoDataServer = QSharedPointer<QtThread8Video>(new QtThread8Video());
 
+	mImg8Process = QSharedPointer<QtThread8ImgProcess>(new QtThread8ImgProcess());
+	mImg8Process->startTask();
+
 	mCtrlServer->SetDataPipe(mVideoDataServer);
 	mStepMotor->SetCmdCtrlPipe(mCtrlServer);
 
@@ -64,9 +71,9 @@ void MainWindow::init_class_member()
 	mLink = QSharedPointer<QtLink>(new QtLink());
 	mTimer = QSharedPointer<QTimer>(new QTimer());
 	//////////////////////////////////////////////////////////////////
+
 #if TRUE
-	this->mShowCutArea = TRUE;
-	this->mShowBinaryImg = FALSE;
+	memset(&mImgProc, 0, sizeof(IMG_PROC));
 #endif // TRUE
 
 }
@@ -85,6 +92,46 @@ void MainWindow::init_ping_ssh()
 	connect(mTimer.data(), SIGNAL(timeout()), mLink.data(), SLOT(line_check()));
 	
 	
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::img_stat_show_ex(int _p_stat, int _channel, int _frames, void* _data)
+{
+	if ((_p_stat >> 8) == CMD_CTRL::CMD_TYPE_02_I::CT_IMG_FRAME) {
+
+
+#if 1
+QSharedPointer<exCircleData> circleData = ChannelsData4Show::getInstance()->getChannelData(_channel);
+
+		if (circleData->QueueSize()) {
+
+			cmd_ctrl_image[_channel] = circleData->getImg();
+
+			QSharedPointer<QImage> qimg = cmd_ctrl_image[_channel]->getQimage();
+
+			ShowImage(labelImage[_channel], qimg.data());
+
+		}
+#endif // 0
+		
+		
+
+	}
+	else if ((_p_stat >> 8) == CMD_CTRL::CMD_TYPE_02_C::CT_START) {
+
+
+
+	}
+	else if ((_p_stat >> 8) == CMD_CTRL::CMD_TYPE_02_C::CT_STOP) {
+
+
+	}
+	else {
+
+	}
 }
 /*-------------------------------------*/
 /**
@@ -146,10 +193,14 @@ void MainWindow::init_menu()
 	connect(ui->action_stop_bg_srv, SIGNAL(triggered()), this, SLOT(StopVideo()));
 	connect(ui->action_stop_bg_srv_force, SIGNAL(triggered()), this, SLOT(StopVideoForce()));
 	connect(ui->actionEnable_ping_SSH, SIGNAL(triggered()), this, SLOT(start_ping_ssh()));
+#endif // TRUE
+#if TRUE
 	connect(ui->actionShow_Cut_Area, SIGNAL(triggered()), this, SLOT(toggleShowCutArea()));
 	connect(ui->action_Show_Binary_Img, SIGNAL(triggered()), this, SLOT(toggleShowBinaryImg()));
+	connect(ui->action_Show_Classify_Thickly, SIGNAL(triggered()), this, SLOT(toggleShowClassifyThickly()));
 	connect(ui->action_img_collect, SIGNAL(triggered()), this, SLOT(toggleImgCollect()));
 #endif // TRUE
+
 }
 /*-------------------------------------*/
 /**
@@ -260,14 +311,8 @@ void MainWindow::destory_all()
 void MainWindow::connect_img_ch(int _connect,const QObject *receiver)
 {
 
-	if (_connect){
-			
-				connect(mVideoDataServer.data(), SIGNAL(img_stat(int, int, int)),receiver, SLOT(img_stat_show(int, int, int)));
-			
-	}else {	
-				disconnect(mVideoDataServer.data(), SIGNAL(img_stat(int, int, int)),receiver, SLOT(img_stat_show(int, int, int)));
-
-	
+	if (!this->mImg8Process.isNull()) {
+		this->mImg8Process->ConnectAllImg2View(_connect, receiver);
 	}
 
 }
@@ -279,42 +324,33 @@ void MainWindow::connect_img_ch(int _connect,const QObject *receiver)
 void MainWindow::ShowImage(QLabel* _qlab,QImage *_p_qimg)
 {
 	
-	QPixmap pixmap2(QPixmap::fromImage(*_p_qimg));
-
-	_qlab->setPixmap(pixmap2.scaled(_qlab->size(), Qt::KeepAspectRatio));
+	ShowImageFast(_qlab, _p_qimg);
+	
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void MainWindow::ProcessImage(IplImage* img_t,int isShowCut,int isShowBinary)
+void MainWindow::ShowImageFast(QLabel * _qlab,  QImage * const  _p_qimg)
 {
-#if TRUE
-	if (isShowCut) {
-		CvRect rect = cvGetImageROI(img_t);
-		cvResetImageROI(img_t); {
-			QtThread8VideoProcess::DrawArea(img_t, rect);
-		}cvSetImageROI(img_t, rect);
+	QPixmap pixmap2(QPixmap::fromImage(*_p_qimg));
 
-	}
-#endif // TRUE
+	_qlab->setPixmap(pixmap2.scaled(_qlab->size(), Qt::KeepAspectRatio));
 
-#if TRUE
-	if (isShowBinary) {
-
-		CvRect rect = cvGetImageROI(img_t);
-		cvResetImageROI(img_t); {
-			float threshold = 0.5;
-			float max_value = 255;
-			int threshold_type = CV_THRESH_BINARY;
-			cvThreshold(img_t, img_t, threshold, 255, threshold_type);//·§Öµ100
-
-		}cvSetImageROI(img_t, rect);
-
-	}
-#endif // TRUE
 }
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+
 /*-------------------------------------*/
 /**
 *
@@ -628,10 +664,8 @@ int MainWindow::openImageShowQDialog(QLabel* _qabel)
 			connect_img_ch(TRUE, dialog.data());
 
 				{
-					//dialog->setAttribute(Qt::WA_DeleteOnClose);
-					dialog->SetChannel(Channel);
-					dialog->SetShowCutArea(this->mShowCutArea);
-					dialog->SetShowBinary(this->mShowBinaryImg);
+					mImgProc.CurrentChannel =Channel;
+					dialog->SetImgProc(mImgProc);					
 					dialog->setModal(true);
 					dialog->showFullScreen();
 					dialog->show();
@@ -655,11 +689,11 @@ void MainWindow::toggleShowCutArea()
 {
 
 	if (ui->actionShow_Cut_Area->isChecked()) {
-		this->mShowCutArea = TRUE;
+		mImgProc.ShowCutArea = TRUE;
 	}else {
-		this->mShowCutArea = FALSE;
+		mImgProc.ShowCutArea = FALSE;
 	}
-
+	mImg8Process->SetAllImgShowCutRect(mImgProc.ShowCutArea);
 }
 /*-------------------------------------*/
 /**
@@ -669,12 +703,26 @@ void MainWindow::toggleShowCutArea()
 void MainWindow::toggleShowBinaryImg()
 {
 	if (ui->action_Show_Binary_Img->isChecked()) {
-		this->mShowBinaryImg = TRUE;
+		mImgProc.ShowBinaryImg = TRUE;
+	}else {
+		mImgProc.ShowBinaryImg = FALSE;
 	}
-	else {
-		this->mShowBinaryImg = FALSE;
-	}
+	mImg8Process->SetAllImgBinary(mImgProc.ShowBinaryImg);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::toggleShowClassifyThickly()
+{
 
+	if (ui->action_Show_Classify_Thickly->isChecked()) {
+		mImgProc.ShowBinaryClassifyThickly = TRUE;
+	}else {
+		mImgProc.ShowBinaryClassifyThickly = FALSE;
+	}
+	mImg8Process->SetAllImgClassifyThickly(mImgProc.ShowBinaryClassifyThickly);
 }
 /*-------------------------------------*/
 /**
@@ -845,45 +893,6 @@ void MainWindow::ConnectVideo()
 	connect(mCtrlServer.data(), SIGNAL(socket_connect_state(int)), this, SLOT(CheckBox_fpga_ctrl(int)));
 	connect(mVideoDataServer.data(), SIGNAL(socket_connect_state(int)), this, SLOT(CheckBox_fpga_image_video(int)));
 	connect_img_ch(TRUE, this);
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void MainWindow::img_stat_show(int _p_stat, int _channel, int _frames)
-{
-	if ((_p_stat >>8)== CMD_CTRL::CMD_TYPE_02_I::CT_IMG_FRAME){
-
-		
-
-		QSharedPointer<exCircleData> circleData = ChannelsData::channelsData()->getChannelData(_channel);
-		
-		while (circleData->QueueSize()){
-
-				cmd_ctrl_image [_channel]=circleData->getImg();
-				
-				IplImage* img_t = cmd_ctrl_image[_channel]->getIplimage();
-
-				ProcessImage(img_t, this->mShowCutArea, this->mShowBinaryImg);
-
-
-				QSharedPointer<QImage> qimg = cmd_ctrl_image[_channel]->getQimage();
-		
-				ShowImage(labelImage[_channel], qimg.data());
-
-		}		
-		
-
-	}else if ((_p_stat >> 8) == CMD_CTRL::CMD_TYPE_02_C::CT_START) {
-
-
-
-	}else if((_p_stat >> 8) == CMD_CTRL::CMD_TYPE_02_C::CT_STOP) {
-
-	}else {
-
-	}
 }
 /*-------------------------------------*/
 /**

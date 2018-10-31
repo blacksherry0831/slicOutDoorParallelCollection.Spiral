@@ -324,8 +324,6 @@ int  QtTcpClient::Read_1_cmd(CMD_CTRL *_cmd)
 
 #if TRUE
 	_cmd->SetIpAddrRemote((QTcpSocket*)this);
-
-
 #endif // TRUE
 	
 

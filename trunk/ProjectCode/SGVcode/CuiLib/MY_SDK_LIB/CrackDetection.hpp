@@ -39,7 +39,17 @@ public:
 	void Binary2Smooth();
 	void RemoveConnectivity(IplImage* _img,int _size_remove);
 
+	void Binary2Noise(const int _matrix_size_out,const int _matrix_size_in,const int _c_step);
+	void Binary2NoiseAdj(const int _matrix_size_out, const int _matrix_size_in);
 
+	void CopyBinary2Link();
+
+	float GetFeature(const int _matrix_size_out, const int _matrix_size_in);
+public:
+	static void Gray2NoiseFast(IplImage* _img, const int _matrix_size_out, const int _matrix_size_in, const int _c_step);
+	static float GetFeatureFast(const IplImage* _img_binary,const int _matrix_size_out, const int _matrix_size_in);
+
+	static float GetFeatureFastEx(IplImage* _img_binary, int _matrix_size_out, const int _matrix_size_in, const int _c_step);
 
 };
 

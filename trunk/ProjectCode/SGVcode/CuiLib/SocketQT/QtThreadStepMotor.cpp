@@ -1,4 +1,6 @@
 #include "QtThreadStepMotor.hpp"
+
+#include "ChannelsData.hpp"
 /*-------------------------------------*/
 /**
 *
@@ -71,6 +73,39 @@ int QtThreadStepMotor::IsCmdCtrlPipeOK()
 	}
 
 	return FALSE;
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadStepMotor::Wait4ImgProcess(const int _time)
+{
+	const int TIME_MAX = 20000;
+	const int time_interval = 500;
+	int time_sleep = 0;
+
+
+	do {
+
+		QThread::msleep(time_interval);
+
+		time_sleep += time_interval;
+
+		if (0==ChannelsData::getInstance()->QueueSize())
+		{
+			if (time_sleep>_time)
+			{
+				break;
+			}
+
+		}
+
+
+
+	} while (M_THREAD_RUN  &&
+			time_sleep< TIME_MAX);
 
 }
 /*-------------------------------------*/
@@ -157,6 +192,7 @@ void QtThreadStepMotor::run_no_step_motor()
 /*-------------------------------------*/
 void QtThreadStepMotor::run_normal()
 {
+	const int TIME_GAP = 5 * 1000;
 	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
 
 	mBE_1105 = QSharedPointer<BE_1105_Driver>(new BE_1105_Driver(Q_NULLPTR));
@@ -191,7 +227,7 @@ void QtThreadStepMotor::run_normal()
 		if (this->IsCmdCtrlPipeOK()) {
 
 #if _DEBUG
-			this->SleepMy(5000);//wait
+			this->SleepMy(1000);//wait
 #endif // _DEBUG
 
 			QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
@@ -205,30 +241,22 @@ void QtThreadStepMotor::run_normal()
 				{
 					DEBUG_TEST;
 					this->StepMotorRun();
-
 				}
 				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00);
 				this->emit_status_message(mStatusMessage = "CT_FPGA_STOP_00");
-				DEBUG_TEST;
-				this->SleepMy(5000);//wait
+				
+				this->Wait4ImgProcess(TIME_GAP);
+
 				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01);
 				this->emit_status_message(mStatusMessage = "CT_FPGA_START_01");
 				{
 					DEBUG_TEST;
 					this->StepMotorRun();
-
-
-					while (this->M_THREAD_RUN) { 
-						this->SleepMy(200); 
-#if TRUE
-						break;
-#endif // TRUE
-					}
-
 				}
 				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01);
 				this->emit_status_message(mStatusMessage = "CT_FPGA_STOP_01");
-				DEBUG_TEST;
+				
+				this->Wait4ImgProcess(TIME_GAP);
 
 			}QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP);
 			this->emit_status_message(mStatusMessage = "CT_FPGA_STOP");

@@ -16,7 +16,7 @@ Dialog::Dialog(QWidget *parent) :
 	m_WidthImg=0;
 	m_HeightImg = 0;
 	m_Scale=0;
-	mShowCutArea = TRUE;
+	mImgProcess.ShowCutArea = TRUE;
 }
 /*-------------------------------------*/
 /**
@@ -178,11 +178,7 @@ void Dialog::mouseReleaseEvent(QMouseEvent * event)
 *
 */
 /*-------------------------------------*/
-void Dialog::SetChannel(int _channel)
-{
-	this->mCurrentChannel =_channel;
-	this->mVideoProcessData = QSharedPointer<QtThread8VideoProcess>(new  QtThread8VideoProcess(_channel,false));
-}
+
 /*-------------------------------------*/
 /**
 *
@@ -196,10 +192,10 @@ void Dialog::ResizeWindowSize()
 	int Dialog_H = 0;
 	int Dialog_W = 0;
 
-	if (!cmd_ctrl_image[mCurrentChannel].isNull()) {
+	if (!cmd_ctrl_image[mImgProcess.CurrentChannel].isNull()) {
 	
-		m_WidthImg =cmd_ctrl_image[mCurrentChannel]->Width();
-		m_HeightImg =cmd_ctrl_image[mCurrentChannel]->Height();
+		m_WidthImg =cmd_ctrl_image[mImgProcess.CurrentChannel]->Width();
+		m_HeightImg =cmd_ctrl_image[mImgProcess.CurrentChannel]->Height();
 		float scale =1.0* m_WidthImg / m_HeightImg;
 
 		if (SCREEM_H*scale<=SCREEN_W){
@@ -242,7 +238,7 @@ void Dialog::ResizeWindowSize()
 /*-------------------------------------*/
 void Dialog::SetShowCutArea(int _show)
 {
-	this->mShowCutArea = _show;
+	mImgProcess.ShowCutArea = _show;
 }
 /*-------------------------------------*/
 /**
@@ -251,7 +247,17 @@ void Dialog::SetShowCutArea(int _show)
 /*-------------------------------------*/
 void Dialog::SetShowBinary(int _show_bin)
 {
-	this->mShowBinaryImg = _show_bin;
+	mImgProcess.ShowBinaryImg = _show_bin;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void Dialog::SetImgProc(IMG_PROC _img_proc)
+{
+	this->mImgProcess = _img_proc;
+	this->mVideoProcessData = QSharedPointer<QtThread8VideoProcess>(new  QtThread8VideoProcess(this->mImgProcess.CurrentChannel, false));
 }
 /*-------------------------------------*/
 /**
@@ -416,36 +422,24 @@ void Dialog::keyReleaseEventSigImg(QKeyEvent * ev)
 *
 */
 /*-------------------------------------*/
-void Dialog::img_stat_show(int _p_stat, int _channel, int _frames)
+void Dialog::img_stat_show_ex(int _p_stat, int _channel, int _frames, void* _data)
 {
 	if ((_p_stat >> 8) == CMD_CTRL::CMD_TYPE_02_I::CT_IMG_FRAME) {
 		
-		QSharedPointer<exCircleData> circleData = ChannelsData::channelsData()->getChannelData(_channel);
+		QSharedPointer<exCircleData> circleData = ChannelsData4Show::getInstance()->getChannelData(_channel);
 
-		while (circleData->QueueSize()){
+		if(circleData->QueueSize()){
 			cmd_ctrl_image[_channel] = circleData->getImg();
 		
-			if (mCurrentChannel == _channel) {
+			if (mImgProcess.CurrentChannel == _channel) {
 				
-				IplImage* img_t = cmd_ctrl_image[_channel]->getIplimage();
-#if TRUE
-				if (this->mShowCutArea) {
-					
-					mVideoProcessData->SetCurrentCutArea(img_t);
-					mVideoProcessData->DrawCurrentCutArea(img_t);
-					mVideoProcessData->DrawFutureCutArea(img_t);
-					mVideoProcessData->DrawSelectedBoder(img_t);
-
-				}
-#endif // TRUE
-
-				MainWindow::ProcessImage(img_t, this->mShowCutArea,this->mShowBinaryImg);
-
+			
 #if TRUE
 					QSharedPointer<QImage> qimg = cmd_ctrl_image[_channel]->getQimage();
-					this->ResizeWindowSize();
+					
 					MainWindow::ShowImage(ui->labelImg, qimg.data());
 #endif // TRUE
+					this->ResizeWindowSize();
 							
 			}
 		}

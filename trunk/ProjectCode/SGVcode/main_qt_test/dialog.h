@@ -31,21 +31,24 @@ protected:
 	void mouseReleaseEvent(QMouseEvent *event);
 
 public:
-	void SetChannel(int _channel);
+	
 	void ResizeWindowSize();
 	void SetShowCutArea(int _show);
 	void SetShowBinary(int _show_bin);
+	
+	void SetImgProc(IMG_PROC _img_proc);
+
 private:
 	int m_WidthImg;
 	int m_HeightImg;
 	float m_Scale;
-	int mShowCutArea;
-	int mShowBinaryImg;
-	 int mCurrentChannel;
+
+	IMG_PROC mImgProcess;
+	 
 	 QSharedPointer<CMD_CTRL> cmd_ctrl_image[8];
 	 QSharedPointer<QtThread8VideoProcess> mVideoProcessData;
 public slots:
-	void img_stat_show(int _p_stat, int _channel, int _frames);
+	void img_stat_show_ex(int _p_stat, int _channel, int _frames, void* _data);
 
 	void mouseMoveEventSigImg(QMouseEvent *event);
 	void mousePressEventSigImg(QMouseEvent *event);

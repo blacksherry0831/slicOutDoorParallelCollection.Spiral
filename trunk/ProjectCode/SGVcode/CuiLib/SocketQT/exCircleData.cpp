@@ -81,7 +81,6 @@ void exCircleData::start_record(std::string _time_t)
 /*-------------------------------------*/
 void exCircleData::stop_record()
 {
-	this->clear();
 	mSaveFrame.stop_record();
 }
 /*-------------------------------------*/
@@ -98,17 +97,27 @@ void exCircleData::save_record(int _is_save)
 *
 */
 /*-------------------------------------*/
-void exCircleData::SetSaveFrameCfg(QSharedPointer<CMD_CTRL> cmd_ctrl)
+void exCircleData::SetSaveFrameCfg(QSharedPointer<CMD_CTRL> _cmd_ctrl)
 {
-	const int CHANNEL = cmd_ctrl->Channel();
-	std::string IPADDR = cmd_ctrl->mIpAddrRemote;
-	assert(CHANNEL == mChannel);
+	const std::string IPADDR = _cmd_ctrl->mIpAddrRemote;
 
-	this->mSaveFrame.SetChannel(mChannel)->SetFrameCount(mFrameCount)->SetIpAddr(IPADDR);
+	if (_cmd_ctrl->IsImgFrame()) {
+		
+			const int CHANNEL = _cmd_ctrl->Channel();			
+			Q_ASSERT(CHANNEL == mChannel);
 
-	IplImage* img_t = cmd_ctrl->getIplimage();
+			this->mSaveFrame.SetChannel(mChannel)->SetFrameCount(mFrameCount)->SetIpAddr(IPADDR);
 
-	this->mSaveFrame.SaveFrame2Disk(img_t);
+			IplImage* img_t = _cmd_ctrl->getIplimage();
+			this->mSaveFrame.SaveFrame2Disk(img_t);
+
+	}
+
+	if (_cmd_ctrl->IsImgStart()){
+		
+	}
+
+
 
 }
 /*-------------------------------------*/
@@ -145,9 +154,13 @@ void exCircleData::setImg(QSharedPointer<CMD_CTRL> cmd_ctrl)
 {
 
 #if _DEBUG
-	const int CHANNEL = cmd_ctrl->Channel();
-	Q_ASSERT(CHANNEL==mChannel);
-#endif //
+
+	if (cmd_ctrl->IsImgFrame()) {
+		const int CHANNEL = cmd_ctrl->Channel();
+		Q_ASSERT(CHANNEL==mChannel);
+	}
+
+#endif 
 		
 	this->SetSaveFrameCfg(cmd_ctrl);
 

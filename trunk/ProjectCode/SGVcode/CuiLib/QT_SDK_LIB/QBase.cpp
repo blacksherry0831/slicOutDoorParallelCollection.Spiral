@@ -25,17 +25,44 @@ QBase::~QBase(void)
 *
 */
 /*-----------------------------------------*/
-std::string QBase::SYS_getCurrentTime(std::string _format)
+std::string QBase::SYS_getCurrentTime(const std::string _format)
 {
 	QDateTime time = QDateTime::currentDateTime();
+	
+	QString time_str;
 
 	if (_format==""){
-		_format = "yyyy-MM-dd hh:mm:ss dd";
+		const std::string format_t="yyyy-MM-dd hh:mm:ss dd";
+		const QString format_t_qt = QString::fromStdString(_format);
+		time_str = time.toString(format_t_qt);
+	}
+	else
+	{
+		const QString format_t_qt = QString::fromStdString(_format);
+		time_str=time.toString(format_t_qt);
+	}
+	
+	return time_str.toStdString();
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+QString QBase::SYS_getCurrentTime_Q(const QString _format)
+{
+	QDateTime time = QDateTime::currentDateTime();
+	QString current_time_t;
+
+	if (_format.isEmpty()) {
+		const QString format_t=QString("yyyy-MM-dd hh:mm:ss dd");
+		current_time_t = time.toString(format_t);
 	}
 
-	QString str = time.toString(QString::fromStdString(_format));
+	current_time_t = time.toString(_format);
 
-	return str.toStdString();
+	return current_time_t;
 }
 /*-----------------------------------------*/
 /**

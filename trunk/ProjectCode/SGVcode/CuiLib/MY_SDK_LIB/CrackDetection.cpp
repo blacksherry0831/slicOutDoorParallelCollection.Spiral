@@ -524,6 +524,190 @@ void CrackDetection::RemoveConnectivity(IplImage* _img, int _size_remove)
 *
 */
 /*-----------------------------------------*/
+void CrackDetection::Binary2Noise(const int _matrix_size_out,const int _matrix_size_in,const int _c_step)
+{
+	Gray2NoiseFast(this->mImgBinaryLink,_matrix_size_out,_matrix_size_in,_c_step);
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+void CrackDetection::Binary2NoiseAdj(const int _matrix_size_out, const int _matrix_size_in)
+{
+	IplImage* const img_t = this->mImgBinaryLink;
+	uchar* const ImgData = (uchar *)img_t->imageData;
+	const int STEP = img_t->widthStep / sizeof(uchar);
+
+	const int ring_width = _matrix_size_out - _matrix_size_in;
+
+	for (size_t ci = 0; ci < mWidth; ci++) {
+		for (size_t ri = 0; ri <mHeight; ri++) {
+	
+			if ((ri<ring_width) ||
+				(ci<ring_width) ||
+				(mWidth-ci)<ring_width ||
+				(mHeight-ri)<ring_width){
+
+				ImgData[ci + STEP*ri] = 0;
+
+			}
+			
+		}
+	}
+
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+void CrackDetection::CopyBinary2Link()
+{
+	cvCopyImage(this->mImgBinary,this->mImgBinaryLink);
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+float CrackDetection::GetFeature(const int _matrix_size_out, const int _matrix_size_in)
+{
+
+	IplImage* const img_t = this->mImgBinaryLink;
+	
+	return GetFeatureFast(img_t,_matrix_size_out,_matrix_size_in);
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+void CrackDetection::Gray2NoiseFast(IplImage * _img, const int _matrix_size_out, const int _matrix_size_in, const int _c_step)
+{	
+	uchar* const ImgData = (uchar *)_img->imageData;
+	const int STEP = _img->widthStep / sizeof(uchar);
+	const int Width=_img->width;
+	const int Height=_img->height;
+	const int center_c = _matrix_size_out / 2;
+	const int center_r = _matrix_size_out / 2;
+	const int matrix_hsize_out = _matrix_size_out / 2;
+	const int matrix_hsize_in = _matrix_size_in / 2;
+	const int center_c_max = Width - center_c;
+	const int center_r_max = Height - center_r;
+
+	for (size_t ci = center_c; ci < center_c_max; ci += _c_step) {
+		for (size_t ri = center_r; ri <center_r_max; ri += _c_step) {
+
+			const int rect_out_x = ci - matrix_hsize_out;
+			const int rect_out_right = rect_out_x + _matrix_size_out;
+			const int rect_out_y = ri - matrix_hsize_out;
+			const int rect_out_bottom = rect_out_y + _matrix_size_out;
+
+			const int rect_in_x = ci - matrix_hsize_in;
+			const int rect_in_y = ri - matrix_hsize_in;
+			const int rect_in_right = rect_in_x + _matrix_size_in;
+			const int rect_in_bottom = rect_in_y + _matrix_size_in;
+
+			int out_pixel_size = 0;
+#if TRUE
+
+			for (size_t cio = rect_out_x; cio < rect_out_right; cio++) {
+				for (size_t rio = rect_out_y; rio <rect_out_bottom; rio++) {
+
+					if (cio >= rect_in_x  &&
+						cio<rect_in_right &&
+						rio >= rect_in_y &&
+						rio<rect_in_bottom) {
+						//in
+						//ImgData[cio + STEP*rio] = 128;
+
+					}
+					else {
+						//ring
+						if (ImgData[cio + STEP*rio]) {
+							//this point is not null,
+							out_pixel_size++;
+						}
+						//ImgData[cio + STEP*rio] = 255;
+					}
+
+				}
+
+			}
+#endif 
+
+#if TRUE
+			if (out_pixel_size == 0) {
+				//out ring no 
+				for (size_t cii = rect_in_x; cii < rect_in_right; cii++) {
+					for (size_t rii = rect_in_y; rii <rect_in_bottom; rii++) {
+						ImgData[cii + STEP*rii] = 0;
+					}
+				}
+
+			}
+#endif // TRUE
+
+		}
+	}
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+float CrackDetection::GetFeatureFast(const IplImage*  _img_binary, const int _matrix_size_out, const int _matrix_size_in)
+{
+	const IplImage* const img_t = _img_binary;
+	const uchar* const ImgData = (uchar *)img_t->imageData;
+	const int STEP = img_t->widthStep / sizeof(uchar);
+
+	const int ring_width = _matrix_size_out - _matrix_size_in;
+	const int rWIDTH = img_t->width-ring_width;
+	const int rHEIGHT = img_t->height-ring_width;
+	unsigned int points = 0;
+
+	for (size_t ci = ring_width; ci < rWIDTH; ci++) {
+		for (size_t ri = ring_width; ri <rHEIGHT; ri++) {
+
+			if (ImgData[ci + STEP*ri]) {
+				points++;
+			}
+
+		}
+	}
+
+	return 1.0f*points / (rWIDTH*rHEIGHT);
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+float CrackDetection::GetFeatureFastEx(IplImage * _img_binary, int _matrix_size_out, const int _matrix_size_in, const int _c_step)
+{
+	TimeMeasure tm;
+	tm.start(__func__);
+
+	 Gray2NoiseFast(_img_binary, _matrix_size_out, _matrix_size_in, _c_step);
+	 const float feature_t = GetFeatureFast(_img_binary,_matrix_size_out,_matrix_size_in);
+	
+	tm.stop();
+	 return feature_t;
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
 void CrackDetection::MallocImage(CvSize _size_t)
 {
 	this->mHeight = _size_t.height;

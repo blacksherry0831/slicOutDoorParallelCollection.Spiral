@@ -379,6 +379,7 @@
     </property>
     <addaction name="actionShow_Cut_Area"/>
     <addaction name="action_Show_Binary_Img"/>
+    <addaction name="action_Show_Classify_Thickly"/>
    </widget>
    <widget class="QMenu" name="menu_img_collect">
     <property name="title">
@@ -461,6 +462,14 @@
    </property>
    <property name="text">
     <string>采集</string>
+   </property>
+  </action>
+  <action name="action_Show_Classify_Thickly">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>粗分类计算</string>
    </property>
   </action>
  </widget>

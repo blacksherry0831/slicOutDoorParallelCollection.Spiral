@@ -33,6 +33,7 @@ protected:
 public:
 	void SetCmdCtrlPipe(QSharedPointer <QtThreadSocketClient> _cmdCtrlPipe);
 	int IsCmdCtrlPipeOK();
+	void Wait4ImgProcess(int _time);
 protected: 
 	virtual void run();
 	void run_no_step_motor();
