@@ -63,6 +63,7 @@ void QtThreadSocketClient::init_socket()
 {
 	if (m_socket.isNull()) {
 			m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
+			m_socket->setSocketOption(QAbstractSocket::ReceiveBufferSizeSocketOption, 256*1024*1024);//这个没有任何作用
 	}	
 
 	this->closeSocket();

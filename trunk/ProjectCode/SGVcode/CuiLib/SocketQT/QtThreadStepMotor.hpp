@@ -28,6 +28,8 @@ protected:
 	std::string mCurrentBord;
 	QSharedPointer<BE_1105_Driver>	 mBE_1105;
 	QSharedPointer <QtThreadSocketClient> mCmdCtrlPipe;
+private:
+	static const int TIME_GAP;
 protected:
 	void StepMotorRun();
 public:

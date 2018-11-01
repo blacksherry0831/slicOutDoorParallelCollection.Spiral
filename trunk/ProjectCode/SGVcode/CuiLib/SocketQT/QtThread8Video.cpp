@@ -136,6 +136,7 @@ void QtThread8Video::run()
 /*-------------------------------------*/
 void QtThread8Video::ProcessCmd(QSharedPointer<CMD_CTRL> _cmd)
 {
+
 	ChannelsData* channelsData = ChannelsData::getInstance();
 	
 	if (_cmd->IsImgStart()) {
@@ -167,10 +168,7 @@ void QtThread8Video::ProcessCmd(QSharedPointer<CMD_CTRL> _cmd)
 		std::cout << "Image ERROR!" << std::endl;
 		Q_ASSERT(FALSE);
 	}
-
-
-
-
+	
 }
 /*-------------------------------------*/
 /**

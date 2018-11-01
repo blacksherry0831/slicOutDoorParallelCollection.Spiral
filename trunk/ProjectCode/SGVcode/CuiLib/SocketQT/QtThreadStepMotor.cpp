@@ -9,6 +9,8 @@
 /*-------------------------------------*/
 #define  DEBUG_TEST	 do{}while(0)
 /*-------------------------------------*/
+const int QtThreadStepMotor::TIME_GAP=5*1000;
+/*-------------------------------------*/
 /**
 *
 */
@@ -144,19 +146,17 @@ void QtThreadStepMotor::run_no_step_motor()
 				this->emit_status_message(mStatusMessage = "CT_FPGA_START_00");
 				{
 					
-					this->SleepMy(10 * 1000);
-
 				}
 				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00);
 				this->emit_status_message(mStatusMessage = "CT_FPGA_STOP_00");
 				
-				this->SleepMy(1000);//wait
+				this->Wait4ImgProcess(TIME_GAP);
 
 				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01);
 				this->emit_status_message(mStatusMessage = "CT_FPGA_START_01");
 				{
 
-#if TRUE
+#if 0
 					while (this->M_THREAD_RUN) {
 						this->SleepMy(200); 
 						if (!this->IsCmdCtrlPipeOK()) {
@@ -168,6 +168,7 @@ void QtThreadStepMotor::run_no_step_motor()
 				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01);
 				this->emit_status_message(mStatusMessage = "CT_FPGA_STOP_01");
 				
+				this->Wait4ImgProcess(TIME_GAP);
 
 			}QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP);
 			this->emit_status_message(mStatusMessage = "CT_FPGA_STOP");
@@ -192,7 +193,7 @@ void QtThreadStepMotor::run_no_step_motor()
 /*-------------------------------------*/
 void QtThreadStepMotor::run_normal()
 {
-	const int TIME_GAP = 5 * 1000;
+	
 	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
 
 	mBE_1105 = QSharedPointer<BE_1105_Driver>(new BE_1105_Driver(Q_NULLPTR));
