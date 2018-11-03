@@ -40,6 +40,7 @@ public:
 	static void ImgProcessIpl(IplImage * _img,const IMG_PROC _img_proc);
 	static void ImgProcessCMD_CTRL(QSharedPointer<CMD_CTRL> _cmd,const IMG_PROC _img_proc);
 
+	void processImgCmd();
 private:
 	void emit_img_signals(QSharedPointer<CMD_CTRL> _cmd);
 	void setPriorityMy();

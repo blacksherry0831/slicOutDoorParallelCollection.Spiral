@@ -97,6 +97,37 @@ void QtImgProcess::ImgProcessCMD_CTRL(QSharedPointer<CMD_CTRL> _cmd,const IMG_PR
 *
 */
 /*-------------------------------------*/
+void QtImgProcess::processImgCmd()
+{
+	const int SleepTime = 100;
+
+	ChannelsData*    channels_data_t = ChannelsData::getInstance();
+	QSharedPointer<exCircleData> circleData = channels_data_t->getChannelData(mImgProc.CurrentChannel);
+
+	if (circleData->QueueSize()) {
+
+		QSharedPointer<CMD_CTRL> cmd_t = circleData->getImg();
+#if 1
+		ChannelsData4Show::getInstance()->ConfigRecordImg(cmd_t);
+#endif // 0								
+
+		ImgProcessCMD_CTRL(cmd_t, mImgProc);
+
+		ChannelsData4Show::getInstance()->EnqueueImg(cmd_t);
+
+		this->emit_img_signals(cmd_t);
+
+		
+	}
+	else {
+		QThread::msleep(10);
+	}
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 
 /*-------------------------------------*/
 /**
@@ -151,44 +182,32 @@ float QtImgProcess::GetClassifyThicklyThreshold()
 /*-------------------------------------*/
 void QtImgProcess::run()
 {
-	const int SleepTime = 100;
+	const int SleepTime = 10;
 
 	this->setPriorityMy();
 
-	ChannelsData*    channels_data_t = ChannelsData::getInstance();
+	const ChannelsData*    channels_data_t = ChannelsData::getInstance();
 
-	QSharedPointer<exCircleData> circleData = channels_data_t->getChannelData(mImgProc.CurrentChannel);
 
 	while (M_THREAD_RUN){		
 			
 
-			if (channels_data_t->IsReceiving()){
-				//TCP now is transfer
-				if (JQCPUMonitor::cpuUsagePercentageIn5Second()>0.70) {
+		if ( channels_data_t->IsReceiving() && JQCPUMonitor::cpuUsagePercentageIn5Second()>0.95 ){
 			
-					QThread::msleep(SleepTime);
+			//TCP now is transfer
+			//cpu is busy
+			QThread::msleep(SleepTime);
+
+		}else{
+
+			this->processImgCmd();
+
+		}
+
+
 			
-				}
-			}
 
 
-			if (circleData->QueueSize()) {
-
-							QSharedPointer<CMD_CTRL> cmd_t = circleData->getImg();
-#if 1
-							ChannelsData4Show::getInstance()->ConfigRecordImg(cmd_t);
-#endif // 0								
-
-							ImgProcessCMD_CTRL(cmd_t, mImgProc);
-								
-							ChannelsData4Show::getInstance()->EnqueueImg(cmd_t);
-
-							this->emit_img_signals(cmd_t);				
-
-							//QThread::yieldCurrentThread();
-			}else {
-						QThread::msleep(SleepTime);
-			}
 
 	}
 
