@@ -24,6 +24,8 @@ ChannelsData::ChannelsData()
 		QSharedPointer<exCircleData> chidata = QSharedPointer<exCircleData>(new exCircleData(chi));
 		mChannelsData[chi] = chidata;
 	}
+
+	this->mIsReceiving = FALSE;
 }
 /*-------------------------------------*/
 /**
@@ -50,17 +52,43 @@ QSharedPointer<exCircleData> ChannelsData::getChannelData(int _ch)
 *
 */
 /*-------------------------------------*/
-void ChannelsData::EnqueueImgStartEnd(QSharedPointer<CMD_CTRL> _cmd)
+void ChannelsData::EnqueueImgAll(QSharedPointer<CMD_CTRL> _cmd)
 {
+	this->MyImgAssert(_cmd);
 
-	if ((_cmd->IsImgStart()) ||
-		(_cmd->IsImgEnd())) {
+	this->EnqueueCmd(_cmd);
 
-		const int CHANNEL = _cmd->Channel();
-		Q_ASSERT(CHANNEL >= 0 && CHANNEL <= 7);
-		mChannelsData.at(CHANNEL)->setImg(_cmd);
+	if (_cmd->IsImgStart()) {
 
+		this->mIsReceiving = TRUE;
+
+	}else if (_cmd->IsImgEnd()) {
+
+		this->mIsReceiving = FALSE;
+
+	}else if (_cmd->IsImgFrame()) {
+
+	}else {
+
+		Q_ASSERT(FALSE);
 	}
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void ChannelsData::MyImgAssert(QSharedPointer<CMD_CTRL> _cmd)
+{
+	
+	const int CHANNEL = _cmd->Channel();
+	Q_ASSERT(CHANNEL >= 0 && CHANNEL <= 7);
 
 }
 /*-------------------------------------*/
@@ -99,24 +127,19 @@ ChannelsData* ChannelsData::getInstance()
 *
 */
 /*-------------------------------------*/
-void ChannelsData::EnqueueImg(QSharedPointer<CMD_CTRL> _cmd)
+int ChannelsData::IsReceiving() const
 {
-
-	if (_cmd->IsImgStart()) {
-		
-	}else if (_cmd->IsImgEnd()) {
-		
-	}else if (_cmd->IsImgFrame()) {
-
+	return mIsReceiving;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void ChannelsData::EnqueueCmd(QSharedPointer<CMD_CTRL> _cmd)
+{
 		const int CHANNEL = _cmd->Channel();
 		mChannelsData.at(CHANNEL)->setImg(_cmd);
-
-
-
-	}else {
-		
-		Q_ASSERT(FALSE);
-	}
 	
 }
 /*-------------------------------------*/

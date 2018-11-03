@@ -200,11 +200,13 @@ ADD_SUBDIRECTORY(main_test)
 ADD_SUBDIRECTORY(main_foxconn)
 
 	if(CBB_BUILDING_CRACK_DETECTION)
-	
+		
 		ADD_SUBDIRECTORY(main_gui_crack)
 		ADD_SUBDIRECTORY(main_qt_test)
 		ADD_SUBDIRECTORY(crack_detect_life_cycle)
 		ADD_SUBDIRECTORY(crack_detect_factory_init_tcp_client)
+		ADD_SUBDIRECTORY(crack_detect_img_process)
+		ADD_SUBDIRECTORY(crack_detect_plc_control)
 		
 		
 	endif() 

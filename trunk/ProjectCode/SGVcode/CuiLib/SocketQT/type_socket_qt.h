@@ -7,6 +7,7 @@ typedef struct {
 	int ShowCutArea;
 	int ShowBinaryImg;
 	int ShowBinaryClassifyThickly;
+	float ThresholdClassifyThickly;
 	int CurrentChannel;
 
 }IMG_PROC;

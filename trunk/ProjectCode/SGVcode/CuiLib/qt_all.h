@@ -14,6 +14,7 @@
 #include <QCryptographicHash>
 
 #include <QFileDialog>
+#include <QInputDialog>
 
 #endif
 

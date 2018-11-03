@@ -28,12 +28,18 @@ private:
 private:
 	static ChannelsData gChannelsData;
 	std::vector<QSharedPointer<exCircleData>> mChannelsData;
+	int mIsReceiving;
+private:
+	void EnqueueCmd(QSharedPointer<CMD_CTRL> _cmd);
+	void MyImgAssert(QSharedPointer<CMD_CTRL> _cmd);
 public:
 	static ChannelsData* getInstance();
+	int IsReceiving() const;
 public:
 	QSharedPointer<exCircleData> getChannelData(int _ch);
-	void EnqueueImg(QSharedPointer<CMD_CTRL> _cmd);
-	void EnqueueImgStartEnd(QSharedPointer<CMD_CTRL> _cmd);
+	
+	void EnqueueImgAll(QSharedPointer<CMD_CTRL> _cmd);
+
 	int  QueueSize();
 
 };

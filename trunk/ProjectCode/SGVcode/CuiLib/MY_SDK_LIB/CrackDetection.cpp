@@ -693,13 +693,13 @@ float CrackDetection::GetFeatureFast(const IplImage*  _img_binary, const int _ma
 /*-----------------------------------------*/
 float CrackDetection::GetFeatureFastEx(IplImage * _img_binary, int _matrix_size_out, const int _matrix_size_in, const int _c_step)
 {
-	TimeMeasure tm;
-	tm.start(__func__);
+//	TimeMeasure tm;
+//	tm.start(__func__);
 
 	 Gray2NoiseFast(_img_binary, _matrix_size_out, _matrix_size_in, _c_step);
 	 const float feature_t = GetFeatureFast(_img_binary,_matrix_size_out,_matrix_size_in);
 	
-	tm.stop();
+//	tm.stop();
 	 return feature_t;
 }
 /*-----------------------------------------*/

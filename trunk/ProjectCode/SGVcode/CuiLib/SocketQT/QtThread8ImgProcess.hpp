@@ -40,6 +40,8 @@ public:
 
 	void SetAllImgShowCutRect(int _param);
 	void SetAllImgBinary(int _param);
-	void SetAllImgClassifyThickly(int _param);
+	void SetAllImgClassifyThickly(int _param,float _threshold=-1);
+	float GetClassifyThicklyThreshold();
+	
 
 };

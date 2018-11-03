@@ -84,7 +84,7 @@ int QtThreadStepMotor::IsCmdCtrlPipeOK()
 /*-------------------------------------*/
 void QtThreadStepMotor::Wait4ImgProcess(const int _time)
 {
-	const int TIME_MAX = 20000;
+	const int TIME_MAX = 60*1000;
 	const int time_interval = 500;
 	int time_sleep = 0;
 
@@ -104,10 +104,14 @@ void QtThreadStepMotor::Wait4ImgProcess(const int _time)
 
 		}
 
+		Q_ASSERT(time_sleep<TIME_MAX);
+
+		if (time_sleep>TIME_MAX)	{	
+			break;
+		}
 
 
-	} while (M_THREAD_RUN  &&
-			time_sleep< TIME_MAX);
+	} while (M_THREAD_RUN);
 
 }
 /*-------------------------------------*/
@@ -150,7 +154,7 @@ void QtThreadStepMotor::run_no_step_motor()
 				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00);
 				this->emit_status_message(mStatusMessage = "CT_FPGA_STOP_00");
 				
-				this->Wait4ImgProcess(TIME_GAP);
+				this->SleepMy(TIME_GAP);
 
 				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01);
 				this->emit_status_message(mStatusMessage = "CT_FPGA_START_01");
@@ -169,11 +173,12 @@ void QtThreadStepMotor::run_no_step_motor()
 				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01);
 				this->emit_status_message(mStatusMessage = "CT_FPGA_STOP_01");
 				
-				this->Wait4ImgProcess(TIME_GAP);
+				
+
 
 			}QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP);
 			this->emit_status_message(mStatusMessage = "CT_FPGA_STOP");
-			
+			this->Wait4ImgProcess(TIME_GAP);
 		}
 
 

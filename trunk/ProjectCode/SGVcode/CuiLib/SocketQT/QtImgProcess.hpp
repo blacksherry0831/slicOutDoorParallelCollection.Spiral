@@ -14,6 +14,9 @@
 #include "CMD_CTRL.hpp"
 #include "ChannelsData4Show.hpp"
 #include "MY_SDK_LIB/TimeMeasure.hpp"
+
+#include "JQLibrary/src/JQCPUMonitor/JQCPUMonitor"
+//JQCPUMonitor::cpuUsagePercentage()
 /*-------------------------------------*/
 /**
 *
@@ -50,7 +53,8 @@ public:
 	void SetImgProcCutArea(int _param);
 	void SetImgProcBinaryImg(int _param);
 	void SetImgProcBinaryClassifyThickly(int _param);
-
+	void SetClassifyThicklyThreshold(float _threshold);
+	float GetClassifyThicklyThreshold();
 	void run();
 
 	void startServer();

@@ -144,19 +144,34 @@ void QtThread8ImgProcess::SetAllImgBinary(int _param)
 *
 */
 /*-------------------------------------*/
-void QtThread8ImgProcess::SetAllImgClassifyThickly(int _param)
+void QtThread8ImgProcess::SetAllImgClassifyThickly(int _param, float _threshold)
 {
-	for (size_t i = 0; i <mTaskObj.size(); i++)
-	{
-		mTaskObj[i]->SetImgProcBinaryClassifyThickly(_param);
-	}
+		for (size_t i = 0; i <mTaskObj.size(); i++)
+		{
+					mTaskObj[i]->SetImgProcBinaryClassifyThickly(_param);
+
+					if ((_param==TRUE)&&
+						(_threshold>=0)&&
+						(_threshold<=1)){
+						mTaskObj[i]->SetClassifyThicklyThreshold(_threshold);
+					}
+
+		}
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
+float QtThread8ImgProcess::GetClassifyThicklyThreshold()
+{
 
+	for (size_t i = 0; i <mTaskObj.size(); i++){
+		return	mTaskObj[i]->GetClassifyThicklyThreshold();
+	}
+	return -1.0;
+
+}
 /*-------------------------------------*/
 /**
 *

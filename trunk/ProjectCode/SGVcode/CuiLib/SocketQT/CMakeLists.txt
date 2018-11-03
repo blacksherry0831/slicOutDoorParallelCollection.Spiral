@@ -54,6 +54,7 @@ TARGET_LINK_LIBRARIES(SOCKET_SERVER
 						pthreads
 						MY_SDK_LIB
 						QT_SDK_LIB
+						JQLibrary
 	) 
 ############################################################ 
 ############################################################
