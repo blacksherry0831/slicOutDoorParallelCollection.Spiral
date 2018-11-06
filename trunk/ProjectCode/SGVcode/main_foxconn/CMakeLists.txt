@@ -20,6 +20,7 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		ADD_EXECUTABLE(TEST_FOXCONN main_foxconn.cpp)
 		TARGET_LINK_LIBRARIES(TEST_FOXCONN
 								MY_SDK_LIB
+								QT_THREAD_MODULE
 								Harr
 								SGVBaseCode)			
 	endif(NEED_OPENCV)

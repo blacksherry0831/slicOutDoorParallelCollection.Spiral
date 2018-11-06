@@ -23,7 +23,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	this->init_class_member();
 	this->init_ping_ssh();
 	
-
 	this->init_menu();
 	this->init_controls();
 
@@ -31,7 +30,6 @@ MainWindow::MainWindow(QWidget *parent) :
 	
 	this->initGlobal();
 	
-
 }
 /*-------------------------------------*/
 /**

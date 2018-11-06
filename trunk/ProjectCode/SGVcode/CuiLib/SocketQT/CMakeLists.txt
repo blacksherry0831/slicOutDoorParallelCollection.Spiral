@@ -26,11 +26,9 @@ ENDIF ()
 				QtThreadClientLifeCycle.cpp	
 				QtThreadClientCtrlTest.cpp
 
-				
-
 				QtThreadServer.cpp
-				QtThreadPLC.cpp
-				QtThreadStepMotor.cpp
+				
+				
 				DataFrame.cpp
 				CMD_CTRL_DATA.cpp
 				CMD_CTRL.cpp

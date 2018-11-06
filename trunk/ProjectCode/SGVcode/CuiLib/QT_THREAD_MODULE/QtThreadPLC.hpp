@@ -14,9 +14,9 @@
 *
 */
 /*-------------------------------------*/
-#include "QtThreadSocketClient.hpp"
-#include "QtTcpClient.hpp"
-#include "conf_ip.h"
+#include "../SocketQT/QtThreadSocketClient.hpp"
+#include "../SocketQT/QtTcpClient.hpp"
+#include "../SocketQT/conf_ip.h"
 /*-------------------------------------*/
 /**
 *

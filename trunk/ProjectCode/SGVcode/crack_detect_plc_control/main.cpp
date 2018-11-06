@@ -18,7 +18,8 @@
 #endif
 
 
-#include "SocketQT\QtThreadPLC.hpp"
+#include "QT_THREAD_MODULE\QtThreadPLC.hpp"
+
 #include "QT_THREAD_FLOW_CTRL\QtThreadFlowCtrlServer.hpp"
 
 

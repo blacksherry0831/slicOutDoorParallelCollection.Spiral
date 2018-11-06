@@ -4,12 +4,12 @@
 /*-------------------------------------*/
 #include "qt_all.h"
 /*-------------------------------------*/
-#include "conf_ip.h"
+#include "SocketQT/conf_ip.h"
 /*-------------------------------------*/
-#include "QtThreadBase.hpp"
-#include "CMD_CTRL.hpp"
-#include "QtThreadClientCtrl.hpp"
-#include "QtThreadSocketClient.hpp"
+#include "SocketQT/QtThreadBase.hpp"
+#include "SocketQT/CMD_CTRL.hpp"
+#include "SocketQT/QtThreadClientCtrl.hpp"
+#include "SocketQT/QtThreadSocketClient.hpp"
 /*-------------------------------------*/
 #include "SerialPort/BE_1105_Dirver.hpp"
 /*-------------------------------------*/
@@ -28,14 +28,17 @@ protected:
 	std::string mCurrentBord;
 	QSharedPointer<BE_1105_Driver>	 mBE_1105;
 	QSharedPointer <QtThreadSocketClient> mCmdCtrlPipe;
+
 private:
 	static const int TIME_GAP;
+	static const int BLOCK_IN_STEP02;
 protected:
 	void StepMotorRun();
 public:
 	void SetCmdCtrlPipe(QSharedPointer <QtThreadSocketClient> _cmdCtrlPipe);
 	int IsCmdCtrlPipeOK();
 	void Wait4ImgProcess(int _time);
+	void blockInStep02();
 protected: 
 	virtual void run();
 	void run_no_step_motor();

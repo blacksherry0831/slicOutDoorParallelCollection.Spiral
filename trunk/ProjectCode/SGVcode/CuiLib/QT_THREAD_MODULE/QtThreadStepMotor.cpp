@@ -1,6 +1,6 @@
 #include "QtThreadStepMotor.hpp"
 
-#include "ChannelsData.hpp"
+#include "SocketQT/ChannelsData.hpp"
 /*-------------------------------------*/
 /**
 *
@@ -10,6 +10,7 @@
 #define  DEBUG_TEST	 do{}while(0)
 /*-------------------------------------*/
 const int QtThreadStepMotor::TIME_GAP=5*1000;
+const int QtThreadStepMotor::BLOCK_IN_STEP02= TRUE;
 /*-------------------------------------*/
 /**
 *
@@ -160,15 +161,7 @@ void QtThreadStepMotor::run_no_step_motor()
 				this->emit_status_message(mStatusMessage = "CT_FPGA_START_01");
 				{
 					this->SleepMy(TIME_GAP * 3);
-
-#if 0
-					while (this->M_THREAD_RUN) {
-						this->SleepMy(200); 
-						if (!this->IsCmdCtrlPipeOK()) {
-							break;
-						}
-					}
-#endif // TRUE
+					this->blockInStep02();
 				}
 				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01);
 				this->emit_status_message(mStatusMessage = "CT_FPGA_STOP_01");
@@ -233,9 +226,7 @@ void QtThreadStepMotor::run_normal()
 
 		if (this->IsCmdCtrlPipeOK()) {
 
-#if _DEBUG
-			this->SleepMy(1000);//wait
-#endif // _DEBUG
+
 
 			QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
 			this->emit_status_message(mStatusMessage = "CT_FPGA_START");
@@ -251,19 +242,26 @@ void QtThreadStepMotor::run_normal()
 				}
 				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00);
 				this->emit_status_message(mStatusMessage = "CT_FPGA_STOP_00");
-				
+#if 0
 				this->Wait4ImgProcess(TIME_GAP);
+#endif // 0
+
+
 
 				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01);
 				this->emit_status_message(mStatusMessage = "CT_FPGA_START_01");
 				{
 					DEBUG_TEST;
 					this->StepMotorRun();
+					this->blockInStep02();
 				}
 				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01);
 				this->emit_status_message(mStatusMessage = "CT_FPGA_STOP_01");
-				
+#if 0
 				this->Wait4ImgProcess(TIME_GAP);
+#endif // 0
+
+				
 
 			}QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP);
 			this->emit_status_message(mStatusMessage = "CT_FPGA_STOP");
@@ -288,11 +286,11 @@ void QtThreadStepMotor::run_normal()
 /*-------------------------------------*/
 void  QtThreadStepMotor::run()
 {	
-#if 0
+#if 1
 		this->run_normal();
 #endif
 
-#if 1
+#if 0
 		this->run_no_step_motor();
 #endif
 }
@@ -330,6 +328,24 @@ QtThreadStepMotor* QtThreadStepMotor::SetBordIPaddr(QString _ipAddr)
 {
 	this->mCurrentBord = _ipAddr.toStdString();
 	return this;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadStepMotor::blockInStep02()
+{
+	if (BLOCK_IN_STEP02) {
+
+		while (this->M_THREAD_RUN) {
+			this->SleepMy(200);
+			if (!this->IsCmdCtrlPipeOK()) {
+				break;
+			}
+		}
+
+	}
 }
 /*-------------------------------------*/
 /**
