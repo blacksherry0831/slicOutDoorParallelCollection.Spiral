@@ -252,8 +252,13 @@ void QtThreadStepMotor::run_normal()
 				this->emit_status_message(mStatusMessage = "CT_FPGA_START_01");
 				{
 					DEBUG_TEST;
-					this->StepMotorRun();
-					this->blockInStep02();
+					while (BLOCK_IN_STEP02 && M_THREAD_RUN)
+					{
+						this->StepMotorRun();
+						this->SleepMy(100);
+					}
+					
+					
 				}
 				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01);
 				this->emit_status_message(mStatusMessage = "CT_FPGA_STOP_01");
