@@ -18,46 +18,17 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 ENDIF () 
 	
 	if (CBB_BUILDING_CRACK_DETECTION)
-		SET(DIR_SRCS					
-				QtTcpServer.cpp
-				QtTcpClient.cpp
-				QtThreadBase.cpp
-				QtThreadClientCtrl.cpp
-				QtThreadClientLifeCycle.cpp	
-				QtThreadClientCtrlTest.cpp
-
+		SET(DIR_SRCS
 				
-
-				QtThreadServer.cpp
-				QtThreadPLC.cpp
-				QtThreadStepMotor.cpp
-				DataFrame.cpp
-				CMD_CTRL_DATA.cpp
-				CMD_CTRL.cpp
-				CMD_CTRL_Q.cpp				
-				QtThread8Video.cpp
-				QtThreadSocketClient.cpp
-				exCircleData.cpp
-				ChannelsData.cpp
-				ChannelsData4Show.cpp
-				
-				QtThread8VideoProcess.cpp
-				QtThread8VideoRaw.cpp
-				QtImgProcess.cpp
-				QtThread8ImgProcess.cpp
-				QtTcpServerTest.cpp
-				QtLink.cpp
-				Saveframe.cpp)		
+				)		
 	
 	endif (CBB_BUILDING_CRACK_DETECTION)
  
-ADD_LIBRARY(QT_SOCKET_BASE   STATIC    ${DIR_SRCS}  )
+ADD_LIBRARY(QT_THREAD_MODULE   STATIC    ${DIR_SRCS}  )
 
-TARGET_LINK_LIBRARIES(QT_SOCKET_BASE
-						pthreads
+TARGET_LINK_LIBRARIES(QT_THREAD_MODULE
 						MY_SDK_LIB
 						QT_SDK_LIB
-						JQLibrary
 	) 
 ############################################################ 
 ############################################################

@@ -54,7 +54,7 @@ void QtTcpServer::incomingConnection(qintptr socketDescriptor)
 	client_thread->start();
 
 	
-	this->SaveRunningThread(client_thread);
+	this->ProcessRunningThread(client_thread);
 
 }
 /*-------------------------------------*/
@@ -64,8 +64,9 @@ void QtTcpServer::incomingConnection(qintptr socketDescriptor)
 /*-------------------------------------*/
 void QtTcpServer::RemoveDoneThread()
 {
-	this->m_clients_mutex.lock();
-		
+	
+	
+	QMutexLocker locker(&m_clients_mutex);
 		
 	
 	QList<QSharedPointer<QtThreadSocketClient>>::iterator item = m_clientThreads.begin();
@@ -84,7 +85,7 @@ void QtTcpServer::RemoveDoneThread()
 		}
 
 
-	this->m_clients_mutex.unlock();
+	
 }
 /*-------------------------------------*/
 /**
@@ -93,10 +94,17 @@ void QtTcpServer::RemoveDoneThread()
 /*-------------------------------------*/
 void QtTcpServer::SaveRunningThread(QSharedPointer<QtThreadSocketClient> _client)
 {
-	this->m_clients_mutex.lock();
-			m_clientThreads.push_back(_client);
-	this->m_clients_mutex.unlock();
-
+	QMutexLocker locker(&m_clients_mutex);
+	m_clientThreads.push_back(_client);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtTcpServer::ProcessRunningThread(QSharedPointer<QtThreadSocketClient> _client)
+{
+	this->SaveRunningThread(_client);
 	this->RemoveDoneThread();
 }
 /*-------------------------------------*/
@@ -117,72 +125,6 @@ int QtTcpServer::StartListen()
 {	
 	return this->listen(QHostAddress::Any, mPort);
 }
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
 /*-------------------------------------*/
 /**
 *

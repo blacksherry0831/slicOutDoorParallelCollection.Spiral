@@ -19,6 +19,9 @@
 
 
 #include "SocketQT\QtThreadPLC.hpp"
+#include "QT_THREAD_FLOW_CTRL\QtThreadFlowCtrlServer.hpp"
+
+
 
 int plcServer(int argc, char *argv[])
 {
@@ -26,6 +29,7 @@ int plcServer(int argc, char *argv[])
 	QCoreApplication a(argc, argv);
 
 	QSharedPointer<QtThreadPLC> plcdataServer = QSharedPointer<QtThreadPLC>(new QtThreadPLC(0));
+	QSharedPointer<QtThreadFlowCtrlServer> flowServerServer = QSharedPointer<QtThreadFlowCtrlServer>(new QtThreadFlowCtrlServer(0));
 
 	plcdataServer->start();
 

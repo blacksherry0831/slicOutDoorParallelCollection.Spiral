@@ -27,9 +27,11 @@ protected:
 private:	
 	QList<QSharedPointer<QtThreadSocketClient>>	 m_clientThreads;
 	QMutex m_clients_mutex;
-protected:
+private:
 	void RemoveDoneThread();
 	void SaveRunningThread(QSharedPointer<QtThreadSocketClient> _client);
+protected:	
+	void ProcessRunningThread(QSharedPointer<QtThreadSocketClient> _client);
 public:
 	void execMy();
 protected:

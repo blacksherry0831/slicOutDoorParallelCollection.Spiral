@@ -21,7 +21,7 @@ add_executable(EXE_CRACK_DETECT_LIFE_CYCLE  WIN32
 
 
 TARGET_LINK_LIBRARIES(EXE_CRACK_DETECT_LIFE_CYCLE 
-							SOCKET_SERVER
+							QT_SOCKET_BASE
 							SerialPortModule
 							) 
 

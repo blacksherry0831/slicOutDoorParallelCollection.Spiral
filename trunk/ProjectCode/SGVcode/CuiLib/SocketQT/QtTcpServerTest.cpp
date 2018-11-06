@@ -47,14 +47,14 @@ QtTcpServerTest::~QtTcpServerTest()
 /*-------------------------------------*/
 void QtTcpServerTest::incomingConnection(qintptr socketDescriptor)
 {
+
 	qDebug() << "New Connect is connect" << socketDescriptor;
 	
 	QSharedPointer<QtThreadSocketClient> client_thread=QSharedPointer<QtThreadSocketClient>(new QtThreadClientCtrlTest(socketDescriptor));
 
 	client_thread->start();
-
-	
-	this->SaveRunningThread(client_thread);
+		
+	this->ProcessRunningThread(client_thread);
 
 }
 /*-------------------------------------*/
