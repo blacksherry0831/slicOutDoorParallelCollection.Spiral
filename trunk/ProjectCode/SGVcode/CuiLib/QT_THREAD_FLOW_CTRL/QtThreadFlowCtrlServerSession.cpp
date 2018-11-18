@@ -28,7 +28,7 @@ QtThreadFlowCtrlServerSession::QtThreadFlowCtrlServerSession(qintptr p)
 /*-------------------------------------*/
 QtThreadFlowCtrlServerSession::~QtThreadFlowCtrlServerSession(void)
 {
-	qDebug() << "QtThreadClient is Release ! ";
+	qDebug() << __func__;
 }
 /*-------------------------------------*/
 /**
@@ -38,6 +38,9 @@ QtThreadFlowCtrlServerSession::~QtThreadFlowCtrlServerSession(void)
 void QtThreadFlowCtrlServerSession::run()
 {
 	
+	while (M_THREAD_RUN){
+		
+	}
 
 }
 /*-------------------------------------*/

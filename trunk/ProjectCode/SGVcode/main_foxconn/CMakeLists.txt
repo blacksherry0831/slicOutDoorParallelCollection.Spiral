@@ -9,20 +9,29 @@ CONFIGPTHREADS()
 if(NEED_OPENCV)
 	ConfigOpenCv()	
 endif(NEED_OPENCV)
+
+option (CBB_BUILDING_FOXCONN
+        "ÊÓ¾õµ¼º½ Automatic Guiding Vehicle" OFF) 
+
 ###############################################################################
 IF (CMAKE_SYSTEM_NAME MATCHES "Linux")  
  
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
  ConfigMFC_2()
  ###############################################	
-	if(NEED_OPENCV)
-		
-		ADD_EXECUTABLE(TEST_FOXCONN main_foxconn.cpp)
-		TARGET_LINK_LIBRARIES(TEST_FOXCONN
-								MY_SDK_LIB
-								QT_THREAD_MODULE
-								Harr
-								SGVBaseCode)			
+	if(NEED_OPENCV)		
+
+		if(CBB_BUILDING_FOXCONN)
+				
+				ADD_EXECUTABLE(TEST_FOXCONN main_foxconn.cpp)
+				TARGET_LINK_LIBRARIES(TEST_FOXCONN
+										MY_SDK_LIB
+										QT_THREAD_MODULE
+										Harr
+										SGVBaseCode)
+													
+		endif(CBB_BUILDING_FOXCONN)		
+
 	endif(NEED_OPENCV)
 ################################################
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")

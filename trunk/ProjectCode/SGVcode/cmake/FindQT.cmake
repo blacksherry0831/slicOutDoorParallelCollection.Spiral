@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.1.0)
 ###############################################################################
 macro(CONFIGQT)
 
@@ -7,9 +8,7 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Linux")
    
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")  
 	
-	if(MSVC)
-		set (CMAKE_PREFIX_PATH "C:\\Qt\\5.11.1\\msvc2015")
-	endif(MSVC)
+	
  
 ELSEIF (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")  
    
@@ -29,7 +28,7 @@ SET(QT_DONT_USE_QTGUI TRUE)
 	
 	FIND_PACKAGE(Qt5Core)
 	FIND_PACKAGE(Qt5Gui)
-	FIND_PACKAGE(Qt5Widgets)
+	find_package(Qt5Widgets CONFIG REQUIRED)
 	FIND_PACKAGE(Qt5SerialPort)
 	FIND_PACKAGE(Qt5Network)
 	

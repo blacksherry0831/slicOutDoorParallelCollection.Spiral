@@ -18,9 +18,9 @@
 #endif
 
 
-#include "QT_THREAD_MODULE\QtThreadPLC.hpp"
+#include "QT_THREAD_MODULE/QtThreadPLC.hpp"
 
-#include "QT_THREAD_FLOW_CTRL\QtThreadFlowCtrlServer.hpp"
+#include "QT_THREAD_FLOW_CTRL/QtThreadFlowCtrlServer.hpp"
 
 
 
@@ -33,6 +33,7 @@ int plcServer(int argc, char *argv[])
 	QSharedPointer<QtThreadFlowCtrlServer> flowServerServer = QSharedPointer<QtThreadFlowCtrlServer>(new QtThreadFlowCtrlServer(0));
 
 	plcdataServer->start();
+	flowServerServer->start();
 
 	return a.exec();
 }

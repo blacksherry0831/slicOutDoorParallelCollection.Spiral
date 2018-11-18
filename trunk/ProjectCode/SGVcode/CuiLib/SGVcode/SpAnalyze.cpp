@@ -364,6 +364,7 @@ int SpAnalyze::GetFeatureSize(void)
 /*------------------------------------------------*/
 void SpAnalyze::ExtractImageFeatureWithHarr(vector<float>& feature)
 {
+	 HoughAnalyzeParam hap_t= HoughAnalyzeParam::GetHarrHAParam();
 	ASSERT(this->SpSA!=SpSizeAttr::SA_UnKnow);
 	if (this->SpSA==SpSizeAttr::FAT){
 		CuiHarrTransformLet harrtran(pMD);
@@ -374,17 +375,17 @@ void SpAnalyze::ExtractImageFeatureWithHarr(vector<float>& feature)
 			feature.clear();
 
 			ImageMemData memdata_HH_1(ImgSplit.imgHH_1);	 
-			HoughAnalyze ha_HH_1(&memdata_HH_1,ImgMaskControus,&HoughAnalyzeParam::GetHarrHAParam());	
+			HoughAnalyze ha_HH_1(&memdata_HH_1,ImgMaskControus,&hap_t);	
 			HistData180 histdata_HH_1=ha_HH_1.GetSaveALlImgHistogram_180_0to100();
 			PushBackFeature(feature,histdata_HH_1,AngLeDivided180);
 
 			ImageMemData memdata_HL_1(ImgSplit.imgHL_1);	 
-			HoughAnalyze ha_HL_1(&memdata_HL_1,ImgMaskControus,&HoughAnalyzeParam::GetHarrHAParam());	
+			HoughAnalyze ha_HL_1(&memdata_HL_1,ImgMaskControus, &hap_t);
 			HistData180 histdata_HL_1=ha_HL_1.GetSaveALlImgHistogram_180_0to100();
 			PushBackFeature(feature,histdata_HL_1,AngLeDivided180);
 
 			ImageMemData memdata_LH_1(ImgSplit.imgLH_1);	 
-			HoughAnalyze ha_LH_1(&memdata_LH_1,ImgMaskControus,&HoughAnalyzeParam::GetHarrHAParam());	
+			HoughAnalyze ha_LH_1(&memdata_LH_1,ImgMaskControus, &hap_t);
 			HistData180 histdata_LH_1=ha_LH_1.GetSaveALlImgHistogram_180_0to100();
 			PushBackFeature(feature,histdata_LH_1,AngLeDivided180);
 		}
@@ -415,7 +416,8 @@ HistData180 SpAnalyze::ExtractImageFeatureWithSrcCany(vector<float>& feature)
 	if (this->SpSA==SpSizeAttr::FAT){
 			
 			ImageMemData SrcImg(pMD->src_Img_bgra);	 
-			HoughAnalyze SrcHough(&SrcImg,ImgMaskControus,&HoughAnalyzeParam::GetHarrHAParam());	
+			HoughAnalyzeParam hap_t = HoughAnalyzeParam::GetHarrHAParam();
+			HoughAnalyze SrcHough(&SrcImg,ImgMaskControus,&hap_t);
 			histdata=SrcHough.GetSaveALlImgHistogram_180_0to100();
 			PushBackFeature(feature,histdata,AngLeDivided180);
 			
@@ -444,7 +446,8 @@ HistData180 SpAnalyze::ExtractImageFeatureWithSrcCany(Feature_VegaBuilding& fvb)
 	ASSERT(this->SpSA!=SpSizeAttr::SA_UnKnow);
 	if (this->SpSA==SpSizeAttr::FAT){
 		ImageMemData SrcImg(pMD->src_Img_bgra);	 
-		HoughAnalyze SrcHough(&SrcImg,ImgMaskControus,&HoughAnalyzeParam::GetHarrHAParam());
+		HoughAnalyzeParam hap_t = HoughAnalyzeParam::GetHarrHAParam();
+		HoughAnalyze SrcHough(&SrcImg,ImgMaskControus,&hap_t);
 		histdata=SrcHough.GetSaveALlImgHistogram_180();
 	}
 	if (this->SpSA==SpSizeAttr::THIN){

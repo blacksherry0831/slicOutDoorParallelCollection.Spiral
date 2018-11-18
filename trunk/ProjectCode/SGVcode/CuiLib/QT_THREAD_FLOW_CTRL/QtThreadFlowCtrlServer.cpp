@@ -1,12 +1,14 @@
 //#include "stdafx.h"
 #include "QtThreadFlowCtrlServer.hpp"
+
+
 /*-------------------------------------*/
 /**
 *
 *
 */
 /*-------------------------------------*/
-QtThreadFlowCtrlServer::QtThreadFlowCtrlServer(QObject * parent):QtTcpServer(parent)
+QtThreadFlowCtrlServer::QtThreadFlowCtrlServer(QObject * parent):QtThreadBase(parent)
 {
 
 }
@@ -17,23 +19,24 @@ QtThreadFlowCtrlServer::QtThreadFlowCtrlServer(QObject * parent):QtTcpServer(par
 /*-------------------------------------*/
 QtThreadFlowCtrlServer::~QtThreadFlowCtrlServer(void)
 {
-	qDebug() << "QtThreadClient is Release ! ";
+	qDebug() << "QtThreadFlowCtrlServer is Release ! ";
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void QtThreadFlowCtrlServer::incomingConnection(qintptr socketDescriptor)
+void QtThreadFlowCtrlServer::run()
 {
-	
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
+	mQtTcpServer=QSharedPointer<QtTcpServerFlowCtrl>(new QtTcpServerFlowCtrl(Q_NULLPTR));
 
+	mQtTcpServer->StartListen();
+
+	while (M_THREAD_RUN){
+		this->exec();
+	}
+
+}
 /*-------------------------------------*/
 /**
 *

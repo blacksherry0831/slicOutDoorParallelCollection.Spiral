@@ -29,13 +29,12 @@ ENDIF ()
  
 ADD_LIBRARY(QT_THREAD_FLOWCTRL   STATIC    ${DIR_SRCS}  )
 
-TARGET_LINK_LIBRARIES(  QT_THREAD_FLOWCTRL
+TARGET_LINK_LIBRARIES(QT_THREAD_FLOWCTRL
 						MY_SDK_LIB
 						QT_SDK_LIB
 						QT_SOCKET_BASE
-						JQLibrary
-	) 
-############################################################ 
+						JQLibrary)
+
 ############################################################
 		
 

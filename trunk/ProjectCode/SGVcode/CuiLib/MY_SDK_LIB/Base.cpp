@@ -422,8 +422,8 @@ void Base::Math_GetMaxValueIndexF(float * data, float size, int * sort, int sort
 /*-----------------------------------------*/
 void Base::Math_GetMaxValueIndex(double * data, float size, int * sort, int sort_num)
 {
-	double* data_t = new double[(LONGLONG)size];
-	memcpy(data_t, data, sizeof(double)*((LONGLONG)size));
+	double* data_t = new double[(long long)size];
+	memcpy(data_t, data, sizeof(double)*((long long)size));
 	/*****寻找最值***************************************************************/
 	for (int sj = 0; sj<sort_num; sj++) {
 
@@ -508,17 +508,43 @@ int Base::FS_deleteFile(const std::string file_full_path)
 int Base::FS_copyFile(const std::string src, const std::string dst)
 {
 	Base::FS_deleteFile(dst);
+	int copy_result_t = 0;
 
-	int copy_result_t = CopyFile(src.c_str(), dst.c_str(), false);
+#if defined(linux) || defined(__linux) || defined(__linux__) ||defined( __GNUC__)
+	copy_result_t = FS_copyFileSTL(src,dst);
+#endif
+
+#if defined(_WIN32) || defined(_WIN64) || defined( _MSC_VER)
+	copy_result_t = CopyFile(src.c_str(), dst.c_str(), false);
+	
 	DWORD ERROR_CODE;
 	if (copy_result_t == 0)
 	{
 		ERROR_CODE = GetLastError();
 	}
 	assert(copy_result_t != 0);
+#endif
+	
 
 	return copy_result_t;
 }
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+int Base::FS_copyFileSTL(const std::string src, const std::string dst)
+{
+	std::ifstream ifs(src, std::ios::binary);
+	std::ofstream ofs(dst.data(), std::ios::binary);
+
+	ofs << ifs.rdbuf();
+
+	return TRUE;
+
+}
+
 /************************************************************************/
 /*  获取文件夹下所有文件名
 输入：
@@ -533,12 +559,94 @@ shao, 20140707
 /************************************************************************/
 void Base::FS_getFiles(std::string path, std::string exd, std::vector<std::string>& files)
 {
-	//文件句柄  
+
+#if defined(linux) || defined(__linux) || defined(__linux__) ||defined( __GNUC__)
+	FS_getFilesLinux(path, exd, files);
+#endif
+
+#if defined(_WIN32) || defined(_WIN64) || defined( _MSC_VER)
+	FS_getFilesWin(path,exd,files);
+#endif
+	
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+void Base::FS_getFilesLinux(std::string path, std::string exd, std::vector<std::string>& files)
+{
+	const char *Path = path.data();
+	std::vector<char> currentPathStd(path.size()+1024);
+	char* currentPath = currentPathStd.data();
+	strcpy(currentPath, Path);//保存到m_CurrentPath
+	char fullpath[128];
+	files.clear();
+
+	
+
+#if defined(linux) || defined(__linux) || defined(__linux__) ||defined( __GNUC__)
+	
+	assert(false);
+
+	DIR *dir;
+	if (!(dir = opendir(Path)))
+	{
+		assert(false);
+		return;
+	}
+	
+	struct dirent *d_ent;
+	
+	
+	while ((d_ent = readdir(dir)) != NULL)
+	{
+		struct stat file_stat;
+		//if ( strncmp(d_ent->d_name, ".", 1) == 0 )
+		//{
+		//	continue;	// 忽略"."目录
+		//}
+		memset(fullpath, '\0', sizeof(fullpath));
+		strcpy(fullpath, Path);
+		if (!strcmp(fullpath, "/"))
+		{
+			fullpath[0] = '\0';
+		}
+		strcat(fullpath, "/");
+		strcat(fullpath, d_ent->d_name);
+		if (lstat(fullpath, &file_stat) < 0)
+		{
+			assert(false);
+			return;
+		}
+		//保存信息到自己的数据结构，在函数外面保存文件名
+		
+		std::string path_full_name = path+ std::string(d_ent->d_name);
+		
+		files.push_back(path_full_name);
+	}
+
+	closedir(dir);	
+#endif
+
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+void Base::FS_getFilesWin(std::string path, std::string exd, std::vector<std::string>& files)
+{
+
+#if defined(_WIN32) || defined(_WIN64) || defined( _MSC_VER)
+//文件句柄  
 	long   hFile = 0;
 	//文件信息  
 	struct _finddata_t fileinfo;
 	std::string pathName, exdName;
-	
+
 	if (FS_checkUserPath(path) == false) {
 		path.append("\\");
 	}
@@ -560,21 +668,23 @@ void Base::FS_getFiles(std::string path, std::string exd, std::vector<std::strin
 			{
 				const std::string file_name_t = fileinfo.name;
 				if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0) {
-					
-					const std::string ext_t=Base::file_name_ext(file_name_t);
 
-					if (file_name_t.find(exd) != std::string::npos){
-							files.push_back(pathName.assign(path).append(fileinfo.name));
+					const std::string ext_t = Base::file_name_ext(file_name_t);
+
+					if (file_name_t.find(exd) != std::string::npos) {
+						files.push_back(pathName.assign(path).append(fileinfo.name));
 					}
-					
 
-					
+
+
 				}
-					
+
 			}
 		} while (_findnext(hFile, &fileinfo) == 0);
 		_findclose(hFile);
 	}
+#endif
+	
 }
 /*-----------------------------------------*/
 /**
@@ -584,20 +694,38 @@ void Base::FS_getFiles(std::string path, std::string exd, std::vector<std::strin
 /*-----------------------------------------*/
 void Base::FS_getDirs(std::string path, std::string flag, std::vector<std::string>& files)
 {
+
+#if defined(_WIN32) || defined(_WIN64) || defined( _MSC_VER)
+	FS_getDirsWin(path, flag, files);
+#endif
+#if defined(linux) || defined(__linux) || defined(__linux__) ||defined( __GNUC__)
+	assert(false);
+#endif
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+void Base::FS_getDirsWin(std::string path, std::string flag, std::vector<std::string>& files)
+{
 	//文件句柄  
 	long   hFile = 0;
-	//文件信息  
-	struct _finddata_t fileinfo;
 	std::string pathName, exdName;
 	const std::string exd = "";
+	
 	if (0 != strcmp(exd.c_str(), ""))
 	{
 		exdName = "\\*." + exd;
-	}
-	else
-	{
+	}else{
 		exdName = "\\*";
 	}
+
+#if defined(_WIN32) || defined(_WIN64) || defined( _MSC_VER)
+	
+	//文件信息  
+	struct _finddata_t fileinfo;	
 
 	if ((hFile = _findfirst(pathName.assign(path).append(exdName).c_str(), &fileinfo)) != -1)
 	{
@@ -619,6 +747,7 @@ void Base::FS_getDirs(std::string path, std::string flag, std::vector<std::strin
 		} while (_findnext(hFile, &fileinfo) == 0);
 		_findclose(hFile);
 	}
+#endif
 
 }
 /*-----------------------------------------*/
@@ -758,13 +887,33 @@ std::string Base::FS_createPath(std::string path_base, std::string path_sub, boo
 	ss_file_full_path << path_base;
 	
 	ss_file_full_path << path_sub << "\\";
-
+	
+	const char * file_full_path_t = ss_file_full_path.str().c_str();
+	
 	if (CREATE_FLAG) {
-		CreateDirectory(ss_file_full_path.str().c_str(), NULL);
+		FS_createDir(file_full_path_t);
 	}
 
 	return ss_file_full_path.str();
 }
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+std::string Base::FS_createDir(std::string _path)
+{
+#if defined(_WIN32) || defined(_WIN64) || defined( _MSC_VER)
+	CreateDirectory(_path.c_str(), NULL);
+#endif
+#if defined(linux) || defined(__linux) || defined(__linux__) ||defined( __GNUC__)
+	mode_t mode = 0755;
+	::mkdir(_path.c_str(), mode);
+#endif
+	return "true";
+}
+
 /*-----------------------------------------*/
 /**
 *
@@ -817,11 +966,11 @@ std::string Base::CRACK_PATH_GetFrameChannelDiff(std::string file_base, int CIRC
 	
 #if TRUE
 	ss_file_full_path << "circle" << CIRCLE << "\\";
-	CreateDirectory(ss_file_full_path.str().c_str(), NULL);
+	FS_createDir(ss_file_full_path.str());
 #endif // TRUE
 #if TRUE
 	ss_file_full_path << "ch" << video_idx << add_str << "\\";
-	CreateDirectory(ss_file_full_path.str().c_str(), NULL);
+	FS_createDir(ss_file_full_path.str());
 #endif // TRUE
 
 	return ss_file_full_path.str();

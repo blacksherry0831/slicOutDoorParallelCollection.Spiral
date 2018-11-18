@@ -3851,6 +3851,16 @@ unsigned cui_GeneralImgProcess::THreadSuperPixel_DoOneImage_win(LPVOID lpParam)
 *
 */
 /*-------------------------------------------------------------------------*/
+void * cui_GeneralImgProcess::THreadSuperPixel_DoOneImage_win_pt(void * lpParam)
+{
+	THreadSuperPixel_DoOneImage_win(lpParam);
+	return NULL;
+}
+/*-------------------------------------------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------------------------------------------*/
 unsigned cui_GeneralImgProcess::THreadSuperPixel_DoOneImage_win_spiral(LPVOID lpParam)
 {
 	ThreadDoOneImageData* tdoid=(ThreadDoOneImageData*)lpParam;
@@ -4074,7 +4084,7 @@ UINT cui_GeneralImgProcess::THreadSuperPixel_CUDA_CollectionMethods(LPVOID lpPar
 		int i,ret;
 		pthread_t handle_t;
 		ThreadDoOneImageData* tdoid=new ThreadDoOneImageData(picvec,saveLocation,m_spcount,k,CPU_NUMS);
-		ret=pthread_create(&handle_t,NULL,(void *)THreadSuperPixel_DoOneImage_win,tdoid); 
+		ret=pthread_create(&handle_t,NULL,THreadSuperPixel_DoOneImage_win_pt,tdoid); 
 		handle.push_back(handle_t);
 		data.push_back(tdoid);
 	}
@@ -4151,7 +4161,7 @@ UINT cui_GeneralImgProcess::THreadSuperPixel_CUDA_CollectionMethods_Spiral(LPVOI
 		int i,ret;
 		pthread_t handle_t;
 		ThreadDoOneImageData* tdoid=new ThreadDoOneImageData(picvec,saveLocation,m_spcount,k,CPU_NUMS);
-		ret=pthread_create(&handle_t,NULL,(void *)THreadSuperPixel_DoOneImage_win,tdoid); 
+		ret=pthread_create(&handle_t,NULL,THreadSuperPixel_DoOneImage_win_pt,tdoid); 
 		handle.push_back(handle_t);
 		data.push_back(tdoid);
 	}
@@ -4206,8 +4216,8 @@ void cui_GeneralImgProcess::_splitpath(const char *path, char *drive, char *dir,
 		if (ext!=NULL)  ext[0] = '\0';
 		return;
 	}
-
-	p_whole_name = rindex(path, '/');
+	char split_t = '/';
+	p_whole_name =(char*) rindex(path, split_t);
 	if (NULL != p_whole_name)
 	{
 		p_whole_name++;
@@ -4231,12 +4241,12 @@ void cui_GeneralImgProcess::_splitpath(const char *path, char *drive, char *dir,
 */
 /*----------------------------------------------------------------*/
 
-void cui_GeneralImgProcess::_split_whole_name(const char *whole_name, char *fname, char *ext)
+void cui_GeneralImgProcess::_split_whole_name(const char* whole_name, char *fname, char *ext)
 {
-#if linux||__linux__||__linux||__GNUC__
 	char *p_ext;
+#if linux || __linux__ || __linux || __GNUC__
 
-	p_ext = rindex(whole_name, '.');
+	p_ext =(char*) rindex(whole_name, '.');
 	if (NULL != p_ext)
 	{
 		if (ext!=NULL) strcpy(ext, p_ext);

@@ -1,10 +1,6 @@
 #include "StdAfx.h"
 #include "ImageProcess.h"
 #include "Base.h"
-#include "modules.h"
-#include <stdio.h>
-
-#include <math.h>
 
 
 #ifdef min
@@ -116,8 +112,8 @@ CvRect ImageProcess::findTestArea(IplImage *image_gray,std::string readfile_name
 #if _DEBUG
 		{
 			char data_t[1024];
-			ofstream outfile;
-			outfile.open(Base::comine_str(readfile_name_t,"Matrix_Y_SUM.txt").c_str(),ios::out);
+			std::ofstream outfile;
+			outfile.open(Base::comine_str(readfile_name_t,"Matrix_Y_SUM.txt").c_str(),std::ios::out);
 			for(register int i = 0; i <image_temp->height; i++ ){
 
 				float value_t=image_Y_sum[i];
@@ -125,7 +121,7 @@ CvRect ImageProcess::findTestArea(IplImage *image_gray,std::string readfile_name
 				outfile<<i;
 				outfile<<' ';
 				outfile<<data_t;
-				outfile<<endl;
+				outfile<<std::endl;
 			} 
 			outfile.close();
 		}
@@ -1073,13 +1069,7 @@ IplImage* ImageProcess::use_lab2binary(IplImage* src_color_t)
 CvSeq* ImageProcess::find_max_contour_adjust_binary(CvMemStorage* memory,IplImage* src_binary_t)
 {
    IplImage* src=cvCloneImage(src_binary_t);
-#if _DEBUG
-   IplImage* des=cvCreateImage(cvGetSize(src),src->depth,3);
-   cvZero(des);
-#endif
-
-   
-   
+      
    CvSeq* Icontour=NULL;
    CvSeq* maxContour =NULL;
    
@@ -1108,12 +1098,15 @@ CvSeq* ImageProcess::find_max_contour_adjust_binary(CvMemStorage* memory,IplImag
 #if _DEBUG
 	wait_for_show_image("src_bin_adjust",src_binary_t);
 #endif
-    cv::Point rou=find_central_line(maxContour,des);
+#if _DEBUG
+	IplImage* des = cvCreateImage(cvGetSize(src), src->depth, 3);
+	cvZero(des);
+	cv::Point rou = find_central_line(maxContour, des);
+	cvReleaseImage(&des);
+#endif   
 
 	cvReleaseImage(&src);  
-#if _DEBUG
-	cvReleaseImage(&des);
-#endif
+
    return maxContour;
 }
 /*--------------------------------------------------------------*/
@@ -1130,7 +1123,7 @@ cv::Point  ImageProcess::find_central_line(CvSeq* maxContour,IplImage* des)
     cvDrawContours(des, maxContour,
     CV_RGB(255,255,255), CV_RGB(255, 255,255), 0, 1, 8, cvPoint(0,0));
 #endif
-#if _DEBUG;
+#if _DEBUG
    //CvRect rect=cvBoundingRect(maxContour,0);
    CvBox2D box=cvMinAreaRect2(maxContour);
   
@@ -1680,8 +1673,8 @@ int ImageProcess::GetMaxValueIndexdouble(
 	double* data, 
 	double size)
 {
-	double* data_t=new double[(LONGLONG)size];
-	memcpy(data_t,data,sizeof(double)*((LONGLONG)size));
+	double* data_t=new double[(long long)size];
+	memcpy(data_t,data,sizeof(double)*((long long)size));
 	/*****寻找最值***************************************************************/
 		float max_value=data[0];
 		int max_value_i=0;
@@ -2519,7 +2512,7 @@ void ImageProcess::Draw_line_on_image(float rho,float theta, CvRect rect_cut, Ip
 *
 */
 /*----------------------------------------------------------------*/
-vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, std::string file_base,std::string file_name,int CIRCLE,int CHANNEL, int frame_idx, IplImage *image_out,vector<float>& delta_out, boolean SAVE_FLAG)
+std::vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, std::string file_base,std::string file_name,int CIRCLE,int CHANNEL, int frame_idx, IplImage *image_out,std::vector<float>& delta_out, boolean SAVE_FLAG)
 {
 #if TRUE
 
@@ -2553,7 +2546,7 @@ vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, s
 	double Sum_delta[6] = {0};
 	double a_col_sum_delta[4] = {0};
 	memset(Sum_delta, 0, sizeof(Sum_delta));//统计求和
-	vector<double> a_col_tmp;
+	std::vector<double> a_col_tmp;
 	a_col_tmp.resize(diff_org->height, 0);//每列的暂存数据
 	delta_out.resize(diff_org->width, 0);
 
@@ -2613,7 +2606,7 @@ vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, s
 
 	}
 
-	vector<float> feature_data_t;
+	std::vector<float> feature_data_t;
 #if FALSE
 	const float sum_pixel = diff_org->width*diff_org->height;
 	assert(sum_pixel == Sum_delta[0] + Sum_delta[1] + Sum_delta[2] + Sum_delta[3]);
@@ -2675,17 +2668,17 @@ vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, s
 
 #if TRUE
 	//vector<float> delta_out;
-	vector<float> histogram;
+	std::vector<float> histogram;
 	const int HISTOGRAM_DIM = diff_org->width;
-	vector<vector<CvPoint>>   point_sets;
+	std::vector<std::vector<CvPoint>>   point_sets;
 
 	ImageProcess::crack_get_long_crack(diff_org,image_out, 4, point_sets, channel_diff_path_str,CIRCLE, CHANNEL, frame_idx,SAVE_FLAG);
 	
-	vector<float> hist_feature = process_histogram(histogram, point_sets, delta_out, HISTOGRAM_DIM, diff_org->width, diff_org->height);
-	vector<float> all_feature = Base::CombineVector(feature_data_t, hist_feature);
+	std::vector<float> hist_feature = process_histogram(histogram, point_sets, delta_out, HISTOGRAM_DIM, diff_org->width, diff_org->height);
+	std::vector<float> all_feature = Base::CombineVector(feature_data_t, hist_feature);
 	
 	if (SAVE_FLAG){
-			vector<float> hist_1920;
+			std::vector<float> hist_1920;
 			hist_1920.resize(ImageProcess::CRACK_MAX_SIZE,0.0);
 
 			std::copy(histogram.begin(), histogram.end(), hist_1920.begin());
@@ -2702,10 +2695,10 @@ vector<float> ImageProcess::crack_get_image_feature_gauss(IplImage * diff_org, s
 *
 */
 /*----------------------------------------------------------------*/
-vector<float> ImageProcess::crack_get_image_feature_one_line(std::string org)
+std::vector<float> ImageProcess::crack_get_image_feature_one_line(std::string org)
 {
-	vector<float> feature_one;
-	vector<float> feature_org;
+	std::vector<float> feature_one;
+	std::vector<float> feature_org;
 
 	IplImage * img_org=cvLoadImage(org.c_str(),0);
 	
@@ -2719,7 +2712,7 @@ vector<float> ImageProcess::crack_get_image_feature_one_line(std::string org)
 	Base::Math_GetVarianceValueF(feature_org.data(), feature_org.size(), avg_org, &sigma_org);
 	float line_width = 0;
 	
-	vector<float> feature_adj;
+	std::vector<float> feature_adj;
 	{
 		for (size_t i = 0; i <feature_org.size(); i++){
 
@@ -2796,7 +2789,7 @@ vector<float> ImageProcess::crack_get_image_feature_one_line(std::string org)
 void ImageProcess::crack_get_long_crack(IplImage * diff_org,
 										IplImage *image_4_delta,
 										int delta_idx,
-										vector<vector<CvPoint>>&   point_sets,
+										std::vector<std::vector<CvPoint>>&   point_sets,
 										std::string file_base,
 										int CIRCLE,
 										int CHANNEL,
@@ -2840,7 +2833,7 @@ void ImageProcess::crack_get_long_crack(IplImage * diff_org,
 		for (size_t ci = 0; ci < WIDTH; ci++) {
 			for (size_t ri = 0; ri < HEIGHT; ri++) {
 				CvScalar visit = cvGet2D(image_visit, ri, ci);
-				vector<CvPoint>   point_set;
+				std::vector<CvPoint>   point_set;
 				if (visit.val[0] == 0) {				
 						CvScalar value = cvGet2D(image_4_delta, ri, ci);
 						visit.val[0] = 255;
@@ -2895,9 +2888,9 @@ void ImageProcess::crack_get_long_crack(IplImage * diff_org,
 #endif // TRUE
 
 #if TRUE
-		vector<vector<CvPoint>>::iterator it;
+		std::vector<std::vector<CvPoint>>::iterator it;
 		for (it = point_sets.begin(); it != point_sets.end();){
-			vector<CvPoint> point_set = *it;
+			std::vector<CvPoint> point_set = *it;
 			if (point_set.size() == 1)
 				it = point_sets.erase(it);    //删除元素，返回值指向已删除元素的下一个位置    
 			else
@@ -2909,7 +2902,7 @@ void ImageProcess::crack_get_long_crack(IplImage * diff_org,
 
 #if _DEBUG
 		for (size_t si = 0; si < point_sets.size();si++) {
-			vector<CvPoint> point_set=point_sets.at(si);
+			std::vector<CvPoint> point_set=point_sets.at(si);
 			for (size_t pi = 0; pi < point_set.size();pi++) {
 				cvSet2D(image_4_delta_out,
 					point_set.at(pi).y,
@@ -2968,14 +2961,14 @@ void ImageProcess::crack_get_long_crack(IplImage * diff_org,
 *
 */
 /*----------------------------------------------------------------*/
-void ImageProcess::VVC2Image(vector<vector<CvPoint>> vvc, IplImage* img)
+void ImageProcess::VVC2Image(std::vector<std::vector<CvPoint>> vvc, IplImage* img)
 {
 	/*const int WIDTH = img->width;
 	const int HEIGHT = img->height;*/
 	cvZero(img);
 	for (unsigned long i = 0; i <vvc.size(); i++) {
 
-		vector<CvPoint> fps = vvc.at(i);
+		std::vector<CvPoint> fps = vvc.at(i);
 
 		const int fps_size = fps.size();
 
@@ -2998,7 +2991,7 @@ void ImageProcess::VVC2Image(vector<vector<CvPoint>> vvc, IplImage* img)
 void ImageProcess::CRACK_get_block_sets(
 	IplImage * image_binary,
 	int TARGET,
-	vector<vector<CvPoint>>& point_sets,
+	std::vector<std::vector<CvPoint>>& point_sets,
 	boolean SAVE_FLAG)
 {
 	const int dx4[8] = { -1,-1,-1, 0, 0, 1,1,1 };
@@ -3016,7 +3009,7 @@ void ImageProcess::CRACK_get_block_sets(
 			for (size_t ri = 0; ri < HEIGHT; ri++) {
 				
 				CvScalar visit_start = cvGet2D(image_visit, ri, ci);
-				vector<CvPoint>   point_set;
+				std::vector<CvPoint>   point_set;
 				
 				if (visit_start.val[0] == 0) {					
 					visit_start.val[0] = 255;cvSet2D(image_visit, ri, ci, visit_start);
@@ -3084,17 +3077,17 @@ void ImageProcess::CRACK_get_block_sets(
 *
 */
 /*----------------------------------------------------------------*/
-vector<float> ImageProcess::CRACK_get_histgram(IplImage * diff,vector<vector<CvPoint>> point_sets,int PN)
+std::vector<float> ImageProcess::CRACK_get_histgram(IplImage * diff, std::vector<std::vector<CvPoint>> point_sets,int PN)
 {
 #if TRUE	
 	const long HISTOGRAM_DIM = 1920 * 1080;
-	vector<float> histogram;
+	std::vector<float> histogram;
 	
 	histogram.resize(HISTOGRAM_DIM, 0);
 	
 	for (size_t si = 0; si < point_sets.size(); si++) {
 		
-		vector<CvPoint> point_set = point_sets.at(si);
+		std::vector<CvPoint> point_set = point_sets.at(si);
 		float one_line_sum = 0;
 		unsigned long one_line_idx = 0;
 		CRACK_get_block_property(diff,point_set,one_line_sum,one_line_idx,PN);
@@ -3109,7 +3102,7 @@ vector<float> ImageProcess::CRACK_get_histgram(IplImage * diff,vector<vector<CvP
 *
 */
 /*----------------------------------------------------------------*/
-vector<float> ImageProcess::CRACK_get_histgram_feature(vector<float> histgram,int WIDTH,int  HEIGHT, int PN)
+std::vector<float> ImageProcess::CRACK_get_histgram_feature(std::vector<float> histgram,int WIDTH,int  HEIGHT, int PN)
 {
 	
 	int sort_max[1];
@@ -3119,7 +3112,7 @@ vector<float> ImageProcess::CRACK_get_histgram_feature(vector<float> histgram,in
 	float AREA = CRACK_get_histgram_area(histgram,WIDTH,HEIGHT,PN);
 	float MAX_POS =1.0*sort_max[0] / (1920 * 1080);
 
-	vector<float> feature;
+	std::vector<float> feature;
 
 	feature.push_back(MAX_POS);
 	feature.push_back(AREA);
@@ -3132,10 +3125,10 @@ vector<float> ImageProcess::CRACK_get_histgram_feature(vector<float> histgram,in
 *
 */
 /*----------------------------------------------------------------*/
-vector<float> ImageProcess::CRACK_get_block_feature(const vector<vector<CvPoint>> frame_point_sets, vector<vector<CvPoint>>& frame_point_sets_out, IplImage * diff, int PN)
+std::vector<float> ImageProcess::CRACK_get_block_feature(const std::vector<std::vector<CvPoint>> frame_point_sets, std::vector<std::vector<CvPoint>>& frame_point_sets_out, IplImage * diff, int PN)
 {
-	vector<float> number0;//图块数量，数组
-	vector<float> number1;
+	std::vector<float> number0;//图块数量，数组
+	std::vector<float> number1;
 	const int WIDTH = diff->width;
 	const int HEIGHT = diff->height;
 	float t;
@@ -3144,7 +3137,7 @@ vector<float> ImageProcess::CRACK_get_block_feature(const vector<vector<CvPoint>
 	frame_point_sets_out.clear();
 	for (unsigned long i = 0; i <frame_point_sets.size(); i++){
 		
-		vector<CvPoint> fps=frame_point_sets.at(i);
+		std::vector<CvPoint> fps=frame_point_sets.at(i);
 		number0.push_back(fps.size());
 
 	}
@@ -3172,10 +3165,10 @@ vector<float> ImageProcess::CRACK_get_block_feature(const vector<vector<CvPoint>
 	float f_3;
 	//float f_4;
 	
-	vector<float> deltaL;
+	std::vector<float> deltaL;
 	for (unsigned long i = 0; i <frame_point_sets.size(); i++) {
 
-		vector<CvPoint> fps = frame_point_sets.at(i);
+		std::vector<CvPoint> fps = frame_point_sets.at(i);
 		const int fps_size =fps.size();
 		if (fps_size-avg0>3*sigma0){
 			frame_point_sets_out.push_back(fps);
@@ -3226,7 +3219,7 @@ vector<float> ImageProcess::CRACK_get_block_feature(const vector<vector<CvPoint>
 	//f_4 =1.0 * n_3_sigma / (WIDTH*HEIGHT);
 	
 	
-	vector<float> f;
+	std::vector<float> f;
 
 	f.push_back(f_1);
 	f.push_back(f_2);
@@ -3242,7 +3235,7 @@ vector<float> ImageProcess::CRACK_get_block_feature(const vector<vector<CvPoint>
 /*----------------------------------------------------------------*/
 void ImageProcess::CRACK_get_block_property(
 	IplImage * diff,
-	vector<CvPoint> point_set,
+	std::vector<CvPoint> point_set,
 	float& sum,
 	unsigned long& count,
 	int PN)
@@ -3267,7 +3260,7 @@ void ImageProcess::CRACK_get_block_property(
 *
 */
 /*----------------------------------------------------------------*/
-float ImageProcess::CRACK_get_histgram_area(vector<float> histgram,int WIDTH,int HEIGHT,int PN)
+float ImageProcess::CRACK_get_histgram_area(std::vector<float> histgram,int WIDTH,int HEIGHT,int PN)
 {
 	
 		const  unsigned long length = histgram.size();
@@ -3309,12 +3302,12 @@ float ImageProcess::CRACK_get_histgram_area(vector<float> histgram,int WIDTH,int
 *
 */
 /*----------------------------------------------------------------*/
-float GetAreaFeature(vector<float> histogram)
+float GetAreaFeature(std::vector<float> histogram)
 {
 	const size_t length = histogram.size();
 	const float histogram_max = Base::Math_GetMaxValueF(histogram.data(),histogram.size());
 	//step 1 直方图修正
-	vector<float> histogram_scale;
+	std::vector<float> histogram_scale;
 
 	for (size_t hi = 0; hi < length; hi++) {
 		
@@ -3378,19 +3371,19 @@ float GetAreaFeature(vector<float> histogram)
 *
 */
 /*----------------------------------------------------------------*/
-vector<float> ImageProcess::process_histogram(vector<float>& histogram,
-												vector<vector<CvPoint>>& point_sets,
-												vector<float>& delta_out,
+std::vector<float> ImageProcess::process_histogram(std::vector<float>& histogram,
+												std::vector<std::vector<CvPoint>>& point_sets,
+												std::vector<float>& delta_out,
 												int HISTOGRAM_DIM,
 												int width,
 												int height)
 {
 #if TRUE
-	vector<float> histogram_count;
+	std::vector<float> histogram_count;
 	histogram.resize(HISTOGRAM_DIM, 0);
 	histogram_count.resize(HISTOGRAM_DIM, 0);
 	for (size_t si = 0; si < point_sets.size(); si++) {
-		vector<CvPoint> point_set = point_sets.at(si);
+		std::vector<CvPoint> point_set = point_sets.at(si);
 		float one_line_sum = 0;
 		int one_line_idx = 0;
 		int count = GetLineProperty(point_set, delta_out, one_line_sum, one_line_idx);
@@ -3411,13 +3404,13 @@ vector<float> ImageProcess::process_histogram(vector<float>& histogram,
 	}
 #endif // TRUE
 
-	vector<float> feature;
+	std::vector<float> feature;
 	int  min_left_pos = 0;
 	float min_left_pos_value = 0;
 
 
 	float * data_hist = histogram.data();
-	vector<int> sort;
+	std::vector<int> sort;
 
 	sort.resize(2, 0);
 	ImageProcess::GetMaxValueIndex(histogram.data(), histogram.size(), sort.data(), sort.size());
@@ -3480,10 +3473,10 @@ vector<float> ImageProcess::process_histogram(vector<float>& histogram,
 
 	return feature;
 }
-int ImageProcess::GetLineProperty(vector<CvPoint> point_set, vector<float> delta, float & sum_delta, int & idx)
+int ImageProcess::GetLineProperty(std::vector<CvPoint> point_set, std::vector<float> delta, float & sum_delta, int & idx)
 {
-	vector<float> x_count;
-	vector<float>::iterator it;
+	std::vector<float> x_count;
+	std::vector<float>::iterator it;
 	sum_delta = 0;
 
 	for (size_t i = 0; i <point_set.size(); i++) {
@@ -3514,7 +3507,7 @@ int ImageProcess::GetLineProperty(vector<CvPoint> point_set, vector<float> delta
 *
 */
 /*----------------------------------------------------------------*/
-vector<float> ImageProcess::crack_get_image_feature(IplImage *diff_org,std::string file_base,int frame_idx)
+std::vector<float> ImageProcess::crack_get_image_feature(IplImage *diff_org,std::string file_base,int frame_idx)
 {
 #if TRUE
 	std::stringstream path_diff_out_ss;
@@ -3540,7 +3533,7 @@ vector<float> ImageProcess::crack_get_image_feature(IplImage *diff_org,std::stri
 	double a_col_sum_delta[4];
 
 	memset(Sum_delta, 0, sizeof(Sum_delta));//统计求和
-	vector<double> a_col_tmp;
+	std::vector<double> a_col_tmp;
 	a_col_tmp.resize(diff_org->height, 0);//每列的暂存数据
 
 	for (size_t coli = 0; coli <diff_org->width; coli++)
@@ -3601,7 +3594,7 @@ vector<float> ImageProcess::crack_get_image_feature(IplImage *diff_org,std::stri
 
 	}
 
-	vector<float> feature_data_t;
+	std::vector<float> feature_data_t;
 	const float sum_pixel = diff_org->width*diff_org->height;
 	assert(sum_pixel == Sum_delta[0] + Sum_delta[1] + Sum_delta[2] + Sum_delta[3]);
 	for (size_t i = 1; i <4; i++)
@@ -3628,7 +3621,7 @@ vector<float> ImageProcess::crack_get_image_feature(IplImage *diff_org,std::stri
 *
 */
 /*----------------------------------------------------------------*/
-void ImageProcess::Svm_Lean(vector<float> FeatureData,int FeatureDim,vector<INT32> FeatureClassify,int method,std::string path)
+void ImageProcess::Svm_Lean(std::vector<float> FeatureData,int FeatureDim, std::vector<INT32> FeatureClassify,int method,std::string path)
 {
 #if (CV_MAJOR_VERSION==2)&&(CV_MINOR_VERSION==4)
 	
@@ -3660,12 +3653,12 @@ void ImageProcess::Svm_Lean(vector<float> FeatureData,int FeatureDim,vector<INT3
 	if (method == 0){
 //#ifdef SVM_USE_Linear
 		params.svm_type = CvSVM::C_SVC;
-		params.kernel_type = LINEAR;
+		params.kernel_type = CvSVM::LINEAR;
 		params.term_crit = cvTermCriteria(CV_TERMCRIT_ITER, 1e5, FLT_EPSILON);
 	}else if (method==1){
 //#ifdef SVM_USE_Gaussian
 		params.svm_type = CvSVM::C_SVC;
-		params.kernel_type = RBF;
+		params.kernel_type = CvSVM::RBF;
 		params.term_crit = cvTermCriteria(CV_TERMCRIT_EPS, 1e5, 1E-6F);
 #if 1
 		params.gamma = 1.0 / TotalClasses;//增加容错，调小gamma
@@ -3677,7 +3670,7 @@ void ImageProcess::Svm_Lean(vector<float> FeatureData,int FeatureDim,vector<INT3
 	}else if(method ==2){
 //#ifdef SVM_USE_Poly
 		params.svm_type = CvSVM::C_SVC;
-		params.kernel_type = POLY;
+		params.kernel_type = CvSVM::POLY;
 		params.term_crit = cvTermCriteria(CV_TERMCRIT_EPS, 1e5, FLT_EPSILON);
 		params.degree = 2;//最高相次
 		params.gamma = 1.0/ TotalClasses;//1/n_features
@@ -3729,11 +3722,11 @@ void ImageProcess::CuiResize(IplImage * src, IplImage * dst,const int m_step, co
 			const int n_idx = floor(1.0*ih / h_step);
 			const int idx_mn = m_idx + n_idx*m;
 			const float data_pixel_f = cvGetReal2D(src, ih, iw);
-#if _DEBUG
+
 			const uchar data_pixel = ((uchar *)(src->imageData + ih*src->widthStep))[iw];
 			assert(data_pixel == data_pixel_f);
 			assert(data_pixel >= 0 && data_pixel <= 255);
-#endif // _DEBUG
+
 			data_statistic_p[idx_mn] += data_pixel;
 			data_statistic_count_p[idx_mn]++;
 
@@ -3758,7 +3751,7 @@ void ImageProcess::CuiResize(IplImage * src, IplImage * dst,const int m_step, co
 *
 */
 /*----------------------------------------------------------------*/
-void ImageProcess::DrawHistogram(float *data, int size,std::string file_base,int CHANNEL,int frame_idx,vector<float> feature)
+void ImageProcess::DrawHistogram(float *data, int size,std::string file_base,int CHANNEL,int frame_idx, std::vector<float> feature)
 {
 	/////////////////////////////////////////////////////////////////	
 	double max = GetMaxValue(&data[0],size);
@@ -3883,7 +3876,7 @@ void ImageProcess::DrawHistogram_fromImage(IplImage * img, std::string file_base
 	}
 
 #if TRUE
-	vector<float> data_t;
+	std::vector<float> data_t;
 	//获得数据
 	for (size_t ri = 0; ri <size; ri++){
 		float bin_val = cvGetReal2D(img, ri, 0);
@@ -3948,7 +3941,7 @@ void ImageProcess::SaveArray2Disk(float * data, int size,int channel_t,int frame
 	ss << file_base <<frame_count<<"."<<channel_t<< ".hist.txt";
 
 	std::string myfile_path=ss.str();
-	ofstream myfile(myfile_path);
+	std::ofstream myfile(myfile_path);
 
 	for (size_t i = 0; i < size; i++){
 
@@ -3958,7 +3951,7 @@ void ImageProcess::SaveArray2Disk(float * data, int size,int channel_t,int frame
 
 	myfile.close();
 }
-void ImageProcess::Opencv_SaveVector2CvMatrix(std::string file_name, vector<float> vf)
+void ImageProcess::Opencv_SaveVector2CvMatrix(std::string file_name, std::vector<float> vf)
 {
 	const int DIM = vf.size();
 
@@ -3982,7 +3975,7 @@ float ImageProcess::GetMaxValue(float* Data, long DataNum)
 	float *Data_cp = new float[DataNum];
 	float  max_value;
 	memcpy(Data_cp, Data, sizeof(float)*DataNum);
-	std::sort(Data_cp, Data_cp + DataNum, greater<float>());
+	std::sort(Data_cp, Data_cp + DataNum, std::greater<float>());
 	max_value = Data_cp[0];
 	delete[]Data_cp;
 	return  max_value;
@@ -3995,8 +3988,8 @@ float ImageProcess::GetMaxValue(float* Data, long DataNum)
 void ImageProcess::GetMaxValueIndex(float * data, float size, int * sort, int sort_num)
 {
 #if 1
-	float* data_t = new float[(LONGLONG)size];
-	memcpy(data_t, data, sizeof(float)*((LONGLONG)size));
+	float* data_t = new float[(long long)size];
+	memcpy(data_t, data, sizeof(float)*((long long)size));
 	/*****寻找最值***************************************************************/
 	for (int sj = 0; sj<sort_num; sj++) {
 
@@ -4027,8 +4020,8 @@ void ImageProcess::GetMaxValueIndex(float * data, float size, int * sort, int so
 /*----------------------------------------------------------------*/
 void ImageProcess::GetMinValueIndex(float * data, float size, int * sort, int sort_num)
 {
-	float* data_t = new float[(LONGLONG)size];
-	memcpy(data_t, data, sizeof(float)*((LONGLONG)size));
+	float* data_t = new float[(long long)size];
+	memcpy(data_t, data, sizeof(float)*((long long)size));
 	/*****寻找最值***************************************************************/
 	for (int sj = 0; sj<sort_num; sj++) {
 

@@ -23,7 +23,7 @@ float SceneDetermine:: B3TemplatesInDoor[BuildTemplates][AngLeDivided180];
 SceneDetermine::SceneDetermine(void)
 {
 #if 1
-const B3TemplatePeak peak[BuildTemplates]={{0,AngLeDivided/4.0-1,AngLeDivided/2.0-1,AngLeDivided/2.0+1,AngLeDivided*3/4.0+1,AngLeDivided-1}};
+const B3TemplatePeak peak[BuildTemplates]={{0,AngLeDivided/4-1,AngLeDivided/2-1,AngLeDivided/2+1,AngLeDivided*3/4+1,AngLeDivided-1}};
 #else
 const B3TemplatePeak peak[BuildTemplates]={{0,AngLeDivided/4.0-1,AngLeDivided*3/8.0,AngLeDivided*5/8,AngLeDivided*3/4.0+1,AngLeDivided-1}};
 #endif
@@ -48,7 +48,7 @@ SceneDetermine::SceneDetermine(ImageMemData* MemData_t){
 	this->pMD=MemData_t;
 	////////////////////
 #if 1
-	const B3TemplatePeak peak[BuildTemplates]={{0,AngLeDivided/4.0-1,AngLeDivided/2.0-1,AngLeDivided/2.0+1,AngLeDivided*3/4.0+1,AngLeDivided-1}};
+	const B3TemplatePeak peak[BuildTemplates]={{0,AngLeDivided/4-1,AngLeDivided/2-1,AngLeDivided/2+1,AngLeDivided*3/4+1,AngLeDivided-1}};
 #else
 	const B3TemplatePeak peak[BuildTemplates]={{0,AngLeDivided/4.0-1,AngLeDivided*3/8.0,AngLeDivided*5/8,AngLeDivided*3/4.0+1,AngLeDivided-1}};
 #endif

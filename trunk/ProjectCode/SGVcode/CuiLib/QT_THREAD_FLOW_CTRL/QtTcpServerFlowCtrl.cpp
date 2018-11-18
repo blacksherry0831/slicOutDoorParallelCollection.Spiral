@@ -7,6 +7,17 @@
 *
 */
 /*-------------------------------------*/
+QtTcpServerFlowCtrl::QtTcpServerFlowCtrl(QObject *parent):QtTcpServer(parent)
+{
+	this->mServerIpAddr= IPC_GUI_ADDR;
+	this->mPort= TCP_PORT_IPC_FLOW_CTRL;
+}
+/*-------------------------------------*/
+/**
+*
+*
+*/
+/*-------------------------------------*/
 
 /*-------------------------------------*/
 /**
@@ -16,7 +27,7 @@
 /*-------------------------------------*/
 QtTcpServerFlowCtrl::~QtTcpServerFlowCtrl()
 {
-
+	
 }
 /*-------------------------------------*/
 /**
@@ -38,5 +49,3 @@ void QtTcpServerFlowCtrl::incomingConnection(qintptr socketDescriptor)
 *
 */
 /*-------------------------------------*/
-
-

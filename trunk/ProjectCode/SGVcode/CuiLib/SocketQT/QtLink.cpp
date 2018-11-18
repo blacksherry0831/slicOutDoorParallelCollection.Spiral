@@ -104,11 +104,15 @@ void QtLink::Stop()
 void QtLink::OnPing()
 {
 	connect(mPtrPingProcess.data(), SIGNAL(finished(int)), this, SLOT(OnPingEnded(int)),Qt::ConnectionType::UniqueConnection);
-#ifdef __linux__
-	mPingProcess.start("ping", QStringList() << "-c" << "1" << m_ipAddr);
-#else
+
+#if defined(linux) || defined(__linux) || defined(__linux__) ||defined( __GNUC__)
+mPtrPingProcess->start("ping", QStringList() << "-c" << "1" << m_ipAddr);
+#endif
+
+#if defined(_WIN32) || defined(_WIN64) || defined( _MSC_VER)
 	mPtrPingProcess->start("ping", QStringList() << "-n" << "1" << m_ipAddr);
 #endif
+
 }
 /*-------------------------------------*/
 /**

@@ -31,7 +31,11 @@ int main( int argc, char** argv )
 
 		if (os_err_t != OS_ERR_NONE)
 			std::cout << "create error" << std::endl;
+
+#if defined(_WIN32) || defined(_WIN64) || defined( _MSC_VER)
 		_sleep(1);
+#endif
+
 	
 	} while (true);
 	

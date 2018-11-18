@@ -18,7 +18,7 @@ class QtTcpServer :public QTcpServer
 	Q_OBJECT
 public:
 	explicit QtTcpServer(QObject *parent );
-	explicit QtTcpServer(QObject *parent ,QSharedPointer<QtThreadSocketClient> _clientThread);
+	 QtTcpServer(QObject *parent ,QSharedPointer<QtThreadSocketClient> _clientThread);
 
 	 ~QtTcpServer();	
 
@@ -35,7 +35,7 @@ protected:
 public:
 	void execMy();
 protected:
-	std::string mIpAddr;
+	std::string mServerIpAddr;
 	int mPort;
 public:
 	int StartListen();

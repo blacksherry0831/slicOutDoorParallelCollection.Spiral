@@ -846,7 +846,7 @@ void MainWindow::ClickButton_CutArea()
 	}
 	else
 	{
-		QMessageBox::critical(NULL, QStringLiteral("警告"), QStringLiteral("后台服务尚未停止"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+		QMessageBox::critical(NULL, tr("warning !"), tr("The background service is running !"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
 	}
 	
 }
@@ -868,7 +868,7 @@ void MainWindow::StartVideoModeSelected()
 	}
 	else
 	{
-		QMessageBox::critical(NULL, QStringLiteral("警告"), QStringLiteral("后台服务尚未停止"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+		QMessageBox::critical(NULL, tr("警告"), tr("后台服务尚未停止"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
 	}
 
 }

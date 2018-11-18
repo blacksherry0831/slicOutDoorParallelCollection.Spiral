@@ -44,7 +44,11 @@
 #include <tr1/memory>
 #include <dirent.h>
 #include <unistd.h>
+
 #include <sys/sysinfo.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include <pthread.h>
 
 #ifndef ASSERT

@@ -532,7 +532,7 @@ void ColorBarCluster::HistogramRange2Matrix_Category_Lable_SameLink(
 	}
 	/*-----对获取9个分组的最大值进行校正-------------------------------------------*/
 	for (int i=0;i<PieceNum;i++){
-		unsigned int Dim=(unsigned int)histrangedata_t[i].maxHistRight-(unsigned int)histrangedata_t[i].maxHistLeft;
+		unsigned long Dim=(unsigned long)histrangedata_t[i].maxHistRight-(unsigned long)histrangedata_t[i].maxHistLeft;
 		Dim=Dim/sizeof(double);
 		if (Dim!=0){
 			Dim+=1;
@@ -685,7 +685,7 @@ void ColorBarCluster::HistogramRange2Matrix_Category_Lable_SameLink(
 	}
 	/*-----对获取9个分组的最大值进行校正-------------------------------------------*/
 	for (int i=0;i<PieceNum;i++){
-		unsigned int Dim=(unsigned int)histrangedata_t[i].maxHistRight-(unsigned int)histrangedata_t[i].maxHistLeft;
+		unsigned long Dim=(unsigned long)histrangedata_t[i].maxHistRight-(unsigned long)histrangedata_t[i].maxHistLeft;
 		Dim=Dim/sizeof(double);
 		if (Dim!=0){
 			Dim+=1;

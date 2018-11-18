@@ -90,7 +90,7 @@ static SVMlight* getInstance();
     
 	/// Singleton
 
- static	SVMlight* SVMlight::getInstance() {
+ static	SVMlight* getInstance() {
 		static SVMlight theInstance;
 		return &theInstance;
 	}

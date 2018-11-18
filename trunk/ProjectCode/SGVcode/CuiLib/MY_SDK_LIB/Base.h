@@ -91,11 +91,21 @@ public:
 public:
 	static int FS_deleteFile(const std::string file_full_path);
 	static int FS_copyFile(const std::string src,const std::string dst);
-	static void FS_getFiles(std::string path, std::string exd, std::vector<std::string>& files);
+	
+	static int FS_copyFileSTL(const std::string src, const std::string dst);
+
+	static void FS_getFiles(std::string path, std::string exd, std::vector<std::string>& files);	
+	static void FS_getFilesLinux(std::string path, std::string exd, std::vector<std::string>& files);
+	static void FS_getFilesWin(std::string path, std::string exd, std::vector<std::string>& files);
+
 	static void FS_getDirs(std::string path, std::string flag, std::vector<std::string>& files);
+	static void FS_getDirsWin(std::string path, std::string flag, std::vector<std::string>& files);
+
 	static std::string FS_getDirName(std::string path);
 	static bool FS_checkUserPath(std::string userPath);
+	
 	static std::string FS_createPath(std::string path_base, std::string path_sub, boolean CREATE_FLAG=true);
+	static std::string FS_createDir(std::string _path);
 
 	static int CRACK_FILE_NAME_get_idx(std::string file_full_name);
 	

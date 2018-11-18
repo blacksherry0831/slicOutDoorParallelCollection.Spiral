@@ -9,21 +9,11 @@
 
 #include <opencv_stl.h>
 
-#if linux||__linux||__linux__||__GNUC__
+
+#if defined(linux) || defined(__linux) || defined(__linux__) ||defined( __GNUC__)
 
 #endif
 
-#if __GNUC__
+#if defined(_WIN32) || defined(_WIN64) || defined( _MSC_VER)
 
 #endif
-
-#if _MSC_VER
-
-#endif
-
-
-
-
-
-
-

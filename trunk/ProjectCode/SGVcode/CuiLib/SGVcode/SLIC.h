@@ -310,7 +310,7 @@ public:
 	
 	bool Cui_Spectral_Clustering_B(double EigenvectorNumPercent=0.1, double ClusterPercent=0.1,double Threshold=Spectral_Clustering_B_Threshold);
 	
-	bool SLIC::Cui_Spectral_Clustering_B_2016_09_26(
+	bool Cui_Spectral_Clustering_B_2016_09_26(
 		double EigenvectorNumPercent=0.1, 
 		double ClusterPercent=0.1,
 		double Threshold=Spectral_Clustering_B_Threshold);
@@ -387,7 +387,7 @@ public:
 				double*  m_avec,
 				double*  m_bvec);
 
-			void SLIC::GetLABXYSeeds_Spiral(
+			void GetLABXYSeeds_Spiral(
 				vector<double>&				kseedsl,
 				vector<double>&				kseedsa,
 				vector<double>&				kseedsb,

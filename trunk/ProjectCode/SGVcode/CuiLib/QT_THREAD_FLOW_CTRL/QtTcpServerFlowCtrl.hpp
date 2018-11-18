@@ -6,8 +6,10 @@
 #include <QtNetwork>
 #include <QSharedPointer>
 
-#include "../SocketQT/QtThreadClientCtrl.hpp"
-#include "../SocketQT/QtTcpServer.hpp"
+#include "SocketQT/QtThreadClientCtrl.hpp"
+#include "SocketQT/QtTcpServer.hpp"
+
+#include "socketQT/conf_ip_crack_detect.h"
 /*-------------------------------------*/
 /**
 *
@@ -18,7 +20,8 @@ class QtTcpServerFlowCtrl :public QtTcpServer
 {
 	Q_OBJECT
 public:
-	explicit QtTcpServerFlowCtrl(QObject *parent );
+	
+	 QtTcpServerFlowCtrl(QObject *parent = nullptr);
 	
 	 ~QtTcpServerFlowCtrl();
 

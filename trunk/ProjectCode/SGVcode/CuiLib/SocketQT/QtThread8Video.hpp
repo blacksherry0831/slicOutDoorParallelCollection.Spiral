@@ -25,7 +25,7 @@
 #include "type_socket_qt.h"
 /*-------------------------------------*/
 #include "MY_SDK_LIB/CrackDetection.hpp"
-#include "QT_SDK_LIB\QBase.h"
+#include "QT_SDK_LIB/QBase.h"
 /*-------------------------------------*/
 /**
 *
