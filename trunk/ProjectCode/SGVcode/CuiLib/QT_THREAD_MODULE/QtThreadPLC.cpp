@@ -51,6 +51,8 @@ QtThreadPLC::QtThreadPLC(qintptr p)
 	mPort = 2001;
 
 	m_socket->moveToThread(this);
+
+	
 }
 /*-------------------------------------*/
 /**
@@ -108,7 +110,7 @@ int QtThreadPLC::MoveSlidingThenRunMotor(QSharedPointer<BE_1105_Driver>	 be_1105
 			std::cout << "EVENT>> " << "Now into inter  !" <<_pos << std::endl;
 			if (_isRun) {
 				
-				be_1105->SendCmd4Done(BE_1105_RUN_NEG, 55000);
+				be_1105->SendCmd4Done(BE_1105_RUN_NEG, BE_1105_RUN_SPEED_CRACK_DETECT);
 				
 			}
 			return TRUE;

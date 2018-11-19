@@ -20,6 +20,8 @@
 #define BE_1105_RUN_POS 0x01
 #define BE_1105_RUN_NEG 0x02 
 #define BE_1105_STOP	0x03 
+
+#define BE_1105_RUN_SPEED_CRACK_DETECT (63000+420)
 /*-------------------------------------*/
 /**
 *

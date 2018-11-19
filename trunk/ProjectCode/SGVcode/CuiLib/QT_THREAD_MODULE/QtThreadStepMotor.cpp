@@ -40,7 +40,7 @@ void QtThreadStepMotor::StepMotorRun()
 	QTime time;
 	time.start(); //开始计时，以ms为单位
 	{	
-		mBE_1105->SendCmd4Done(BE_1105_RUN_NEG, 55000);
+		mBE_1105->SendCmd4Done(BE_1105_RUN_NEG, BE_1105_RUN_SPEED_CRACK_DETECT);
 	}
 
 	int time_Diff = time.elapsed(); //返回从上次start()或restart()开始以来的时间差，单位ms
