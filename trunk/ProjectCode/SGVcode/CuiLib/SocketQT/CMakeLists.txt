@@ -25,12 +25,14 @@ ENDIF ()
 				QtThreadClientCtrl.cpp
 				QtThreadClientLifeCycle.cpp	
 				QtThreadClientCtrlTest.cpp
-
 				QtThreadServer.cpp
-				
-				
 				DataFrame.cpp
+				
+				CMD_CTRL_DATA_LOCAL.cpp
+				CMD_CTRL_DATA_ARM_FPGA.cpp
+				CMD_CTRL_DATA_PLC.cpp				
 				CMD_CTRL_DATA.cpp
+				
 				CMD_CTRL.cpp
 				CMD_CTRL_Q.cpp				
 				QtThread8Video.cpp

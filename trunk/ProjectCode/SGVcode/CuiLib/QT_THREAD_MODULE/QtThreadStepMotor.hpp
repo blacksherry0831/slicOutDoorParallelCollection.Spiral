@@ -32,6 +32,7 @@ protected:
 private:
 	static const int TIME_GAP;
 	static const int BLOCK_IN_STEP02;
+	int RUN_MODE;
 protected:
 	void StepMotorRun();
 public:

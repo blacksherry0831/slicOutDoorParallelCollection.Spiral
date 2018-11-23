@@ -19,6 +19,7 @@ const int QtThreadStepMotor::BLOCK_IN_STEP02= TRUE;
 QtThreadStepMotor::QtThreadStepMotor()
 {
 	this->mThreadName = "Step Motor Thread ";
+	this->RUN_MODE = 0;
 }
 /*-------------------------------------*/
 /**
@@ -291,13 +292,13 @@ void QtThreadStepMotor::run_normal()
 /*-------------------------------------*/
 void  QtThreadStepMotor::run()
 {	
-#if 1
-		this->run_normal();
-#endif
 
-#if 0
+	if (RUN_MODE){
+		this->run_normal();
+	}else{
 		this->run_no_step_motor();
-#endif
+	}
+
 }
 /*-------------------------------------*/
 /**

@@ -17,6 +17,7 @@
 #include "../SocketQT/QtThreadSocketClient.hpp"
 #include "../SocketQT/QtTcpClient.hpp"
 #include "../SocketQT/conf_ip.h"
+#include "SocketQT/CMD_CTRL_Q.hpp"
 /*-------------------------------------*/
 /**
 *
@@ -30,7 +31,9 @@ public:
 	QtThreadFlowCtrlServerSession(qintptr p);
 	~QtThreadFlowCtrlServerSession(void);
 protected:
-	
+
+private:
+	CMD_CTRL_Q  mCmds;
 public:
 
 protected: 

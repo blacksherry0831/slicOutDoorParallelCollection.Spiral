@@ -437,13 +437,62 @@ int BE_1105_Driver::Wait4CmdPosDone()
 *
 */
 /*-------------------------------------*/
+int BE_1105_Driver::IsCmdPosDone()
+{
+	int COUNT = 0;
+
+	do {
+		
+		this->ReadResp();//1s
+
+		QThread::msleep(1000);
+
+		if (COUNT++ > 60 * m_circle) {
+			//30秒没有返回数据??	
+			std::cout << "M is time out !!!" << std::endl;
+			return BE_RESP::TIME_OUT;
+		}
+
+		if (this->mLatestOrder.size() == 0) {
+			this->SendRunStatusCmd();
+		}
+
+		for (size_t i = 0; i < this->mLatestOrder.size(); i++)
+		{
+			const BE_RESP ORDER = this->mLatestOrder.at(i);
+			if (ORDER == BE_RESP::RCV_EXEC_REACH_LOC) {
+
+				return ORDER;
+
+			}
+			else if (ORDER == BE_RESP::RCV_EXEC) {
+				continue;
+			}
+			else if (ORDER == BE_RESP::RCV_NO_EXEC) {
+				return ORDER;
+			}
+			else {
+
+			}
+		}
+		mLatestOrder.clear();
+
+	} while (0);
+
+	return BE_RESP::TIME_OUT;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 unsigned char * BE_1105_Driver::get_cmd(int run_mode,int speed,int circle)
 {	
-	const unsigned int division_factor = speed;//运动速度 6.2K
+	const unsigned int division_factor = speed;
 	const unsigned int be_1105_addr = 0;
 	const unsigned int one_circle = 25000;
-	const unsigned int run_pulse =one_circle*circle;//一圈	
-	const unsigned int run_up_down_pulse = one_circle*0.02;//平滑
+	const unsigned int run_pulse =one_circle*circle;	
+	const unsigned int run_up_down_pulse = one_circle*0.1;//平滑
 	m_circle = circle;
 
 	m_cmd_ctrl[0] = 0xBA;// 实时控制指令
@@ -513,7 +562,8 @@ int BE_1105_Driver::SendCmd(int run_mode, int speed, int circle)
 	m_cmd_mode = 0xBA;
 	memset(m_status, 0x55, sizeof(m_status));
 	this->mLatestOrder.clear();
-	return this->serial_write(this->get_cmd(run_mode,speed,circle), 17);
+	const int BE1105_SEND_CMD_LEN= 17;
+	return this->serial_write(this->get_cmd(run_mode,speed,circle), BE1105_SEND_CMD_LEN);
 }
 /*-------------------------------------*/
 /**
@@ -535,13 +585,13 @@ int BE_1105_Driver::SendRunStatusCmd()
 *
 */
 /*-------------------------------------*/
-int BE_1105_Driver::SendCmd4Done(int run_mode, int speed, int circle)
+int BE_1105_Driver::SendCmd4Done(int _run_mode, int _speed, int _circle)
 {
 	int IsDone;
 	this->ClearResp();
 	do {
-
-		this->SendCmd(BE_1105_RUN_NEG, 55000,circle);
+//BE_1105_RUN_NEG
+		this->SendCmd(_run_mode, _speed,_circle);
 
 		IsDone =this->Wait4CmdPosDone();
 

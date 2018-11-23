@@ -15,7 +15,7 @@
 /*-------------------------------------*/
 CMD_CTRL::CMD_CTRL()
 {
-	this->SetCmdRemote();		
+	
 }
 /*-------------------------------------*/
 /**
@@ -26,42 +26,6 @@ CMD_CTRL::CMD_CTRL()
 CMD_CTRL::~CMD_CTRL() 
 {
 		this->destory();
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-int CMD_CTRL::IsCmdRemote()
-{
-	return mCmdRemoteFlag;
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-int CMD_CTRL::IsCmdLocal()
-{
-	return mCmdRemoteFlag==FALSE;
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-int CMD_CTRL::SetCmdRemote()
-{
-	return mCmdRemoteFlag=TRUE;
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-int CMD_CTRL::SetCmdLocal()
-{
-	return mCmdRemoteFlag = FALSE;
 }
 /*-------------------------------------*/
 /**
@@ -316,7 +280,22 @@ int CMD_CTRL::IsRoolerReady()
 		return TRUE;
 	}
 
-	return FALSE;;
+	return FALSE;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int CMD_CTRL::IsAbortStop()
+{
+	//¼±Í£
+	if (this->f_header.f_cmd[0] == 's' && this->f_header.f_cmd[1] == 0x30) {
+		return TRUE;
+	}
+
+	return FALSE;
+
 }
 /*-------------------------------------*/
 /**

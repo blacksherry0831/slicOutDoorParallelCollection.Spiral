@@ -20,8 +20,13 @@
 #define BE_1105_RUN_POS 0x01
 #define BE_1105_RUN_NEG 0x02 
 #define BE_1105_STOP	0x03 
-
-#define BE_1105_RUN_SPEED_CRACK_DETECT (63000+420)
+/*-------------------------------------*/
+#define BE_1105_RUN_SPEED_1_56K (55000)
+#define BE_1105_RUN_SPEED_6_20K (63000)
+#define BE_1105_RUN_SPEED_10_02K (64000)
+/*-------------------------------------*/
+#define BE_1105_RUN_SPEED_CRACK_DETECT (65000)
+#define BE_1105_RUN_CIRCLE_CRACK_DETECT (20)
 /*-------------------------------------*/
 /**
 *
@@ -59,13 +64,12 @@ public:
 	boolean IsThreadRun();
 	void ReadRespData();
 	void ReadRespDataAndProcess();
-
-
+	
 	int IsReady();
 	int Wait4CmdDone();
 	int Wait4CmdPosDone();
+	int IsCmdPosDone();
 	
-
 private:
 	void ProcessData();
 	std::vector<BE_RESP>  mLatestOrder;
@@ -88,7 +92,7 @@ public:
 	unsigned char * get_query_cmd();
 	int  SendCmd(int run_mode, int speed, int circle=1);
 	int  SendRunStatusCmd();
-	int  SendCmd4Done(int run_mode, int speed, int circle = 1);
+	int  SendCmd4Done(int _run_mode, int _speed, int _circle = 1);
 	int  SendQueryCmd(int mode);
 	int  ReadResp();
 	void ClearResp();

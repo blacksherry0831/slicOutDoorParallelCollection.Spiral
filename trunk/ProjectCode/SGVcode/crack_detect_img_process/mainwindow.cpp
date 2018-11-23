@@ -57,7 +57,10 @@ void MainWindow::init_class_member()
 	mQimageGray->fill(125);
 #endif
 
+#if IMG_PROCESS_USE_STEP_MOTOR
 	mStepMotor = QSharedPointer<QtThreadStepMotor>(new QtThreadStepMotor());
+#endif // 0
+	
 	mCtrlServer = QSharedPointer<QtThreadClientCtrl>(new QtThreadClientCtrl());
 	mVideoDataServer = QSharedPointer<QtThread8Video>(new QtThread8Video());
 
@@ -65,7 +68,12 @@ void MainWindow::init_class_member()
 	mImg8Process->startTask();
 
 	mCtrlServer->SetDataPipe(mVideoDataServer);
+
+#if IMG_PROCESS_USE_STEP_MOTOR
 	mStepMotor->SetCmdCtrlPipe(mCtrlServer);
+#endif // IMG_PROCESS_USE_STEP_MOTOR
+
+
 
 	//////////////////////////////////////////////////////////////////
 	mthread = QSharedPointer<QThread>(new QThread());
@@ -809,7 +817,10 @@ void MainWindow::StartVideoBasic(int mode)
 	mVideoDataServer->startServer();
 #endif // 0
 
+#if IMG_PROCESS_USE_STEP_MOTOR
 	mStepMotor->startServer();
+#endif 
+
 }
 /*-------------------------------------*/
 /**
@@ -904,9 +915,12 @@ void MainWindow::StopVideoForce()
 void MainWindow::stopVideoBasic()
 {
 
+#if IMG_PROCESS_USE_STEP_MOTOR
 	if (mStepMotor->isRunning()) {
 		mStepMotor->closeServer();
 	}
+#endif 
+
 
 	if (mCtrlServer->isRunning()) {	
 		mCtrlServer->closeServer();	
@@ -986,7 +1000,10 @@ void  MainWindow::SetFpgaArmLinuxIpAddr(QString _str)
 	mFpgaArmLinuxIpAddr = _str;
 	mCtrlServer->SetIpAddr(mFpgaArmLinuxIpAddr);
 	mVideoDataServer->SetIpAddr(mFpgaArmLinuxIpAddr);
+
+#if IMG_PROCESS_USE_STEP_MOTOR
 	mStepMotor->SetBordIPaddr(mFpgaArmLinuxIpAddr);
+#endif 
 }
 /*-------------------------------------*/
 /**

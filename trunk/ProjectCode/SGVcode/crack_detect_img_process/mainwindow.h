@@ -44,7 +44,7 @@ class MainWindow;
 *
 */
 /*-------------------------------------*/
-
+#define IMG_PROCESS_USE_STEP_MOTOR (TRUE)
 /*-------------------------------------*/
 /**
 *
@@ -84,7 +84,9 @@ public:
 
 	QSharedPointer<QtThread8ImgProcess>		mImg8Process;
 
+#if IMG_PROCESS_USE_STEP_MOTOR
 	QSharedPointer<QtThreadStepMotor>		mStepMotor;
+#endif
 
 	QSharedPointer<QtThreadClientCtrl>		mCtrlServer;
 

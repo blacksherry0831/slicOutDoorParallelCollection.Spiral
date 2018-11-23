@@ -37,10 +37,15 @@ QtThreadFlowCtrlServerSession::~QtThreadFlowCtrlServerSession(void)
 /*-------------------------------------*/
 void QtThreadFlowCtrlServerSession::run()
 {
+	this->mCmds.clear();
 	
 	while (M_THREAD_RUN){
 		
+		QSharedPointer<CMD_CTRL> cmd_t= this->mCmds.getCmd();
+
+
 	}
+
 
 }
 /*-------------------------------------*/
