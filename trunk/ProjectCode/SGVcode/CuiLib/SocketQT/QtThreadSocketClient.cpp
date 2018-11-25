@@ -63,6 +63,7 @@ void QtThreadSocketClient::init_socket()
 {
 	if (m_socket.isNull()) {
 			m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
+			
 			m_socket->setSocketOption(QAbstractSocket::ReceiveBufferSizeSocketOption, 256*1024*1024);//这个没有任何作用
 	}	
 
@@ -74,13 +75,12 @@ void QtThreadSocketClient::init_socket()
 *
 */
 /*-------------------------------------*/
-void QtThreadSocketClient::SetSocketDesp()
+void QtThreadSocketClient::init_socket_client_session()
 {
-	if (ptr_sd>=0) {
+	if (ptr_sd >= 0) {
 		m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
 		m_socket->setSocketDescriptor(ptr_sd);
 	}
-	
 }
 /*-------------------------------------*/
 /**
@@ -119,6 +119,17 @@ void QtThreadSocketClient::closeServer()
 	}
 
 	this->wait4ServerClose();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadSocketClient::closeRunningServer()
+{
+	if (this->isRunning()) {
+		this->closeServer();
+	}
 }
 /*-------------------------------------*/
 /**
@@ -280,37 +291,56 @@ void QtThreadSocketClient::emit_status_message(const QString & _msg)
 *
 */
 /*-------------------------------------*/
+int QtThreadSocketClient::send_and_read_resp(QSharedPointer<CMD_CTRL> _cmd_send)
+{
+	QSharedPointer<CMD_CTRL> cmd_read_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
 
+	if (this->m_socket->Send_1_cmd(_cmd_send.data())==0) {
+		return  SocketErrorMy;
+	}
+
+	if (0 == m_socket->Read_1_cmd(cmd_read_t.data())) {
+
+			return  SocketErrorMy;
+
+	}else{
+
+			if (cmd_read_t->IsResp()) {
+				return TRUE_MY;
+			}else{
+				return FALSE_MY;
+			}
+
+	}
+	return TRUE_MY;
+}
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-
+void QtThreadSocketClient::SetMsg(QSharedPointer<CMD_CTRL> _msg)
+{
+	mCmdMsgQ.setCmd(_msg);
+}
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-
+QSharedPointer<CMD_CTRL> QtThreadSocketClient::GetMsg()
+{
+	return mCmdMsgQ.getCmd();
+}
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
+void QtThreadSocketClient::ClearMsg()
+{
+	mCmdMsgQ.clear();
+}
 /*-------------------------------------*/
 /**
 *

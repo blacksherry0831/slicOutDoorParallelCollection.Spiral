@@ -614,6 +614,32 @@ std::vector<unsigned char> CMD_CTRL::getLocalCmd(int _cmd00,int _cmd01)
 *
 */
 /*-------------------------------------*/
+QSharedPointer<CMD_CTRL> CMD_CTRL::getLocalCmdEx(int _cmd00, int _cmd01)
+{	
+	QSharedPointer<CMD_CTRL> qsp_c_c_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
+
+	qsp_c_c_t->getLocalCmd(_cmd00,_cmd01);
+
+	return qsp_c_c_t;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+QSharedPointer<CMD_CTRL> CMD_CTRL::getFpgaStartCmdEx(int _type, WorkMode _wm)
+{
+	QSharedPointer<CMD_CTRL> qsp_c_c_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
+
+	qsp_c_c_t->getFpgaStartCmd(_type, _wm);
+
+	return qsp_c_c_t;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 std::vector<unsigned char> CMD_CTRL::getHeartBeatCmd(int _type)
 {
 

@@ -28,12 +28,10 @@ class QtThreadFlowCtrlServerSession :public QtThreadSocketClient
 {
 
 public:
-	QtThreadFlowCtrlServerSession(qintptr p);
+	QtThreadFlowCtrlServerSession(qintptr _socket);
 	~QtThreadFlowCtrlServerSession(void);
 protected:
-
-private:
-	CMD_CTRL_Q  mCmds;
+	
 public:
 
 protected: 

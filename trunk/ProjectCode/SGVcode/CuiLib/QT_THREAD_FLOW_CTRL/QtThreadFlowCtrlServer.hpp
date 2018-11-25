@@ -42,5 +42,5 @@ protected:
 	virtual void run();
 
 public:
-
+	void NotifiedClientSession(CMD_CTRL::CMD_TYPE_02_C _event);
 };

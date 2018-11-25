@@ -42,3 +42,13 @@ void QtThreadFlowCtrlServer::run()
 *
 */
 /*-------------------------------------*/
+void QtThreadFlowCtrlServer::NotifiedClientSession(CMD_CTRL::CMD_TYPE_02_C _event)
+{	
+	this->mQtTcpServer->NotifiedClientSession(_event);
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/

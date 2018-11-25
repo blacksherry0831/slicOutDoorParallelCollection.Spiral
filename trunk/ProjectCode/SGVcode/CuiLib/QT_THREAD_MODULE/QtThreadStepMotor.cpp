@@ -330,6 +330,17 @@ void QtThreadStepMotor::closeServer()
 *
 */
 /*-------------------------------------*/
+void QtThreadStepMotor::closeRunningServer()
+{
+	if (this->isRunning()) {
+		this->closeServer();
+	}
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 QtThreadStepMotor* QtThreadStepMotor::SetBordIPaddr(QString _ipAddr)
 {
 	this->mCurrentBord = _ipAddr.toStdString();

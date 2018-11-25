@@ -1,11 +1,15 @@
 #pragma once
-
+/*-------------------------------------*/
 #include "cpp_stl.h"
-
-
-
+/*-------------------------------------*/
+/**
+*
+*
+*/
+/*-------------------------------------*/
 #include "QtThreadBase.hpp"
 #include "QtTcpClient.hpp"
+#include "CMD_CTRL_Q.hpp"
 /*-------------------------------------*/
 /**
 *
@@ -15,9 +19,6 @@
 class QtThreadSocketClient :public QtThreadBase
 {
 	Q_OBJECT
-
-public:
-	
 public:
 	QtThreadSocketClient(qintptr p);
 	QtThreadSocketClient();
@@ -42,23 +43,27 @@ public:
 public:
 	void write_ptr(qintptr p);
 	void init_socket();
-	void SetSocketDesp();
+	void init_socket_client_session();
+	
 	void SetIpAddr(QString _ipAddr);
 public:
 	void startServer();
 	void closeServer();
+	void closeRunningServer();
 	void wait4ServerClose();
-
+public:
+	int send_and_read_resp(QSharedPointer<CMD_CTRL> _cmd_send);
 signals:
 void socket_connect_state(int);
 
-
 public slots:
-
-
 
 protected: 
 	virtual void run();
+private:
+	CMD_CTRL_Q mCmdMsgQ;
 public:
-
+	void SetMsg(QSharedPointer<CMD_CTRL> _msg);
+	QSharedPointer<CMD_CTRL> GetMsg();
+	void ClearMsg();
 };

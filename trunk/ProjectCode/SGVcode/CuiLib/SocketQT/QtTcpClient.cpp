@@ -230,18 +230,11 @@ int QtTcpClient::WriteMy(const char* const _data,const int _size)
 /*-------------------------------------*/
 int QtTcpClient::Send_Start_CMD(CMD_CTRL::CMD_TYPE_02_C _type_c, CMD_CTRL::WorkMode _wm)
 {
-	CMD_CTRL cmd;
-	cmd.getFpgaStartCmd(_type_c,_wm);
+	
+	QSharedPointer<CMD_CTRL> qsp_cc_t = CMD_CTRL::getFpgaStartCmdEx(_type_c, _wm);
+	
+	return this->Send_1_cmd(qsp_cc_t.data()  );
 
-#if 0
-	if (_type_c) {
-		std::cout << "Send CMD START FPGA" << std::endl;
-	}else {
-		std::cout << "Send CMD STOP FPGA" << std::endl;
-	}
-#endif // 0
-
-	return this->Send_1_cmd(&cmd);
 }
 /*-------------------------------------*/
 /**

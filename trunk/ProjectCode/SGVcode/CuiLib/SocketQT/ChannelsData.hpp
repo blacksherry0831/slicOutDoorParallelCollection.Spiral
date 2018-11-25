@@ -14,6 +14,7 @@
 /*-----------------------------------*/
 #include "exCircleData.hpp"
 #include "Saveframe.hpp"
+#include "CMD_CTRL.hpp"
 /*-------------------------------------*/
 /**
 *

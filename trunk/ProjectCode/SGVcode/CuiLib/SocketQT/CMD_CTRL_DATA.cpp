@@ -74,16 +74,7 @@ std::vector<unsigned char> CMD_CTRL_DATA::Data()
 
 	return cmd_data;
 }
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-IplImage* CMD_CTRL_DATA::getIplimage()
-{
-	IplImage*  IplImg_t = &(m_img->Iplimg);
-	return IplImg_t;
-}
+
 /*-------------------------------------*/
 /**
 *
@@ -188,11 +179,6 @@ void CMD_CTRL_DATA::initCRC()
 *
 */
 /*-------------------------------------*/
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
 int  CMD_CTRL_DATA::UChar2Int(unsigned char *_data, int _size)
 {
 	int value_t = 0;
@@ -220,41 +206,7 @@ int CMD_CTRL_DATA::Int2UChar(int _size, unsigned char * _data)
 
 	return _data[0];
 }
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-QSharedPointer<QImage> CMD_CTRL_DATA::getQimage()
-{
-	return IplImageToQImage(getIplimage());
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-IplImageU * CMD_CTRL_DATA::getIplimageU()
-{
-	IplImageU* img=NULL;
 
-	if (this->f_data.size()>= sizeof(IplImageU)){
-		
-			unsigned char* buff_t = this->f_data.data();
-			img = (IplImageU*)(buff_t);
-			Q_ASSERT(UChar2Int(img->nSize, 8) == sizeof(IplImageU));
-
-	}
-	
-
-
-	return img;
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
 /*-------------------------------------*/
 /**
 *
@@ -297,6 +249,34 @@ void CMD_CTRL_DATA::initHearbeatCmd()
 {
 	f_header.f_cmd[0] = CMD_TYPE::CT_HEART;
 	f_header.f_cmd[1] = CMD_TYPE_02::CT_BEAT;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+QSharedPointer<QImage> CMD_CTRL_DATA::getQimage()
+{
+	return IplImageToQImage(getIplimage());
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+IplImageU * CMD_CTRL_DATA::getIplimageU()
+{
+	IplImageU* img = NULL;
+
+	if (this->f_data.size() >= sizeof(IplImageU)) {
+
+		unsigned char* buff_t = this->f_data.data();
+		img = (IplImageU*)(buff_t);
+		Q_ASSERT(UChar2Int(img->nSize, 8) == sizeof(IplImageU));
+
+	}
+	
+	return img;
 }
 /*-------------------------------------*/
 /**

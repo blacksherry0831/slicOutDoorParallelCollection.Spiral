@@ -401,7 +401,7 @@ void Dialog::keyPressEventSigImg(QKeyEvent * ev)
 	
 	}else if(KEY == Qt::Key_Enter || KEY == Qt::Key_Return){
 		QSharedPointer<CMD_CTRL> cmd_t = ptr_vp->getCmdRectCfg();
-		QtThreadClientCtrl::cmds.setCmd(cmd_t);
+		QtThreadClientCtrl::SetCmd(cmd_t);
 	}else{
 
 	}

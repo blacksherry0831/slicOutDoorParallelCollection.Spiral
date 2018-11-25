@@ -91,15 +91,17 @@ void QtThreadPLC::Run0()
 				//roooler is ready !!!
 				m_socket->SendPlcResp(TRUE);
 				emit status_sjts(SJTS_MACHINE_STATUS::RoolerReady);
-			}
-			else
-			{
+			}else{
 				emit status_socket(FALSE);
 				break;
 			}
 #endif // 0
 
 			this->stepMotorRun(be_1105);
+
+
+			emit status_sjts(SJTS_MACHINE_STATUS::RollerDone);
+
 
 #if TRUE
 			//rooler is ok or bad

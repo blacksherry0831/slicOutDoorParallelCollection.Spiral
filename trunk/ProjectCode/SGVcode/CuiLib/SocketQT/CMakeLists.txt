@@ -18,14 +18,19 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 ENDIF () 
 	
 	if (CBB_BUILDING_CRACK_DETECTION)
-		SET(DIR_SRCS					
+		SET(DIR_SRCS	
+
+				QtTcpServerClientSession.cpp	
 				QtTcpServer.cpp
+				
 				QtTcpClient.cpp
+				
+				QtThreadServer.cpp
 				QtThreadBase.cpp
 				QtThreadClientCtrl.cpp
 				QtThreadClientLifeCycle.cpp	
 				QtThreadClientCtrlTest.cpp
-				QtThreadServer.cpp
+
 				DataFrame.cpp
 				
 				CMD_CTRL_DATA_LOCAL.cpp
@@ -40,7 +45,7 @@ ENDIF ()
 				exCircleData.cpp
 				ChannelsData.cpp
 				ChannelsData4Show.cpp
-				
+								
 				QtThread8VideoProcess.cpp
 				QtThread8VideoRaw.cpp
 				QtImgProcess.cpp

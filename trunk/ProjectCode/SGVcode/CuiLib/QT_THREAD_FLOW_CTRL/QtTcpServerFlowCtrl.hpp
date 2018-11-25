@@ -27,7 +27,9 @@ public:
 
 protected:
 	virtual void incomingConnection(qintptr socketDescriptor);
-private:	
-
+	int mWorkMode;
+	void initWorkMode();
+public:
+	void NotifiedClientSession(CMD_CTRL::CMD_TYPE_02_C _type_c);
 
 };

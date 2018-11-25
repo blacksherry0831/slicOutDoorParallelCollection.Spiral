@@ -279,6 +279,7 @@ int MainWindow::IsBgThreadRunning()
 	{
 		qDebug() << "Ctrl Server : Close !";
 	}
+
 	if (mVideoDataServer->isRunning()) {
 		qDebug() << "Video Data Server : Running !";
 	}
@@ -286,10 +287,19 @@ int MainWindow::IsBgThreadRunning()
 	{
 		qDebug() << "Video Data : Close !";
 	}
+
+	if (mFlowCtrlClient->isRunning()) {
+		qDebug() << "Flow Ctrl Client Server : Running !";
+	}
+	else
+	{
+		qDebug() << "Flow Ctrl Client Server: Close !";
+	}
 #endif // _DEBUG
 
 	if  (mCtrlServer->isRunning() ||
-		mVideoDataServer->isRunning())
+		 mVideoDataServer->isRunning() ||
+		 mFlowCtrlClient->isRunning() )
 	{
 		return TRUE;
 	}
@@ -592,15 +602,13 @@ void MainWindow::closeEvent(QCloseEvent * event)
 	if ((mTimer->isActive()==false)&&
 		(mthread->isRunning()==false)&&
 		(mCtrlServer->isRunning() == false)&&
-		(mVideoDataServer->isRunning() == false))
-	{		
-
-		event->accept();
-	}
-	else
-	{
-		event->ignore();
-	}
+		(mVideoDataServer->isRunning() == false) &&
+		(mFlowCtrlClient->isRunning() == false)
+		){
+			event->accept();
+		}else{
+			event->ignore();
+		}
 
 }
 /*-------------------------------------*/
@@ -821,6 +829,8 @@ void MainWindow::StartVideoBasic(int mode)
 	mStepMotor->startServer();
 #endif 
 
+	this->mFlowCtrlClient->startServer();
+
 }
 /*-------------------------------------*/
 /**
@@ -916,20 +926,15 @@ void MainWindow::stopVideoBasic()
 {
 
 #if IMG_PROCESS_USE_STEP_MOTOR
-	if (mStepMotor->isRunning()) {
-		mStepMotor->closeServer();
-	}
+	mStepMotor->closeRunningServer();
 #endif 
-
-
-	if (mCtrlServer->isRunning()) {	
-		mCtrlServer->closeServer();	
-	}
-
-	if (mVideoDataServer->isRunning()){
-		mVideoDataServer->closeServer();
-	}
+		
+	mFlowCtrlClient->closeRunningServer();
 	
+	mCtrlServer->closeRunningServer();
+		
+	mVideoDataServer->closeRunningServer();
+		
 	this->IsBgThreadRunning();
 	
 }

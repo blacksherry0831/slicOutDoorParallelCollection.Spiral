@@ -332,13 +332,18 @@ int QtThreadClientCtrl::ProcessRemoteCmds(QSharedPointer<CMD_CTRL> cmd_ctrl_t)
 {
 	if (cmd_ctrl_t->IsCmdRemote()){
 		//cmd is remote cmd
-
+#if 0
 		if (0==m_socket->Send_1_cmd(cmd_ctrl_t.data())) {
 			return SocketErrorMy;
 		}
 		else {
 			return TRUE_MY;
 		}
+#endif
+
+#if 1
+		return this->send_and_read_resp(cmd_ctrl_t);
+#endif
 
 	}
 	return INIT_MY;
@@ -420,9 +425,7 @@ int QtThreadClientCtrl::SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C _start_stop)
 			}
 
 	}
-
-
-
+	
 }
 /*-------------------------------------*/
 /**
@@ -461,9 +464,7 @@ int QtThreadClientCtrl::SendHearbeatCmd()
 void QtThreadClientCtrl::SetLocalCmd(int cmd_00)
 {
 
-	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
-
-	cmd_t->getLocalCmd(cmd_00);
+	QSharedPointer<CMD_CTRL> cmd_t = CMD_CTRL::getLocalCmdEx(cmd_00);
 
 	QtThreadClientCtrl::cmds.setCmd(cmd_t);
 
@@ -506,46 +507,19 @@ void QtThreadClientCtrl::SetLocalCmd(int cmd_00)
 *
 */
 /*-------------------------------------*/
-void QtThreadClientCtrl::ClearCmd()
+void QtThreadClientCtrl::SetCmd(QSharedPointer<CMD_CTRL> _cmd)
 {
-	QtThreadClientCtrl::cmds.clear();
+	QtThreadClientCtrl::cmds.setCmd(_cmd);
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
+void QtThreadClientCtrl::ClearCmd()
+{
+	QtThreadClientCtrl::cmds.clear();
+}
 /*-------------------------------------*/
 /**
 *

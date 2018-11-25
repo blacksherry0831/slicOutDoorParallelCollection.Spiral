@@ -6,50 +6,14 @@
 /*-----------------------------------*/
 #include "CMD_CTRL_DATA_LOCAL.hpp"
 #include "CMD_CTRL_DATA_ARM_FPGA.hpp"
-/*-----------------------------------*/
-#define ALIGN_SIZE_T	(8)
-/*-----------------------------------*/
-/**
-*
-*/
-/*-----------------------------------*/
-typedef struct _IplImageU
-{
-	unsigned char nSize[ALIGN_SIZE_T];//this struct size
-	char prefix[ALIGN_SIZE_T];
-	unsigned char IpAddrChannel[ALIGN_SIZE_T];
-	unsigned char frame[ALIGN_SIZE_T];
-	
-	unsigned char width[ALIGN_SIZE_T];
-	unsigned char height[ALIGN_SIZE_T];
-
-	unsigned char width_roi[ALIGN_SIZE_T];
-	unsigned char height_roi[ALIGN_SIZE_T];
-	unsigned char x_roi[ALIGN_SIZE_T];
-	unsigned char y_roi[ALIGN_SIZE_T];
-	
-	unsigned char sensor_stat[ALIGN_SIZE_T];
-	unsigned char nChannels[ALIGN_SIZE_T];
-
-	IplImage  	Iplimg;
-} IplImageU;
-/*-----------------------------------*/
-/**
-*
-*/
-/*-----------------------------------*/
-typedef union _IplImageUI
-{
-	unsigned char buff[ALIGN_SIZE_T * 32];
-	IplImageU iplImgU;
-}IplImageUI;
+#include "CMD_CTRL_DATA_PLC.hpp"
 /*-------------------------------------*/
 /**
 *
 *
 */
 /*-------------------------------------*/
-class CMD_CTRL_DATA: public CMD_CTRL_DATA_LOCAL,public CMD_CTRL_DATA_ARM_FPGA
+class CMD_CTRL_DATA: public CMD_CTRL_DATA_LOCAL,public CMD_CTRL_DATA_ARM_FPGA,public CMD_CTRL_DATA_PLC
 {
 public:
 	/*-----------------------------------*/
@@ -154,8 +118,7 @@ public:
 		std::vector<unsigned char> f_data;
 		int f_data_size;
 		unsigned char f_crc;
-protected:
-	IplImageU* m_img;
+
 /*-------------------------------------*/
 protected:
 	void initHeader();
@@ -171,7 +134,7 @@ public:
 public:
 	std::vector<unsigned char> Data();
 
-	IplImage * getIplimage();
+	
 public:
 	static int UChar2Int(unsigned char *_data,int _size);
 	static int Int2UChar(int _size,unsigned char *_data );
@@ -183,8 +146,8 @@ public:
 	void initHearbeatCmd();
 
 public:
-	QSharedPointer<QImage> getQimage();
-
 	IplImageU* getIplimageU();
+	QSharedPointer<QImage> getQimage();
+	
 	
 };

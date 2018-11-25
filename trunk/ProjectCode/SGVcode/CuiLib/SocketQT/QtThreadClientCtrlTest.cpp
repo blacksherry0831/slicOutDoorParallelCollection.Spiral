@@ -54,14 +54,12 @@ QtThreadClientCtrlTest::~QtThreadClientCtrlTest(void)
 /*-------------------------------------*/
 void QtThreadClientCtrlTest::run()
 {			
-		this->SetSocketDesp();
+		this->init_socket_client_session();
+		
 		int data = 1;
-		
-		
+				
 		while (M_THREAD_RUN)
 		{	
-
-
 
 			this->connect2ServerIfNoConnected();
 				
@@ -70,12 +68,7 @@ void QtThreadClientCtrlTest::run()
 				QByteArray qba = QByteArray(1920 * 1080,(data++%255));
 									
 				this->m_socket->WriteMy(qba);
-				
-				
-			
 			}
-		
-
 
 	 	}
 

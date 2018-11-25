@@ -3,22 +3,11 @@
 /*-------------------------------------*/
 /**
 *
-*
 */
 /*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-QtThreadFlowCtrlServerSession::QtThreadFlowCtrlServerSession(qintptr p)
+QtThreadFlowCtrlServerSession::QtThreadFlowCtrlServerSession(qintptr _socket):QtThreadSocketClient(_socket)
 {
-	m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
-
-	mPort = 2001;
-
-	m_socket->moveToThread(this);
+	
 }
 /*-------------------------------------*/
 /**
@@ -37,23 +26,26 @@ QtThreadFlowCtrlServerSession::~QtThreadFlowCtrlServerSession(void)
 /*-------------------------------------*/
 void QtThreadFlowCtrlServerSession::run()
 {
-	this->mCmds.clear();
+
+	this->ClearMsg();
+
+	this->init_socket_client_session();
 	
 	while (M_THREAD_RUN){
 		
-		QSharedPointer<CMD_CTRL> cmd_t= this->mCmds.getCmd();
+		QSharedPointer<CMD_CTRL> cmd_t = this->GetMsg();
 
-
+		if (cmd_t.isNull()){
+			this->SleepMy(100);
+		}else{
+			this->m_socket->Send_1_cmd(cmd_t.data());
+		}
+		
 	}
-
+	
+	this->closeSocket();
 
 }
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
 /*-------------------------------------*/
 /**
 *

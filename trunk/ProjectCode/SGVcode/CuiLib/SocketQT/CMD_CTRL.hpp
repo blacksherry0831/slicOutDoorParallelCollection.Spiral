@@ -47,16 +47,22 @@ public:
 	void setModeChangeCmd(int _wm);
 	void setSigmaChangeCmd(int _sigma);
 public:
-	std::vector<unsigned char>	getFpgaStartCmd(int _type, WorkMode _wm);
+	
 	std::vector<unsigned char>	getRespPLCmd(int _type);
 	std::vector<unsigned char>	getPLCLRIntoCmd(int _step);
 	std::vector<unsigned char>  getRollerQualifiedCmd(int _qualified);
 
-	std::vector<unsigned char>  getLocalCmd(int _cmd00, int _cmd01=0x00);
+	
 	std::vector<unsigned char>  getHeartBeatCmd(int _type= DEV::DEV_FPGA_ARM);
 	std::vector<unsigned char>  getRectCfgCmd(int _channel, CvRect _rect_cut);
 	std::vector<unsigned char>  getModeChangeCmd(int _wm);
 	std::vector<unsigned char>  getSigmaChangeCmd(int _sigma);
+private:
+	std::vector<unsigned char>	getFpgaStartCmd(int _type, WorkMode _wm);
+	std::vector<unsigned char>  getLocalCmd(int _cmd00, int _cmd01=0x00);
+public:
+	static QSharedPointer<CMD_CTRL> getLocalCmdEx(int _cmd00, int _cmd01 = 0x00);
+	static QSharedPointer<CMD_CTRL> getFpgaStartCmdEx(int _type, WorkMode _wm);
 public:
 	static void adjRect44(CvRect* rect);
 public:

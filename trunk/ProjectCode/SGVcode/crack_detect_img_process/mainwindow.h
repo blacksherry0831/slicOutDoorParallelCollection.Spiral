@@ -4,6 +4,8 @@
 
 #include "module_my.h"
 
+#include "QT_THREAD_FLOW_CTRL/QtThreadFlowCtrlClient.hpp"
+
 #if _MSC_VER
 	#ifndef _X86_
 		#define _X86_
@@ -18,11 +20,11 @@
 	
 #endif
 
-#ifdef QT_VERSION
+#if  defined(QT_VERSION)
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QLabel>
-#include <qtimer.h>
+#include <QTimer>
 
 #endif // QT_VERSION
 
@@ -87,6 +89,8 @@ public:
 #if IMG_PROCESS_USE_STEP_MOTOR
 	QSharedPointer<QtThreadStepMotor>		mStepMotor;
 #endif
+
+	QSharedPointer<QtThreadFlowCtrlClient> mFlowCtrlClient;
 
 	QSharedPointer<QtThreadClientCtrl>		mCtrlServer;
 

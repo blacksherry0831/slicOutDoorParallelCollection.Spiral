@@ -33,6 +33,7 @@ public:
 	QtThreadPLC(qintptr p);
 	~QtThreadPLC(void);
 public:
+
 	enum SJTS_MACHINE_STATUS
 	{
 		RoolerReady,
@@ -42,11 +43,14 @@ public:
 
 		StepMotorStart01,
 		StepMotorStop01,
+
+		RollerDone,
 		
 		RollerDoneQualified,
 		RollerDoneUnqualified,
 
 	};
+
 private:
 	CMD_CTRL_Q  mCmds;
 private: 

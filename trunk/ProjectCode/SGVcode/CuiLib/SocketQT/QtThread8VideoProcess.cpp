@@ -770,7 +770,7 @@ void QtThread8VideoProcess::SetRectCmds()
 		if (TaskObj[chi]) {
 		
 			QSharedPointer<CMD_CTRL> cmd_t= TaskObj[chi]->getCmdRectCfg();
-			QtThreadClientCtrl::cmds.setCmd(cmd_t);
+			QtThreadClientCtrl::SetCmd(cmd_t);
 		}	
 
 	}

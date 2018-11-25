@@ -33,8 +33,10 @@ public:
 private:
 	CMD_CTRL::WorkMode mWorkMode;
 	int mHeartBeatFreq;
-public:
+private:
 	static CMD_CTRL_Q cmds;
+public:
+	static void SetCmd(QSharedPointer<CMD_CTRL> _cmd);
 	static void SetLocalCmd(int cmd_00);
 	static void ClearCmd();
 public:

@@ -29,6 +29,8 @@ QtThreadBase::QtThreadBase(QObject *parent):QThread(parent)
 	qsrand(t.msec() + t.second() * 1000);
 
 	this->IDENTIFY=qrand();
+
+	mThreadName = __func__;
 }
 /*-------------------------------------*/
 /**

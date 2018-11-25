@@ -1,10 +1,12 @@
 #pragma once
-
+/*-------------------------------------*/
 #include "cpp_stl.h"
+/*-------------------------------------*/
 #include <QObject>
 #include <QtCore>
 #include <QtNetwork>
 #include <QSharedPointer>
+/*-------------------------------------*/
 #include "QtTcpServer.hpp"
 #include "QtThreadClientCtrlTest.hpp"
 /*-------------------------------------*/
