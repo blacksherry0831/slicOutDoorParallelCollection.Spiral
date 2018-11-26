@@ -46,7 +46,7 @@ class MainWindow;
 *
 */
 /*-------------------------------------*/
-#define IMG_PROCESS_USE_STEP_MOTOR (TRUE)
+#define IMG_PROCESS_USE_STEP_MOTOR (0)
 /*-------------------------------------*/
 /**
 *

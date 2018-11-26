@@ -69,6 +69,7 @@ void MainWindow::init_class_member()
 
 	mCtrlServer->SetDataPipe(mVideoDataServer);
 
+	 mFlowCtrlClient=QSharedPointer<QtThreadFlowCtrlClient>(new QtThreadFlowCtrlClient());
 #if IMG_PROCESS_USE_STEP_MOTOR
 	mStepMotor->SetCmdCtrlPipe(mCtrlServer);
 #endif // IMG_PROCESS_USE_STEP_MOTOR
