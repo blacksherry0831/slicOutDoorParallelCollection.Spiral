@@ -28,6 +28,7 @@ public:
 protected:
 	virtual void incomingConnection(qintptr socketDescriptor);
 protected:
+	QString mErrorStr;
 	std::string mServerIpAddr;
 	int mPort;
 public:

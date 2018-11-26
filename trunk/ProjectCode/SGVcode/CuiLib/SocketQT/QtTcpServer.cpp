@@ -60,7 +60,15 @@ void QtTcpServer::incomingConnection(qintptr socketDescriptor)
 /*-------------------------------------*/
 int QtTcpServer::StartListen()
 {	
-	return this->listen(QHostAddress::Any, mPort);
+	bool stat_t= this->listen(QHostAddress::Any, mPort);
+
+
+	if (false==stat_t)
+	{
+		mErrorStr =this->errorString().toLocal8Bit().data();
+	}
+
+	return stat_t;
 }
 /*-------------------------------------*/
 /**
