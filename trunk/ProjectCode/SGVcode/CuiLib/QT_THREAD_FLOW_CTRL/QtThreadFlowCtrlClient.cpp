@@ -57,22 +57,22 @@ void QtThreadFlowCtrlClient::run()
 							
 							cmd_t->SetCmdLocal();
 
-							this->m_socket->Read_1_cmd(cmd_t.data());
-
-							if (cmd_t->isHeartbeatCmd()){
-
-							}else if (cmd_t->IsCmdLocal()) {
+								if (TRUE==this->m_socket->Read_1_cmd(cmd_t.data())) {
 								
-								QtThreadClientCtrl::SetCmd(cmd_t);
-							
-							}else{
+									if (cmd_t->isHeartbeatCmd()) {
 
+									}else if (cmd_t->IsCmdLocal()) {
 
-							}
+										QtThreadClientCtrl::SetCmd(cmd_t);
 
-						
+									}else {
+										
+									}							
+								}else {
+								
+									break;
+								}
 
-			
 						}
 
 			this->closeSocket4Server();
