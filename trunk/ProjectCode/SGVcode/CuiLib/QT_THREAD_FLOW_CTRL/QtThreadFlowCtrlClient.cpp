@@ -55,11 +55,13 @@ void QtThreadFlowCtrlClient::run()
 
 							QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
 							
+							cmd_t->SetCmdLocal();
+
 							this->m_socket->Read_1_cmd(cmd_t.data());
 
 							if (cmd_t->isHeartbeatCmd()){
 
-							}else if (cmd_t->IsCmdRemote()) {
+							}else if (cmd_t->IsCmdLocal()) {
 								
 								QtThreadClientCtrl::SetCmd(cmd_t);
 							

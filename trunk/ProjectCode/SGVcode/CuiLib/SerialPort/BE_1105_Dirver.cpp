@@ -492,7 +492,7 @@ unsigned char * BE_1105_Driver::get_cmd(int run_mode,int speed,int circle)
 	const unsigned int be_1105_addr = 0;
 	const unsigned int one_circle = 25000;
 	const unsigned int run_pulse =one_circle*circle;	
-	const unsigned int run_up_down_pulse = one_circle*0.1;//平滑
+	const unsigned int run_up_down_pulse = one_circle*0.01;//平滑
 	m_circle = circle;
 
 	m_cmd_ctrl[0] = 0xBA;// 实时控制指令

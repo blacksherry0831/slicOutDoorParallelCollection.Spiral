@@ -45,9 +45,12 @@ public:
 		StepMotorStop01,
 
 		RollerDone,
-		
+
 		RollerDoneQualified,
 		RollerDoneUnqualified,
+
+		SerialPortIsOpen,
+		SerialPortError
 
 	};
 
@@ -77,11 +80,12 @@ public:
 
 	int wait4PlcResp(QSharedPointer<CMD_CTRL> _cmd);
 	int wait4PlcRoolerReady(QSharedPointer<CMD_CTRL> _cmd);
+
 protected: 
 	virtual void run();
 signals:
 	void status_socket(int);
-	void status_sjts(SJTS_MACHINE_STATUS);
+	void status_sjts(int);
 
 
 };

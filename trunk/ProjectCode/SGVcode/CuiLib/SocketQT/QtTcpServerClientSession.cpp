@@ -37,7 +37,7 @@ QtTcpServerClientSession::~QtTcpServerClientSession()
 {
 
 	m_clientThreads.clear();
-	this->close();
+	
 }
 
 /*-------------------------------------*/

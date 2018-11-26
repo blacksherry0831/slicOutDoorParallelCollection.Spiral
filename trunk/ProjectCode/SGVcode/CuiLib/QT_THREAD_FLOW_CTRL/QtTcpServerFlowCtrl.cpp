@@ -43,10 +43,10 @@ void QtTcpServerFlowCtrl::incomingConnection(qintptr socketDescriptor)
 *
 */
 /*-------------------------------------*/
-void QtTcpServerFlowCtrl::NotifiedClientSession(CMD_CTRL::CMD_TYPE_02_C _type_c)
+void QtTcpServerFlowCtrl::NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c)
 {
 	
-	QSharedPointer<CMD_CTRL> qsp_cc_t = CMD_CTRL::getFpgaStartCmdEx(_type_c, (CMD_CTRL::WorkMode)mWorkMode);
+	QSharedPointer<CMD_CTRL> qsp_cc_t = CMD_CTRL::getLocalCmdEx(_type_c);
 		
 	this->SendMsg2ClientSession(qsp_cc_t);
 	

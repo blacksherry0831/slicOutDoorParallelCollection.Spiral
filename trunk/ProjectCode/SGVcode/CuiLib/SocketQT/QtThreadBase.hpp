@@ -30,11 +30,16 @@ public:
 	void SleepMy(int _ms);
 	void startServer();
 	void closeServer();
+	void closeServerAsync();
+	void closeServerSync();
+	void wait4ServerClose();
+private:
+
 signals:
 	void status_message(const QString& _msg);
-protected: 
+public: 
 	virtual void run();
 
-	void wait4ServerClose();
+
 
 };

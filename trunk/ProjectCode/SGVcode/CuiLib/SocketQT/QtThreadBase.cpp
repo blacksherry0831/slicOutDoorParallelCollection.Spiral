@@ -39,7 +39,7 @@ QtThreadBase::QtThreadBase(QObject *parent):QThread(parent)
 /*-------------------------------------*/
 QtThreadBase::~QtThreadBase(void)
 {
-	this->closeServer();
+	this->M_THREAD_RUN = false;
 }
 /*-------------------------------------*/
 /**
@@ -102,15 +102,26 @@ void QtThreadBase::startServer()
 void QtThreadBase::closeServer()
 {
 	this->M_THREAD_RUN = false;
-
-#if 0
-	while (this->isRunning())
-	{
-		QThread::sleep(1);
-		std::cout <<"wait for thread done";
-	}
-#endif // 0
-
+	quit();
+}
+/*-------------------------------------*/
+/**
+*Òì²½
+*/
+/*-------------------------------------*/
+void QtThreadBase::closeServerAsync()
+{
+	this->closeServer();
+}
+/*-------------------------------------*/
+/**
+*Í¬²½
+*/
+/*-------------------------------------*/
+void QtThreadBase::closeServerSync()
+{
+	this->closeServer();
+	this->wait4ServerClose();
 
 }
 /*-------------------------------------*/

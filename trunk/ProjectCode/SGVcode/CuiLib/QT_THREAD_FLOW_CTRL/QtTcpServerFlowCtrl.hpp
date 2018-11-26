@@ -30,6 +30,6 @@ protected:
 	int mWorkMode;
 	void initWorkMode();
 public:
-	void NotifiedClientSession(CMD_CTRL::CMD_TYPE_02_C _type_c);
+	void NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c);
 
 };

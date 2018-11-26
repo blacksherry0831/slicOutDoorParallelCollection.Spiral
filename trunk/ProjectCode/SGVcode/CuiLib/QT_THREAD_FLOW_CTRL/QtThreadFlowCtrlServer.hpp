@@ -38,9 +38,12 @@ public:
 	~QtThreadFlowCtrlServer(void);
 private:
 	QSharedPointer<QtTcpServerFlowCtrl>	 mQtTcpServer;
+
 protected:
 	virtual void run();
-
 public:
-	void NotifiedClientSession(CMD_CTRL::CMD_TYPE_02_C _event);
+	void StopTcpServer();
+public:
+	void NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _event);
+
 };

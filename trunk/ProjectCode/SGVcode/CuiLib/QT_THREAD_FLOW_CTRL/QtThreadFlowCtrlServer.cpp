@@ -36,13 +36,29 @@ void QtThreadFlowCtrlServer::run()
 		this->exec();
 	}
 
+	this->StopTcpServer();
+
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void QtThreadFlowCtrlServer::NotifiedClientSession(CMD_CTRL::CMD_TYPE_02_C _event)
+void QtThreadFlowCtrlServer::StopTcpServer()
+{
+
+	if (mQtTcpServer.isNull()){
+		mQtTcpServer->close();
+		mQtTcpServer.clear();
+	}
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadFlowCtrlServer::NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _event)
 {	
 	this->mQtTcpServer->NotifiedClientSession(_event);
 

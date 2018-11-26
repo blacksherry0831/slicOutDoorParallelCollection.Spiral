@@ -28,8 +28,9 @@ private:
 
 private:
 	void init_connect();
+	void printf_event(std::string _event, std::string _msg);
 public slots:
-	   void sjts_status(QtThreadPLC::SJTS_MACHINE_STATUS _sjts_status);
+	   void sjts_status(int _sjts_status_int);
 
 };
 

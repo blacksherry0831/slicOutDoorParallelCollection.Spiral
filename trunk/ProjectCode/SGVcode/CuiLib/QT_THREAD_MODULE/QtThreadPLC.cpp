@@ -210,11 +210,9 @@ int QtThreadPLC::MoveSlidingThenRunMotor(QSharedPointer<BE_1105_Driver>	 be_1105
 			}
 			return TRUE;
 
-		}
-		else if (cmd_t->IsRoolerReady()) {
+		}else if (cmd_t->IsRoolerReady()) {
 			continue;
-		}
-		else {
+		}else {
 			std::cout << "EVENT>>" << "Error Cmd!" << std::endl;
 			return FALSE;
 		}
@@ -409,13 +407,17 @@ void  QtThreadPLC::init_serial_port(QSharedPointer<BE_1105_Driver>	 _be_1105)
 		_be_1105->open_auto();
 
 		if (_be_1105->init() == TRUE) {
+			
+			emit status_sjts(SJTS_MACHINE_STATUS::SerialPortIsOpen);
 			break;
+			
 		}else{
 			QThread::msleep(1000);
 			std::cout << "EVENT>>" << "Cant Open Serial Port !" << std::endl;
+			emit status_sjts(SJTS_MACHINE_STATUS::SerialPortError);
 		}
 
-	} while (_be_1105->init() == FALSE);
+	} while (_be_1105->init() == FALSE && M_THREAD_RUN);
 }
 /*-------------------------------------*/
 /**
