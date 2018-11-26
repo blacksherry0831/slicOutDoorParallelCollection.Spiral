@@ -39,8 +39,7 @@ SET(QT_DONT_USE_QTGUI TRUE)
 					Qt5::SerialPort
 					Qt5::Network)
 	
-	INCLUDE_DIRECTORIES(
-	QtNetwork
+	INCLUDE_DIRECTORIES(	
 					${Qt5Widgets_INCLUDES}
 					${Qt5Core_INCLUDES}
 					${Qt5Gui_INCLUDES}
