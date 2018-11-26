@@ -107,9 +107,9 @@ void QtThreadClientCtrl::run_00()
 			this->emit_status_message(mStatusMessage = QString("CMD>> Send Start cmd"));
 
 
-			m_socket->Send_Start_CMD(CMD_CTRL::CMD_TYPE_02_C::CT_START, mWorkMode);
+			Send_Start_CMD(CMD_CTRL::CMD_TYPE_02_C::CT_START, mWorkMode);
 
-			if (m_socket->Read_1_cmd(cmd_t.data()) == 0) {
+			if (Read_1_cmd(cmd_t) == 0) {
 				break;
 			}
 
@@ -130,11 +130,11 @@ void QtThreadClientCtrl::run_00()
 				}
 				else {
 					//no cmd
-					if (m_socket->SendHearbeatCmd() == 0) {
+					if (SendHearbeatCmd() == 0) {
 						break;
 					}
 					else {
-						this->Sleep(1000);
+						this->SleepMy(1000);
 					}
 
 				}
@@ -145,9 +145,10 @@ void QtThreadClientCtrl::run_00()
 #if TRUE
 			//step 2
 			this->emit_status_message(mStatusMessage = QString("CMD>> Send Stop "));
-			m_socket->Send_Start_CMD(CMD_CTRL::CMD_TYPE_02_C::CT_STOP, mWorkMode);
+			
+			Send_Start_CMD(CMD_CTRL::CMD_TYPE_02_C::CT_STOP, mWorkMode);
 
-			if (m_socket->Read_1_cmd(cmd_t.data()) == 0) {
+			if (Read_1_cmd(cmd_t) == 0) {
 				break;
 			}
 			else {
@@ -162,7 +163,7 @@ void QtThreadClientCtrl::run_00()
 #endif		
 
 #if TRUE
-			this->Sleep(3 * 1000);
+			this->SleepMy(3 * 1000);
 #endif // TRUE
 
 
@@ -244,7 +245,7 @@ int QtThreadClientCtrl::SendCmdCtrl()
 		
 		QSharedPointer<CMD_CTRL> cmd_ctrl_t=cmds.getCmd();
 		
-		return	m_socket->Send_1_cmd(cmd_ctrl_t.data());
+		return	Send_1_cmd(cmd_ctrl_t);
 	
 	}
 			
@@ -406,12 +407,12 @@ int QtThreadClientCtrl::SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C _start_stop)
 		this->emit_status_message(mStatusMessage = QString("CMD>> Send Stop "));
 	}
 
-	if (0 == m_socket->Send_Start_CMD(_start_stop, mWorkMode)) {
+	if (0 == Send_Start_CMD(_start_stop, mWorkMode)) {
 	
 		return  SocketErrorMy;
 	}
 
-	if (0 == m_socket->Read_1_cmd(cmd_t.data())) {
+	if (0 == Read_1_cmd(cmd_t)) {
 
 		return  SocketErrorMy;
 	
@@ -438,7 +439,7 @@ int QtThreadClientCtrl::SendHearbeatCmd()
 	static int SleepTimes = 0;
 	int result_t = INIT_MY;
 
-	this->Sleep(SleepInterval);
+	this->SleepMy(SleepInterval);
 
 	SleepTimes++;
 
@@ -446,7 +447,7 @@ int QtThreadClientCtrl::SendHearbeatCmd()
 	{
 #if 1
 		//no cmd
-		if (0 == m_socket->SendHearbeatCmd()) {
+		if (0 == SendHearbeatCmd()) {
 			result_t = SocketErrorMy;
 		}
 		else {

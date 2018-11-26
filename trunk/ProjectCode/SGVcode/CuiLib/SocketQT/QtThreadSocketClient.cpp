@@ -15,6 +15,7 @@
 /*-------------------------------------*/
 QtThreadSocketClient::QtThreadSocketClient()
 {
+	this->init_param();
 #if 1
 	mIpAddr = "192.168.100.101";
 #else
@@ -22,8 +23,7 @@ QtThreadSocketClient::QtThreadSocketClient()
 #endif // 0
 	m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
 	m_socket->moveToThread(this);
-	this->ptr_sd =-1;
-	this->mSocketConnected = FALSE;
+
 }
 /*-------------------------------------*/
 /**
@@ -32,6 +32,8 @@ QtThreadSocketClient::QtThreadSocketClient()
 /*-------------------------------------*/
 QtThreadSocketClient::QtThreadSocketClient(qintptr p)
 {
+	this->init_param();
+	this->ptr_sd = p;
 	this->write_ptr(p);
 }
 /*-------------------------------------*/
@@ -42,6 +44,17 @@ QtThreadSocketClient::QtThreadSocketClient(qintptr p)
 QtThreadSocketClient::~QtThreadSocketClient(void)
 {
 	qDebug() << "QtThreadClient is Release ! ";
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadSocketClient::init_param()
+{
+	this->ptr_sd = -1;
+	this->mSocketConnected = FALSE;
+	this->mSleepTime = 0;
 }
 /*-------------------------------------*/
 /**
@@ -80,6 +93,7 @@ void QtThreadSocketClient::init_socket_client_session()
 	if (ptr_sd >= 0) {
 		m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
 		m_socket->setSocketDescriptor(ptr_sd);
+		mSocketConnected=TRUE;
 	}
 }
 /*-------------------------------------*/
@@ -188,7 +202,7 @@ void  QtThreadSocketClient::connect2ServerIfNoConnected()
 				mSocketConnected=TRUE;
 				break;
 			}else{
-				
+				mSocketConnected = FALSE;
 				m_socket->disconnectFromHostMy();
 				this->emit_status_message(mStatusMessage = QString("Socket>> ").append("Connect  fail: "));
 				emit socket_connect_state(false);
@@ -340,6 +354,77 @@ QSharedPointer<CMD_CTRL> QtThreadSocketClient::GetMsg()
 void QtThreadSocketClient::ClearMsg()
 {
 	mCmdMsgQ.clear();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int  QtThreadSocketClient::Send_1_cmd(QSharedPointer<CMD_CTRL> _cmd)
+{
+	mSocketConnected = this->m_socket->Send_1_cmd(_cmd.data());
+	return mSocketConnected;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int  QtThreadSocketClient::Read_1_cmd(QSharedPointer<CMD_CTRL> _cmd)
+{
+	mSocketConnected = this->m_socket->Read_1_cmd(_cmd.data());
+	return mSocketConnected;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int QtThreadSocketClient::Send_Start_CMD(CMD_CTRL::CMD_TYPE_02_C _type_c, CMD_CTRL::WorkMode _wm)
+{
+
+	QSharedPointer<CMD_CTRL> qsp_cc_t = CMD_CTRL::getFpgaStartCmdEx(_type_c, _wm);
+
+	return Send_1_cmd(qsp_cc_t);
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int QtThreadSocketClient::SendHearbeatCmd()
+{
+	QSharedPointer<CMD_CTRL> qsp_cc_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
+	qsp_cc_t->getHeartBeatCmd(0);
+	return Send_1_cmd(qsp_cc_t);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+ResultMy QtThreadSocketClient::read_n_byte(int _n)
+{
+	return this->m_socket->read_n_byte(_n);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int QtThreadSocketClient::getByteTcpRead()
+{
+	return this->m_socket->getByteTcpRead();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+ResultMy QtThreadSocketClient::write_n_byte(const char * const _data, const int _size)
+{
+	return this->m_socket->write_n_byte(_data,_size);
 }
 /*-------------------------------------*/
 /**

@@ -445,7 +445,7 @@ int QtTcpClient::IsSocketAlive()
 int QtTcpClient::IsSocketConnected()
 {
 	QAbstractSocket::SocketState stat_t = this->state();
-
+	QAbstractSocket::SocketError error_t = this->error();
 	if (stat_t == QAbstractSocket::SocketState::UnconnectedState) {
 
 		std::cout << "socket is UnconnectedState" << std::endl;

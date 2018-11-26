@@ -23,13 +23,16 @@ public:
 	QtThreadSocketClient(qintptr p);
 	QtThreadSocketClient();
 	~QtThreadSocketClient(void);
+protected:
+	QSharedPointer<QtTcpClient>  m_socket;//客户端的定义
 protected:	
 	//定义自己需要的方法或变量  
 	qintptr ptr_sd;	
-	QSharedPointer<QtTcpClient>  m_socket;//客户端的定义
+
 	std::string mIpAddr;
 	int mPort;
 	int mSocketConnected;
+	
 public:
 	int IsSocketConnectedThreadRunning();
 public:
@@ -44,13 +47,21 @@ public:
 	void write_ptr(qintptr p);
 	void init_socket();
 	void init_socket_client_session();
-	
+	void init_param();
 	void SetIpAddr(QString _ipAddr);
 public:
 	void startServer();
 	void closeServer();
 	void closeRunningServer();
 	void wait4ServerClose();
+public:
+	int Send_1_cmd(QSharedPointer<CMD_CTRL> _cmd);
+	int Read_1_cmd(QSharedPointer<CMD_CTRL> _cmd);
+	int Send_Start_CMD(CMD_CTRL::CMD_TYPE_02_C _type_c, CMD_CTRL::WorkMode _wm);
+	int SendHearbeatCmd();
+	ResultMy read_n_byte(int _n);
+	ResultMy write_n_byte(const char * const _data, const int _size);
+	int getByteTcpRead();;
 public:
 	int send_and_read_resp(QSharedPointer<CMD_CTRL> _cmd_send);
 signals:

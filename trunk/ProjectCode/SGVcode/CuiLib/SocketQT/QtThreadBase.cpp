@@ -31,6 +31,7 @@ QtThreadBase::QtThreadBase(QObject *parent):QThread(parent)
 	this->IDENTIFY=qrand();
 
 	mThreadName = __func__;
+	mSleepTime = 0;
 }
 /*-------------------------------------*/
 /**
@@ -64,25 +65,17 @@ void QtThreadBase::emit_status_message(const QString & _msg)
 *
 */
 /*-------------------------------------*/
-void QtThreadBase::Sleep(int _ms)
-{
-	do {
-
-		QThread::msleep(100);
-		_ms -= 100;
-
-	} while ( M_THREAD_RUN  &&_ms > 0);
-
-	
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
 void QtThreadBase::SleepMy(int _ms)
 {
-	Sleep(_ms);
+	const int SLEEP_100MS = 100;
+	do {
+
+		QThread::msleep(SLEEP_100MS);
+		_ms -= SLEEP_100MS;
+		mSleepTime += SLEEP_100MS;
+
+	} while (M_THREAD_RUN  &&_ms > 0);
+
 }
 /*-------------------------------------*/
 /**

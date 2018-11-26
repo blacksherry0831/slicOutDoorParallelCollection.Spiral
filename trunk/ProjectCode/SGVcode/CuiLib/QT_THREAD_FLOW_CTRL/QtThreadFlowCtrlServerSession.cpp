@@ -26,22 +26,26 @@ QtThreadFlowCtrlServerSession::~QtThreadFlowCtrlServerSession(void)
 /*-------------------------------------*/
 void QtThreadFlowCtrlServerSession::run()
 {
-
+		
 	this->ClearMsg();
 
 	this->init_socket_client_session();
 	
-	while (M_THREAD_RUN){
+			while (M_THREAD_RUN && this->IsSocketAliveEx() && mSocketConnected){
 		
-		QSharedPointer<CMD_CTRL> cmd_t = this->GetMsg();
+					QSharedPointer<CMD_CTRL> cmd_t = this->GetMsg();
 
-		if (cmd_t.isNull()){
-			this->SleepMy(100);
-		}else{
-			this->m_socket->Send_1_cmd(cmd_t.data());
-		}
-		
-	}
+					if (cmd_t.isNull()){
+						this->SleepMy(100);
+					}else{
+						Send_1_cmd(cmd_t);
+					}
+
+					if (0==mSleepTime%1000){
+						mSocketConnected = SendHearbeatCmd();
+					}
+				
+			}
 	
 	this->closeSocket();
 

@@ -21,12 +21,13 @@ protected:
 	bool M_THREAD_RUN;
 	int  MAX_MSECS;
 	int IDENTIFY;
+	unsigned long mSleepTime;
 protected:
 	QString mStatusMessage;
 	QString mThreadName;
 	void emit_status_message(const QString& _msg);
+
 public:
-	void Sleep(int _ms);
 	void SleepMy(int _ms);
 	void startServer();
 	void closeServer();

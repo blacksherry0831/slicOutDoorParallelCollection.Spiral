@@ -96,7 +96,7 @@ void QtThread8Video::run()
 			{
 					QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
 						
-					if (m_socket->Read_1_cmd(cmd_t.data()) == 0) {
+					if (Read_1_cmd(cmd_t) == 0) {
 							break;
 					}					
 

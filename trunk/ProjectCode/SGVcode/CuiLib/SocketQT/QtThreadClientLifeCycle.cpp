@@ -73,9 +73,9 @@ void QtThreadClientLifeCycle::FactorySetting()
 	
 	while (M_THREAD_RUN) {
 	
-						this->m_socket->read_n_byte(1);
+						read_n_byte(1);
 
-						int Ctrl_t = this->m_socket->getByteTcpRead();
+						int Ctrl_t = getByteTcpRead();
 
 						if (Ctrl_t == 0xffffffff) {
 							//error
@@ -122,11 +122,11 @@ int QtThreadClientLifeCycle::SendParamJson(QString _param)
 	QByteArray QLEN = QtThreadClientLifeCycle::Int2Uchar4BigEndian(LEN);
 
 
-	ResultMy result_my_t= this->m_socket->write_n_byte(QLEN.data(), QLEN.size());
+	ResultMy result_my_t= write_n_byte(QLEN.data(), QLEN.size());
 	
 	if (result_my_t == ResultMy::TRUE_MY) {
 			
-			result_my_t=this->m_socket->write_n_byte(BODY, LEN);
+			result_my_t=write_n_byte(BODY, LEN);
 				
 				if (result_my_t == ResultMy::TRUE_MY) {
 
@@ -146,7 +146,7 @@ int QtThreadClientLifeCycle::SendParamJson(QString _param)
 int QtThreadClientLifeCycle::SendCmd2SetParam(char _cmd)
 {
 
-	ResultMy result_my_t = this->m_socket->write_n_byte(&_cmd,sizeof(_cmd));
+	ResultMy result_my_t =write_n_byte(&_cmd,sizeof(_cmd));
 
 	if (result_my_t==ResultMy::TRUE_MY){
 		return TRUE;
@@ -214,9 +214,9 @@ void QtThreadClientLifeCycle::UpdateDeadline(QString _cmd_json)
 
 	while (M_THREAD_RUN) {
 
-		this->m_socket->read_n_byte(1);
+		read_n_byte(1);
 
-		int Ctrl_t = this->m_socket->getByteTcpRead();
+		int Ctrl_t = getByteTcpRead();
 
 		if (Ctrl_t == 0xffffffff) {
 			//error

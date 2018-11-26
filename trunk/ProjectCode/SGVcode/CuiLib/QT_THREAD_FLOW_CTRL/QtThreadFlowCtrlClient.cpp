@@ -51,26 +51,21 @@ void QtThreadFlowCtrlClient::run()
 
 			this->connect2ServerIfNoConnected();
 
-						while (M_THREAD_RUN) {
+						while (M_THREAD_RUN && mSocketConnected) {
 
 							QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
 							
 							cmd_t->SetCmdLocal();
 
-								if (TRUE==this->m_socket->Read_1_cmd(cmd_t.data())) {
-								
-									if (cmd_t->isHeartbeatCmd()) {
 
-									}else if (cmd_t->IsCmdLocal()) {
-
-										QtThreadClientCtrl::SetCmd(cmd_t);
-
-									}else {
-										
-									}							
-								}else {
-								
-									break;
+								if (Read_1_cmd(cmd_t)){
+									if (cmd_t->IsCmdLocal()){
+										if (cmd_t->isHeartbeatCmd()){
+											cmd_t.clear();
+										}else{
+											QtThreadClientCtrl::SetCmd(cmd_t);
+										}
+									}
 								}
 
 						}

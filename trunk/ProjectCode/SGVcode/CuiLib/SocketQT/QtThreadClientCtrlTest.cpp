@@ -66,13 +66,14 @@ void QtThreadClientCtrlTest::run()
 			while (M_THREAD_RUN) {
 			
 				QByteArray qba = QByteArray(1920 * 1080,(data++%255));
-									
+#if 0					
 				this->m_socket->WriteMy(qba);
+#endif
 			}
 
 	 	}
 
-		m_socket->close();
+		this->closeSocket();
 }
 /*-------------------------------------*/
 /**
