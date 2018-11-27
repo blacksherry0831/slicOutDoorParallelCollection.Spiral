@@ -182,7 +182,7 @@ void QtThreadPLC::run1()
 *
 */
 /*-------------------------------------*/
-int QtThreadPLC::MoveSlidingThenRunMotor(QSharedPointer<BE_1105_Driver>	 be_1105,int _pos, int _isRun)
+int QtThreadPLC::MoveSlidingThenRunMotor(QSharedPointer<BE_1105_Driver>	 be_1105,const int _pos, int _isRun)
 {
 	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
 	int IS_SOCKET_OK = FALSE;
@@ -202,10 +202,14 @@ int QtThreadPLC::MoveSlidingThenRunMotor(QSharedPointer<BE_1105_Driver>	 be_1105
 				//roooler is ready !!!
 			std::cout << "EVENT>> " << "Now into inter  !" <<_pos << std::endl;
 			if (_isRun) {
-				
+
+				this->emit_step_motor_start(_pos);
+
 				be_1105->SendCmd4Done(BE_1105_RUN_NEG, 
 										BE_1105_RUN_SPEED_CRACK_DETECT, 
 										BE_1105_RUN_CIRCLE_CRACK_DETECT);
+
+				this->emit_step_motor_stop(_pos);
 				
 			}
 			return TRUE;
@@ -437,7 +441,7 @@ int QtThreadPLC::stepMotorRun(QSharedPointer<BE_1105_Driver>	 _be_1105)
 		int step_t = STEP[i];
 		int run_t = TRUE;
 
-		this->emit_step_motor_start(i);
+	
 		
 		IsOK = this->MoveSlidingThenRunMotor(_be_1105, step_t, run_t);
 
@@ -445,8 +449,7 @@ int QtThreadPLC::stepMotorRun(QSharedPointer<BE_1105_Driver>	 _be_1105)
 			return IsOK;
 		}
 
-		this->emit_step_motor_stop(i);
-
+		
 	}
 
 #endif // TRUE

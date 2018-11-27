@@ -69,7 +69,7 @@ public:
 	void Run0();
 	void run1();
 
-	int MoveSlidingThenRunMotor(QSharedPointer<BE_1105_Driver>	 be_1105,int _pos,int _isRun);
+	int MoveSlidingThenRunMotor(QSharedPointer<BE_1105_Driver>	 be_1105,const int _pos,int _isRun);
 
 	int read_plc_cmd(QSharedPointer<CMD_CTRL> _cmd);
 	void process_plc_cmd(QSharedPointer<CMD_CTRL> _cmd, QSharedPointer<BE_1105_Driver> _be_1105);

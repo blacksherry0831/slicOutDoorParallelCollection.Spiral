@@ -486,7 +486,7 @@ int BE_1105_Driver::IsCmdPosDone()
 *
 */
 /*-------------------------------------*/
-unsigned char * BE_1105_Driver::get_cmd(int run_mode,int speed,int circle)
+unsigned char * BE_1105_Driver::get_cmd(int run_mode,int speed,float circle)
 {	
 	const unsigned int division_factor = speed;
 	const unsigned int be_1105_addr = 0;
@@ -557,7 +557,7 @@ unsigned char * BE_1105_Driver::get_query_cmd()
 *
 */
 /*-------------------------------------*/
-int BE_1105_Driver::SendCmd(int run_mode, int speed, int circle)
+int BE_1105_Driver::SendCmd(int run_mode, int speed, float circle)
 {
 	m_cmd_mode = 0xBA;
 	memset(m_status, 0x55, sizeof(m_status));
@@ -585,7 +585,7 @@ int BE_1105_Driver::SendRunStatusCmd()
 *
 */
 /*-------------------------------------*/
-int BE_1105_Driver::SendCmd4Done(int _run_mode, int _speed, int _circle)
+int BE_1105_Driver::SendCmd4Done(int _run_mode, int _speed, float _circle)
 {
 	int IsDone;
 	this->ClearResp();

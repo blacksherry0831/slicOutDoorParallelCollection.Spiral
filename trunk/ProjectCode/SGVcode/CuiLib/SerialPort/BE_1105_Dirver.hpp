@@ -25,8 +25,12 @@
 #define BE_1105_RUN_SPEED_6_20K (63000)
 #define BE_1105_RUN_SPEED_10_02K (64000)
 /*-------------------------------------*/
-#define BE_1105_RUN_SPEED_CRACK_DETECT (65000)
-#define BE_1105_RUN_CIRCLE_CRACK_DETECT (20)
+#define BE_1105_RUN_SPEED_FASTEST	(65000)
+#define BE_1105_RUN_SPEED_15S		(63500)
+#define BE_1105_RUN_ONE_CIRCLE		(10)
+/*-------------------------------------*/
+#define BE_1105_RUN_SPEED_CRACK_DETECT (BE_1105_RUN_SPEED_15S)
+#define BE_1105_RUN_CIRCLE_CRACK_DETECT (BE_1105_RUN_ONE_CIRCLE*1.04)
 /*-------------------------------------*/
 /**
 *
@@ -88,11 +92,11 @@ public:
 	int     m_cmd_mode;
 	int		m_circle;
 public:
-	unsigned char * get_cmd(int run_mode, int speed, int circle=1);
+	unsigned char * get_cmd(int run_mode, int speed, float circle=1);
 	unsigned char * get_query_cmd();
-	int  SendCmd(int run_mode, int speed, int circle=1);
+	int  SendCmd(int run_mode, int speed, float circle=1);
 	int  SendRunStatusCmd();
-	int  SendCmd4Done(int _run_mode, int _speed, int _circle = 1);
+	int  SendCmd4Done(int _run_mode, int _speed, float _circle = 1);
 	int  SendQueryCmd(int mode);
 	int  ReadResp();
 	void ClearResp();
