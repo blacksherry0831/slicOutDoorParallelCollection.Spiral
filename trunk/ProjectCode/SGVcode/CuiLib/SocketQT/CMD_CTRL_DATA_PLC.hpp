@@ -23,5 +23,23 @@ public:
 	CMD_CTRL_DATA_PLC();
 	~CMD_CTRL_DATA_PLC();
 public:
+	/*-----------------------------------*/
+
+	enum CMD_PLC_TYPE {
+		CT_STATUS = 's',
+		CT_CMD = 'c',
+		CT_RESP = 'r',
+	};
+	
+	/*-----------------------------------*/
+
+	enum CMD_PLC_STATUS_TYPE {
+		CS_READY = 0x10,
+		CS_MOVE2POS =0x20,
+		CS_ABORT= 0x30
+	};
+
+	/*-----------------------------------*/
+
 
 };

@@ -76,11 +76,9 @@ void QtThreadPLC::Run0()
 	int IS_SOCKET_OK = FALSE;
 
 	this->init_serial_port(be_1105);
-
-
+	
 	while (M_THREAD_RUN) {
-
-
+		
 		this->connect2ServerIfNoConnected();
 
 		while (m_socket->IsSocketAlive()) {
@@ -98,11 +96,9 @@ void QtThreadPLC::Run0()
 #endif // 0
 
 			this->stepMotorRun(be_1105);
-
-
+			
 			emit status_sjts(SJTS_MACHINE_STATUS::RollerDone);
-
-
+			
 #if TRUE
 			//rooler is ok or bad
 			m_socket->SendPlcRollerQualified(CMD_CTRL::CT_OK);
@@ -203,23 +199,28 @@ int QtThreadPLC::MoveSlidingThenRunMotor(QSharedPointer<BE_1105_Driver>	 be_1105
 			std::cout << "EVENT>> " << "Now into inter  !" <<_pos << std::endl;
 			if (_isRun) {
 
-				this->emit_step_motor_start(_pos);
+				this->emit_step_motor_start(_pos-1);
 
 				be_1105->SendCmd4Done(BE_1105_RUN_NEG, 
 										BE_1105_RUN_SPEED_CRACK_DETECT, 
 										BE_1105_RUN_CIRCLE_CRACK_DETECT);
 
-				this->emit_step_motor_stop(_pos);
+				this->emit_step_motor_stop(_pos-1);
 				
 			}
 			return TRUE;
 
 		}else if (cmd_t->IsRoolerReady()) {
 			continue;
-		}else {
+		}else if (cmd_t->IsAbortStop()) {
+			printf_event("EVENT", "Rooler is Abort Stop !");
+
+			return FALSE;
+		}else{
 			std::cout << "EVENT>>" << "Error Cmd!" << std::endl;
 			return FALSE;
 		}
+
 	} while (m_socket->IsSocketAlive());
 	
 #endif // TRUE
@@ -374,8 +375,14 @@ int QtThreadPLC::wait4PlcRoolerReady(QSharedPointer<CMD_CTRL> _cmd)
 			printf_event("EVENT", "Rooler is Ready !");
 			return TRUE;
 		}
-		else {
+		else if (_cmd->IsAbortStop())
+		{
+			printf_event("EVENT", "Rooler is Abort Stop !");
+
+		}else{
 			printf_event("ERROR", "Error Cmd!");
+			printf_event("ERROR", "this is Error Cmd ! do you know why ????????????????");
+			//Q_ASSERT(FALSE);
 			break;
 		}
 
@@ -436,16 +443,14 @@ int QtThreadPLC::stepMotorRun(QSharedPointer<BE_1105_Driver>	 _be_1105)
 	const  int STEP_NUM = sizeof(STEP) / sizeof(int);
 	int IsOK = FALSE;
 
-	for (size_t i = 0; i<STEP_NUM; i++) {
+	for (size_t i = STEP[0]; i<=STEP[STEP_NUM-1]; i++) {
 		
-		int step_t = STEP[i];
-		int run_t = TRUE;
-
-	
+		int step_t = i;
+		int run_t = TRUE;	
 		
 		IsOK = this->MoveSlidingThenRunMotor(_be_1105, step_t, run_t);
 
-		if (!IsOK) {
+		if (FALSE==IsOK) {
 			return IsOK;
 		}
 

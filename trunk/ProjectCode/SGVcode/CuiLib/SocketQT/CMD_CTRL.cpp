@@ -263,7 +263,8 @@ int CMD_CTRL::SensorStat()
 int CMD_CTRL::IsIntoInnerReady()
 {
 	//工件就绪
-	if (this->f_header.f_cmd[0] == 's' && this->f_header.f_cmd[1] == 0x20) {
+	if (this->f_header.f_cmd[0] ==CMD_PLC_TYPE::CT_STATUS &&
+		this->f_header.f_cmd[1] ==CMD_PLC_STATUS_TYPE ::CS_MOVE2POS) {
 		return TRUE;
 	}
 	return FALSE;
@@ -276,8 +277,11 @@ int CMD_CTRL::IsIntoInnerReady()
 int CMD_CTRL::IsRoolerReady()
 {
 	//工件就绪
-	if (this->f_header.f_cmd[0] == 's' && this->f_header.f_cmd[1] == 0x10) {
+	if (this->f_header.f_cmd[0] ==CMD_PLC_TYPE::CT_STATUS &&
+		this->f_header.f_cmd[1] ==CMD_PLC_STATUS_TYPE::CS_READY) {
+		
 		return TRUE;
+
 	}
 
 	return FALSE;
@@ -290,7 +294,8 @@ int CMD_CTRL::IsRoolerReady()
 int CMD_CTRL::IsAbortStop()
 {
 	//急停
-	if (this->f_header.f_cmd[0] == 's' && this->f_header.f_cmd[1] == 0x30) {
+	if (this->f_header.f_cmd[0] == CMD_PLC_TYPE::CT_STATUS &&
+		this->f_header.f_cmd[1] == CMD_PLC_STATUS_TYPE::CS_ABORT) {
 		return TRUE;
 	}
 

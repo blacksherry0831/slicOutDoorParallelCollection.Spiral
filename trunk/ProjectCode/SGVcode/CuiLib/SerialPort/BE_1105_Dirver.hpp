@@ -24,9 +24,10 @@
 #define BE_1105_RUN_SPEED_1_56K (55000)
 #define BE_1105_RUN_SPEED_6_20K (63000)
 #define BE_1105_RUN_SPEED_10_02K (64000)
+#define BE_1105_RUN_SPEED_25_00K (65000)
 /*-------------------------------------*/
-#define BE_1105_RUN_SPEED_FASTEST	(65000)
-#define BE_1105_RUN_SPEED_15S		(63500)
+#define BE_1105_RUN_SPEED_FASTEST	(BE_1105_RUN_SPEED_25_00K)
+#define BE_1105_RUN_SPEED_15S		(64500)
 #define BE_1105_RUN_ONE_CIRCLE		(10)
 /*-------------------------------------*/
 #define BE_1105_RUN_SPEED_CRACK_DETECT (BE_1105_RUN_SPEED_15S)
