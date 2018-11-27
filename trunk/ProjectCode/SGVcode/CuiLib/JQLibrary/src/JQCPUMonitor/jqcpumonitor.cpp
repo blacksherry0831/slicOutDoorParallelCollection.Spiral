@@ -168,7 +168,7 @@ void JQCPUMonitor::tick()
     {
         qDebug() << "JQCPUMonitor::tick: error(2)";
         return;
-  ./EXE  }
+    }
 
     currentCpuTime += dataList[ 1 ].toLongLong() * 10; // user
     currentCpuTime += dataList[ 2 ].toLongLong() * 10; // nice
