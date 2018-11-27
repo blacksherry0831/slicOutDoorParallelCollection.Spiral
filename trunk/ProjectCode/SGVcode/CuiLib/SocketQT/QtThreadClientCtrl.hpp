@@ -39,6 +39,9 @@ public:
 	static void SetCmd(QSharedPointer<CMD_CTRL> _cmd);
 	static void SetLocalCmd(int cmd_00);
 	static void ClearCmd();
+	
+public:
+	static int IsCmdLocalFPGA(QSharedPointer<CMD_CTRL> _cmd);
 public:
 
 	int SendCmdCtrl();

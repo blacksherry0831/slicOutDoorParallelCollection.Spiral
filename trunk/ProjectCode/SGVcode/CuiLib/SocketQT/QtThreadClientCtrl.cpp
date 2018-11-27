@@ -72,6 +72,7 @@ void QtThreadClientCtrl::SetDataPipe(QSharedPointer <QtThreadSocketClient> _data
 int QtThreadClientCtrl::IsDataPipeOK()
 {
 
+	Q_ASSERT(FALSE);
 	if (!this->mDataPipe.isNull()) {
 	
 		return this->mDataPipe->IsSocketConnectedThreadRunning();
@@ -198,13 +199,11 @@ void QtThreadClientCtrl::run_01()
 		this->connect2ServerIfNoConnected();
 
 		while (M_THREAD_RUN) {
-
-						if (this->IsDataPipeOK()) {
-								if (SocketErrorMy==this->ProcessCmds()) {
-									break;
-								}
+ 									
+						if (SocketErrorMy==this->ProcessCmds()) {
+								break;
 						}
-
+						
 						if (SocketErrorMy == this->SendHearbeatCmd()) {
 								break;
 						}
@@ -273,6 +272,7 @@ int QtThreadClientCtrl::ProcessCmds()
 				}else {					
 					Q_ASSERT(0);
 				}
+
 	}else{
 
 
@@ -470,35 +470,7 @@ void QtThreadClientCtrl::SetLocalCmd(int cmd_00)
 	QtThreadClientCtrl::cmds.setCmd(cmd_t);
 
 #if _DEBUG
-	if (cmd_00==(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START)) {
-
-		
-
-	}else if (cmd_00 == (CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_00)) {
-
-
-
-	}else if (cmd_00 == (CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00)) {
-
-
-
-	}else if (cmd_00 == (CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01)) {
-
-
-
-	}
-	else if (cmd_00 == (CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01)) {
-
-
-
-	}else if (cmd_00 == (CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP)) {
-
-
-
-	}else {
-
-	}
-
+	
 #endif // _DEBUG
 
 	
@@ -520,6 +492,57 @@ void QtThreadClientCtrl::SetCmd(QSharedPointer<CMD_CTRL> _cmd)
 void QtThreadClientCtrl::ClearCmd()
 {
 	QtThreadClientCtrl::cmds.clear();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int QtThreadClientCtrl::IsCmdLocalFPGA(QSharedPointer<CMD_CTRL> _cmd)
+{
+
+	if (_cmd->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START)) {
+
+		printf_event("CMD_CTRL::CMD_TYPE_LOCAL::","CT_FPGA_START");
+		return TRUE;
+
+	}else if (_cmd->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_00)) {
+
+		printf_event("CMD_CTRL::CMD_TYPE_LOCAL::", "CT_FPGA_START_00");
+		return TRUE;
+
+	}
+	else if (_cmd->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00)) {
+
+		printf_event("CMD_CTRL::CMD_TYPE_LOCAL::", "CT_FPGA_STOP_00");
+		return TRUE;
+
+	}
+	else if (_cmd->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01)) {
+
+		printf_event("CMD_CTRL::CMD_TYPE_LOCAL::", "CT_FPGA_START_01");
+		return TRUE;
+
+	}
+	else if (_cmd->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01)) {
+
+		printf_event("CMD_CTRL::CMD_TYPE_LOCAL::", "CT_FPGA_STOP_01");
+		return TRUE;
+
+	}
+	else if (_cmd->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP)) {
+
+		printf_event("CMD_CTRL::CMD_TYPE_LOCAL::", "CT_FPGA_STOP");
+		return TRUE;
+
+	}
+	else {
+
+		Q_ASSERT(FALSE);
+	}
+
+	return FALSE;
+
 }
 /*-------------------------------------*/
 /**

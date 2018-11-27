@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1018</width>
-    <height>755</height>
+    <width>929</width>
+    <height>689</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -151,7 +151,7 @@
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>60</height>
+          <height>100</height>
          </size>
         </property>
         <property name="title">
@@ -241,7 +241,7 @@
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>60</height>
+          <height>100</height>
          </size>
         </property>
         <property name="title">
@@ -297,7 +297,7 @@
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>60</height>
+          <height>100</height>
          </size>
         </property>
         <property name="title">
@@ -334,6 +334,13 @@
              </property>
             </widget>
            </item>
+           <item>
+            <widget class="QCheckBox" name="checkBox">
+             <property name="text">
+              <string>探伤状态任务</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </item>
         </layout>
@@ -348,7 +355,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1018</width>
+     <width>929</width>
      <height>23</height>
     </rect>
    </property>

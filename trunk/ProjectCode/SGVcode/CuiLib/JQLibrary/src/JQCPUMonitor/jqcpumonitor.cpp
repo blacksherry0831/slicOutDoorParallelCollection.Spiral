@@ -161,13 +161,14 @@ void JQCPUMonitor::tick()
     }
 
     const auto &&dataList = QString( file.readLine() ).split( ' ', QString::SkipEmptyParts );
-    qDebug() << dataList;
+   
+	//qDebug() << dataList;
 
     if ( dataList.size() < 4 )
     {
         qDebug() << "JQCPUMonitor::tick: error(2)";
         return;
-    }
+  ./EXE  }
 
     currentCpuTime += dataList[ 1 ].toLongLong() * 10; // user
     currentCpuTime += dataList[ 2 ].toLongLong() * 10; // nice

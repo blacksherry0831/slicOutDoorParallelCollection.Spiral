@@ -26,7 +26,6 @@
 
 int plcServer(int argc, char *argv[])
 {
-
 	QCoreApplication a(argc, argv);
 
 	QSharedPointer<QtThreadPLC> plcdataServer = QSharedPointer<QtThreadPLC>(new QtThreadPLC(0));
@@ -36,6 +35,7 @@ int plcServer(int argc, char *argv[])
 	flowServerServer->startServer();
 
 	return a.exec();
+
 }
 
 

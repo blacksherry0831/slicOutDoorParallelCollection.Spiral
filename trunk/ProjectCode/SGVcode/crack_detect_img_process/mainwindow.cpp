@@ -980,11 +980,28 @@ QImage *MainWindow::IplImageToQImage( IplImage* const img)
 /*-------------------------------------*/
 void MainWindow::SetMaxWidthMy()
 {
+	
+#if defined(linux) || defined(__linux) || defined(__linux__) ||defined( __GNUC__)
 	QRect rec = QApplication::desktop()->screenGeometry();
 	int SCREEM_H = rec.height();
 	int SCREEN_W = rec.width();
 
 	this->setFixedWidth(SCREEN_W);
+	this->setFixedHeight(SCREEM_H);
+
+	
+#endif
+
+#if defined(_WIN32) || defined(_WIN64) || defined( _MSC_VER)
+	QRect rec = QApplication::desktop()->screenGeometry();
+	int SCREEM_H = rec.height();
+	int SCREEN_W = rec.width();
+
+	this->setFixedWidth(SCREEN_W);
+	this->setFixedHeight(SCREEM_H);
+#endif
+
+
 
 }
 /*-------------------------------------*/

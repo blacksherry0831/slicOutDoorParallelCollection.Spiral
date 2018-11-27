@@ -65,6 +65,15 @@ void QtThreadBase::emit_status_message(const QString & _msg)
 *
 */
 /*-------------------------------------*/
+void QtThreadBase::printf_event(std::string _event, std::string _msg)
+{
+	std::cout << _event << ">>" << _msg << std::endl;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void QtThreadBase::SleepMy(int _ms)
 {
 	const int SLEEP_100MS = 100;

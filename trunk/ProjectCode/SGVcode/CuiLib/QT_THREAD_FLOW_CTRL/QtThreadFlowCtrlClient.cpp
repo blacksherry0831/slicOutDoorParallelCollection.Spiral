@@ -63,6 +63,7 @@ void QtThreadFlowCtrlClient::run()
 										if (cmd_t->isHeartbeatCmd()){
 											cmd_t.clear();
 										}else{
+											QtThreadClientCtrl::IsCmdLocalFPGA(cmd_t);
 											QtThreadClientCtrl::SetCmd(cmd_t);
 										}
 									}
