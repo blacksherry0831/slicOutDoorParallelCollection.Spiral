@@ -23,6 +23,25 @@ public:
 	CMD_CTRL_DATA_LOCAL();
 	~CMD_CTRL_DATA_LOCAL();
 public:
+	enum SJTS_MACHINE_STATUS
+	{
+		RoolerReady,
+
+		StepMotorStart00,
+		StepMotorStop00,
+
+		StepMotorStart01,
+		StepMotorStop01,
+
+		RollerDone,
+
+		RollerDoneQualified,
+		RollerDoneUnqualified,
+
+		SerialPortIsOpen,
+		SerialPortError
+
+	};
 
 	enum CMD_TYPE_LOCAL {
 

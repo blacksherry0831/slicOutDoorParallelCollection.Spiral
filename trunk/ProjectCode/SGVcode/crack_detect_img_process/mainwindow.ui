@@ -321,21 +321,21 @@
             </widget>
            </item>
            <item>
-            <widget class="QCheckBox" name="checkBox_ctrl_port">
+            <widget class="QCheckBox" name="checkBox_fpga_ctrl_port">
              <property name="text">
               <string>视频控制任务</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QCheckBox" name="checkBox_video_port">
+            <widget class="QCheckBox" name="checkBox_image_video_port">
              <property name="text">
               <string>视频数据任务</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QCheckBox" name="checkBox">
+            <widget class="QCheckBox" name="checkBox_flow_ctrl">
              <property name="text">
               <string>探伤状态任务</string>
              </property>
@@ -394,11 +394,19 @@
     </property>
     <addaction name="action_img_collect"/>
    </widget>
+   <widget class="QMenu" name="menu_workflow_ctrl">
+    <property name="title">
+     <string>工作流控制</string>
+    </property>
+    <addaction name="action_workflow_local"/>
+    <addaction name="action_workflow_remote"/>
+   </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
    <addaction name="menu_ctrl"/>
    <addaction name="menu_view"/>
    <addaction name="menu_img_collect"/>
+   <addaction name="menu_workflow_ctrl"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -477,6 +485,16 @@
    </property>
    <property name="text">
     <string>粗分类计算</string>
+   </property>
+  </action>
+  <action name="action_workflow_local">
+   <property name="text">
+    <string>本地控制</string>
+   </property>
+  </action>
+  <action name="action_workflow_remote">
+   <property name="text">
+    <string>远程控制</string>
    </property>
   </action>
  </widget>

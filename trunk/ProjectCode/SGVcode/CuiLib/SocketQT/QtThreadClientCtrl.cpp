@@ -187,18 +187,18 @@ void QtThreadClientCtrl::run_00()
 /*-------------------------------------*/
 void QtThreadClientCtrl::run_01()
 {
+	this->emit_thread_starting();
+
 	this->init_socket();
 
 	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
-
-	this->emit_status_message(mStatusMessage = "Thread>> Ctrl Thread Start");
-
+	
 	/*-----------------------------*/
 	while (M_THREAD_RUN){
 
 		this->connect2ServerIfNoConnected();
 
-		while (M_THREAD_RUN) {
+		while (M_THREAD_RUN && mSocketConnected) {
  									
 						if (SocketErrorMy==this->ProcessCmds()) {
 								break;
@@ -219,9 +219,7 @@ void QtThreadClientCtrl::run_01()
 	}
 	/*-----------------------------*/
 
-#if _DEBUG
-	this->emit_status_message(mStatusMessage = "Thread>>  shutdown");
-#endif // _DEBUG
+	this->emit_thread_stopping();
 }
 /*-------------------------------------*/
 /**
@@ -333,7 +331,8 @@ int QtThreadClientCtrl::ProcessRemoteCmds(QSharedPointer<CMD_CTRL> cmd_ctrl_t)
 {
 	if (cmd_ctrl_t->IsCmdRemote()){
 		//cmd is remote cmd
-#if 0
+		//cmd  no resp
+#if 1
 		if (0==m_socket->Send_1_cmd(cmd_ctrl_t.data())) {
 			return SocketErrorMy;
 		}
@@ -342,7 +341,7 @@ int QtThreadClientCtrl::ProcessRemoteCmds(QSharedPointer<CMD_CTRL> cmd_ctrl_t)
 		}
 #endif
 
-#if 1
+#if 0
 		return this->send_and_read_resp(cmd_ctrl_t);
 #endif
 
@@ -366,14 +365,15 @@ void QtThreadClientCtrl::SetWorkMode(CMD_CTRL::WorkMode _wm)
 
 void	QtThreadClientCtrl::SetWorkModeCmd(CMD_CTRL::WorkMode _wm)
 {
-	mWorkMode = _wm;
+	SetWorkMode(_wm);
 	
 	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
 		
 	cmd_t->getModeChangeCmd(_wm);
 	
 	if (this->isRunning()) {
-		QtThreadClientCtrl::cmds.setCmd(cmd_t);
+		QtThreadClientCtrl::SetCmd(cmd_t);
+
 	}
 	
 }

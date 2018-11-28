@@ -83,15 +83,17 @@ void QtThread8Video::run1()
 void QtThread8Video::run()
 {
 	
+	this->emit_thread_starting();
+
 	this->setPriorityMy();
 
-	this->emit_status_message(mStatusMessage = "Thread>> Ctrl Thread Start");
+	
 
 	while (M_THREAD_RUN) {
 	
 		this->connect2ServerIfNoConnected();
 		
-		while (M_THREAD_RUN) {
+		while (M_THREAD_RUN && mSocketConnected) {
 #if 1
 			{
 					QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
@@ -124,9 +126,7 @@ void QtThread8Video::run()
 	
 	}
 
-#if _DEBUG
-	this->emit_status_message(mStatusMessage = "Thread>>  shutdown");
-#endif // _DEBUG
+	this->emit_thread_stopping();
 
 }
 /*-------------------------------------*/

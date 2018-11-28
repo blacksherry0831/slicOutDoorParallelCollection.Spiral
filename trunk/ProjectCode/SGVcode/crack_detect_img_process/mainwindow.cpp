@@ -29,6 +29,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	this->ConnectVideo();
 	
 	this->initGlobal();
+
+
 	
 }
 /*-------------------------------------*/
@@ -51,16 +53,26 @@ MainWindow::~MainWindow()
 /*-------------------------------------*/
 void MainWindow::init_class_member()
 {
+	this->init_class_member_base();
 
+	this->init_class_member_ptr();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::init_class_member_ptr()
+{
 #if TRUE
-	mQimageGray = QSharedPointer<QImage>(new QImage(1920,1080, QImage::Format_Grayscale8));
+	mQimageGray = QSharedPointer<QImage>(new QImage(1920, 1080, QImage::Format_Grayscale8));
 	mQimageGray->fill(125);
 #endif
 
 #if IMG_PROCESS_USE_STEP_MOTOR
 	mStepMotor = QSharedPointer<QtThreadStepMotor>(new QtThreadStepMotor());
 #endif // 0
-	
+
 	mCtrlServer = QSharedPointer<QtThreadClientCtrl>(new QtThreadClientCtrl());
 	mVideoDataServer = QSharedPointer<QtThread8Video>(new QtThread8Video());
 
@@ -69,22 +81,41 @@ void MainWindow::init_class_member()
 
 	mCtrlServer->SetDataPipe(mVideoDataServer);
 
-	 mFlowCtrlClient=QSharedPointer<QtThreadFlowCtrlClient>(new QtThreadFlowCtrlClient());
+	mFlowCtrlClient = QSharedPointer<QtThreadFlowCtrlClient>(new QtThreadFlowCtrlClient());
+
+
+	mFlowServerServerLocal = QSharedPointer<QtThreadFlowCtrlServer>(new QtThreadFlowCtrlServer(this));
+
+
+	mFlowCtrlLocal = QSharedPointer<QtThreadFlowCtrlLocal>(new QtThreadFlowCtrlLocal(this));
+
 #if IMG_PROCESS_USE_STEP_MOTOR
 	mStepMotor->SetCmdCtrlPipe(mCtrlServer);
 #endif // IMG_PROCESS_USE_STEP_MOTOR
-
-
-
+	
 	//////////////////////////////////////////////////////////////////
 	mthread = QSharedPointer<QThread>(new QThread());
 	mLink = QSharedPointer<QtLink>(new QtLink());
 	mTimer = QSharedPointer<QTimer>(new QTimer());
 	//////////////////////////////////////////////////////////////////
 
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::init_class_member_base()
+{
 #if TRUE
 	memset(&mImgProc, 0, sizeof(IMG_PROC));
 #endif // TRUE
+
+	mPaletteStatus[0].setBrush(QPalette::Base,Qt::red);
+	mPaletteStatus[1].setBrush(QPalette::Base, Qt::green);
+	
+	mCheckBoxRunStatus[0]= "QCheckBox{color:rgb(255,0,0)}";
+	mCheckBoxRunStatus[1]= "QCheckBox{color:rgb(0,255,0)}";
 
 }
 /*-------------------------------------*/
@@ -93,15 +124,13 @@ void MainWindow::init_class_member()
 */
 /*-------------------------------------*/
 void MainWindow::init_ping_ssh()
-{
-	
+{	
 	mLink->moveToThread(mthread.data());
 
 	connect(mLink.data(), SIGNAL(ping_status(int)), this, SLOT(CheckBox_ping(int)));
 	connect(mLink.data(), SIGNAL(ssh_status(int)), this, SLOT(CheckBox_ssh(int)));
 	connect(mTimer.data(), SIGNAL(timeout()), mLink.data(), SLOT(line_check()));
-	
-	
+		
 }
 /*-------------------------------------*/
 /**
@@ -110,24 +139,22 @@ void MainWindow::init_ping_ssh()
 /*-------------------------------------*/
 void MainWindow::img_stat_show_ex(int _p_stat, int _channel, int _frames, void* _data)
 {
+
+	QSharedPointer<exCircleData> circleData = ChannelsData4Show::getInstance()->getChannelData(_channel);
+
+	if (circleData->QueueSize()) {
+		cmd_ctrl_image[_channel] = circleData->getImg();
+	}
+	
 	if ((_p_stat >> 8) == CMD_CTRL::CMD_TYPE_02_I::CT_IMG_FRAME) {
 
-
-#if 1
-QSharedPointer<exCircleData> circleData = ChannelsData4Show::getInstance()->getChannelData(_channel);
-
-		if (circleData->QueueSize()) {
-
-			cmd_ctrl_image[_channel] = circleData->getImg();
-
+		if (!cmd_ctrl_image[_channel].isNull()) {
+			
 			QSharedPointer<QImage> qimg = cmd_ctrl_image[_channel]->getQimage();
 
 			ShowImage(labelImage[_channel], qimg.data());
 
 		}
-#endif // 0
-		
-		
 
 	}
 	else if ((_p_stat >> 8) == CMD_CTRL::CMD_TYPE_02_C::CT_START) {
@@ -198,17 +225,24 @@ void MainWindow::destory_ping_ssh()
 /*-------------------------------------*/
 void MainWindow::init_menu()
 {
+
 #if TRUE
 	connect(ui->actionSetCutRect, SIGNAL(triggered()), this, SLOT(SetCutRectMethod()));
 	connect(ui->action_stop_bg_srv, SIGNAL(triggered()), this, SLOT(StopVideo()));
 	connect(ui->action_stop_bg_srv_force, SIGNAL(triggered()), this, SLOT(StopVideoForce()));
 	connect(ui->actionEnable_ping_SSH, SIGNAL(triggered()), this, SLOT(start_ping_ssh()));
 #endif // TRUE
+
 #if TRUE
 	connect(ui->actionShow_Cut_Area, SIGNAL(triggered()), this, SLOT(toggleShowCutArea()));
 	connect(ui->action_Show_Binary_Img, SIGNAL(triggered()), this, SLOT(toggleShowBinaryImg()));
 	connect(ui->action_Show_Classify_Thickly, SIGNAL(triggered()), this, SLOT(toggleShowClassifyThickly()));
 	connect(ui->action_img_collect, SIGNAL(triggered()), this, SLOT(toggleImgCollect()));
+#endif // TRUE
+
+#if TRUE
+	connect(ui->action_workflow_local, SIGNAL(triggered()), this, SLOT(workflow_local()));
+	connect(ui->action_workflow_remote, SIGNAL(triggered()), this, SLOT(workflow_remote()));
 #endif // TRUE
 
 }
@@ -221,9 +255,10 @@ void MainWindow::init_controls()
 {
 
 #if TRUE
-	connect(ui->checkBox_ImgModeOrg, SIGNAL(stateChanged(int)), this, SLOT(CheckBox_img_mode_update()));
 
-	connect(ui->checkBox_ImgModeSizeOrg, SIGNAL(stateChanged(int)), this, SLOT(CheckBox_img_mode_update()));
+	connect(ui->checkBox_ImgModeOrg, SIGNAL(stateChanged(int)), this, SLOT(CheckBox_img_mode_change()));
+
+	connect(ui->checkBox_ImgModeSizeOrg, SIGNAL(stateChanged(int)), this, SLOT(CheckBox_img_mode_change()));
 
 	connect(ui->horizontalSlider_sigma,SIGNAL(valueChanged(int)),ui->label_sigma, SLOT(setNum(int)));
 
@@ -445,9 +480,9 @@ void MainWindow::CheckBox_fpga_ctrl(int _stat_t)
 
 	if (ui != NULL) {
 			if (_stat_t == 0)
-				ui->checkBox_ctrl_port->setCheckState(Qt::CheckState::Unchecked);
+				ui->checkBox_fpga_ctrl_port->setCheckState(Qt::CheckState::Unchecked);
 			else
-				ui->checkBox_ctrl_port->setCheckState(Qt::CheckState::Checked);
+				ui->checkBox_fpga_ctrl_port->setCheckState(Qt::CheckState::Checked);
 	}
 
 }
@@ -460,9 +495,9 @@ void MainWindow::CheckBox_fpga_image_video(int _stat_t)
 {
 	if (ui != NULL) {
 		if (_stat_t == 0)
-			ui->checkBox_video_port->setCheckState(Qt::CheckState::Unchecked);
+			ui->checkBox_image_video_port->setCheckState(Qt::CheckState::Unchecked);
 		else
-			ui->checkBox_video_port->setCheckState(Qt::CheckState::Checked);
+			ui->checkBox_image_video_port->setCheckState(Qt::CheckState::Checked);
 	}
 }
 /*-------------------------------------*/
@@ -470,7 +505,20 @@ void MainWindow::CheckBox_fpga_image_video(int _stat_t)
 *
 */
 /*-------------------------------------*/
-void MainWindow::CheckBox_img_mode_update()
+void MainWindow::CheckBox_flow_ctrl_video(int _stat_t)
+{
+	if (_stat_t == 0)
+		ui->checkBox_flow_ctrl->setCheckState(Qt::CheckState::Unchecked);
+	else
+		ui->checkBox_flow_ctrl->setCheckState(Qt::CheckState::Checked);
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::CheckBox_img_mode_change()
 {
 	bool imgModeOrg = ui->checkBox_ImgModeOrg->isChecked();
 	bool imgModeSizeOrg = ui->checkBox_ImgModeSizeOrg->isChecked();
@@ -532,6 +580,24 @@ void MainWindow::main_test()
 /*-------------------------------------*/
 /**
 *
+*/
+/*-------------------------------------*/
+void MainWindow::workflow_local()
+{
+	this->mFlowCtrlClient->setLocalServer();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::workflow_remote()
+{
+	this->mFlowCtrlClient->setRemoteServer();
+}
+/*-------------------------------------*/
+/**
+*@note set 8 Channel video cut rect area;
 */
 /*-------------------------------------*/
 void MainWindow::SetCutRectMethod()
@@ -824,13 +890,17 @@ void MainWindow::StartVideoBasic(int mode)
 
 #if 1
 	mVideoDataServer->startServer();
-#endif // 0
+#endif
 
 #if IMG_PROCESS_USE_STEP_MOTOR
 	mStepMotor->startServer();
 #endif 
 
 	this->mFlowCtrlClient->startServer();
+
+	mFlowServerServerLocal->startServer();
+
+	mFlowCtrlLocal->startServer();
 
 }
 /*-------------------------------------*/
@@ -883,14 +953,14 @@ void MainWindow::StartVideoModeSelected()
 
 	if (!this->IsBgThreadRunning())
 	{
-			this->CheckBox_img_mode_update();
+			this->CheckBox_img_mode_change();
 			this->initUIlabelImageView();
 			this->disableInputCtrls();
 			this->StartVideoBasic(mWorkMode);
 	}
 	else
 	{
-		QMessageBox::critical(NULL, tr("警告"), tr("后台服务尚未停止"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+		QMessageBox::critical(NULL, tr("warning"), tr("后台服务尚未停止"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
 	}
 
 }
@@ -930,12 +1000,16 @@ void MainWindow::stopVideoBasic()
 	mStepMotor->closeRunningServer();
 #endif 
 		
+	mFlowCtrlLocal->closeRunningServer();
+
 	mFlowCtrlClient->closeRunningServer();
 	
 	mCtrlServer->closeRunningServer();
 		
 	mVideoDataServer->closeRunningServer();
 		
+	mFlowServerServerLocal->closeRunningServer();
+
 	this->IsBgThreadRunning();
 	
 }
@@ -956,9 +1030,28 @@ void MainWindow::stopVideoBasicForce()
 /*-------------------------------------*/
 void MainWindow::ConnectVideo()
 {
+	const QObject* sender[] = { mCtrlServer.data(),mVideoDataServer.data(),mFlowCtrlClient.data()};
+	const char*   slot_tcp_port[1] = {};
+	const char*   slot_thread_status[1] = {};
+	const int sender_size = sizeof(sender)/sizeof(QObject);
+		
 	connect(mCtrlServer.data(), SIGNAL(socket_connect_state(int)), this, SLOT(CheckBox_fpga_ctrl(int)));
+	connect(mCtrlServer.data(), SIGNAL(thread_running_state(int)), this, SLOT(CheckBox_thread_status_fpga_ctrl(int)));
+
 	connect(mVideoDataServer.data(), SIGNAL(socket_connect_state(int)), this, SLOT(CheckBox_fpga_image_video(int)));
+	connect(mVideoDataServer.data(), SIGNAL(thread_running_state(int)), this, SLOT(CheckBox_thread_status_fpga_image_video(int)));
+
+	connect(mFlowCtrlClient.data(), SIGNAL(socket_connect_state(int)), this, SLOT(CheckBox_flow_ctrl_video(int)));
+	connect(mFlowCtrlClient.data(), SIGNAL(thread_running_state(int)), this, SLOT(CheckBox_thread_status_flow_ctrl_video(int)));
+	
+	this->connect(mFlowCtrlLocal.data(),
+		SIGNAL(status_sjts(int)),
+		this,
+		SLOT(sjts_status(int))
+	);
+
 	connect_img_ch(TRUE, this);
+
 }
 /*-------------------------------------*/
 /**
@@ -1027,6 +1120,116 @@ void  MainWindow::SetFpgaArmLinuxIpAddr(QString _str)
 #if IMG_PROCESS_USE_STEP_MOTOR
 	mStepMotor->SetBordIPaddr(mFpgaArmLinuxIpAddr);
 #endif 
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::CheckBox_thread_status_ping(int _stat_t)
+{
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::CheckBox_thread_status_ssh(int _stat_t)
+{
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::CheckBox_thread_status_fpga_ctrl(int _stat_t)
+{
+	ui->checkBox_fpga_ctrl_port->setStyleSheet(mCheckBoxRunStatus[_stat_t]);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::CheckBox_thread_status_fpga_image_video(int _stat_t)
+{
+	ui->checkBox_image_video_port->setStyleSheet(mCheckBoxRunStatus[_stat_t]);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::CheckBox_thread_status_flow_ctrl_video(int _stat_t)
+{
+	ui->checkBox_flow_ctrl->setStyleSheet(mCheckBoxRunStatus[_stat_t]);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::sjts_status(const int _sjts_status_int)
+{
+	const CMD_CTRL::SJTS_MACHINE_STATUS _sjts_status = (CMD_CTRL::SJTS_MACHINE_STATUS) _sjts_status_int;
+
+	if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady) {
+
+		mFlowServerServerLocal->NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
+
+	}
+	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneQualified ||
+		_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneUnqualified) {
+		// 
+		qDebug() << "roller qualified is done !";
+
+	}
+	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::RollerDone) {
+
+		mFlowServerServerLocal->NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP);
+
+	}
+	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart01) {
+
+		mFlowServerServerLocal->NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01);
+
+	}
+	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop01) {
+
+		mFlowServerServerLocal->NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01);
+
+	}
+	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart00) {
+
+		mFlowServerServerLocal->NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_00);
+
+	}
+	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop00) {
+
+		mFlowServerServerLocal->NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00);
+
+	}
+	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortError) {
+		printf_event("SIGNAL", "SerialPortError");
+	}
+	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortIsOpen) {
+		printf_event("SIGNAL", "SerialPortIsOpen");
+	}
+	else {
+		Q_ASSERT(0);
+	}
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::printf_event(std::string _event, std::string _msg)
+{
+	std::cout << _event << ">>" << _msg << std::endl;
 }
 /*-------------------------------------*/
 /**

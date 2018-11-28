@@ -14,31 +14,28 @@
 *
 */
 /*-------------------------------------*/
-#include "../SocketQT/QtThreadSocketClient.hpp"
-#include "../SocketQT/QtTcpClient.hpp"
-#include "../SocketQT/conf_ip.h"
-#include "SocketQT/QtThreadClientCtrl.hpp"
+#include "SocketQT/QtThreadSocketClient.hpp"
+#include "SocketQT/QtTcpClient.hpp"
+#include "SocketQT/conf_ip.h"
+#include "SocketQT/CMD_CTRL_Q.hpp"
 /*-------------------------------------*/
 /**
 *
 *
 */
 /*-------------------------------------*/
-class QtThreadFlowCtrlClient :public QtThreadSocketClient
+class QtThreadFlowCtrlLocal :public QtThreadBase
 {
-
-public:
-	QtThreadFlowCtrlClient();
-	~QtThreadFlowCtrlClient(void);
-protected:
-
+	Q_OBJECT
 public:
 
-	void setRemoteServer();
-	void setLocalServer();
+	explicit QtThreadFlowCtrlLocal(QObject *parent = Q_NULLPTR);
+	~QtThreadFlowCtrlLocal(void);
 public:
-	void run();
-protected: 
 	
+	virtual void run();
+signals:
+	
+	void status_sjts(int);
 
 };

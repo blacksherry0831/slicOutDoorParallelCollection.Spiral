@@ -11,7 +11,6 @@ QtThreadFlowCtrlServerSession::QtThreadFlowCtrlServerSession(qintptr _socket):Qt
 }
 /*-------------------------------------*/
 /**
-
 *
 */
 /*-------------------------------------*/

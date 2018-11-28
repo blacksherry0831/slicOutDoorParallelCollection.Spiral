@@ -68,3 +68,15 @@ void QtThreadFlowCtrlServer::NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _eve
 *
 */
 /*-------------------------------------*/
+void QtThreadFlowCtrlServer::closeRunningServer()
+{
+	if (this->isRunning()) {
+		this->closeServer();
+	}
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+

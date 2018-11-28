@@ -43,6 +43,9 @@ public:
 	int   IsSocketAliveEx();
 	int   IsSocketConnectedEx();
 	void emit_status_message(const QString& _msg);
+
+	void emit_thread_starting();
+	void emit_thread_stopping();
 public:
 	void write_ptr(qintptr p);
 	void init_socket();
@@ -66,6 +69,7 @@ public:
 	int send_and_read_resp(QSharedPointer<CMD_CTRL> _cmd_send);
 signals:
 void socket_connect_state(int);
+void thread_running_state(int);
 
 public slots:
 

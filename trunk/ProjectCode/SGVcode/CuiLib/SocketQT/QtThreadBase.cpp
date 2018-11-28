@@ -158,7 +158,12 @@ void QtThreadBase::wait4ServerClose()
 *
 */
 /*-------------------------------------*/
-
+void QtThreadBase::closeRunningServer()
+{
+	if (this->isRunning()) {
+		this->closeServer();
+	}
+}
 /*-------------------------------------*/
 /**
 *

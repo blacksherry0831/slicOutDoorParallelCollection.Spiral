@@ -16,7 +16,7 @@ QtThreadFlowCtrlClient::QtThreadFlowCtrlClient():QtThreadSocketClient()
 {
 	
 #if 1
-	mIpAddr = IPC_GUI_ADDR;
+	this->setRemoteServer();
 #else
 	mIpAddr = "127.0.0.1";
 #endif // 0
@@ -40,11 +40,33 @@ QtThreadFlowCtrlClient::~QtThreadFlowCtrlClient(void)
 *
 */
 /*-------------------------------------*/
+void QtThreadFlowCtrlClient::setRemoteServer()
+{
+
+	mIpAddr = IPC_GUI_ADDR;
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadFlowCtrlClient::setLocalServer()
+{
+
+	mIpAddr = "127.0.0.1";
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void QtThreadFlowCtrlClient::run()
 {
+	this->emit_thread_starting();
+	
 	this->init_socket();	
-
-	this->emit_status_message(mStatusMessage = "Thread>> Ctrl Thread Start");
 
 	/*-----------------------------*/
 	while (M_THREAD_RUN) {
@@ -76,8 +98,8 @@ void QtThreadFlowCtrlClient::run()
 	}
 	/*-----------------------------*/
 	
-	this->emit_status_message(mStatusMessage = "Thread>>  shutdown");
-
+	
+	this->emit_thread_stopping();
 }
 /*-------------------------------------*/
 /**

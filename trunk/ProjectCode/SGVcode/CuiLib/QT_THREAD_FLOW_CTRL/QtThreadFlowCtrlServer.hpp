@@ -41,8 +41,10 @@ private:
 
 protected:
 	virtual void run();
-public:
+private:
 	void StopTcpServer();
+public:
+	void closeRunningServer();
 public:
 	void NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _event);
 

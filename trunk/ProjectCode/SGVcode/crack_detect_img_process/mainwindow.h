@@ -4,7 +4,14 @@
 
 #include "module_my.h"
 
+#if defined(QT_VERSION)
+
 #include "QT_THREAD_FLOW_CTRL/QtThreadFlowCtrlClient.hpp"
+#include "QT_THREAD_FLOW_CTRL/QtThreadFlowCtrlServer.hpp"
+#include "QT_THREAD_FLOW_CTRL/QtThreadFlowCtrlLocal.hpp"
+
+
+#endif
 
 #if _MSC_VER
 	#ifndef _X86_
@@ -65,7 +72,9 @@ private:
 	QString mFpgaArmLinuxIpAddr;
 	QSharedPointer<CMD_CTRL> cmd_ctrl_image[8];
 	int mWorkMode;
-	QSharedPointer<QImage> mQimageGray;
+	QSharedPointer<QImage>	  mQimageGray;
+	QPalette  mPaletteStatus[2];
+	QString   mCheckBoxRunStatus[2];
 private:
 	void initGlobal();
 	void destoryGlobal();
@@ -89,6 +98,9 @@ public:
 #if IMG_PROCESS_USE_STEP_MOTOR
 	QSharedPointer<QtThreadStepMotor>		mStepMotor;
 #endif
+	QSharedPointer<QtThreadFlowCtrlLocal> mFlowCtrlLocal;
+
+	QSharedPointer<QtThreadFlowCtrlServer> mFlowServerServerLocal;
 
 	QSharedPointer<QtThreadFlowCtrlClient> mFlowCtrlClient;
 
@@ -103,8 +115,11 @@ public:
 	QSharedPointer<QTimer>					mTimer;
 private:
 	void init_class_member();
+	void init_class_member_ptr();
+	void init_class_member_base();
 	void init_ping_ssh();
-	
+	void printf_event(std::string _event, std::string _msg);
+public:
 	void destory_ping_ssh();
 	void init_menu();
 	void init_controls();
@@ -138,29 +153,62 @@ public slots:
 #endif // TRUE
 				
 public slots:
+
+#if TRUE
+	void main_test();
 	void ClickButton_Test();
+#endif // TRUE
+	
 	void ClickButton_SetSerialPort();
 	void ClickButton_CameraStart();
 	void ClickButton_MotorRun();
 	void WorkProgressShow(QString str);
+
+#if TRUE
 	void CheckBox_ping(int _stat_t);
 	void CheckBox_ssh(int _stat_t);
 	void CheckBox_fpga_ctrl(int _stat_t);
 	void CheckBox_fpga_image_video(int _stat_t);
-	void CheckBox_img_mode_update();
+	void CheckBox_flow_ctrl_video(int _stat_t);
+#endif // TRUE
+
+#if TRUE
+	void CheckBox_thread_status_ping(int _stat_t);
+	void CheckBox_thread_status_ssh(int _stat_t);
+	void CheckBox_thread_status_fpga_ctrl(int _stat_t);
+	void CheckBox_thread_status_fpga_image_video(int _stat_t);
+	void CheckBox_thread_status_flow_ctrl_video(int _stat_t);
+#endif // TRUE
+	
+#if TRUE
+
+	void CheckBox_img_mode_change();	
 	void ComboBox_IpAddr_changed(const QString& _str);
 	void Slider_img_sigma_change(int _sigma);
-	void main_test();
-	void SetCutRectMethod();
-	int openImageShowQDialog(QLabel* _qabel);
-	
+
+#endif // TRUE
+
+#if TRUE
+
 	void toggleShowCutArea();
 	void toggleShowBinaryImg();
 	void toggleShowClassifyThickly();
-
 	void toggleImgCollect();
 
+#endif // TRUE
+
+#if TRUE
+	void workflow_local();
+	void workflow_remote();
+#endif // TRUE
+
+	void SetCutRectMethod();
+	int openImageShowQDialog(QLabel* _qabel);
+	
 	void statusBarshowMessage(QString _msg);
+
+	void sjts_status(const int _sjts_status_int);
+
 };
 
 #endif // MAINWINDOW_H

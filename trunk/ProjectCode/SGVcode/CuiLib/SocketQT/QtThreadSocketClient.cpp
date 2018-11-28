@@ -431,3 +431,23 @@ ResultMy QtThreadSocketClient::write_n_byte(const char * const _data, const int 
 *
 */
 /*-------------------------------------*/
+void QtThreadSocketClient::emit_thread_starting()
+{
+	emit thread_running_state(TRUE);
+	this->emit_status_message(mStatusMessage = "Thread>> Ctrl Thread Start");
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadSocketClient::emit_thread_stopping()
+{
+	emit thread_running_state(FALSE);
+	this->emit_status_message(mStatusMessage = "Thread>>  shutdown");
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/

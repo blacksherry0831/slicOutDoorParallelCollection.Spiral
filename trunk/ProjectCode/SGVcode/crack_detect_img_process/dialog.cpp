@@ -424,27 +424,34 @@ void Dialog::keyReleaseEventSigImg(QKeyEvent * ev)
 /*-------------------------------------*/
 void Dialog::img_stat_show_ex(int _p_stat, int _channel, int _frames, void* _data)
 {
+	QtThread8VideoProcess* const ptr_vp = mVideoProcessData.data();
+	QSharedPointer<exCircleData> circleData = ChannelsData4Show::getInstance()->getChannelData(_channel);
+	
+	if (circleData->QueueSize()) {
+		cmd_ctrl_image[_channel] = circleData->getImg();
+	}
+	else {	
+		return;
+	}
+
 	if ((_p_stat >> 8) == CMD_CTRL::CMD_TYPE_02_I::CT_IMG_FRAME) {
-		
-		QSharedPointer<exCircleData> circleData = ChannelsData4Show::getInstance()->getChannelData(_channel);
-
-		if(circleData->QueueSize()){
-			cmd_ctrl_image[_channel] = circleData->getImg();
-		
-			if (mImgProcess.CurrentChannel == _channel) {
 				
-			
-#if TRUE
-					QSharedPointer<QImage> qimg = cmd_ctrl_image[_channel]->getQimage();
-					
-					MainWindow::ShowImage(ui->labelImg, qimg.data());
-#endif // TRUE
-					this->ResizeWindowSize();
-							
-			}
-		}
-
+		if ((mImgProcess.CurrentChannel == _channel) && (!cmd_ctrl_image[_channel].isNull())) {
 		
+							QSharedPointer<QImage> qimg = cmd_ctrl_image[_channel]->getQimage();
+							IplImage* img_t = cmd_ctrl_image[_channel]->getIplimage();	
+							if (mImgProcess.ShowCutArea) {
+										mVideoProcessData->SetCurrentCutArea(img_t);
+										mVideoProcessData->DrawCurrentCutArea(img_t);
+										mVideoProcessData->DrawFutureCutArea(img_t);
+										mVideoProcessData->DrawSelectedBoder(img_t);
+							}
+							
+							this->ProcessImage(img_t);
+							MainWindow::ShowImage(ui->labelImg, qimg.data());
+							this->ResizeWindowSize();		
+		
+		}
 
 	}else if ((_p_stat >> 8) == CMD_CTRL::CMD_TYPE_02_C::CT_START) {
 		
@@ -453,9 +460,43 @@ void Dialog::img_stat_show_ex(int _p_stat, int _channel, int _frames, void* _dat
 	}else {
 
 	}
+
+
+	while (circleData->QueueSize()) {
+		cmd_ctrl_image[_channel] = circleData->getImg();
+	}
+
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
+void Dialog::ProcessImage(IplImage* img_t)
+{
+
+#if TRUE
+	if (mImgProcess.ShowCutArea) {
+		CvRect rect = cvGetImageROI(img_t);
+		cvResetImageROI(img_t); {
+			QtThread8VideoProcess::DrawArea(img_t, rect);
+		}cvSetImageROI(img_t, rect);
+	}
+#endif // TRUE
+
+#if TRUE
+	if (mImgProcess.ShowBinaryImg) {
+
+		CvRect rect = cvGetImageROI(img_t);
+		cvResetImageROI(img_t); {
+			float threshold = 0.5;
+			float max_value = 255;
+			int threshold_type = CV_THRESH_BINARY;
+			cvThreshold(img_t, img_t, threshold, 255, threshold_type);//·§Öµ100
+
+		}cvSetImageROI(img_t, rect);
+
+	}
+#endif // TRUE
+	
+}

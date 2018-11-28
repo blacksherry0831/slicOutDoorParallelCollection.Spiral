@@ -19,7 +19,8 @@ ENDIF ()
 	
 	if (CBB_BUILDING_CRACK_DETECTION)
 	
-		SET(DIR_SRCS				
+		SET(DIR_SRCS
+				QtThreadFlowCtrlLocal.cpp		
 				QtTcpServerFlowCtrl.cpp
 				QtThreadFlowCtrlClient.cpp
 				QtThreadFlowCtrlServer.cpp

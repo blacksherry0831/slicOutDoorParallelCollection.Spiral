@@ -57,6 +57,8 @@ public slots:
 	void keyPressEventSigImg(QKeyEvent *ev);
 	void keyReleaseEventSigImg(QKeyEvent *ev);
 
+	void ProcessImage(IplImage * img_t);
+
 
 private:
     Ui::Dialog *ui;
