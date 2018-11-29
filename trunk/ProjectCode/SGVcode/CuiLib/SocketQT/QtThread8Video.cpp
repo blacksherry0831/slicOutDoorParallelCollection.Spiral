@@ -167,9 +167,9 @@ void QtThread8Video::ProcessCmd(QSharedPointer<CMD_CTRL> _cmd)
 /*-------------------------------------*/
 void QtThread8Video::setPriorityMy()
 {
-
+#if USE_THREAD_CRACK_PRIORITY
 	QThread::currentThread()->setPriority(QThread::Priority::HighPriority);
-
+#endif
 }
 /*-------------------------------------*/
 /**

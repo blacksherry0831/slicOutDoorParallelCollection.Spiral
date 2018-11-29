@@ -263,7 +263,11 @@ void QtImgProcess::emit_img_signals(QSharedPointer<CMD_CTRL> _cmd)
 /*-------------------------------------*/
 void QtImgProcess::setPriorityMy()
 {
-	QThread::currentThread()->setPriority(QThread::Priority::IdlePriority);
+
+#if USE_THREAD_CRACK_PRIORITY
+QThread::currentThread()->setPriority(QThread::Priority::IdlePriority);
+#endif // 0
+
 }
 /*-------------------------------------*/
 /**
