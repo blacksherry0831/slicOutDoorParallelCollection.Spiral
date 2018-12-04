@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>929</width>
-    <height>689</height>
+    <width>806</width>
+    <height>495</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -341,6 +341,13 @@
              </property>
             </widget>
            </item>
+           <item>
+            <widget class="QProgressBar" name="progressBar_flow_ctrl">
+             <property name="value">
+              <number>24</number>
+             </property>
+            </widget>
+           </item>
           </layout>
          </item>
         </layout>
@@ -355,7 +362,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>929</width>
+     <width>806</width>
      <height>23</height>
     </rect>
    </property>

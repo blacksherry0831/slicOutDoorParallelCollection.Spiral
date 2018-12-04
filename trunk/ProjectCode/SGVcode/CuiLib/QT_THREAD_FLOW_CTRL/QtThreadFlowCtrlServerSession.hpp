@@ -36,5 +36,9 @@ public:
 
 protected: 
 	virtual void run();
-
+	
+protected:
+	virtual void run_socket_work();
+	virtual void before_enter_thread();
+	virtual void after_exit_thread();
 };

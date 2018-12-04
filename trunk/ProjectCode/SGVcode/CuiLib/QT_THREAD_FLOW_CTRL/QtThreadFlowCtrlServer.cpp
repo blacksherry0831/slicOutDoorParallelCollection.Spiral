@@ -1,7 +1,5 @@
 //#include "stdafx.h"
 #include "QtThreadFlowCtrlServer.hpp"
-
-
 /*-------------------------------------*/
 /**
 *
@@ -36,7 +34,7 @@ void QtThreadFlowCtrlServer::run()
 		this->exec();
 	}
 
-	this->StopTcpServer();
+	this->StopDestoryTcpServer();
 
 }
 /*-------------------------------------*/
@@ -44,10 +42,12 @@ void QtThreadFlowCtrlServer::run()
 *
 */
 /*-------------------------------------*/
-void QtThreadFlowCtrlServer::StopTcpServer()
+void QtThreadFlowCtrlServer::StopDestoryTcpServer()
 {
 
 	if (mQtTcpServer.isNull()){
+		
+	}else{
 		mQtTcpServer->close();
 		mQtTcpServer.clear();
 	}
@@ -60,7 +60,13 @@ void QtThreadFlowCtrlServer::StopTcpServer()
 /*-------------------------------------*/
 void QtThreadFlowCtrlServer::NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _event)
 {	
-	this->mQtTcpServer->NotifiedClientSession(_event);
+	if (	this->isRunning() &&
+			M_THREAD_RUN &&
+			!this->mQtTcpServer.isNull()
+		){				
+				this->mQtTcpServer->NotifiedClientSession(_event);
+		 }
+
 
 }
 /*-------------------------------------*/
@@ -79,4 +85,12 @@ void QtThreadFlowCtrlServer::closeRunningServer()
 *
 */
 /*-------------------------------------*/
-
+QVector<QString> QtThreadFlowCtrlServer::getRunningSessionIpAddr()
+{
+	return this->mQtTcpServer->getRunningSessionIpAddr();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/

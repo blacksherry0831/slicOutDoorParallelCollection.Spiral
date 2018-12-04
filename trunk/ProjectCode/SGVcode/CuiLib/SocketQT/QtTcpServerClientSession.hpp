@@ -27,11 +27,13 @@ private:
 	QMutex m_clients_mutex;
 private:
 	void RemoveDoneThread();
+	void StopRunningThread();
 	void SaveRunningThread(QSharedPointer<QtThreadSocketClient> _client);
 protected:	
 	void ProcessRunningThread(QSharedPointer<QtThreadSocketClient> _client);
 public:
 	void SendMsg2ClientSession(QSharedPointer<CMD_CTRL> _msg);
+	QVector<QString> getRunningSessionIpAddr();
 public:
 	void execMy();
 public:

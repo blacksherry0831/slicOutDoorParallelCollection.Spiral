@@ -38,20 +38,30 @@ public:
 public:
 	void  connect2ServerIfNoConnected();
 	void  disconnect4Server();
-	void  closeSocket();
-	void  closeSocket4Server();
+	
+	void  close_destory_socket_4_server();
 	int   IsSocketAliveEx();
 	int   IsSocketConnectedEx();
 	void emit_status_message(const QString& _msg);
 
 	void emit_thread_starting();
 	void emit_thread_stopping();
+protected:
+	virtual void before_enter_thread();
+	virtual void after_exit_thread();
+protected:
+	void enter_thread();
+	void exit_thread();
+
+	void init_socket_in_thread();
+	void destory_socket_in_thread();
 public:
 	void write_ptr(qintptr p);
 	void init_socket();
-	void init_socket_client_session();
+	
 	void init_param();
 	void SetIpAddr(QString _ipAddr);
+	QString GetIpAddr();
 public:
 	void startServer();
 	void closeServer();
@@ -67,6 +77,7 @@ public:
 	int getByteTcpRead();;
 public:
 	int send_and_read_resp(QSharedPointer<CMD_CTRL> _cmd_send);
+
 signals:
 void socket_connect_state(int);
 void thread_running_state(int);
@@ -75,6 +86,7 @@ public slots:
 
 protected: 
 	virtual void run();
+	virtual void run_socket_work();
 private:
 	CMD_CTRL_Q mCmdMsgQ;
 public:

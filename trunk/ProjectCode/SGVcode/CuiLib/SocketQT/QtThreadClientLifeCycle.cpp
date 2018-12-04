@@ -58,7 +58,7 @@ void QtThreadClientLifeCycle::run()
 			this->UpdateDeadline("");
 		}
 
-		this->closeSocket4Server();
+		this->close_destory_socket_4_server();
 	
 	}
 
@@ -255,7 +255,7 @@ void QtThreadClientLifeCycle::run_factorySetting()
 				
 		this->FactorySetting();
 	
-		this->closeSocket4Server();
+		this->close_destory_socket_4_server();
 
 	}
 }
@@ -311,7 +311,7 @@ void QtThreadClientLifeCycle::run_updateDeadline()
 				}
 
 		
-		this->closeSocket4Server();
+				this->close_destory_socket_4_server();
 
 		
 

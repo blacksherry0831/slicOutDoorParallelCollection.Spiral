@@ -38,10 +38,13 @@ public:
 private:
 	QByteArray m_buffer;
 	int m_buffer_Length;
+private:
+	unsigned int mSocketReadMaxTimeOut;
 protected:
 	int mSocketRun;
 	int mSocketConnected;
 	int mSocketErrorOccur;
+	unsigned int mSocketReadTimeOut;
 public:
 	int init();
 	ResultMy read_n_byte(int _n);
@@ -56,7 +59,7 @@ public:
 	int IsSocketAlive();
 	int IsSocketConnected();
 	int IsSocketError();
-	
+	void SetReadTimeOutMy(const unsigned int _max_time_out_ms);
 	void disconnectFromHostMy();
 public:
 	void startSocketRun();

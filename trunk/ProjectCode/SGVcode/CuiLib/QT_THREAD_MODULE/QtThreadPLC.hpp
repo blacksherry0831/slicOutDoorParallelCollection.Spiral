@@ -48,7 +48,7 @@ protected:
 
 public:
 		
-	void Run0();
+	
 	void run1();
 
 	int MoveSlidingThenRunMotor(QSharedPointer<BE_1105_Driver>	 be_1105,const int _pos,int _isRun);
@@ -63,8 +63,12 @@ public:
 	int wait4PlcResp(QSharedPointer<CMD_CTRL> _cmd);
 	int wait4PlcRoolerReady(QSharedPointer<CMD_CTRL> _cmd);
 
-protected: 
-	virtual void run();
+	void do_run_work(QSharedPointer<BE_1105_Driver>	 _be_1105);
+
+protected:
+	
+	virtual void run_socket_work();
+
 signals:
 	void status_socket(int);
 	void status_sjts(int);

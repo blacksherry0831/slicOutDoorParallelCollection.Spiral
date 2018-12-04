@@ -550,8 +550,17 @@ int CMD_CTRL::IsThisCmd00(int _cmd)
 		
 		return TRUE;
 	}
-	return FALSE;;
+	return FALSE;
 
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int CMD_CTRL::GetCmd00()
+{
+	return this->f_header.f_cmd[0];
 }
 /*-------------------------------------*/
 /**

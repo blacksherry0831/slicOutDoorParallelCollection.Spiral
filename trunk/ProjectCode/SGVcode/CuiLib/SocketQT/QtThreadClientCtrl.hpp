@@ -58,16 +58,16 @@ public:
 	void SetImgSigmaCmd(int _sigma);
 
 	int SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C _start_stop);
-	int SendHearbeatCmd();
+	int SendHearbeatEx();
 
 public slots:
 
 protected:
 
 	void run_00();
-	void run_01();
-
-protected: 
+	
+protected:
 	virtual void run();
+	virtual void run_socket_work();
 
 };

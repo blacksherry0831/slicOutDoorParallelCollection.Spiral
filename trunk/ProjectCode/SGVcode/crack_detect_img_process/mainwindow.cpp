@@ -29,9 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	this->ConnectVideo();
 	
 	this->initGlobal();
-
-
-	
+		
 }
 /*-------------------------------------*/
 /**
@@ -273,7 +271,7 @@ void MainWindow::init_controls()
 
 
 #if TRUE
-
+	ui->comboBox_IpAddr->addItem(TEST_IPC);
 	ui->comboBox_IpAddr->addItem(BORD_VIDEO_IN_LONG);
 	ui->comboBox_IpAddr->addItem(BORD_VIDEO_IN_SHORT);
 	ui->comboBox_IpAddr->addItem(BORD_VIDEO_OUT);
@@ -286,7 +284,7 @@ void MainWindow::init_controls()
 
 #endif // TRUE
 
-
+	this->ui->progressBar_flow_ctrl->setRange(0, CMD_CTRL::CMD_CTRL_DATA_LOCAL::CT_FPGA_STOP);
 }
 /*-------------------------------------*/
 /**
@@ -1050,6 +1048,12 @@ void MainWindow::ConnectVideo()
 		SLOT(sjts_status(int))
 	);
 
+	this->connect(mFlowCtrlClient.data(),
+		SIGNAL(status_sjts(int)),
+		this,
+		SLOT(sjts_fpga_work_flow_status_rcv(int))
+		);
+
 	connect_img_ch(TRUE, this);
 
 }
@@ -1074,23 +1078,20 @@ QImage *MainWindow::IplImageToQImage( IplImage* const img)
 void MainWindow::SetMaxWidthMy()
 {
 	
+
 #if defined(linux) || defined(__linux) || defined(__linux__) ||defined( __GNUC__)
-	QRect rec = QApplication::desktop()->screenGeometry();
+	QRect rec = QApplication::desktop()->availableGeometry();
 	int SCREEM_H = rec.height();
 	int SCREEN_W = rec.width();
-
 	this->setFixedWidth(SCREEN_W);
 	this->setFixedHeight(SCREEM_H);
-
-	
 #endif
 
 #if defined(_WIN32) || defined(_WIN64) || defined( _MSC_VER)
-	QRect rec = QApplication::desktop()->screenGeometry();
+	QRect rec = QApplication::desktop()->availableGeometry();
 	int SCREEM_H = rec.height();
 	int SCREEN_W = rec.width();
-
-	this->setFixedWidth(SCREEN_W);
+	this->setFixedWidth(SCREEN_W);	
 	this->setFixedHeight(SCREEM_H);
 #endif
 
@@ -1171,6 +1172,15 @@ void MainWindow::CheckBox_thread_status_flow_ctrl_video(int _stat_t)
 *
 */
 /*-------------------------------------*/
+void MainWindow::printf_event(std::string _event, std::string _msg)
+{
+	std::cout << _event << ">>" << _msg << std::endl;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void MainWindow::sjts_status(const int _sjts_status_int)
 {
 	const CMD_CTRL::SJTS_MACHINE_STATUS _sjts_status = (CMD_CTRL::SJTS_MACHINE_STATUS) _sjts_status_int;
@@ -1227,9 +1237,48 @@ void MainWindow::sjts_status(const int _sjts_status_int)
 *
 */
 /*-------------------------------------*/
-void MainWindow::printf_event(std::string _event, std::string _msg)
-{
-	std::cout << _event << ">>" << _msg << std::endl;
+void MainWindow::sjts_fpga_work_flow_status_rcv(const int  _arm_linux_fpga_work_flow_int)
+{	
+	//RollerDoneQualified
+	
+	this->ui->progressBar_flow_ctrl->setValue(_arm_linux_fpga_work_flow_int);
+#if _DEBUG
+	if (_arm_linux_fpga_work_flow_int==CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START) {
+		
+		
+	}
+	else if (_arm_linux_fpga_work_flow_int == CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_00) {
+
+		
+		
+	}
+	else if (_arm_linux_fpga_work_flow_int == CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00) {
+
+	
+		
+	}
+	else if (_arm_linux_fpga_work_flow_int == CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01) {
+
+		
+		
+	}
+	else if (_arm_linux_fpga_work_flow_int == CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01) {
+
+	
+		
+
+	}
+	else if (_arm_linux_fpga_work_flow_int == CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP) {
+
+	
+		
+	}
+	else {
+
+		Q_ASSERT(FALSE);
+	}
+#endif
+
 }
 /*-------------------------------------*/
 /**

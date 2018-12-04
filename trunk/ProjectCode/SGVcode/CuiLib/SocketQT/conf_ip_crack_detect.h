@@ -17,6 +17,10 @@
 *
 */
 /*-----------------------------------*/
+#if _DEBUG
+#define TEST_IPC				("192.168.100.212")
+#endif
+/*-----------------------------------*/
 #define NVR_IN_BIG				("192.168.100.210")
 #define NVR_IN_SMALL			("192.168.100.220")
 #define NVR_OUT					("192.168.100.230")
@@ -72,8 +76,9 @@
 #define TCP_POET_CMD_CTRL    (10000)
 #define TCP_PORT_VIDEO_RAW	 (8888)
 #define TCP_PORT_SSH (22)
-/*-------------------------------------*/
 #define TCP_PORT_IPC_FLOW_CTRL (20001)
+/*-------------------------------------*/
+#define HEART_BEAT_FREQUENCY (5)
 /*-------------------------------------*/
 #define USE_THREAD_CRACK_PRIORITY (0)
 /*-------------------------------------*/

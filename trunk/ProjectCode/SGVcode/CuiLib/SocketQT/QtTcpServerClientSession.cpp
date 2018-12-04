@@ -35,7 +35,7 @@ QtTcpServerClientSession::QtTcpServerClientSession(QObject *parent, QSharedPoint
 
 QtTcpServerClientSession::~QtTcpServerClientSession()
 {
-
+	this->RemoveDoneThread();
 	m_clientThreads.clear();
 	
 }
@@ -114,6 +114,55 @@ void  QtTcpServerClientSession::SendMsg2ClientSession(QSharedPointer<CMD_CTRL> _
 
 	}
 
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+QVector<QString>  QtTcpServerClientSession::getRunningSessionIpAddr()
+{
+	QMutexLocker locker(&m_clients_mutex);
+
+	QVector<QString> list_t;
+	
+	for (QList<QSharedPointer<QtThreadSocketClient>>::iterator item = m_clientThreads.begin(); item != m_clientThreads.end(); item++)
+	{
+
+		if ((*item)->isRunning()) {
+
+			  QString ip_str_t=(*item)->GetIpAddr();
+			  list_t.push_back(ip_str_t);
+
+		}
+
+	}
+
+	return list_t;
+	
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void  QtTcpServerClientSession::StopRunningThread()
+{
+	
+	QMutexLocker locker(&m_clients_mutex);
+
+
+
+	for (QList<QSharedPointer<QtThreadSocketClient>>::iterator item = m_clientThreads.begin(); item != m_clientThreads.end(); item++)
+	{
+		QSharedPointer<QtThreadSocketClient>  thread_socket_session_t = (*item);
+		if (thread_socket_session_t->isRunning()) {
+			thread_socket_session_t->closeServerAsync();
+		}
+
+	}
+
+	
 }
 /*-------------------------------------*/
 /**

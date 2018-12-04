@@ -42,7 +42,7 @@ IPC send
 /*-------------------------------------*/
 QtThreadPLC::QtThreadPLC(qintptr p)
 {
-	m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
+	
 #if 1
 	mIpAddr = PLC_ADDR;
 #else
@@ -69,52 +69,52 @@ QtThreadPLC::~QtThreadPLC(void)
 *
 */
 /*-------------------------------------*/
-void QtThreadPLC::Run0()
+
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadPLC::do_run_work(QSharedPointer<BE_1105_Driver>	 _be_1105)
 {
 	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
-	QSharedPointer<BE_1105_Driver>	 be_1105 = QSharedPointer<BE_1105_Driver>(new BE_1105_Driver(Q_NULLPTR));
-	int IS_SOCKET_OK = FALSE;
-
-	this->init_serial_port(be_1105);
-	
-	while (M_THREAD_RUN) {
-		
-		this->connect2ServerIfNoConnected();
-
-		while (m_socket->IsSocketAlive()) {
 
 #if TRUE
-			//rooler ready
-			if (wait4PlcRoolerReady(cmd_t) == TRUE) {
-				//roooler is ready !!!
-				m_socket->SendPlcResp(TRUE);
-				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady);
-			}else{
-				emit status_socket(FALSE);
-				break;
-			}
+	//rooler ready
+	if (wait4PlcRoolerReady(cmd_t) == TRUE) {
+		//roooler is ready !!!
+		m_socket->SendPlcResp(TRUE);
+		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady);
+	}
+	else {
+		emit status_socket(FALSE);
+		return;
+	}
 #endif // 0
 
-			this->stepMotorRun(be_1105);
-			
-			emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RollerDone);
-			
-#if TRUE
-			//rooler is ok or bad
-			m_socket->SendPlcRollerQualified(CMD_CTRL::CT_OK);
+	this->stepMotorRun(_be_1105);
 
-			if (this->wait4PlcResp(cmd_t) == FALSE) {
-				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneUnqualified);
-				break;
-			}else{
-				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneQualified);
-			}
+	emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RollerDone);
+
+#if TRUE
+	//rooler is ok or bad
+	m_socket->SendPlcRollerQualified(CMD_CTRL::CT_OK);
+
+	if (this->wait4PlcResp(cmd_t) == FALSE) {
+		
+		return;
+	}
+	else {
+	
+	}
 #endif // TRUE
 
-		}
+#if 0
+	emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneUnqualified);
+#else
+	emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneQualified);
+#endif
 
-
-	}
 }
 /*-------------------------------------*/
 /**
@@ -386,7 +386,7 @@ int QtThreadPLC::wait4PlcRoolerReady(QSharedPointer<CMD_CTRL> _cmd)
 			break;
 		}
 
-	} while (m_socket->IsSocketAlive());
+	} while (M_THREAD_RUN && m_socket->IsSocketAlive());
 
 
 
@@ -397,16 +397,7 @@ int QtThreadPLC::wait4PlcRoolerReady(QSharedPointer<CMD_CTRL> _cmd)
 *
 */
 /*-------------------------------------*/
-void QtThreadPLC::run()
-{
-#if 1
-	this->Run0();
-#else
-	this->run1();
-#endif
 
-
-}
 /*-------------------------------------*/
 /**
 *
@@ -423,8 +414,7 @@ void  QtThreadPLC::init_serial_port(QSharedPointer<BE_1105_Driver>	 _be_1105)
 			break;
 			
 		}else{
-			QThread::msleep(1000);
-			std::cout << "EVENT>>" << "Cant Open Serial Port !" << std::endl;
+			this->SleepMy(1000);
 			emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortError);
 		}
 
@@ -497,6 +487,26 @@ void QtThreadPLC::emit_step_motor_stop(int _circle)
 	{
 		Q_ASSERT(FALSE);
 	}
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadPLC::run_socket_work()
+{
+
+	m_socket->SetReadTimeOutMy(1000*60*2);//2 min
+
+	QSharedPointer<BE_1105_Driver>	 be_1105 = QSharedPointer<BE_1105_Driver>(new BE_1105_Driver(Q_NULLPTR));
+
+	this->init_serial_port(be_1105);
+
+	while (M_THREAD_RUN && mSocketConnected)
+	{
+		this->do_run_work(be_1105);
+	}
+
 }
 /*-------------------------------------*/
 /**

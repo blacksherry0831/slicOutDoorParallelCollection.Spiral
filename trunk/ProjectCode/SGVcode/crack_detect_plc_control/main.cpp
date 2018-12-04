@@ -49,7 +49,7 @@ int plcServerGUI(int argc, char *argv[])
 		w.show();
 
 #if defined(linux) || defined(__linux) || defined(__linux__) ||defined( __GNUC__)
-		w.hide();
+	//	w.hide();
 #endif
 		
 		return  EXEC_RESULT = a.exec();

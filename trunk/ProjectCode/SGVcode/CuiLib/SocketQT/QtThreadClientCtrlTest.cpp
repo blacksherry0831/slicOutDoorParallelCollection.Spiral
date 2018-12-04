@@ -54,7 +54,7 @@ QtThreadClientCtrlTest::~QtThreadClientCtrlTest(void)
 /*-------------------------------------*/
 void QtThreadClientCtrlTest::run()
 {			
-		this->init_socket_client_session();
+	this->init_socket();
 		
 		int data = 1;
 				
@@ -73,7 +73,7 @@ void QtThreadClientCtrlTest::run()
 
 	 	}
 
-		this->closeSocket();
+		this->close_destory_socket_4_server();
 }
 /*-------------------------------------*/
 /**

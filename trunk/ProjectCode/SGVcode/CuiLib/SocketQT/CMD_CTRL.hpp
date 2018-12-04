@@ -93,6 +93,7 @@ public:
 	/*-------------------------------------*/
 public:
 	int IsThisCmd00(int _cmd);
+	int GetCmd00();
 
 	
 };

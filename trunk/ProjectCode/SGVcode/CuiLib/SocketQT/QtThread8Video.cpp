@@ -122,7 +122,7 @@ void QtThread8Video::run()
 
 		}
 
-		this->closeSocket4Server();
+		this->close_destory_socket_4_server();
 	
 	}
 

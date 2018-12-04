@@ -21,8 +21,7 @@ QtThreadSocketClient::QtThreadSocketClient()
 #else
 	mIpAddr = "127.0.0.1";
 #endif // 0
-	m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
-	m_socket->moveToThread(this);
+	
 
 }
 /*-------------------------------------*/
@@ -64,8 +63,7 @@ void QtThreadSocketClient::init_param()
 void QtThreadSocketClient::write_ptr(qintptr p)
 {
 	this->ptr_sd = p;
-	m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
-	m_socket->moveToThread(this);
+	
 }
 /*-------------------------------------*/
 /**
@@ -74,13 +72,26 @@ void QtThreadSocketClient::write_ptr(qintptr p)
 /*-------------------------------------*/
 void QtThreadSocketClient::init_socket()
 {
-	if (m_socket.isNull()) {
-			m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
-			
-			m_socket->setSocketOption(QAbstractSocket::ReceiveBufferSizeSocketOption, 256*1024*1024);//这个没有任何作用
-	}	
+	if (m_socket.isNull())
+	{
+		m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
 
-	this->closeSocket();
+			if (ptr_sd >= 0) {
+				m_socket->setSocketDescriptor(ptr_sd);
+				mSocketConnected = TRUE;//client is connected
+				mIpAddr = m_socket->peerAddress().toString().toStdString();
+
+			}else if (ptr_sd==-1){
+				m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
+								
+			}else {
+				
+				Q_ASSERT(FALSE);
+			
+			}
+		
+
+	}
 
 }
 /*-------------------------------------*/
@@ -88,14 +99,7 @@ void QtThreadSocketClient::init_socket()
 *
 */
 /*-------------------------------------*/
-void QtThreadSocketClient::init_socket_client_session()
-{
-	if (ptr_sd >= 0) {
-		m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
-		m_socket->setSocketDescriptor(ptr_sd);
-		mSocketConnected=TRUE;
-	}
-}
+
 /*-------------------------------------*/
 /**
 *
@@ -167,7 +171,37 @@ void QtThreadSocketClient::wait4ServerClose()
 /*-------------------------------------*/
 void QtThreadSocketClient::run()
 {
-	
+	this->before_enter_thread();
+	this->enter_thread();
+
+				this->init_socket_in_thread();
+
+							while (M_THREAD_RUN){
+									
+									this->connect2ServerIfNoConnected();
+
+											while (M_THREAD_RUN && mSocketConnected){
+
+												this->run_socket_work();
+
+											}
+
+									this->close_destory_socket_4_server();
+
+							}
+
+				this->destory_socket_in_thread();
+
+	this->exit_thread();
+	this->after_exit_thread();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadSocketClient::run_socket_work()
+{
 
 }
 /*-------------------------------------*/
@@ -186,11 +220,18 @@ int QtThreadSocketClient::IsSocketConnectedThreadRunning()
 /*-------------------------------------*/
 void  QtThreadSocketClient::connect2ServerIfNoConnected()
 {
+	if (ptr_sd >= 0) {
+		return;
+	}
+
 	if (this->IsSocketAliveEx() == false) {
 
 		do {
 			this->init_socket();
-			
+#if _DEBUG
+			this->IsSocketConnectedEx();
+#endif
+
 			m_socket->connectToHost(QHostAddress(mIpAddr.c_str()), mPort);
 			this->emit_status_message(mStatusMessage = QString("Socket>> ").append("Try Connect to IP : wait 30s,"));
 
@@ -226,34 +267,19 @@ void QtThreadSocketClient::disconnect4Server()
 *
 */
 /*-------------------------------------*/
-void QtThreadSocketClient::closeSocket()
-{
-	if (!this->m_socket.isNull()) {
 
-			if (this->m_socket->IsSocketAlive()) {
-						this->m_socket->close();						
-						this->emit_status_message(mStatusMessage = QString("Socket>> ").append("close: ").append(QString(mIpAddr.c_str())).append("Port:").append(QString::number(mPort)));
-			}	
-
-			mSocketConnected = FALSE;
-			emit socket_connect_state(false);
-	}
-
-}
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void QtThreadSocketClient::closeSocket4Server()
-{	
-	this->closeSocket();
 
-	if (this->M_THREAD_RUN==false){
-		this->m_socket.clear();
-	}
-	
-}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+
 /*-------------------------------------*/
 /**
 *
@@ -445,6 +471,91 @@ void QtThreadSocketClient::emit_thread_stopping()
 {
 	emit thread_running_state(FALSE);
 	this->emit_status_message(mStatusMessage = "Thread>>  shutdown");
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadSocketClient::enter_thread()
+{
+	this->emit_thread_starting();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadSocketClient::exit_thread()
+{
+	this->emit_thread_stopping();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadSocketClient::init_socket_in_thread()
+{
+	this->init_socket();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadSocketClient::destory_socket_in_thread()
+{
+	this->close_destory_socket_4_server();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadSocketClient::before_enter_thread()
+{
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadSocketClient::after_exit_thread()
+{
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadSocketClient::close_destory_socket_4_server()
+{
+
+	if (!this->m_socket.isNull()) {
+
+		if (this->m_socket->IsSocketAlive()) {
+			this->m_socket->close();
+			this->emit_status_message(mStatusMessage = QString("Socket>> ").append("close: ").append(QString(mIpAddr.c_str())).append("Port:").append(QString::number(mPort)));
+			
+			this->m_socket.clear();
+			mSocketConnected = FALSE;
+			emit socket_connect_state(false);		
+		
+		}
+	}
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+QString QtThreadSocketClient::GetIpAddr()
+{
+	return   QString::fromStdString(mIpAddr);
 }
 /*-------------------------------------*/
 /**

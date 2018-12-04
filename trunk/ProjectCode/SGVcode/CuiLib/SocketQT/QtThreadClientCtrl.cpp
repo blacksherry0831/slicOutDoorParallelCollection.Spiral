@@ -171,7 +171,7 @@ void QtThreadClientCtrl::run_00()
 
 		}
 
-		this->closeSocket4Server();
+		this->close_destory_socket_4_server();
 
 	}
 	/*-----------------------------*/
@@ -185,51 +185,13 @@ void QtThreadClientCtrl::run_00()
 *
 */
 /*-------------------------------------*/
-void QtThreadClientCtrl::run_01()
-{
-	this->emit_thread_starting();
 
-	this->init_socket();
-
-	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
-	
-	/*-----------------------------*/
-	while (M_THREAD_RUN){
-
-		this->connect2ServerIfNoConnected();
-
-		while (M_THREAD_RUN && mSocketConnected) {
- 									
-						if (SocketErrorMy==this->ProcessCmds()) {
-								break;
-						}
-						
-						if (SocketErrorMy == this->SendHearbeatCmd()) {
-								break;
-						}
-						
-						if (!this->IsSocketConnectedEx()) {
-							break;
-						}
-
-		}
-
-		this->closeSocket4Server();
-
-	}
-	/*-----------------------------*/
-
-	this->emit_thread_stopping();
-}
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void QtThreadClientCtrl::run()
-{
-	this->run_01();
-}
+
 /*-------------------------------------*/
 /**
 *
@@ -433,17 +395,15 @@ int QtThreadClientCtrl::SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C _start_stop)
 *
 */
 /*-------------------------------------*/
-int QtThreadClientCtrl::SendHearbeatCmd()
+int QtThreadClientCtrl::SendHearbeatEx()
 {
 	static const int SleepInterval = 100;
-	static int SleepTimes = 0;
+	
 	int result_t = INIT_MY;
 
 	this->SleepMy(SleepInterval);
-
-	SleepTimes++;
-
-	if (SleepTimes % (mHeartBeatFreq / SleepInterval) == 0)
+	
+	if (mSleepTime % mHeartBeatFreq == 0)
 	{
 #if 1
 		//no cmd
@@ -453,6 +413,7 @@ int QtThreadClientCtrl::SendHearbeatCmd()
 		else {
 			result_t = TRUE_MY;
 		}
+
 #endif // 0		
 	}
 	return result_t;
@@ -543,6 +504,56 @@ int QtThreadClientCtrl::IsCmdLocalFPGA(QSharedPointer<CMD_CTRL> _cmd)
 
 	return FALSE;
 
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadClientCtrl::run_socket_work()
+{
+	if (SocketErrorMy == this->ProcessCmds()) {
+		return;
+	}
+
+	if (SocketErrorMy == this->SendHearbeatEx()) {
+		return;
+	}
+
+	if (!this->IsSocketConnectedEx()) {
+		return;
+	}
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadClientCtrl::run()
+{
+	this->before_enter_thread();
+	this->enter_thread();
+
+	this->init_socket_in_thread();
+
+	while (M_THREAD_RUN) {
+
+		this->connect2ServerIfNoConnected();
+
+		while (M_THREAD_RUN && mSocketConnected) {
+
+			this->run_socket_work();
+
+		}
+
+		this->close_destory_socket_4_server();
+
+	}
+
+	this->destory_socket_in_thread();
+
+	this->exit_thread();
+	this->after_exit_thread();
 }
 /*-------------------------------------*/
 /**

@@ -203,12 +203,7 @@ void QtImgProcess::run()
 			this->processImgCmd();
 
 		}
-
-
-			
-
-
-
+		
 	}
 
 }

@@ -98,7 +98,7 @@ public:
 #if IMG_PROCESS_USE_STEP_MOTOR
 	QSharedPointer<QtThreadStepMotor>		mStepMotor;
 #endif
-	QSharedPointer<QtThreadFlowCtrlLocal> mFlowCtrlLocal;
+	QSharedPointer<QtThreadFlowCtrlLocal>  mFlowCtrlLocal;
 
 	QSharedPointer<QtThreadFlowCtrlServer> mFlowServerServerLocal;
 
@@ -208,6 +208,7 @@ public slots:
 	void statusBarshowMessage(QString _msg);
 
 	void sjts_status(const int _sjts_status_int);
+	void sjts_fpga_work_flow_status_rcv(const int _arm_linux_fpga_work_flow_int);
 
 };
 

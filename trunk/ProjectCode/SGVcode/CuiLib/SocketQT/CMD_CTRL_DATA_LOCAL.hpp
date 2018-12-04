@@ -25,34 +25,36 @@ public:
 public:
 	enum SJTS_MACHINE_STATUS
 	{
-		RoolerReady,
+		RoolerReady=1,
 
-		StepMotorStart00,
-		StepMotorStop00,
+		StepMotorStart00=2,
+		StepMotorStop00=3,
 
-		StepMotorStart01,
-		StepMotorStop01,
+		StepMotorStart01=4,
+		StepMotorStop01=5,
 
-		RollerDone,
+		RollerDone=6,
 
-		RollerDoneQualified,
-		RollerDoneUnqualified,
+		
+		RollerDoneUnqualified=7,
+		RollerDoneQualified=8,
 
-		SerialPortIsOpen,
-		SerialPortError
+		SerialPortIsOpen=10,
+		SerialPortError=11,
 
 	};
 
 	enum CMD_TYPE_LOCAL {
 
-		CT_FPGA_START_00,
-		CT_FPGA_START_01,
+		CT_FPGA_START=1,
 
-		CT_FPGA_STOP_00,
-		CT_FPGA_STOP_01,
+		CT_FPGA_START_00=2,
+		CT_FPGA_START_01=3,
 
-		CT_FPGA_START,
-		CT_FPGA_STOP
+		CT_FPGA_STOP_00=4,
+		CT_FPGA_STOP_01=5,
+		
+		CT_FPGA_STOP=6,
 
 	};
 

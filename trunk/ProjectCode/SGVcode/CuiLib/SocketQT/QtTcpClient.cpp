@@ -26,6 +26,7 @@ QtTcpClient::QtTcpClient(QObject *parent):QTcpSocket(parent)
 	mSocketRun = TRUE;
 	m_buffer.clear();
 	mSocketErrorOccur=0;
+	mSocketReadMaxTimeOut = 0;
 #if _DEBUG
 
 #else
@@ -159,17 +160,32 @@ int QtTcpClient::ReadMy_all(int _size)
 	Q_ASSERT(_size >= 0);
 
 	QByteArray qba;
+	mSocketReadTimeOut=0;
 	if (this->waitForReadyRead(MAX_MSECS)) {
+		
 		qba = this->readAll();
+		Q_ASSERT(qba.size() > 0);
 		m_buffer.append(qba);
-		return TRUE;
+		return qba.size();
 
-	}
-	else {
+	}else {
+
+#if _DEBUG
+		QString error_t = __func__;
+		error_t + "Socket Read time out error !";
+		qDebug() << error_t;
+#endif
+		mSocketReadTimeOut += MAX_MSECS;
+		
+		if (mSocketReadTimeOut>mSocketReadMaxTimeOut){
+			return mSocketConnected = 0;
+		}
 
 		return this->IsSocketError();
 
 	}
+
+
 }
 /*-------------------------------------*/
 /**
@@ -511,13 +527,7 @@ int QtTcpClient::IsSocketError()
 		
 		qDebug() << error_str_t;
 
-		if (error == SocketError::ConnectionRefusedError) {
-
-			if (error_str_t.isEmpty()) {				
-				return TRUE;//maybe time out
-			}
-
-		}else if (error == SocketError::SocketTimeoutError) {
+		if (error == SocketError::SocketTimeoutError) {
 
 			return TRUE;//time out
 
@@ -727,7 +737,10 @@ int QtTcpClient::getByteTcpRead()
 *
 */
 /*-------------------------------------*/
-
+void QtTcpClient::SetReadTimeOutMy(const unsigned int _max_time_out_ms)
+{
+	mSocketReadMaxTimeOut = _max_time_out_ms;
+}
 /*-------------------------------------*/
 /**
 *
