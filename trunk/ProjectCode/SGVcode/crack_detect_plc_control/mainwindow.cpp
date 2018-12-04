@@ -14,9 +14,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	this->init_members();
 	this->init_class_member_base();
 	this->init_connect();
+	this->init_ctrols();
 
-	mPlcdataServer = QSharedPointer<QtThreadPLC>(new QtThreadPLC(0));
-	mFlowServerServer = QSharedPointer<QtThreadFlowCtrlServer>(new QtThreadFlowCtrlServer(this));
 
 	mPlcdataServer->startServer();
 	mFlowServerServer->startServer();
@@ -43,7 +42,8 @@ MainWindow::~MainWindow()
 /*-------------------------------------*/
 void MainWindow::init_connect()
 {
-	
+	Q_ASSERT(!mPlcdataServer.isNull());
+
 	this->connect(mPlcdataServer.data(), 
 		SIGNAL(status_sjts(int)),
 		this,
@@ -162,7 +162,7 @@ void MainWindow::ShowSjtsStatusOnUI(CMD_CTRL::SJTS_MACHINE_STATUS _sjts_status)
 	}
 
 	this->ui->checkBox_serial_port->setChecked(status_serial_port_t);
-	this->ui->label_sjts_plc_work_flow->setText(status_t);
+//	this->ui->label_sjts_plc_work_flow->setText(status_t);
 	this->ui->statusBar->showMessage(status_t);
 	this->ui->progressBar_sjts_plc_work_flow->setValue(std::min(_sjts_status, CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneQualified));
 }
@@ -185,6 +185,9 @@ void MainWindow::init_members()
 {
 	this->mTimer = new QTimer(this);
 	this->mTimer->start(1000);
+
+	mPlcdataServer = QSharedPointer<QtThreadPLC>(new QtThreadPLC(0));
+	mFlowServerServer = QSharedPointer<QtThreadFlowCtrlServer>(new QtThreadFlowCtrlServer(this));
 }
 /*-------------------------------------*/
 /**
@@ -206,11 +209,11 @@ void MainWindow::update_link_status()
 			
 							QString qstr_t = v_qstr_t.at(i);
 			
-							if (0==qstr_t.compare(IPC_DATA_CENTER_ADDR_00)){
+							if (0==qstr_t.contains(IPC_DATA_CENTER_ADDR_00)){
 								this->ui->checkBox_101->setChecked(true);
-							}else if (0==qstr_t.compare(IPC_DATA_CENTER_ADDR_01)){
+							}else if (0==qstr_t.contains(IPC_DATA_CENTER_ADDR_01)){
 								this->ui->checkBox_102->setChecked(true);
-							}else if (0==qstr_t.compare(IPC_DATA_CENTER_ADDR_02)) {
+							}else if (0==qstr_t.contains(IPC_DATA_CENTER_ADDR_02)) {
 								this->ui->checkBox_103->setChecked(true);
 							}else{
 								this->ui->checkBox_another->setChecked(true);

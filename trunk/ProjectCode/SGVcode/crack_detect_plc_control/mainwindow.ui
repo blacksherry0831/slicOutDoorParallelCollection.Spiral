@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>477</width>
-    <height>537</height>
+    <width>322</width>
+    <height>317</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -113,19 +113,6 @@
           </property>
          </widget>
         </item>
-        <item>
-         <widget class="QLabel" name="label_sjts_plc_work_flow">
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>100</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>status</string>
-          </property>
-         </widget>
-        </item>
        </layout>
       </item>
      </layout>
@@ -137,7 +124,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>477</width>
+     <width>322</width>
      <height>23</height>
     </rect>
    </property>

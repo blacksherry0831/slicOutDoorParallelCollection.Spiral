@@ -269,9 +269,12 @@ void MainWindow::init_controls()
 	connect(ui->pushButton_cutArea, SIGNAL(clicked()), this, SLOT(ClickButton_CutArea()));
 #endif // TRUE
 
+#if _DEBUG
+	ui->comboBox_IpAddr->addItem(TEST_IPC);
+#endif
 
 #if TRUE
-	ui->comboBox_IpAddr->addItem(TEST_IPC);
+
 	ui->comboBox_IpAddr->addItem(BORD_VIDEO_IN_LONG);
 	ui->comboBox_IpAddr->addItem(BORD_VIDEO_IN_SHORT);
 	ui->comboBox_IpAddr->addItem(BORD_VIDEO_OUT);
