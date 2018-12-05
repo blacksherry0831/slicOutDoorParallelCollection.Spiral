@@ -331,28 +331,28 @@ void QtThreadSocketClient::emit_status_message(const QString & _msg)
 *
 */
 /*-------------------------------------*/
-int QtThreadSocketClient::send_and_read_resp(QSharedPointer<CMD_CTRL> _cmd_send)
+int QtThreadSocketClient::send_and_read_cmd(QSharedPointer<CMD_CTRL> _cmd_send, QSharedPointer<CMD_CTRL> _cmd_resp)
 {
-	QSharedPointer<CMD_CTRL> cmd_read_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
+	QSharedPointer<CMD_CTRL> cmd_read_t = _cmd_resp;
 
-	if (this->m_socket->Send_1_cmd(_cmd_send.data())==0) {
+	if (0==Send_1_cmd(_cmd_send)) {
 		return  SocketErrorMy;
 	}
+	else
+	{
+			//send cmd success
+			if (0 == Read_1_cmd(cmd_read_t)) {
 
-	if (0 == m_socket->Read_1_cmd(cmd_read_t.data())) {
+						return  SocketErrorMy;
 
-			return  SocketErrorMy;
-
-	}else{
-
-			if (cmd_read_t->IsResp()) {
-				return TRUE_MY;
 			}else{
-				return FALSE_MY;
+
+				return TRUE_MY;
+
 			}
 
 	}
-	return TRUE_MY;
+
 }
 /*-------------------------------------*/
 /**
@@ -406,14 +406,7 @@ int  QtThreadSocketClient::Read_1_cmd(QSharedPointer<CMD_CTRL> _cmd)
 *
 */
 /*-------------------------------------*/
-int QtThreadSocketClient::Send_Start_CMD(CMD_CTRL::CMD_TYPE_02_C _type_c, CMD_CTRL::WorkMode _wm)
-{
 
-	QSharedPointer<CMD_CTRL> qsp_cc_t = CMD_CTRL::getFpgaStartCmdEx(_type_c, _wm);
-
-	return Send_1_cmd(qsp_cc_t);
-
-}
 /*-------------------------------------*/
 /**
 *

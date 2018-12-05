@@ -59,12 +59,8 @@ public:
 
 	int SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C _start_stop);
 	int SendHearbeatEx();
-
+	int SendHeartBeatCmdReadResp();
 public slots:
-
-protected:
-
-	void run_00();
 	
 protected:
 	virtual void run();

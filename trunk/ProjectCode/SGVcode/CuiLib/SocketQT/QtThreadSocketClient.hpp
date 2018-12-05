@@ -70,14 +70,13 @@ public:
 public:
 	int Send_1_cmd(QSharedPointer<CMD_CTRL> _cmd);
 	int Read_1_cmd(QSharedPointer<CMD_CTRL> _cmd);
-	int Send_Start_CMD(CMD_CTRL::CMD_TYPE_02_C _type_c, CMD_CTRL::WorkMode _wm);
+	//int Send_Start_CMD(CMD_CTRL::CMD_TYPE_02_C _type_c, CMD_CTRL::WorkMode _wm);
 	int SendHearbeatCmd();
 	ResultMy read_n_byte(int _n);
 	ResultMy write_n_byte(const char * const _data, const int _size);
 	int getByteTcpRead();;
 public:
-	int send_and_read_resp(QSharedPointer<CMD_CTRL> _cmd_send);
-
+	int send_and_read_cmd(QSharedPointer<CMD_CTRL> _cmd_send,QSharedPointer<CMD_CTRL> _cmd_resp=Q_NULLPTR);
 signals:
 void socket_connect_state(int);
 void thread_running_state(int);

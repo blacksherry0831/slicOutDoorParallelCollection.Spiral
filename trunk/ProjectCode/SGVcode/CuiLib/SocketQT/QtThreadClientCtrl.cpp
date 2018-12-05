@@ -87,110 +87,6 @@ int QtThreadClientCtrl::IsDataPipeOK()
 *
 */
 /*-------------------------------------*/
-void QtThreadClientCtrl::run_00()
-{
-	this->init_socket();
-
-	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
-
-	this->emit_status_message(mStatusMessage = "Thread>> Ctrl Thread Start");
-
-	/*-----------------------------*/
-	while (M_THREAD_RUN)
-	{
-
-		this->connect2ServerIfNoConnected();
-
-		while (M_THREAD_RUN) {
-
-#if TRUE
-			//step 1				
-			this->emit_status_message(mStatusMessage = QString("CMD>> Send Start cmd"));
-
-
-			Send_Start_CMD(CMD_CTRL::CMD_TYPE_02_C::CT_START, mWorkMode);
-
-			if (Read_1_cmd(cmd_t) == 0) {
-				break;
-			}
-
-			if (cmd_t->IsResp()) {
-				this->emit_status_message(mStatusMessage = QString("CMD>> Rcv Start Resp "));
-
-			}else {
-				break;
-			}
-
-#endif // TRUE
-
-#if TRUE
-			while (M_THREAD_RUN) {
-
-				if (this->SendCmdCtrl()) {
-					//send success
-				}
-				else {
-					//no cmd
-					if (SendHearbeatCmd() == 0) {
-						break;
-					}
-					else {
-						this->SleepMy(1000);
-					}
-
-				}
-
-			}
-#endif // TRUE
-
-#if TRUE
-			//step 2
-			this->emit_status_message(mStatusMessage = QString("CMD>> Send Stop "));
-			
-			Send_Start_CMD(CMD_CTRL::CMD_TYPE_02_C::CT_STOP, mWorkMode);
-
-			if (Read_1_cmd(cmd_t) == 0) {
-				break;
-			}
-			else {
-				if (cmd_t->IsResp()) {
-					this->emit_status_message(mStatusMessage = QString("CMD>> Rcv  Resp "));
-				}
-				else {
-					break;
-				}
-			}
-
-#endif		
-
-#if TRUE
-			this->SleepMy(3 * 1000);
-#endif // TRUE
-
-
-
-		}
-
-		this->close_destory_socket_4_server();
-
-	}
-	/*-----------------------------*/
-
-#if _DEBUG
-	this->emit_status_message(mStatusMessage = "Thread>>  shutdown");
-#endif // _DEBUG
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
 
 /*-------------------------------------*/
 /**
@@ -291,21 +187,13 @@ int QtThreadClientCtrl::ProcessLocalCmds(QSharedPointer<CMD_CTRL> cmd_ctrl_t)
 /*-------------------------------------*/
 int QtThreadClientCtrl::ProcessRemoteCmds(QSharedPointer<CMD_CTRL> cmd_ctrl_t)
 {
+	QSharedPointer<CMD_CTRL> cmd_resp_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
+	
+	Q_ASSERT(cmd_ctrl_t->IsCmdRemote());
+
 	if (cmd_ctrl_t->IsCmdRemote()){
 		//cmd is remote cmd
-		//cmd  no resp
-#if 1
-		if (0==m_socket->Send_1_cmd(cmd_ctrl_t.data())) {
-			return SocketErrorMy;
-		}
-		else {
-			return TRUE_MY;
-		}
-#endif
-
-#if 0
-		return this->send_and_read_resp(cmd_ctrl_t);
-#endif
+		 return this->send_and_read_cmd(cmd_ctrl_t, cmd_resp_t);
 
 	}
 	return INIT_MY;
@@ -362,24 +250,19 @@ void QtThreadClientCtrl::SetImgSigmaCmd(int _sigma)
 int QtThreadClientCtrl::SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C _start_stop)
 {
 	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
+	QSharedPointer<CMD_CTRL> qsp_cc_t = CMD_CTRL::getFpgaStartCmdEx(_start_stop, mWorkMode);
 
 	if (_start_stop){
 		this->emit_status_message(mStatusMessage = QString("CMD>> Send Start cmd"));		
 	}else {
 		this->emit_status_message(mStatusMessage = QString("CMD>> Send Stop "));
 	}
-
-	if (0 == Send_Start_CMD(_start_stop, mWorkMode)) {
 	
-		return  SocketErrorMy;
-	}
-
-	if (0 == Read_1_cmd(cmd_t)) {
-
-		return  SocketErrorMy;
+	int status_t=this->send_and_read_cmd(qsp_cc_t, cmd_t);
 	
-	}else{
-
+	if (TRUE_MY==status_t)
+	{
+		
 			if (cmd_t->IsResp()) {
 				this->emit_status_message(mStatusMessage = QString("CMD>> Rcv Start Resp "));
 				return TRUE_MY;
@@ -389,6 +272,8 @@ int QtThreadClientCtrl::SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C _start_stop)
 
 	}
 	
+	return status_t;
+
 }
 /*-------------------------------------*/
 /**
@@ -405,18 +290,38 @@ int QtThreadClientCtrl::SendHearbeatEx()
 	
 	if (mSleepTime % mHeartBeatFreq == 0)
 	{
-#if 1
-		//no cmd
-		if (0 == SendHearbeatCmd()) {
-			result_t = SocketErrorMy;
-		}
-		else {
-			result_t = TRUE_MY;
-		}
-
-#endif // 0		
+		return SendHeartBeatCmdReadResp();
 	}
 	return result_t;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int QtThreadClientCtrl::SendHeartBeatCmdReadResp()
+{
+	QSharedPointer<CMD_CTRL> qsp_resp_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
+	QSharedPointer<CMD_CTRL> qsp_cc_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
+	
+	qsp_cc_t->getHeartBeatCmd(0);
+
+	int resp_status = this->send_and_read_cmd(qsp_cc_t, qsp_resp_t);
+	
+	if (TRUE_MY == resp_status) {
+		
+		if (qsp_resp_t->IsResp()){
+
+			return TRUE_MY;
+		}
+		else
+		{
+			return FALSE_MY;
+		}
+	
+	}
+
+	return resp_status;
 }
 /*-------------------------------------*/
 /**

@@ -154,15 +154,14 @@ void MainWindow::ShowSjtsStatusOnUI(CMD_CTRL::SJTS_MACHINE_STATUS _sjts_status)
 	}else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortError) {
 			status_t = "SerialPortError";
 			status_serial_port_t = false;
+			this->ui->checkBox_serial_port->setChecked(status_serial_port_t);
 	}else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortIsOpen) {
 			status_t = "SerialPortIsOpen";		
 			status_serial_port_t = true;
+			this->ui->checkBox_serial_port->setChecked(status_serial_port_t);
 	}else {
 		Q_ASSERT(0);
 	}
-
-	this->ui->checkBox_serial_port->setChecked(status_serial_port_t);
-//	this->ui->label_sjts_plc_work_flow->setText(status_t);
 	this->ui->statusBar->showMessage(status_t);
 	this->ui->progressBar_sjts_plc_work_flow->setValue(std::min(_sjts_status, CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneQualified));
 }
