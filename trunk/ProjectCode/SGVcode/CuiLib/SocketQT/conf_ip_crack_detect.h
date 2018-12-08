@@ -78,7 +78,7 @@
 #define TCP_PORT_SSH (22)
 #define TCP_PORT_IPC_FLOW_CTRL (20001)
 /*-------------------------------------*/
-#define HEART_BEAT_FREQUENCY (5)
+
 /*-------------------------------------*/
 #define USE_THREAD_CRACK_PRIORITY (0)
 /*-------------------------------------*/

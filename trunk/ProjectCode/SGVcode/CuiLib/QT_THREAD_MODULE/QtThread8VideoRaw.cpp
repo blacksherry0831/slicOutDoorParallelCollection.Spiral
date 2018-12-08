@@ -73,7 +73,6 @@ void QtThread8VideoRaw::run()
 		while (M_THREAD_RUN) {
 		
 #if 1
-		
 			
 					QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
 					
@@ -90,8 +89,6 @@ void QtThread8VideoRaw::run()
 					}else{
 						 std::cout << "ErrorCmd" << std::endl;
 					}
-
-			
 
 #endif // 1
 

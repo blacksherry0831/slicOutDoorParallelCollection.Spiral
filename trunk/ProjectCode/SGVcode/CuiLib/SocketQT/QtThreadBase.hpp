@@ -28,7 +28,7 @@ protected:
 	void emit_status_message(const QString& _msg);
 	static void printf_event(std::string _event, std::string _msg="");
 public:
-	void SleepMy(int _ms);
+	void SleepMy(int _ms=100);
 	void startServer();
 	void closeServer();
 	void closeServerAsync();

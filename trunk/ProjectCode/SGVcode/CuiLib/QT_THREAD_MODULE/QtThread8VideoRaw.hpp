@@ -17,11 +17,14 @@
 *
 */
 /*-------------------------------------*/
-#include "QtThreadSocketClient.hpp"
+#include "SocketQT/QtTcpClient.hpp"
+#include "SocketQT/ChannelsData.hpp"
+#include "SocketQT/conf_ip.h"
+#include "SocketQT/QtThreadSocketClient.hpp"
+/*-------------------------------------*/
+
 #include "QtThread8Video.hpp"
-#include "QtTcpClient.hpp"
-#include "ChannelsData.hpp"
-#include "conf_ip.h"
+
 /*-------------------------------------*/
 /**
 *

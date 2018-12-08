@@ -131,6 +131,7 @@ int QtThreadClientCtrl::ProcessCmds()
 
 	}else{
 
+		this->SleepMy(100);
 
 	}
 	
@@ -280,49 +281,13 @@ int QtThreadClientCtrl::SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C _start_stop)
 *
 */
 /*-------------------------------------*/
-int QtThreadClientCtrl::SendHearbeatEx()
-{
-	static const int SleepInterval = 100;
-	
-	int result_t = INIT_MY;
 
-	this->SleepMy(SleepInterval);
-	
-	if (mSleepTime % mHeartBeatFreq == 0)
-	{
-		return SendHeartBeatCmdReadResp();
-	}
-	return result_t;
-}
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-int QtThreadClientCtrl::SendHeartBeatCmdReadResp()
-{
-	QSharedPointer<CMD_CTRL> qsp_resp_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
-	QSharedPointer<CMD_CTRL> qsp_cc_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
-	
-	qsp_cc_t->getHeartBeatCmd(0);
 
-	int resp_status = this->send_and_read_cmd(qsp_cc_t, qsp_resp_t);
-	
-	if (TRUE_MY == resp_status) {
-		
-		if (qsp_resp_t->IsResp()){
-
-			return TRUE_MY;
-		}
-		else
-		{
-			return FALSE_MY;
-		}
-	
-	}
-
-	return resp_status;
-}
 /*-------------------------------------*/
 /**
 *
@@ -421,7 +386,7 @@ void QtThreadClientCtrl::run_socket_work()
 		return;
 	}
 
-	if (SocketErrorMy == this->SendHearbeatEx()) {
+	if (SocketErrorMy == this->SendHeartBeatCmdReadResp5s()) {
 		return;
 	}
 
@@ -434,6 +399,8 @@ void QtThreadClientCtrl::run_socket_work()
 *
 */
 /*-------------------------------------*/
+#if _DEBUG
+
 void QtThreadClientCtrl::run()
 {
 	this->before_enter_thread();
@@ -445,7 +412,7 @@ void QtThreadClientCtrl::run()
 
 		this->connect2ServerIfNoConnected();
 
-		while (M_THREAD_RUN && mSocketConnected) {
+		while (socket_thread_run_condition()) {
 
 			this->run_socket_work();
 
@@ -460,6 +427,8 @@ void QtThreadClientCtrl::run()
 	this->exit_thread();
 	this->after_exit_thread();
 }
+
+#endif
 /*-------------------------------------*/
 /**
 *

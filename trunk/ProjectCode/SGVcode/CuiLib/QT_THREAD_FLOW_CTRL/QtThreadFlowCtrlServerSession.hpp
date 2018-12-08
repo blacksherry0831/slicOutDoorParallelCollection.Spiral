@@ -36,7 +36,7 @@ public:
 
 protected: 
 	virtual void run();
-	
+	void RecordCmd(QSharedPointer<CMD_CTRL> _cmd);
 protected:
 	virtual void run_socket_work();
 	virtual void before_enter_thread();

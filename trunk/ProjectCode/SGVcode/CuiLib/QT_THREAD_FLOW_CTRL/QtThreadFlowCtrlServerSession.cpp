@@ -35,7 +35,7 @@ void QtThreadFlowCtrlServerSession::run()
 
 		this->connect2ServerIfNoConnected();
 
-		while (M_THREAD_RUN && mSocketConnected) {
+		while (socket_thread_run_condition()) {
 
 			this->run_socket_work();
 
@@ -56,20 +56,28 @@ void QtThreadFlowCtrlServerSession::run()
 *
 */
 /*-------------------------------------*/
+void QtThreadFlowCtrlServerSession::RecordCmd(QSharedPointer<CMD_CTRL> _cmd)
+{
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void QtThreadFlowCtrlServerSession::run_socket_work()
 {
 	QSharedPointer<CMD_CTRL> cmd_t = this->GetMsg();
+	QSharedPointer<CMD_CTRL> cmd_resp_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
 
 	if (cmd_t.isNull()) {
 		this->SleepMy(100);
 	}
 	else {
-		Send_1_cmd(cmd_t);
+		int status_t=this->send_and_read_cmd_resp(cmd_t,cmd_resp_t);
 	}
 
-	if (0 == mSleepTime % (HEART_BEAT_FREQUENCY*1000)) {
-		mSocketConnected = SendHearbeatCmd();
-	}
+	this->SendHeartBeatCmdReadResp5s();
 
 }
 /*-------------------------------------*/

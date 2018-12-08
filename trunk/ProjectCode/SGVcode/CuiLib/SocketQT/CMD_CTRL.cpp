@@ -58,7 +58,7 @@ void CMD_CTRL::setFpgaConvertCmd(int _type_c, WorkMode _wm)
 		Q_ASSERT(0);
 	}
 		
-	this->SetValue2Data(_wm);
+	this->SetCmdParam(_wm);
 
 }
 /*-------------------------------------*/
@@ -66,25 +66,12 @@ void CMD_CTRL::setFpgaConvertCmd(int _type_c, WorkMode _wm)
 *
 */
 /*-------------------------------------*/
-void CMD_CTRL::setRespCmd(int _type, int work_mode)
+void CMD_CTRL::setRespCmd(CMD_TYPE_02_RESP _type, int work_mode)
 {
-	if (_type == TRUE) {
+	Q_ASSERT(_type == CMD_TYPE_02_RESP::CT_OK || _type == CMD_TYPE_02_RESP::CT_ERROR);
 
-		f_header.f_cmd[0] = CMD_TYPE::CT_RESP;
-		f_header.f_cmd[1] = CMD_TYPE_02_RESP::CT_OK;
-
-	}
-	else if (_type == FALSE) {
-
-		f_header.f_cmd[0] = CMD_TYPE::CT_RESP;
-		f_header.f_cmd[1] = CMD_TYPE_02_RESP::CT_ERROR;
-
-	}
-	else {
-
-		Q_ASSERT(0);
-
-	}
+	f_header.f_cmd[0] = CMD_TYPE::CT_RESP;
+	f_header.f_cmd[1] = _type;
 }
 /*-------------------------------------*/
 /**
@@ -96,7 +83,7 @@ void CMD_CTRL::setPlcLrIntoIn(int _step)
 	f_header.f_cmd[0] = CMD_TYPE::CT_CTRL;
 	f_header.f_cmd[1] = CMD_TYPE_02::CT_LR_RUN_2;
 
-	this->SetValue2Data(_step);
+	this->SetCmdParam(_step);
 
 }
 /*-------------------------------------*/
@@ -109,7 +96,7 @@ void CMD_CTRL::setRollerQualified(int _qualified)
 	f_header.f_cmd[0] = CMD_TYPE::CT_CTRL;
 	f_header.f_cmd[1] = CMD_TYPE_02::CT_ROLLER_Q;
 
-	this->SetValue2Data(_qualified);
+	this->SetCmdParam(_qualified);
 }
 /*-------------------------------------*/
 /**
@@ -155,7 +142,7 @@ void CMD_CTRL::setModeChangeCmd(int _wm)
 	f_header.f_cmd[0] = CMD_TYPE::CT_IMG;
 	f_header.f_cmd[1] = CMD_TYPE_02_I::CT_IMG_MODE_CHANGE;
 	
-	this->SetValue2Data(_wm);
+	this->SetCmdParam(_wm);
 }
 /*-------------------------------------*/
 /**
@@ -167,7 +154,7 @@ void CMD_CTRL::setSigmaChangeCmd(int _sigma)
 	f_header.f_cmd[0] = CMD_TYPE::CT_IMG;
 	f_header.f_cmd[1] = CMD_TYPE_02_I::CT_IMG_SIGMA_CHANGE;
 
-	this->SetValue2Data(_sigma);
+	this->SetCmdParam(_sigma);
 }
 /*-------------------------------------*/
 /**
@@ -567,7 +554,32 @@ int CMD_CTRL::GetCmd00()
 *
 */
 /*-------------------------------------*/
-std::vector<unsigned char> CMD_CTRL::getRespPLCmd(int _type)
+int CMD_CTRL::GetCmdParam()
+{
+	Q_ASSERT(this->f_data.size() >= 2);
+	const int param = this->f_data[0] + this->f_data[1] * 256;
+	return param;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+std::vector<unsigned char> CMD_CTRL::getRespCmd(CMD_TYPE_02_RESP _type)
+{
+	this->setRespCmd(_type, WorkMode::RESP);
+	this->initHeader();
+	this->initpc2pc();
+	this->SetDataSize();
+	this->initCRC();
+	return this->Data();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+std::vector<unsigned char> CMD_CTRL::getRespPLCmd(CMD_TYPE_02_RESP _type)
 {
 	this->setRespCmd(_type, WorkMode::RESP);
 	this->initHeader();
@@ -654,11 +666,15 @@ QSharedPointer<CMD_CTRL> CMD_CTRL::getFpgaStartCmdEx(int _type, WorkMode _wm)
 *
 */
 /*-------------------------------------*/
-std::vector<unsigned char> CMD_CTRL::getHeartBeatCmd(int _type)
+
+std::vector<unsigned char> CMD_CTRL::getHeartBeatCmd(int _need_resp)
 {
 
+	Q_ASSERT(_need_resp == BodyHearBeatResp::HB_NONE ||
+			_need_resp == BodyHearBeatResp::HB_RESP);
+
 	this->initHeader();
-	this->initHearbeatCmd();
+	this->initHearbeatCmd(_need_resp);
 
 	this->initCRC();
 	return this->Data();

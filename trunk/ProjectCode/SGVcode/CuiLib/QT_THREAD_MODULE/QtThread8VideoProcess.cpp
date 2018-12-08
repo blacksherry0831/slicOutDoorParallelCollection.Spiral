@@ -1,7 +1,7 @@
 //#include "stdafx.h"
 #include "QtThread8VideoProcess.hpp"
-
-#include "ChannelsData4Show.hpp"
+/*-------------------------------------*/
+#include "SocketQT/ChannelsData4Show.hpp"
 /*-------------------------------------*/
 /**
 *

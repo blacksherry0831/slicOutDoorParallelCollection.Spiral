@@ -31,6 +31,7 @@ protected:
 
 	std::string mIpAddr;
 	int mPort;
+private:
 	int mSocketConnected;
 	
 public:
@@ -52,7 +53,7 @@ protected:
 protected:
 	void enter_thread();
 	void exit_thread();
-
+	int  socket_thread_run_condition();
 	void init_socket_in_thread();
 	void destory_socket_in_thread();
 public:
@@ -67,16 +68,26 @@ public:
 	void closeServer();
 	void closeRunningServer();
 	void wait4ServerClose();
+private:
+
 public:
 	int Send_1_cmd(QSharedPointer<CMD_CTRL> _cmd);
+	int Send_1_cmd_resp(CMD_CTRL::CMD_TYPE_02_RESP _resp= CMD_CTRL::CMD_TYPE_02_RESP::CT_OK,int _resp_value=0);
 	int Read_1_cmd(QSharedPointer<CMD_CTRL> _cmd);
-	//int Send_Start_CMD(CMD_CTRL::CMD_TYPE_02_C _type_c, CMD_CTRL::WorkMode _wm);
-	int SendHearbeatCmd();
+
+	int Read_1_cmd_process_hearbeat(QSharedPointer<CMD_CTRL> _cmd);
+	
+	int send_and_read_cmd_resp(QSharedPointer<CMD_CTRL> _cmd_send, QSharedPointer<CMD_CTRL> _cmd_resp = Q_NULLPTR);
+	int send_and_read_cmd(QSharedPointer<CMD_CTRL> _cmd_send, QSharedPointer<CMD_CTRL> _cmd_resp = Q_NULLPTR);
+	
+	int SendHearbeatCmd5s(int _need_resp);
+	int SendHeartBeatCmdReadResp5s();
+public:
 	ResultMy read_n_byte(int _n);
 	ResultMy write_n_byte(const char * const _data, const int _size);
 	int getByteTcpRead();;
 public:
-	int send_and_read_cmd(QSharedPointer<CMD_CTRL> _cmd_send,QSharedPointer<CMD_CTRL> _cmd_resp=Q_NULLPTR);
+	
 signals:
 void socket_connect_state(int);
 void thread_running_state(int);
@@ -86,6 +97,10 @@ public slots:
 protected: 
 	virtual void run();
 	virtual void run_socket_work();
+
+private:
+	int SendHearbeatCmd(int _need_resp);
+	int SendHeartBeatCmdReadResp();
 private:
 	CMD_CTRL_Q mCmdMsgQ;
 public:

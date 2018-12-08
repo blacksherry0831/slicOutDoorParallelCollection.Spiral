@@ -22,8 +22,12 @@ ENDIF ()
 				
 				QtThreadPLC.cpp
 				QtThreadStepMotor.cpp
+				QtThreadClientCtrl.cpp
 				
-				)		
+				QtThread8VideoProcess.cpp
+				QtThread8Video.cpp
+				QtThread8ImgProcess.cpp
+				QtThread8VideoRaw.cpp)		
 	
 	endif (CBB_BUILDING_CRACK_DETECTION)
  

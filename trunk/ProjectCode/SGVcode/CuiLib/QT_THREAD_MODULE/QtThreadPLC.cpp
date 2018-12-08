@@ -83,7 +83,7 @@ void QtThreadPLC::do_run_work(QSharedPointer<BE_1105_Driver>	 _be_1105)
 	//rooler ready
 	if (wait4PlcRoolerReady(cmd_t) == TRUE) {
 		//roooler is ready !!!
-		m_socket->SendPlcResp(TRUE);
+		m_socket->SendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP::CT_OK);
 		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady);
 	}
 	else {
@@ -96,9 +96,19 @@ void QtThreadPLC::do_run_work(QSharedPointer<BE_1105_Driver>	 _be_1105)
 
 	emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RollerDone);
 
+
+	int qualified_status_t = this->wait4ImgProcessResult();
+
+	CMD_CTRL::SJTS_MACHINE_STATUS sjts_status;
+
+	
+
+
+
+
 #if TRUE
 	//rooler is ok or bad
-	m_socket->SendPlcRollerQualified(CMD_CTRL::CT_OK);
+	m_socket->SendPlcRollerQualified(qualified_status_t);
 
 	if (this->wait4PlcResp(cmd_t) == FALSE) {
 		
@@ -109,11 +119,17 @@ void QtThreadPLC::do_run_work(QSharedPointer<BE_1105_Driver>	 _be_1105)
 	}
 #endif // TRUE
 
-#if 0
-	emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneUnqualified);
-#else
-	emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneQualified);
-#endif
+#if  1
+
+	if (qualified_status_t == CMD_CTRL::BodyRollerQualified::Qualified) {
+		sjts_status = CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneQualified;
+	}
+	else {
+		sjts_status = CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneUnqualified;
+	}
+	emit status_sjts(sjts_status);
+
+#endif //  1
 
 }
 /*-------------------------------------*/
@@ -250,7 +266,7 @@ void QtThreadPLC::process_plc_cmd(QSharedPointer<CMD_CTRL> _cmd, QSharedPointer<
 						//rooler is ready !!!
 						printf_event("EVENT", "Rooler is Ready !");
 
-						m_socket->SendPlcResp(TRUE);
+						m_socket->SendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP::CT_OK);
 
 						this->stepMotorRun(_be_1105);
 
@@ -493,6 +509,19 @@ void QtThreadPLC::emit_step_motor_stop(int _circle)
 *
 */
 /*-------------------------------------*/
+int QtThreadPLC::wait4ImgProcessResult()
+{
+	CMD_CTRL::BodyRollerQualified qualified_t = CMD_CTRL::BodyRollerQualified::UnQualified;
+
+	
+
+	return qualified_t;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void QtThreadPLC::run_socket_work()
 {
 
@@ -502,7 +531,7 @@ void QtThreadPLC::run_socket_work()
 
 	this->init_serial_port(be_1105);
 
-	while (M_THREAD_RUN && mSocketConnected)
+	while (socket_thread_run_condition())
 	{
 		this->do_run_work(be_1105);
 	}

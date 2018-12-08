@@ -5,7 +5,12 @@
 
 #include "cpp_stl.h"
 #include "opencv_stl.h"
-
+#if defined(QT_VERSION)
+#include  "QT_THREAD_MODULE/QtThread8ImgProcess.hpp"
+#include  "QT_THREAD_MODULE/QtThread8Video.hpp"
+#include  "QT_THREAD_MODULE/QtThread8VideoProcess.hpp"
+#include  "QT_THREAD_MODULE/QtThread8VideoRaw.hpp"
+#endif
 
 #include "module_my.h"
 

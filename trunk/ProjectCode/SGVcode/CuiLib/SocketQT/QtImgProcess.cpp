@@ -1,6 +1,8 @@
-//#include "stdafx.h"
+/*-------------------------------------*/
 #include "QtImgProcess.hpp"
-#include "QtThread8VideoProcess.hpp"
+/*-------------------------------------*/
+#include "QT_THREAD_MODULE/QtThread8VideoProcess.hpp"
+/*-------------------------------------*/
 #include "MY_SDK_LIB/CrackDetection.hpp"
 /*-------------------------------------*/
 /**

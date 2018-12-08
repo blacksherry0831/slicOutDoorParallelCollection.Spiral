@@ -13,6 +13,13 @@
 
 #endif
 
+#if defined(QT_VERSION)
+
+#include "QT_THREAD_MODULE/QtThread8ImgProcess.hpp"
+#include "QT_THREAD_MODULE/QtThread8Video.hpp"
+
+#endif
+
 #if _MSC_VER
 	#ifndef _X86_
 		#define _X86_

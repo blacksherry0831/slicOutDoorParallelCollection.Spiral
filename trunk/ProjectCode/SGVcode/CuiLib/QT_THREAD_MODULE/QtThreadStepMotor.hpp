@@ -8,8 +8,9 @@
 /*-------------------------------------*/
 #include "SocketQT/QtThreadBase.hpp"
 #include "SocketQT/CMD_CTRL.hpp"
-#include "SocketQT/QtThreadClientCtrl.hpp"
 #include "SocketQT/QtThreadSocketClient.hpp"
+/*-------------------------------------*/
+#include "QT_THREAD_MODULE/QtThreadClientCtrl.hpp"
 /*-------------------------------------*/
 #include "SerialPort/BE_1105_Dirver.hpp"
 /*-------------------------------------*/

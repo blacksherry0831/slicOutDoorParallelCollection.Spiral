@@ -45,7 +45,13 @@ void QtTcpServer::incomingConnection(qintptr socketDescriptor)
 {
 	qDebug() << "New Connect is connect" << socketDescriptor;
 	
-	QSharedPointer<QtThreadSocketClient> client_thread=QSharedPointer<QtThreadSocketClient>(new QtThreadClientCtrl(socketDescriptor));
+	QSharedPointer<QtThreadSocketClient> client_thread;
+	
+	Q_ASSERT(FALSE);
+
+#if 0
+client_thread = QSharedPointer<QtThreadSocketClient>(new QtThreadClientCtrl(socketDescriptor));
+#endif // 0	
 
 	client_thread->start();
 

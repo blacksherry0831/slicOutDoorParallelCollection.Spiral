@@ -65,20 +65,29 @@ void QtThreadFlowCtrlClient::setLocalServer()
 void QtThreadFlowCtrlClient::run_socket_work()
 {
 	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
-
+	
 	cmd_t->SetCmdLocal();
+	
+	if (this->Read_1_cmd_process_hearbeat(cmd_t)) {
+		
+		Q_ASSERT(cmd_t->IsCmdLocal());
 
-
-	if (Read_1_cmd(cmd_t)) {
 		if (cmd_t->IsCmdLocal()) {
-			if (cmd_t->isHeartbeatCmd()) {
-				cmd_t.clear();
-			}else{
-				this->emit_work_flow_status_sjts(cmd_t);
-				QtThreadClientCtrl::SetCmd(cmd_t);
-			}
+
+				if (cmd_t->isHeartbeatCmd()) {
+					cmd_t.clear();
+				}else{
+					this->emit_work_flow_status_sjts(cmd_t);
+					QtThreadClientCtrl::SetCmd(cmd_t);
+					this->wait_4_inner_done();
+					this->Send_1_cmd_resp(CMD_CTRL::CMD_TYPE_02_RESP::CT_OK);
+				}
+
 		}
+
+		
 	}
+
 }
 /*-------------------------------------*/
 /**
@@ -152,7 +161,7 @@ void QtThreadFlowCtrlClient::run()
 
 		this->connect2ServerIfNoConnected();
 
-		while (M_THREAD_RUN && mSocketConnected) {
+		while (socket_thread_run_condition()) {
 
 			this->run_socket_work();
 
@@ -167,6 +176,28 @@ void QtThreadFlowCtrlClient::run()
 	this->exit_thread();
 	this->after_exit_thread();
 }
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadFlowCtrlClient::wait_4_inner_done()
+{
+	int wait_time = 10 * 1000;
+	do
+	{
+		this->SleepMy(100);
+		wait_time -= 100;
+		this->SendHeartBeatCmdReadResp5s();
+
+	} while (wait_time>0);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+
 /*-------------------------------------*/
 /**
 *

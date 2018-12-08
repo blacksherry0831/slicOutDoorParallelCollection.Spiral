@@ -25,7 +25,10 @@ public:
 		DEV_IPC = 0x00,
 		DEV_PLC = 0x01,
 		DEV_PLC_LR = 0x11,
-		DEV_FPGA_ARM = 0x02
+		DEV_FPGA_ARM = 0x02,
+		DEV_IPC_DATA_CENTER_101 = 0x65,
+		DEV_IPC_DATA_CENTER_102 = 0x66,
+		DEV_IPC_DATA_CENTER_103 = 0x67,
 	};
 	/*-----------------------------------*/
 	/**
@@ -89,14 +92,33 @@ public:
 
 		CT_OK = 0x00,
 		CT_ERROR = 0x01,
-
+		CT_NONE = 0x02,
 	};
 	/*-----------------------------------*/
 	/**
 	*
 	*/
 	/*-----------------------------------*/
-
+	enum BodyHearBeatResp
+	{
+		HB_RESP = 'r',
+		HB_NONE = 'n',
+	};
+	/*-----------------------------------*/
+	/**
+	*
+	*/
+	/*-----------------------------------*/
+	enum BodyRollerQualified
+	{
+		Qualified =0x00 ,
+		UnQualified = 0x01,
+	};
+	/*-----------------------------------*/
+	/**
+	*
+	*/
+	/*-----------------------------------*/
 public:
 	typedef struct {
 		unsigned char f_header[4];
@@ -122,12 +144,13 @@ public:
 /*-------------------------------------*/
 protected:
 	void initHeader();
-	void SetValue2Data(int _data);
+	void SetCmdParam(const int _data);
 	void init();
 	void destory();
 protected:
 	void initPc2Arm();
 	void initpc2plcLR();
+	void initpc2pc();
 	void initCRC();
 public:
 	void SetDataSize(const int _body_size = 2);
@@ -143,7 +166,7 @@ public:
 	static int GetCMDBodySize(CMD_CTRL_DATA::CMD_CTRL_HEADER* _cmd);
 	static QSharedPointer<QImage> IplImageToQImage(IplImage * const img);
 
-	void initHearbeatCmd();
+	void initHearbeatCmd(int _need_resp);
 
 public:
 	IplImageU* getIplimageU();

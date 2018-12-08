@@ -10,8 +10,9 @@
 *
 */
 /*-------------------------------------*/
-#include "CMD_CTRL.hpp"
-#include "QtImgProcess.hpp"
+#include "SocketQT/CMD_CTRL.hpp"
+/*-------------------------------------*/
+#include "SocketQT/QtImgProcess.hpp"
 /*-------------------------------------*/
 /**
 *

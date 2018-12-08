@@ -138,7 +138,7 @@ void CMD_CTRL_DATA::initPc2Arm()
 *
 */
 /*-------------------------------------*/
-void CMD_CTRL_DATA::SetValue2Data(int _data)
+void CMD_CTRL_DATA::SetCmdParam(const int _data)
 {
 	Q_ASSERT(f_data.size() >= 2);
 
@@ -155,6 +155,21 @@ void CMD_CTRL_DATA::initpc2plcLR()
 	//
 	f_header.f_dst_dev[0] = DEV::DEV_PLC;
 	f_header.f_dst_dev[1] = DEV::DEV_PLC_LR;
+
+	//
+	f_header.f_src_dev[0] = DEV::DEV_IPC;
+	f_header.f_src_dev[1] = 0x00;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void CMD_CTRL_DATA::initpc2pc()
+{
+	//
+	f_header.f_dst_dev[0] = DEV::DEV_IPC_DATA_CENTER_102;
+	f_header.f_dst_dev[1] = 0x00;
 
 	//
 	f_header.f_src_dev[0] = DEV::DEV_IPC;
@@ -245,10 +260,12 @@ QSharedPointer<QImage> CMD_CTRL_DATA::IplImageToQImage(IplImage* const img)
 *
 */
 /*-------------------------------------*/
-void CMD_CTRL_DATA::initHearbeatCmd()
+void CMD_CTRL_DATA::initHearbeatCmd(int _need_resp)
 {
 	f_header.f_cmd[0] = CMD_TYPE::CT_HEART;
 	f_header.f_cmd[1] = CMD_TYPE_02::CT_BEAT;
+
+	this->SetCmdParam(_need_resp);
 }
 /*-------------------------------------*/
 /**

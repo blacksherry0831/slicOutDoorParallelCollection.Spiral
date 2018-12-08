@@ -3,7 +3,13 @@
 
 #include <QDialog>
 
+#if 1
 #include "module_my.h"
+
+#include "QT_THREAD_MODULE/QtThread8VideoProcess.hpp"
+#endif // TRUE
+
+
 
 #include "mainwindow.h"
 

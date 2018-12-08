@@ -17,7 +17,8 @@
 #include "../SocketQT/QtThreadSocketClient.hpp"
 #include "../SocketQT/QtTcpClient.hpp"
 #include "../SocketQT/conf_ip.h"
-#include "SocketQT/QtThreadClientCtrl.hpp"
+/*-------------------------------------*/
+#include "QT_THREAD_MODULE/QtThreadClientCtrl.hpp"
 /*-------------------------------------*/
 /**
 *
@@ -39,7 +40,7 @@ public:
 public:
 	void run_socket_work();
 	virtual void run();
-
+	void wait_4_inner_done();
 protected: 
 /*-------------------------------------*/
 signals:

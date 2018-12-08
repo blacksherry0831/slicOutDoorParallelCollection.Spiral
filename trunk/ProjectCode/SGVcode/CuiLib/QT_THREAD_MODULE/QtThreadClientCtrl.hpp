@@ -2,13 +2,15 @@
 
 #include "cpp_stl.h"
 
+#if defined(QT_VERSION)
 #include "qt_all.h"
+#endif
 
-#include "QtThreadSocketClient.hpp"
-#include "QtTcpClient.hpp"
-#include "CMD_CTRL_Q.hpp"
+#include "SocketQT/QtThreadSocketClient.hpp"
+#include "SocketQT/QtTcpClient.hpp"
+#include "SocketQT/CMD_CTRL_Q.hpp"
 
-#include "conf_ip.h"
+#include "SocketQT/conf_ip.h"
 /*-------------------------------------*/
 /**
 *
@@ -58,12 +60,15 @@ public:
 	void SetImgSigmaCmd(int _sigma);
 
 	int SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C _start_stop);
-	int SendHearbeatEx();
-	int SendHeartBeatCmdReadResp();
+	
 public slots:
 	
 protected:
+
+#if _DEBUG
 	virtual void run();
+#endif
+
 	virtual void run_socket_work();
 
 };

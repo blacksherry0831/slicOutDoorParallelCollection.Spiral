@@ -7,7 +7,7 @@
 #include <QtNetwork>
 #include <QSharedPointer>
 /*-------------------------------------*/
-#include "QtThreadClientCtrl.hpp"
+#include "QtThreadSocketClient.hpp"
 
 #include "QtTcpServerClientSession.hpp"
 /*-------------------------------------*/

@@ -39,7 +39,7 @@ public:
 /*-------------------------------------*/
 public:
 	void setFpgaConvertCmd(int _type, WorkMode _wm);
-	void setRespCmd(int _type, int work_mode);
+	void setRespCmd(CMD_TYPE_02_RESP _type, int work_mode);
 	void setPlcLrIntoIn(int _step);
 	void setRollerQualified(int _qualified);
 
@@ -47,13 +47,13 @@ public:
 	void setModeChangeCmd(int _wm);
 	void setSigmaChangeCmd(int _sigma);
 public:
-	
-	std::vector<unsigned char>	getRespPLCmd(int _type);
+	std::vector<unsigned char>	getRespCmd(CMD_TYPE_02_RESP _type);
+	std::vector<unsigned char>	getRespPLCmd(CMD_TYPE_02_RESP _type);
 	std::vector<unsigned char>	getPLCLRIntoCmd(int _step);
 	std::vector<unsigned char>  getRollerQualifiedCmd(int _qualified);
 
-	
-	std::vector<unsigned char>  getHeartBeatCmd(int _type= DEV::DEV_FPGA_ARM);
+	std::vector<unsigned char>  getHeartBeatCmd(int _need_resp);
+
 	std::vector<unsigned char>  getRectCfgCmd(int _channel, CvRect _rect_cut);
 	std::vector<unsigned char>  getModeChangeCmd(int _wm);
 	std::vector<unsigned char>  getSigmaChangeCmd(int _sigma);
@@ -94,6 +94,7 @@ public:
 public:
 	int IsThisCmd00(int _cmd);
 	int GetCmd00();
+	int GetCmdParam();
 
 	
 };

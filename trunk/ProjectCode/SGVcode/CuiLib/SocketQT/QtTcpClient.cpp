@@ -169,12 +169,16 @@ int QtTcpClient::ReadMy_all(int _size)
 		return qba.size();
 
 	}else {
-
 #if _DEBUG
 		QString error_t = __func__;
 		error_t + "Socket Read time out error !";
 		qDebug() << error_t;
-#endif
+#endif		
+		
+#if _DEBUG
+		Q_ASSERT(0);
+#endif // _DEBUG
+
 		mSocketReadTimeOut += MAX_MSECS;
 		
 		if (mSocketReadTimeOut>mSocketReadMaxTimeOut){
@@ -257,10 +261,10 @@ int QtTcpClient::Send_Start_CMD(CMD_CTRL::CMD_TYPE_02_C _type_c, CMD_CTRL::WorkM
 *
 */
 /*-------------------------------------*/
-int QtTcpClient::SendHearbeatCmd()
+int QtTcpClient::SendHearbeatCmd(int _need_resp)
 {
 	CMD_CTRL cmd;
-	cmd.getHeartBeatCmd(0);
+	cmd.getHeartBeatCmd(_need_resp);
 	return this->Send_1_cmd(&cmd);
 }
 /*-------------------------------------*/
@@ -268,7 +272,7 @@ int QtTcpClient::SendHearbeatCmd()
 *
 */
 /*-------------------------------------*/
-int QtTcpClient::SendPlcResp(int _type)
+int QtTcpClient::SendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP _type)
 {
 	CMD_CTRL cmd;
 	cmd.getRespPLCmd(_type);
@@ -307,6 +311,10 @@ int QtTcpClient::SendPlcRollerQualified(int _qualified)
 	cmd.getRollerQualifiedCmd(_qualified);
 	std::cout << "Client:" << "Send Roller qualified !" << ((_qualified ==1) ?"OK" :"Error") << std::endl;
 	
+	Q_ASSERT(_qualified == CMD_CTRL::BodyRollerQualified::Qualified ||
+				_qualified == CMD_CTRL::BodyRollerQualified::UnQualified);
+	
+
 	return this->Send_1_cmd(&cmd);
 }
 /*-------------------------------------*/
@@ -418,7 +426,7 @@ int QtTcpClient::Read_1_cmd_fast(CMD_CTRL * _cmd)
 int QtTcpClient::Read_nSize_2_body(CMD_CTRL * _cmd)
 {
 	const int BODY_HEADER_SIZE = sizeof(IplImageUI);
-	const unsigned int body_size=_cmd->f_data_size-BODY_HEADER_SIZE;
+	const int body_size=_cmd->f_data_size-BODY_HEADER_SIZE;
 
 	do
 	{

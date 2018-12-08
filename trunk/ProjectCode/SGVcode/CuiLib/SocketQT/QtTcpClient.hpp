@@ -8,6 +8,8 @@
 
 #include "SerialPort/BE_1105_Dirver.hpp"
 /*-------------------------------------*/
+#define HEART_BEAT_FREQUENCY (5)
+/*-------------------------------------*/
 /**
 *
 *
@@ -72,9 +74,9 @@ public:
 	int getByteTcpRead();
 public:
 	int Send_Start_CMD(CMD_CTRL::CMD_TYPE_02_C _type_c, CMD_CTRL::WorkMode _wm);
-	int SendHearbeatCmd();
+	int SendHearbeatCmd(int _need_resp);
 public:
-	int SendPlcResp(int _type);
+	int SendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP _type);
 	int SendPlcIntoInter(int _step);
 	int SendPlcRollerQualified(int _qualified);
 

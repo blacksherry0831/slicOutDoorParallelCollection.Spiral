@@ -5,6 +5,12 @@
 
 #include "module_my.h"
 
+#if defined(QT_VERSION)
+#include  "QT_THREAD_MODULE/QtThread8ImgProcess.hpp"
+#include  "QT_THREAD_MODULE/QtThread8Video.hpp"
+#include  "QT_THREAD_MODULE/QtThread8VideoProcess.hpp"
+#endif
+
 #include "mainwindow.h"
 
 namespace Ui {

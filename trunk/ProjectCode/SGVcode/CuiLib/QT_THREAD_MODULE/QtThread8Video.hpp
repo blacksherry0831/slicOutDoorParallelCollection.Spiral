@@ -17,12 +17,12 @@
 *
 */
 /*-------------------------------------*/
-#include "QtThreadSocketClient.hpp"
-#include "QtTcpClient.hpp"
-#include "ChannelsData.hpp"
-#include "ChannelsData4Show.hpp"
-#include "conf_ip.h"
-#include "type_socket_qt.h"
+#include "SocketQT/QtThreadSocketClient.hpp"
+#include "SocketQT/QtTcpClient.hpp"
+#include "SocketQT/ChannelsData.hpp"
+#include "SocketQT/ChannelsData4Show.hpp"
+#include "SocketQT/conf_ip.h"
+#include "SocketQT/type_socket_qt.h"
 /*-------------------------------------*/
 #include "MY_SDK_LIB/CrackDetection.hpp"
 #include "QT_SDK_LIB/QBase.h"
@@ -58,6 +58,10 @@ private:
 signals:
 	void img_stat(int _p_stat,int _channel,int _frames);
 protected: 
+	virtual void before_enter_thread();
+#if _DEBUG
 	virtual void run();
+#endif
+	virtual void run_socket_work();
 
 };

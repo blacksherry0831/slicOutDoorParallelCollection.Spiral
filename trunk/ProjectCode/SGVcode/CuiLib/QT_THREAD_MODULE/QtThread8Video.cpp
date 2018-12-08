@@ -80,55 +80,44 @@ void QtThread8Video::run1()
 *
 */
 /*-------------------------------------*/
-void QtThread8Video::run()
+void QtThread8Video::before_enter_thread()
 {
-	
-	this->emit_thread_starting();
-
 	this->setPriorityMy();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+#if _DEBUG
+void QtThread8Video::run()
+{	
+	this->before_enter_thread();
+	this->enter_thread();
 
-	
+	this->init_socket_in_thread();
 
 	while (M_THREAD_RUN) {
-	
+
 		this->connect2ServerIfNoConnected();
-		
-		while (M_THREAD_RUN && mSocketConnected) {
-#if 1
-			{
-					QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
-						
-					if (Read_1_cmd(cmd_t) == 0) {
-							break;
-					}					
 
-					if (cmd_t->IsImg()) {
-				
-						this->set_record_time(cmd_t);
-						this->ProcessCmd(cmd_t);
-						this->emit_img_signals(cmd_t);
+		while (socket_thread_run_condition()) {
 
-					}else if (cmd_t->isHeartbeatCmd()) {
-#if TRUE
-						std::cout << "@ImgTransfer" << std::endl;
-#endif // 0						
-					}else{
-						 std::cout << "ErrorCmd" << std::endl;
-					}
-
-			}
-
-#endif // 1
+			this->run_socket_work();
 
 		}
 
 		this->close_destory_socket_4_server();
-	
+
 	}
 
-	this->emit_thread_stopping();
+	this->destory_socket_in_thread();
+
+	this->exit_thread();
+	this->after_exit_thread();
 
 }
+#endif
 /*-------------------------------------*/
 /**
 *
@@ -233,7 +222,34 @@ void  QtThread8Video::set_record_time(QSharedPointer<CMD_CTRL> _cmd)
 *
 */
 /*-------------------------------------*/
+void QtThread8Video::run_socket_work()
+{
 
+		QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
+
+		if (Read_1_cmd_process_hearbeat(cmd_t) == 0) {
+			return;
+		}
+
+		if (cmd_t->IsImg()) {
+
+			this->set_record_time(cmd_t);
+			this->ProcessCmd(cmd_t);
+			this->emit_img_signals(cmd_t);
+
+		}
+		else if (cmd_t->isHeartbeatCmd()) {
+#if TRUE
+			std::cout << "@ImgTransfer" << std::endl;
+#endif // 0						
+		}
+		else {
+			std::cout << "ErrorCmd" << std::endl;
+			Q_ASSERT(0);
+		}
+
+
+}
 /*-------------------------------------*/
 /**
 *

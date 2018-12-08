@@ -67,6 +67,8 @@ public:
 
 protected:
 	
+	int wait4ImgProcessResult();
+
 	virtual void run_socket_work();
 
 signals:
