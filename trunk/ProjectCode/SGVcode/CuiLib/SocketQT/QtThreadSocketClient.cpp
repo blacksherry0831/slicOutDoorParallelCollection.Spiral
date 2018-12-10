@@ -699,3 +699,23 @@ QString QtThreadSocketClient::GetIpAddr()
 *
 */
 /*-------------------------------------*/
+int QtThreadSocketClient::GetSocketConnected()
+{
+	return this->mSocketConnected;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int QtThreadSocketClient::IsWorkFlowDone()
+{
+
+	return (mWorkFlowStart == TRUE) && (mWorkFlowEnd == TRUE);
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/

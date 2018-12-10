@@ -163,6 +163,23 @@ void QtThread8ImgProcess::SetAllImgClassifyThickly(int _param, float _threshold)
 *
 */
 /*-------------------------------------*/
+int   QtThread8ImgProcess::IMG_PROC_All_Done()
+{
+	for (size_t i = 0; i <mTaskObj.size(); i++)
+	{
+		if (mTaskObj[i]->IMG_PROC_Done() == FALSE) {
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 float QtThread8ImgProcess::GetClassifyThicklyThreshold()
 {
 

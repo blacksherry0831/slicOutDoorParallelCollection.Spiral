@@ -24,6 +24,7 @@ public:
 	~QtTcpServerClientSession();
 private:	
 	QList<QSharedPointer<QtThreadSocketClient>>	 m_clientThreads;
+private:
 	QMutex m_clients_mutex;
 private:
 	void RemoveDoneThread();
@@ -34,6 +35,7 @@ protected:
 public:
 	void SendMsg2ClientSession(QSharedPointer<CMD_CTRL> _msg);
 	QVector<QString> getRunningSessionIpAddr();
+	int IsWorkFlowDoneAllThread();
 public:
 	void execMy();
 public:

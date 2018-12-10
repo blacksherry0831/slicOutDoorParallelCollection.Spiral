@@ -48,9 +48,6 @@ protected:
 
 public:
 		
-	
-	void run1();
-
 	int MoveSlidingThenRunMotor(QSharedPointer<BE_1105_Driver>	 be_1105,const int _pos,int _isRun);
 
 	int read_plc_cmd(QSharedPointer<CMD_CTRL> _cmd);

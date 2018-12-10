@@ -34,6 +34,9 @@ protected:
 	virtual void incomingConnection(qintptr socketDescriptor);
 	int mWorkMode;
 	void initWorkMode();
+
+
+
 public:
 	void NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c);
 

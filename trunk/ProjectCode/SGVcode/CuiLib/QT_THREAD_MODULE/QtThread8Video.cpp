@@ -202,7 +202,11 @@ void  QtThread8Video::set_record_time(QSharedPointer<CMD_CTRL> _cmd)
 		{
 			mTimeCurrent = QBase::SYS_getCurrentTime("yyyyMMddhhmmssdd");
 		}
-		_cmd->mCurrentCircleTime = mTimeCurrent;
+		else
+		{
+			_cmd->mCurrentCircleTime = mTimeCurrent;
+		}
+
 
 	}
 	else if (_cmd->IsImgEnd()) {

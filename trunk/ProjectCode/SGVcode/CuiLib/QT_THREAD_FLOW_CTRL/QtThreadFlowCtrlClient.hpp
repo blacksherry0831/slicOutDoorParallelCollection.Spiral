@@ -17,6 +17,8 @@
 #include "../SocketQT/QtThreadSocketClient.hpp"
 #include "../SocketQT/QtTcpClient.hpp"
 #include "../SocketQT/conf_ip.h"
+
+#include "SocketQT/ChannelsData.hpp"
 /*-------------------------------------*/
 #include "QT_THREAD_MODULE/QtThreadClientCtrl.hpp"
 /*-------------------------------------*/
@@ -39,8 +41,12 @@ public:
 	void setLocalServer();
 public:
 	void run_socket_work();
+#if _DEBUG
 	virtual void run();
-	void wait_4_inner_done();
+#endif
+	int wait_4_inner_done();
+
+	int IsImgProcessDone();
 protected: 
 /*-------------------------------------*/
 signals:

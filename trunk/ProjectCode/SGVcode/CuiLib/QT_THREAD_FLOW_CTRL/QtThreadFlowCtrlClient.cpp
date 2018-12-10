@@ -77,9 +77,14 @@ void QtThreadFlowCtrlClient::run_socket_work()
 				if (cmd_t->isHeartbeatCmd()) {
 					cmd_t.clear();
 				}else{
-					this->emit_work_flow_status_sjts(cmd_t);
-					QtThreadClientCtrl::SetCmd(cmd_t);
-					this->wait_4_inner_done();
+					this->emit_work_flow_status_sjts(cmd_t);//emit work fflow
+					
+					QtThreadClientCtrl::SetCmd(cmd_t);//set work flow 2 
+
+					if (cmd_t->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP)) {					
+							this->wait_4_inner_done();					
+					}
+					
 					this->Send_1_cmd_resp(CMD_CTRL::CMD_TYPE_02_RESP::CT_OK);
 				}
 
@@ -150,6 +155,7 @@ int QtThreadFlowCtrlClient::emit_work_flow_status_sjts(QSharedPointer<CMD_CTRL> 
 *
 */
 /*-------------------------------------*/
+#if _DEBUG
 void QtThreadFlowCtrlClient::run()
 {
 	this->before_enter_thread();
@@ -176,28 +182,44 @@ void QtThreadFlowCtrlClient::run()
 	this->exit_thread();
 	this->after_exit_thread();
 }
+#endif
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void QtThreadFlowCtrlClient::wait_4_inner_done()
+int QtThreadFlowCtrlClient::wait_4_inner_done()
 {
 	int wait_time = 10 * 1000;
 	do
 	{
+#if 1
+		if (this->IsImgProcessDone())
+		{
+			return TRUE;
+		}
+#endif
 		this->SleepMy(100);
 		wait_time -= 100;
 		this->SendHeartBeatCmdReadResp5s();
 
 	} while (wait_time>0);
+
+	return FALSE;
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
+int  QtThreadFlowCtrlClient::IsImgProcessDone()
+{
+	if (ChannelsData::getInstance()->QueueSize()>0) {
+		return FALSE;
+	}
 
+	return TRUE;
+}
 /*-------------------------------------*/
 /**
 *

@@ -48,5 +48,6 @@ public:
 public:
 	void NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _event);
 	QVector<QString> getRunningSessionIpAddr();
+	int IsWorkFlowDone();
 
 };

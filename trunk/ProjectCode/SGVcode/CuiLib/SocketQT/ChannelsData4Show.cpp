@@ -64,7 +64,7 @@ void ChannelsData4Show::ConfigRecordImg(QSharedPointer<CMD_CTRL> _cmd)
 
 	}else if (_cmd->IsImgFrame()) {
 
-		
+		this->record(_cmd);
 
 	}else{	
 		Q_ASSERT(FALSE);
@@ -98,7 +98,15 @@ ChannelsData4Show* ChannelsData4Show::getInstance()
 *
 */
 /*-------------------------------------*/
+void ChannelsData4Show::record(QSharedPointer<CMD_CTRL> _cmd)
+{
+	if (_cmd->IsImgFrame()) {
+		const int CHANNEL = _cmd->Channel();
 
+		mChannelsData.at(CHANNEL)->record(_cmd);
+
+	}
+}
 /*-------------------------------------*/
 /**
 *

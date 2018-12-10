@@ -81,11 +81,12 @@ void MainWindow::init_class_member_ptr()
 
 	mFlowCtrlClient = QSharedPointer<QtThreadFlowCtrlClient>(new QtThreadFlowCtrlClient());
 
-
+#if FLOW_CTRL_USE_LOCAL_SERVER 
 	mFlowServerServerLocal = QSharedPointer<QtThreadFlowCtrlServer>(new QtThreadFlowCtrlServer(this));
-
-
 	mFlowCtrlLocal = QSharedPointer<QtThreadFlowCtrlLocal>(new QtThreadFlowCtrlLocal(this));
+#endif
+
+
 
 #if IMG_PROCESS_USE_STEP_MOTOR
 	mStepMotor->SetCmdCtrlPipe(mCtrlServer);
@@ -899,9 +900,13 @@ void MainWindow::StartVideoBasic(int mode)
 
 	this->mFlowCtrlClient->startServer();
 
+#if FLOW_CTRL_USE_LOCAL_SERVER 
 	mFlowServerServerLocal->startServer();
-
 	mFlowCtrlLocal->startServer();
+#endif
+
+
+
 
 }
 /*-------------------------------------*/
@@ -1001,15 +1006,19 @@ void MainWindow::stopVideoBasic()
 	mStepMotor->closeRunningServer();
 #endif 
 		
-	mFlowCtrlLocal->closeRunningServer();
+	
 
 	mFlowCtrlClient->closeRunningServer();
 	
 	mCtrlServer->closeRunningServer();
 		
 	mVideoDataServer->closeRunningServer();
-		
+
+#if FLOW_CTRL_USE_LOCAL_SERVER 
 	mFlowServerServerLocal->closeRunningServer();
+	mFlowCtrlLocal->closeRunningServer();
+#endif		
+
 
 	this->IsBgThreadRunning();
 	
@@ -1045,11 +1054,13 @@ void MainWindow::ConnectVideo()
 	connect(mFlowCtrlClient.data(), SIGNAL(socket_connect_state(int)), this, SLOT(CheckBox_flow_ctrl_video(int)));
 	connect(mFlowCtrlClient.data(), SIGNAL(thread_running_state(int)), this, SLOT(CheckBox_thread_status_flow_ctrl_video(int)));
 	
-	this->connect(mFlowCtrlLocal.data(),
+#if FLOW_CTRL_USE_LOCAL_SERVER 
+		this->connect(mFlowCtrlLocal.data(),
 		SIGNAL(status_sjts(int)),
 		this,
 		SLOT(sjts_status(int))
 	);
+#endif
 
 	this->connect(mFlowCtrlClient.data(),
 		SIGNAL(status_sjts(int)),
@@ -1190,7 +1201,7 @@ void MainWindow::sjts_status(const int _sjts_status_int)
 
 	if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady) {
 
-		mFlowServerServerLocal->NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
+		NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
 
 	}
 	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneQualified ||
@@ -1201,27 +1212,27 @@ void MainWindow::sjts_status(const int _sjts_status_int)
 	}
 	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::RollerDone) {
 
-		mFlowServerServerLocal->NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP);
+		NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP);
 
 	}
 	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart01) {
 
-		mFlowServerServerLocal->NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01);
+		NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01);
 
 	}
 	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop01) {
 
-		mFlowServerServerLocal->NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01);
+		NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01);
 
 	}
 	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart00) {
 
-		mFlowServerServerLocal->NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_00);
+		NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_00);
 
 	}
 	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop00) {
 
-		mFlowServerServerLocal->NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00);
+		NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00);
 
 	}
 	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortError) {
@@ -1288,3 +1299,11 @@ void MainWindow::sjts_fpga_work_flow_status_rcv(const int  _arm_linux_fpga_work_
 *
 */
 /*-------------------------------------*/
+void MainWindow::NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c)
+{
+
+#if FLOW_CTRL_USE_LOCAL_SERVER 
+	mFlowServerServerLocal->NotifiedClientSession(_type_c);
+#endif	
+
+}

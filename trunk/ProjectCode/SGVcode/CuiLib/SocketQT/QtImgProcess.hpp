@@ -33,14 +33,22 @@ public:
 	~QtImgProcess(void);
 
 private:
+	unsigned long mSleepTime;
 	bool M_THREAD_RUN;
 	IMG_PROC mImgProc;	
 	QSharedPointer<CMD_CTRL> m_cmd_ctrl_image;
 public:
+	void IMG_PROC_Start();
+	void IMG_PROC_End();
+	void IMG_PROC_Frames();
+	int  IMG_PROC_Done();
+public:
 	static void ImgProcessIpl(IplImage * _img,const IMG_PROC _img_proc);
-	static void ImgProcessCMD_CTRL(QSharedPointer<CMD_CTRL> _cmd,const IMG_PROC _img_proc);
+	static int ImgProcessCMD_CTRL(QSharedPointer<CMD_CTRL> _cmd,const IMG_PROC _img_proc);
 
 	void processImgCmd();
+	void processImgCmdDone(QSharedPointer<CMD_CTRL> _cmd);
+	void processImgCmdFlowCtrl(QSharedPointer<CMD_CTRL> _cmd);
 private:
 	void emit_img_signals(QSharedPointer<CMD_CTRL> _cmd);
 	void setPriorityMy();
@@ -56,10 +64,12 @@ public:
 	void SetImgProcBinaryClassifyThickly(int _param);
 	void SetClassifyThicklyThreshold(float _threshold);
 	float GetClassifyThicklyThreshold();
-	void run();
-
+	
 	void startServer();
 	void closeServer();
-	
+public:
+	void SleepMy(int _ms = 10);
+public:
+	void run();
 
 };

@@ -137,58 +137,7 @@ void QtThreadPLC::do_run_work(QSharedPointer<BE_1105_Driver>	 _be_1105)
 *
 */
 /*-------------------------------------*/
-void QtThreadPLC::run1()
-{
-	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
-	QSharedPointer<BE_1105_Driver>	 be_1105 = QSharedPointer<BE_1105_Driver>(new BE_1105_Driver(Q_NULLPTR));
-	int IS_SOCKET_OK = FALSE;
 
-	this->init_serial_port(be_1105);
-
-
-	while (M_THREAD_RUN) {
-
-
-		this->connect2ServerIfNoConnected();
-
-		while (m_socket->IsSocketAlive()) {
-
-			IS_SOCKET_OK = Read_1_cmd(cmd_t);
-
-			if (IS_SOCKET_OK == 0) {
-				std::cout << "EVENT>>" << "Socket Error !" << std::endl;
-				break;
-			}
-
-			if (cmd_t->IsRoolerReady()) {
-				//roooler is ready !!!
-				std::cout << "EVENT>>" << "Rooler Ready !" << std::endl;
-								 
-
-				stepMotorRun(be_1105);
-
-				m_socket->SendPlcRollerQualified(CMD_CTRL::CT_OK);
-
-
-
-				break;
-
-			}else if (cmd_t->IsIntoInnerReady()){
-
-
-			}else if (cmd_t->IsResp()) {
-				std::cout << "Done !" << std::endl;
-				break;
-			}else {
-				std::cout << "EVENT>>" << "Error Cmd!" << std::endl;
-				continue;
-			}
-
-		}
-
-
-	}
-}
 /*-------------------------------------*/
 /**
 *
@@ -204,7 +153,7 @@ int QtThreadPLC::MoveSlidingThenRunMotor(QSharedPointer<BE_1105_Driver>	 be_1105
 
 	do {
 
-		IS_SOCKET_OK = Read_1_cmd(cmd_t);
+		IS_SOCKET_OK = Read_1_cmd_process_hearbeat(cmd_t);
 		if (IS_SOCKET_OK == 0) {
 			std::cout << "EVENT>>" << "Socket Error !" << std::endl;
 			return FALSE;
@@ -249,7 +198,7 @@ int QtThreadPLC::MoveSlidingThenRunMotor(QSharedPointer<BE_1105_Driver>	 be_1105
 /*-------------------------------------*/
 int QtThreadPLC::read_plc_cmd(QSharedPointer<CMD_CTRL> _cmd)
 {
-	int IS_SOCKET_OK_t = Read_1_cmd(_cmd);
+	int IS_SOCKET_OK_t = Read_1_cmd_process_hearbeat(_cmd);
 
 	return IS_SOCKET_OK_t;
 }
@@ -338,12 +287,12 @@ void QtThreadPLC::printf_event(std::string _event, std::string _msg)
 /*-------------------------------------*/
 int QtThreadPLC::wait4PlcResp(QSharedPointer<CMD_CTRL> _cmd)
 {
-	int IS_SOCKET_OK;
+	
 
 	do {
 
-		IS_SOCKET_OK = Read_1_cmd(_cmd);
-		if (IS_SOCKET_OK == 0) {
+		Read_1_cmd_process_hearbeat(_cmd);
+		if (GetSocketConnected() == 0) {
 			std::cout << "EVENT>>" << "Socket Error !" << std::endl;
 			return FALSE;
 		}
@@ -373,12 +322,12 @@ int QtThreadPLC::wait4PlcResp(QSharedPointer<CMD_CTRL> _cmd)
 /*-------------------------------------*/
 int QtThreadPLC::wait4PlcRoolerReady(QSharedPointer<CMD_CTRL> _cmd)
 {
-	int IS_SOCKET_OK;
+	
 
 	do {
 
-		IS_SOCKET_OK = Read_1_cmd(_cmd);
-		if (IS_SOCKET_OK == 0) {
+	    Read_1_cmd_process_hearbeat(_cmd);
+		if (GetSocketConnected() == 0) {
 			printf_event("EVENT", "Socket Error !");
 			return FALSE;
 		}
@@ -402,10 +351,8 @@ int QtThreadPLC::wait4PlcRoolerReady(QSharedPointer<CMD_CTRL> _cmd)
 			break;
 		}
 
-	} while (M_THREAD_RUN && m_socket->IsSocketAlive());
-
-
-
+	} while (this->socket_thread_run_condition());
+	
 	return FALSE;
 }
 /*-------------------------------------*/

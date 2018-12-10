@@ -31,9 +31,11 @@ public:
 	QtThreadFlowCtrlServerSession(qintptr _socket);
 	~QtThreadFlowCtrlServerSession(void);
 protected:
-	
-public:
 
+
+
+public:
+	void record_work_flow(QSharedPointer<CMD_CTRL> _cmd);
 protected: 
 	virtual void run();
 	void RecordCmd(QSharedPointer<CMD_CTRL> _cmd);

@@ -35,6 +35,7 @@ private:
 	int mSocketConnected;
 	
 public:
+	int GetSocketConnected();
 	int IsSocketConnectedThreadRunning();
 public:
 	void  connect2ServerIfNoConnected();
@@ -107,4 +108,9 @@ public:
 	void SetMsg(QSharedPointer<CMD_CTRL> _msg);
 	QSharedPointer<CMD_CTRL> GetMsg();
 	void ClearMsg();
+protected:
+	int mWorkFlowStart;
+	int mWorkFlowEnd;
+public:
+	int IsWorkFlowDone();
 };

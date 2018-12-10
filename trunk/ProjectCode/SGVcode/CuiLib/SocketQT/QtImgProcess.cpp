@@ -20,6 +20,7 @@ QtImgProcess::QtImgProcess(int _channel)
 	
 	
 	this->M_THREAD_RUN = true;
+	this->mSleepTime = 0;
 }
 /*-------------------------------------*/
 /**
@@ -68,7 +69,7 @@ void QtImgProcess::ImgProcessIpl(IplImage * _img,const IMG_PROC _img_proc)
 *
 */
 /*-------------------------------------*/
-void QtImgProcess::ImgProcessCMD_CTRL(QSharedPointer<CMD_CTRL> _cmd,const IMG_PROC _img_proc)
+int QtImgProcess::ImgProcessCMD_CTRL(QSharedPointer<CMD_CTRL> _cmd,const IMG_PROC _img_proc)
 {
 
 	if (_cmd->IsImgStart()) {
@@ -77,22 +78,16 @@ void QtImgProcess::ImgProcessCMD_CTRL(QSharedPointer<CMD_CTRL> _cmd,const IMG_PR
 
 	}else if (_cmd->IsImgFrame()) {
 
+		Q_ASSERT(_img_proc.CurrentChannel>=0 && _img_proc.CurrentChannel<8);
 
-#if TRUE
-			if (_img_proc.CurrentChannel>=0
-					&&_img_proc.CurrentChannel<8)
-#endif // TRUE
-		{
-
-			IplImage* img_t = _cmd->getIplimage();
-			ImgProcessIpl(img_t,_img_proc);
-
-		}		
+		IplImage* img_t = _cmd->getIplimage();
+		ImgProcessIpl(img_t,_img_proc);
 
 	}else {
 
 	}
 
+	return TRUE;
 }
 /*-------------------------------------*/
 /**
@@ -101,28 +96,26 @@ void QtImgProcess::ImgProcessCMD_CTRL(QSharedPointer<CMD_CTRL> _cmd,const IMG_PR
 /*-------------------------------------*/
 void QtImgProcess::processImgCmd()
 {
-	const int SleepTime = 100;
-
 	ChannelsData*    channels_data_t = ChannelsData::getInstance();
 	QSharedPointer<exCircleData> circleData = channels_data_t->getChannelData(mImgProc.CurrentChannel);
 
 	if (circleData->QueueSize()) {
 
-		QSharedPointer<CMD_CTRL> cmd_t = circleData->getImg();
-#if 1
-		ChannelsData4Show::getInstance()->ConfigRecordImg(cmd_t);
-#endif // 0								
+			QSharedPointer<CMD_CTRL> cmd_t = circleData->getImg();
 
-		ImgProcessCMD_CTRL(cmd_t, mImgProc);
+			ChannelsData4Show::getInstance()->ConfigRecordImg(cmd_t);
 
-		ChannelsData4Show::getInstance()->EnqueueImg(cmd_t);
-
-		this->emit_img_signals(cmd_t);
-
-		
-	}
-	else {
-		QThread::msleep(10);
+			if (ImgProcessCMD_CTRL(cmd_t, mImgProc)) {		
+					ChannelsData4Show::getInstance()->EnqueueImg(cmd_t);
+					processImgCmdDone(cmd_t);
+			}
+			else
+			{
+				Q_ASSERT(0);
+			}
+				
+	}else {
+		this->SleepMy();
 	}
 }
 /*-------------------------------------*/
@@ -130,7 +123,21 @@ void QtImgProcess::processImgCmd()
 *
 */
 /*-------------------------------------*/
+void QtImgProcess::processImgCmdFlowCtrl(QSharedPointer<CMD_CTRL> _cmd)
+{
 
+	if (_cmd->IsImgStart()) {
+		IMG_PROC_Start();
+	}
+	else if (_cmd->IsImgEnd()) {
+		IMG_PROC_End();
+	}
+	else if (_cmd->IsImgFrame()) {
+		IMG_PROC_Frames();
+	}else {
+		Q_ASSERT(0);
+	}
+}
 /*-------------------------------------*/
 /**
 *
@@ -184,26 +191,18 @@ float QtImgProcess::GetClassifyThicklyThreshold()
 /*-------------------------------------*/
 void QtImgProcess::run()
 {
-	const int SleepTime = 10;
-
+	
 	this->setPriorityMy();
 
 	const ChannelsData*    channels_data_t = ChannelsData::getInstance();
-
-
+	
 	while (M_THREAD_RUN){		
 			
-
 		if ( channels_data_t->IsReceiving() && JQCPUMonitor::cpuUsagePercentageIn5Second()>0.95 ){
-			
-			//TCP now is transfer
-			//cpu is busy
-			QThread::msleep(SleepTime);
-
+			//TCP now is transfer , cpu is busy
+			this->SleepMy();
 		}else{
-
 			this->processImgCmd();
-
 		}
 		
 	}
@@ -265,6 +264,81 @@ void QtImgProcess::setPriorityMy()
 QThread::currentThread()->setPriority(QThread::Priority::IdlePriority);
 #endif // 0
 
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void  QtImgProcess::SleepMy(int _ms)
+{
+	const int SLEEP_10MS = 10;
+	do {
+
+		QThread::msleep(SLEEP_10MS);
+		_ms -= SLEEP_10MS;
+		mSleepTime += SLEEP_10MS;
+
+	} while (M_THREAD_RUN  &&_ms > 0);
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void  QtImgProcess::IMG_PROC_Start()
+{
+	mImgProc.Start=TRUE;
+	mImgProc.Frames = 0;
+	mImgProc.End = FALSE;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void  QtImgProcess::IMG_PROC_End()
+{
+	if (mImgProc.Start==TRUE)
+	{	
+		mImgProc.End = TRUE;
+
+	}
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int  QtImgProcess::IMG_PROC_Done()
+{
+	if (mImgProc.Start == TRUE  &&
+		mImgProc.End == TRUE	&&
+		mImgProc.Frames >0) {
+		return TRUE;
+	}
+	return FALSE;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void  QtImgProcess::IMG_PROC_Frames()
+{
+	mImgProc.Frames++;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void  QtImgProcess::processImgCmdDone(QSharedPointer<CMD_CTRL> _cmd)
+{
+	this->emit_img_signals(_cmd);
+	this->processImgCmdFlowCtrl(_cmd);
 }
 /*-------------------------------------*/
 /**

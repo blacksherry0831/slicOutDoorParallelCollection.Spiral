@@ -97,29 +97,28 @@ void exCircleData::save_record(int _is_save)
 *
 */
 /*-------------------------------------*/
-void exCircleData::SetSaveFrameCfg(QSharedPointer<CMD_CTRL> _cmd_ctrl)
+void exCircleData::record(QSharedPointer<CMD_CTRL> _cmd_ctrl)
 {
-	const std::string IPADDR = _cmd_ctrl->mIpAddrRemote;
+	this->assert_channel(_cmd_ctrl);
 
 	if (_cmd_ctrl->IsImgFrame()) {
 		
-			const int CHANNEL = _cmd_ctrl->Channel();			
-			Q_ASSERT(CHANNEL == mChannel);
-
-			this->mSaveFrame.SetChannel(mChannel)->SetFrameCount(mFrameCount)->SetIpAddr(IPADDR);
-
+			const std::string IPADDR = _cmd_ctrl->mIpAddrRemote;
 			IplImage* img_t = _cmd_ctrl->getIplimage();
-			this->mSaveFrame.SaveFrame2Disk(img_t);
+
+				this->mSaveFrame.SetChannel(mChannel)
+					->SetFrameCount(mFrameCount)
+					->SetIpAddr(IPADDR)
+					->SaveFrame2Disk(img_t);
 
 	}
-
-	if (_cmd_ctrl->IsImgStart()){
-		
-	}
-
-
-
 }
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+
 /*-------------------------------------*/
 /**
 *
@@ -150,28 +149,14 @@ QSharedPointer<CMD_CTRL>  exCircleData::getImg()
 *
 */
 /*-------------------------------------*/
-void exCircleData::setImg(QSharedPointer<CMD_CTRL> cmd_ctrl)
+void exCircleData::setImg(QSharedPointer<CMD_CTRL> _cmd_ctrl)
 {
 
-#if _DEBUG
+	this->assert_channel(_cmd_ctrl);
 
-	if (cmd_ctrl->IsImgFrame()) {
-		const int CHANNEL = cmd_ctrl->Channel();
-		Q_ASSERT(CHANNEL==mChannel);
-	}
-
-#endif 
-		
-	this->SetSaveFrameCfg(cmd_ctrl);
-
-
-#if TRUE
-
-	this->setCmd(cmd_ctrl);	
+	this->setCmd(_cmd_ctrl);	
 
 	this->IncFrameCount();
-
-#endif // TRUE
 
 }
 /*-------------------------------------*/
@@ -188,6 +173,20 @@ float exCircleData::fps()
 	//qDebug() << "FPS:" <<fps;
 
 	return fps;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void exCircleData::assert_channel(QSharedPointer<CMD_CTRL> _cmd_ctrl)
+{
+#if _DEBUG
+	if (_cmd_ctrl->IsImgFrame()) {
+		const int CHANNEL = _cmd_ctrl->Channel();
+		Q_ASSERT(CHANNEL == mChannel);
+	}
+#endif
 }
 /*-------------------------------------*/
 /**

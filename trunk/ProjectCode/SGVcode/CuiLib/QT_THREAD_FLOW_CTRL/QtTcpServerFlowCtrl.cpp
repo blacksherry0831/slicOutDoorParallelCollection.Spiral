@@ -79,3 +79,12 @@ void QtTcpServerFlowCtrl::initWorkMode()
 *
 */
 /*-------------------------------------*/
+int QtTcpServerFlowCtrl::IsWorkFlowDone()
+{
+	return 0;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/

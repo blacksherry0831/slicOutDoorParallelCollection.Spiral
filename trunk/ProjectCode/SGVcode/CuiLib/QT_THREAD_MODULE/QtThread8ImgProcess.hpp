@@ -36,6 +36,8 @@ private:
 public:
 	 void startTask();
 	 void stopTask();
+
+	 int  IMG_PROC_All_Done();
 public:
 	void ConnectAllImg2View(int _connect, const QObject *receiver);
 

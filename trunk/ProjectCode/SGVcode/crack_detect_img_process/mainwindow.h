@@ -61,6 +61,7 @@ class MainWindow;
 */
 /*-------------------------------------*/
 #define IMG_PROCESS_USE_STEP_MOTOR (0)
+#define FLOW_CTRL_USE_LOCAL_SERVER (0)
 /*-------------------------------------*/
 /**
 *
@@ -105,10 +106,12 @@ public:
 #if IMG_PROCESS_USE_STEP_MOTOR
 	QSharedPointer<QtThreadStepMotor>		mStepMotor;
 #endif
-	QSharedPointer<QtThreadFlowCtrlLocal>  mFlowCtrlLocal;
 
+#if FLOW_CTRL_USE_LOCAL_SERVER 
 	QSharedPointer<QtThreadFlowCtrlServer> mFlowServerServerLocal;
-
+	QSharedPointer<QtThreadFlowCtrlLocal>  mFlowCtrlLocal;
+#endif
+	
 	QSharedPointer<QtThreadFlowCtrlClient> mFlowCtrlClient;
 
 	QSharedPointer<QtThreadClientCtrl>		mCtrlServer;
@@ -153,6 +156,8 @@ public slots:
 		void stopVideoBasic();
 		void stopVideoBasicForce();
 		void ConnectVideo();
+
+		void NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c);
 
 #if TRUE
 		void img_stat_show_ex(int  _p_stat, int _channel, int _frames, void* _data);

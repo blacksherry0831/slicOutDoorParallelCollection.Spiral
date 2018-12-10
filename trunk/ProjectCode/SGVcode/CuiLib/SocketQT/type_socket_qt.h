@@ -7,9 +7,13 @@ typedef struct {
 	int ShowCutArea;
 	int ShowBinaryImg;
 	int ShowBinaryClassifyThickly;
-	float ThresholdClassifyThickly;
+	float ThresholdClassifyThickly;//¥÷∑÷¿‡„–÷µ
 	int CurrentChannel;
-
+	int Start;
+	int End;
+	int Frames;
+	int CurrentSerialNumber;
+	int IsSaveFrame;
 }IMG_PROC;
 
 

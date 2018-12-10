@@ -41,6 +41,7 @@ public:
 public:
 	void start_record(QSharedPointer<CMD_CTRL> _cmd);
 	void stop_record(QSharedPointer<CMD_CTRL> _cmd);
+	void record(QSharedPointer<CMD_CTRL> _cmd);
 	void save_record(int _is_save);
 	
 

@@ -94,3 +94,12 @@ QVector<QString> QtThreadFlowCtrlServer::getRunningSessionIpAddr()
 *
 */
 /*-------------------------------------*/
+int QtThreadFlowCtrlServer::IsWorkFlowDoneAllThread()
+{
+	return this->mQtTcpServer->IsWorkFlowDoneAllThread();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
