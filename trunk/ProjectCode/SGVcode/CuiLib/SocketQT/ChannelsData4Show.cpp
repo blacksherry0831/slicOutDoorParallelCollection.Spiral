@@ -93,7 +93,7 @@ ChannelsData4Show* ChannelsData4Show::getInstance()
 {
 	return &gChannelsData;
 }
-/*-------------------------------------*/
+/*-------------------------fr------------*/
 /**
 *
 */

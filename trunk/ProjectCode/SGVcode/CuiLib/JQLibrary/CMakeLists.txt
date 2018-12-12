@@ -31,4 +31,4 @@ ELSE ()
 ENDIF ()  
 
 
-ADD_LIBRARY(JQLibrary  STATIC     ${DIR_SRCS}  )
+#ADD_LIBRARY(JQLibrary  STATIC     ${DIR_SRCS}  )

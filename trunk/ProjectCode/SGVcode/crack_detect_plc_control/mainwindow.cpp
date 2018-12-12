@@ -40,33 +40,78 @@ MainWindow::~MainWindow()
 *
 */
 /*-------------------------------------*/
+void MainWindow::update_work_flow_status_ex(QtThreadFlowCtrlBase* _work_flow,
+	QtThreadFlowCtrlServer* _Server)
+{
+
+
+	if (_work_flow != Q_NULLPTR &&
+		_Server != Q_NULLPTR) {
+	
+		const int channels_enable = _Server->getRunningSessionIpAddr().size();
+
+		_work_flow->setClientSessionCount(channels_enable);
+
+	}
+
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void MainWindow::init_connect()
+{
+	this->init_connect_plc();
+
+#if  defined(QT_VERSION)
+	this->connect(mFlowServerServer.data(),
+		SIGNAL(work_flow_done(int)),
+		this,
+		SLOT(tcp_server_work_flow_dones(int)));
+
+#endif
+	
+#if PLC_CTRL_USE_TIMER
+	connect(mFlowCtrlTimer,
+		SIGNAL(timeout()),
+		this, 
+		SLOT(update_link_status()));	
+#endif // PLC_CTRL_USE_TIMER
+
+	
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::init_connect_plc()
 {
 	Q_ASSERT(!mPlcdataServer.isNull());
 
-	this->connect(mPlcdataServer.data(), 
+#if  defined(QT_VERSION)
+	const QObject * PlcdataServer_sender = mPlcdataServer.data();
+	this->connect(PlcdataServer_sender,
 		SIGNAL(status_sjts(int)),
 		this,
 		SLOT(sjts_status(int))
-		);
+	);
 
-	this->connect(mPlcdataServer.data(),
+	this->connect(PlcdataServer_sender,
 		SIGNAL(socket_connect_state(int)),
 		this,
 		SLOT(socket_connect_state_Auto_equipment(int))
-		);
+	);
 
-	this->connect(mPlcdataServer.data(),
+	this->connect(PlcdataServer_sender,
 		SIGNAL(thread_running_state(int)),
 		this,
 		SLOT(thread_running_state_Auto_equipment(int))
-		);
+	);
 
-	connect(mTimer,
-		SIGNAL(timeout()),
-		this, 
-		SLOT(update_link_status()));
-	
+#endif //  defined(Q_VERSION)
 }
 /*-------------------------------------*/
 /**
@@ -79,7 +124,8 @@ void MainWindow::sjts_status(const int _sjts_status_int)
 
 	if (_sjts_status== CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady){
 		
-		mFlowServerServer->NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
+		beforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
+		NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
 
 	}else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneQualified ||
 		_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneUnqualified) {
@@ -88,23 +134,23 @@ void MainWindow::sjts_status(const int _sjts_status_int)
 	
 	}else if (_sjts_status== CMD_CTRL::SJTS_MACHINE_STATUS::RollerDone) {
 	
-		mFlowServerServer->NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP);
+		NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP);
 	
 	}else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart01) {
 		
-		mFlowServerServer->NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01);
+		NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01);
 	
 	}else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop01) {
 		
-		mFlowServerServer->NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01);
+		NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01);
 	
 	}else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart00) {
 		
-		mFlowServerServer->NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_00);
+		NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_00);
 	
 	}else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop00) {
 		
-		mFlowServerServer->NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00);
+		NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00);
 	
 	}else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortError) {
 		printf_event("SIGNAL","SerialPortError");
@@ -182,9 +228,11 @@ void MainWindow::init_ctrols()
 /*-------------------------------------*/
 void MainWindow::init_members()
 {
-	this->mTimer = new QTimer(this);
-	this->mTimer->start(1000);
-
+#if PLC_CTRL_USE_TIMER
+	this->mFlowCtrlTimer = new QTimer(this);
+	this->mFlowCtrlTimer->start(1000);	
+#endif // PLC_CTRL_USE_TIMER
+	
 	mPlcdataServer = QSharedPointer<QtThreadPLC>(new QtThreadPLC(0));
 	mFlowServerServer = QSharedPointer<QtThreadFlowCtrlServer>(new QtThreadFlowCtrlServer(this));
 }
@@ -222,6 +270,21 @@ void MainWindow::update_link_status()
 
 
 	}
+
+	this->update_work_flow_status();
+
+
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::update_work_flow_status()
+{
+	
+	this->update_work_flow_status_ex( mPlcdataServer.data(),mFlowServerServer.data());
 
 }
 /*-------------------------------------*/
@@ -266,10 +329,51 @@ void MainWindow::thread_running_state_Auto_equipment(int _status)
 *
 */
 /*-------------------------------------*/
+void  MainWindow::tcp_server_work_flow_dones(int _status)
+{
+	if (_status) {
+		printf_event("WORK FLOW", "all client thread done");
+		this->mPlcdataServer->setWorkFlowDone(_status);
+	}
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void MainWindow::init_class_member_base()
 {
 
 	mCheckBoxRunStatus[0] = "QCheckBox{color:rgb(255,0,0)}";
 	mCheckBoxRunStatus[1] = "QCheckBox{color:rgb(0,255,0)}";
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c)
+{
+	mFlowServerServer->NotifiedClientSession(_type_c);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::tcp_server_running_client_sessions(int _running_sessions)
+{
+	mPlcdataServer->setClientSessionCount(_running_sessions);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::beforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c)
+{
+
+	mFlowServerServer->beforeNotifiedClientSession(_type_c);
 
 }

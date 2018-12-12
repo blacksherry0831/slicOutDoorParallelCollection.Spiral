@@ -191,21 +191,29 @@ void QtThreadFlowCtrlClient::run()
 int QtThreadFlowCtrlClient::wait_4_inner_done()
 {
 	int wait_time = 10 * 1000;
+	int result_t = FALSE;
+	TimeMeasure tm;
+
+	tm.start(__func__);
+
 	do
 	{
-#if 1
+
 		if (this->IsImgProcessDone())
 		{
-			return TRUE;
+			result_t=TRUE;
+			break;
 		}
-#endif
+
 		this->SleepMy(100);
 		wait_time -= 100;
 		this->SendHeartBeatCmdReadResp5s();
 
-	} while (wait_time>0);
+	} while (socket_thread_run_condition() &&wait_time>0);
 
-	return FALSE;
+	tm.stop();
+
+	return  result_t;
 }
 /*-------------------------------------*/
 /**

@@ -116,6 +116,8 @@ void MainWindow::init_class_member_base()
 	mCheckBoxRunStatus[0]= "QCheckBox{color:rgb(255,0,0)}";
 	mCheckBoxRunStatus[1]= "QCheckBox{color:rgb(0,255,0)}";
 
+//	mFlowCtrlTimer = new QTimer(this);
+
 }
 /*-------------------------------------*/
 /**
@@ -599,6 +601,27 @@ void MainWindow::workflow_remote()
 }
 /*-------------------------------------*/
 /**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::tcp_server_work_flow_dones(int _status)
+{
+	if (_status) {
+		printf_event("WORK FLOW", "all client thread done");
+		this->mFlowCtrlLocal->setWorkFlowDone(_status);
+	}
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::tcp_server_running_client_sessions(int _running_sessions)
+{
+	this->mFlowCtrlLocal->setClientSessionCount(_running_sessions);
+}
+/*-------------------------------------*/
+/**
 *@note set 8 Channel video cut rect area;
 */
 /*-------------------------------------*/
@@ -648,7 +671,12 @@ void MainWindow::ClickButton_MotorRun()
 /*-------------------------------------*/
 void MainWindow::initGlobal()
 {
+
+#if 0
 	JQCPUMonitor::initialize();
+#endif // 0
+
+
 }
 /*-------------------------------------*/
 /**
@@ -1055,11 +1083,30 @@ void MainWindow::ConnectVideo()
 	connect(mFlowCtrlClient.data(), SIGNAL(thread_running_state(int)), this, SLOT(CheckBox_thread_status_flow_ctrl_video(int)));
 	
 #if FLOW_CTRL_USE_LOCAL_SERVER 
+
 		this->connect(mFlowCtrlLocal.data(),
 		SIGNAL(status_sjts(int)),
 		this,
-		SLOT(sjts_status(int))
-	);
+		SLOT(sjts_status(int)));
+
+//		mFlowCtrlTimer->start(1000);
+
+	/*	connect(mFlowCtrlTimer,
+			SIGNAL(timeout()),
+			this,
+			SLOT(update_work_flow_status()));*/
+
+		this->connect(mFlowServerServerLocal.data(),
+			SIGNAL(work_flow_done(int)),
+			this,
+			SLOT(tcp_server_work_flow_dones(int)));
+
+		this->connect(mFlowServerServerLocal.data(),
+			SIGNAL(running_client_sessions(int)),
+			this,
+			SLOT(tcp_server_running_client_sessions(int)));
+
+
 #endif
 
 	this->connect(mFlowCtrlClient.data(),
@@ -1201,6 +1248,7 @@ void MainWindow::sjts_status(const int _sjts_status_int)
 
 	if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady) {
 
+		beforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
 		NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
 
 	}
@@ -1307,3 +1355,62 @@ void MainWindow::NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c)
 #endif	
 
 }
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::beforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c)
+{
+#if FLOW_CTRL_USE_LOCAL_SERVER 
+	mFlowServerServerLocal->beforeNotifiedClientSession(_type_c);
+#endif	
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+//void MainWindow::update_work_flow_status()
+//{
+//
+//	this->update_work_flow_status_ex(mFlowCtrlLocal.data(), mFlowServerServerLocal.data());
+//
+//
+//}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+//void  MainWindow::update_work_flow_status_ex(QtThreadFlowCtrlBase* _work_flow,QtThreadFlowCtrlServer* _Server)
+//{
+//
+//#if FLOW_CTRL_USE_LOCAL_SERVER 
+//
+//	if (_work_flow!=Q_NULLPTR &&
+//		_Server!=Q_NULLPTR) {
+//
+//		 {
+//		
+//				QVector<QString>  v_qstr_t = _Server->getRunningSessionIpAddr();
+//				const int channels_enable = v_qstr_t.size();
+//				
+//
+//				
+//				_work_flow->setClientSessionCount(channels_enable);
+//
+//
+//		
+//		}		
+//
+//	}
+//
+//#endif
+//
+//}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/

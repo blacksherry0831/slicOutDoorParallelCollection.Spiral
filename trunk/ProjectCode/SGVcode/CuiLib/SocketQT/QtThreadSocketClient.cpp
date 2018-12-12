@@ -13,7 +13,7 @@
 *
 */
 /*-------------------------------------*/
-QtThreadSocketClient::QtThreadSocketClient()
+QtThreadSocketClient::QtThreadSocketClient(QObject *parent): QtThreadBase(parent)
 {
 	this->init_param();
 #if 1
@@ -405,6 +405,15 @@ int QtThreadSocketClient::send_and_read_cmd(QSharedPointer<CMD_CTRL> _cmd_send, 
 *
 */
 /*-------------------------------------*/
+void QtThreadSocketClient::beforeSendMsg()
+{
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void QtThreadSocketClient::SetMsg(QSharedPointer<CMD_CTRL> _msg)
 {
 	mCmdMsgQ.setCmd(_msg);
@@ -589,6 +598,7 @@ void QtThreadSocketClient::emit_thread_starting()
 {
 	emit thread_running_state(TRUE);
 	this->emit_status_message(mStatusMessage = "Thread>> Ctrl Thread Start");
+	emit running_client_sessions_change();
 }
 /*-------------------------------------*/
 /**
@@ -599,6 +609,7 @@ void QtThreadSocketClient::emit_thread_stopping()
 {
 	emit thread_running_state(FALSE);
 	this->emit_status_message(mStatusMessage = "Thread>>  shutdown");
+	emit running_client_sessions_change();
 }
 /*-------------------------------------*/
 /**

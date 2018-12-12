@@ -200,7 +200,7 @@ void  QtThread8Video::set_record_time(QSharedPointer<CMD_CTRL> _cmd)
 
 		if (mTimeCurrent.empty())
 		{
-			mTimeCurrent = QBase::SYS_getCurrentTime("yyyyMMddhhmmssdd");
+			_cmd->mCurrentCircleTime=mTimeCurrent = QBase::SYS_getCurrentTime("yyyyMMddhhmmssdd");
 		}
 		else
 		{
@@ -249,7 +249,11 @@ void QtThread8Video::run_socket_work()
 		}
 		else {
 			std::cout << "ErrorCmd" << std::endl;
-			Q_ASSERT(0);
+#if  _DEBUG
+			if (GetSocketConnected()){
+					Q_ASSERT(0);
+			}
+#endif //  _DEBUG
 		}
 
 

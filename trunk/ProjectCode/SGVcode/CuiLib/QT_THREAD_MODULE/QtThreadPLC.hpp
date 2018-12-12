@@ -9,33 +9,30 @@
 /*-------------------------------------*/
 #include "qt_all.h"
 /*-------------------------------------*/
-/**
-*
-*
-*/
+
 /*-------------------------------------*/
 #include "../SocketQT/QtThreadSocketClient.hpp"
 #include "../SocketQT/QtTcpClient.hpp"
 #include "../SocketQT/conf_ip.h"
 #include "SocketQT/CMD_CTRL_Q.hpp"
 /*-------------------------------------*/
+#include "QT_THREAD_FLOW_CTRL/QtThreadFlowCtrlBase.hpp"
+/*-------------------------------------*/
 /**
 *
 *
 */
 /*-------------------------------------*/
-class QtThreadPLC :public QtThreadSocketClient
+class QtThreadPLC :public QtThreadFlowCtrlBase
 {
 	Q_OBJECT
 public:
 
 public:
-	QtThreadPLC(qintptr p);
+	explicit QtThreadPLC(QObject *parent = Q_NULLPTR);
 	~QtThreadPLC(void);
 public:
-
 	
-
 private:
 	CMD_CTRL_Q  mCmds;
 private: 
@@ -45,6 +42,7 @@ private:
 protected:
 	void emit_step_motor_start(int _circle);
 	void emit_step_motor_stop(int _circle);
+	void emit_roller_done_qualified(CMD_CTRL::BodyRollerQualified _qualified);
 
 public:
 		
@@ -63,14 +61,9 @@ public:
 	void do_run_work(QSharedPointer<BE_1105_Driver>	 _be_1105);
 
 protected:
-	
-	int wait4ImgProcessResult();
 
 	virtual void run_socket_work();
 
-signals:
-	void status_socket(int);
-	void status_sjts(int);
 
 
 };

@@ -61,7 +61,7 @@ class MainWindow;
 */
 /*-------------------------------------*/
 #define IMG_PROCESS_USE_STEP_MOTOR (0)
-#define FLOW_CTRL_USE_LOCAL_SERVER (0)
+#define FLOW_CTRL_USE_LOCAL_SERVER (1)
 /*-------------------------------------*/
 /**
 *
@@ -112,6 +112,8 @@ public:
 	QSharedPointer<QtThreadFlowCtrlLocal>  mFlowCtrlLocal;
 #endif
 	
+public:
+
 	QSharedPointer<QtThreadFlowCtrlClient> mFlowCtrlClient;
 
 	QSharedPointer<QtThreadClientCtrl>		mCtrlServer;
@@ -138,6 +140,7 @@ public:
 	void destory_all();
 	void connect_img_ch(int _connect, const QObject *receiver);
 	void SetFpgaArmLinuxIpAddr(QString _str);
+
 public:
 	static void ShowImage(QLabel* _qlab, QImage *_p_qimg);
 	static void ShowImageFast(QLabel* _qlab, QImage* const _p_qimg);
@@ -158,6 +161,7 @@ public slots:
 		void ConnectVideo();
 
 		void NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c);
+		void beforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c);
 
 #if TRUE
 		void img_stat_show_ex(int  _p_stat, int _channel, int _frames, void* _data);
@@ -212,6 +216,8 @@ public slots:
 #if TRUE
 	void workflow_local();
 	void workflow_remote();
+	void tcp_server_work_flow_dones(int _status);
+	void tcp_server_running_client_sessions(int _running_sessions);
 #endif // TRUE
 
 	void SetCutRectMethod();

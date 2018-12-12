@@ -9,10 +9,7 @@
 /*-------------------------------------*/
 #include "qt_all.h"
 /*-------------------------------------*/
-/**
-*
-*
-*/
+#include "MY_SDK_LIB/TimeMeasure.hpp"
 /*-------------------------------------*/
 #include "../SocketQT/QtThreadSocketClient.hpp"
 #include "../SocketQT/QtTcpClient.hpp"

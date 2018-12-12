@@ -20,8 +20,11 @@ ENDIF ()
 	if (CBB_BUILDING_CRACK_DETECTION)
 	
 		SET(DIR_SRCS
-				QtThreadFlowCtrlLocal.cpp		
+				QtThreadFlowCtrlBase.cpp	
+				QtThreadFlowCtrlLocal.cpp				
+				
 				QtTcpServerFlowCtrl.cpp
+				
 				QtThreadFlowCtrlClient.cpp
 				QtThreadFlowCtrlServer.cpp
 				QtThreadFlowCtrlServerSession.cpp)		
@@ -33,8 +36,7 @@ ADD_LIBRARY(QT_THREAD_FLOWCTRL   STATIC    ${DIR_SRCS}  )
 TARGET_LINK_LIBRARIES(QT_THREAD_FLOWCTRL
 						MY_SDK_LIB
 						QT_SDK_LIB
-						QT_SOCKET_BASE
-						JQLibrary)
+						QT_SOCKET_BASE)
 
 ############################################################
 		

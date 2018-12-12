@@ -34,11 +34,15 @@ protected:
 	void ProcessRunningThread(QSharedPointer<QtThreadSocketClient> _client);
 public:
 	void SendMsg2ClientSession(QSharedPointer<CMD_CTRL> _msg);
+	void BeforeSendMsg2ClientSession(QSharedPointer<CMD_CTRL> _msg);
 	QVector<QString> getRunningSessionIpAddr();
+protected:
 	int IsWorkFlowDoneAllThread();
 public:
 	void execMy();
 public:
-	
+
+public slots :
+		void client_session_status(int _client, int _status);
 
 };

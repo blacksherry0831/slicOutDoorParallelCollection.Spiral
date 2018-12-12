@@ -12,6 +12,11 @@ namespace Ui {
 class MainWindow;
 }
 
+/*-------------------------------------*/
+#define PLC_CTRL_USE_TIMER (1)
+/*-------------------------------------*/
+
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -22,12 +27,24 @@ public:
 
 private:
     Ui::MainWindow *ui;
-	QTimer *mTimer;
+
+#if PLC_CTRL_USE_TIMER
+	QTimer *mFlowCtrlTimer;
+#endif // PLC_CTRL_USE_TIMER
+
+
 	QSharedPointer<QtThreadPLC> mPlcdataServer;
 	QSharedPointer<QtThreadFlowCtrlServer> mFlowServerServer;
 	QString   mCheckBoxRunStatus[2];
+	void update_work_flow_status_ex(QtThreadFlowCtrlBase* _work_flow,
+									QtThreadFlowCtrlServer* _Server);
+
+	void NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c);
+	void beforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c);
+
 private:
 	void init_connect();
+	void init_connect_plc();
 	void init_ctrols();
 	void init_members();
 	void init_class_member_base();
@@ -37,10 +54,11 @@ private:
 public slots:
 	   void sjts_status(int _sjts_status_int);
 	   void update_link_status();
-
+	   void update_work_flow_status();
 	   void socket_connect_state_Auto_equipment(int _status);
 	   void thread_running_state_Auto_equipment(int _status);
-
+	   void tcp_server_work_flow_dones(int _status);
+	   void tcp_server_running_client_sessions(int _running_sessions);
 };
 
 #endif // MAINWINDOW_H

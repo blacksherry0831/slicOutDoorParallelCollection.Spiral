@@ -19,12 +19,14 @@
 #include "SocketQT/conf_ip.h"
 #include "SocketQT/CMD_CTRL_Q.hpp"
 /*-------------------------------------*/
+#include "QT_THREAD_FLOW_CTRL/QtThreadFlowCtrlBase.hpp"
+/*-------------------------------------*/
 /**
 *
 *
 */
 /*-------------------------------------*/
-class QtThreadFlowCtrlLocal :public QtThreadBase
+class QtThreadFlowCtrlLocal :public QtThreadFlowCtrlBase
 {
 	Q_OBJECT
 public:
@@ -34,8 +36,9 @@ public:
 public:
 	
 	virtual void run();
-signals:
+
+	virtual int socket_thread_run_condition();
+
 	
-	void status_sjts(int);
 
 };

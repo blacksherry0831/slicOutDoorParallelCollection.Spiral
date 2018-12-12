@@ -21,7 +21,7 @@ class QtThreadSocketClient :public QtThreadBase
 	Q_OBJECT
 public:
 	QtThreadSocketClient(qintptr p);
-	QtThreadSocketClient();
+	explicit QtThreadSocketClient(QObject *parent = Q_NULLPTR);
 	~QtThreadSocketClient(void);
 protected:
 	QSharedPointer<QtTcpClient>  m_socket;//客户端的定义
@@ -54,7 +54,7 @@ protected:
 protected:
 	void enter_thread();
 	void exit_thread();
-	int  socket_thread_run_condition();
+	virtual int  socket_thread_run_condition();
 	void init_socket_in_thread();
 	void destory_socket_in_thread();
 public:
@@ -92,6 +92,8 @@ public:
 signals:
 void socket_connect_state(int);
 void thread_running_state(int);
+void running_client_sessions_change();
+void client_session_work_state(int ,int);
 
 public slots:
 
@@ -104,6 +106,8 @@ private:
 	int SendHeartBeatCmdReadResp();
 private:
 	CMD_CTRL_Q mCmdMsgQ;
+public:
+	virtual void beforeSendMsg();
 public:
 	void SetMsg(QSharedPointer<CMD_CTRL> _msg);
 	QSharedPointer<CMD_CTRL> GetMsg();

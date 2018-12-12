@@ -94,6 +94,8 @@ void QtThreadFlowCtrlServerSession::before_enter_thread()
 	this->ClearMsg();
 	mWorkFlowStart = FALSE;
 	mWorkFlowEnd = FALSE;
+
+	emit running_client_sessions_change();
 }
 /*-------------------------------------*/
 /**
@@ -104,6 +106,31 @@ void QtThreadFlowCtrlServerSession::after_exit_thread()
 {
 	mWorkFlowStart = FALSE;
 	mWorkFlowEnd = FALSE;
+	emit running_client_sessions_change();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadFlowCtrlServerSession::beforeSendMsg()
+{
+	mWorkFlowStart = FALSE;
+	mWorkFlowEnd = FALSE;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadFlowCtrlServerSession::init_work_flow(QSharedPointer<CMD_CTRL> _cmd)
+{
+	
+	if (_cmd->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START)) {
+			mWorkFlowStart = FALSE;
+			mWorkFlowEnd = FALSE;
+	}
+
 }
 /*-------------------------------------*/
 /**
@@ -126,8 +153,12 @@ void QtThreadFlowCtrlServerSession::record_work_flow(QSharedPointer<CMD_CTRL> _c
 			
 
 	}else if (_cmd->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP)) {
-			if (mWorkFlowStart)
-				mWorkFlowEnd = TRUE;		
+		
+		if (mWorkFlowStart) {
+				mWorkFlowEnd = TRUE;
+				emit client_session_work_state(this->mPort, TRUE);
+			}
+
 	}else {
 		Q_ASSERT(FALSE);
 	}

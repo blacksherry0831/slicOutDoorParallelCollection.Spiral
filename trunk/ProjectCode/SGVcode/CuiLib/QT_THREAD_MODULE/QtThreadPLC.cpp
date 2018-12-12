@@ -40,7 +40,7 @@ IPC send
 *
 */
 /*-------------------------------------*/
-QtThreadPLC::QtThreadPLC(qintptr p)
+QtThreadPLC::QtThreadPLC(QObject *parent ):QtThreadFlowCtrlBase(parent)
 {
 	
 #if 1
@@ -78,7 +78,9 @@ QtThreadPLC::~QtThreadPLC(void)
 void QtThreadPLC::do_run_work(QSharedPointer<BE_1105_Driver>	 _be_1105)
 {
 	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
-
+	
+	this->wait4WorkFlowStart();
+	
 #if TRUE
 	//rooler ready
 	if (wait4PlcRoolerReady(cmd_t) == TRUE) {
@@ -87,25 +89,21 @@ void QtThreadPLC::do_run_work(QSharedPointer<BE_1105_Driver>	 _be_1105)
 		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady);
 	}
 	else {
-		emit status_socket(FALSE);
+		emit socket_connect_state(FALSE);
 		return;
 	}
 #endif // 0
 
 	this->stepMotorRun(_be_1105);
+	
+	this->setWorkFlowDone(FALSE);
 
 	emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RollerDone);
 
-
 	int qualified_status_t = this->wait4ImgProcessResult();
 
-	CMD_CTRL::SJTS_MACHINE_STATUS sjts_status;
-
 	
-
-
-
-
+	
 #if TRUE
 	//rooler is ok or bad
 	m_socket->SendPlcRollerQualified(qualified_status_t);
@@ -119,17 +117,7 @@ void QtThreadPLC::do_run_work(QSharedPointer<BE_1105_Driver>	 _be_1105)
 	}
 #endif // TRUE
 
-#if  1
-
-	if (qualified_status_t == CMD_CTRL::BodyRollerQualified::Qualified) {
-		sjts_status = CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneQualified;
-	}
-	else {
-		sjts_status = CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneUnqualified;
-	}
-	emit status_sjts(sjts_status);
-
-#endif //  1
+	this->emit_roller_done_qualified( (CMD_CTRL::BodyRollerQualified)qualified_status_t);
 
 }
 /*-------------------------------------*/
@@ -456,13 +444,24 @@ void QtThreadPLC::emit_step_motor_stop(int _circle)
 *
 */
 /*-------------------------------------*/
-int QtThreadPLC::wait4ImgProcessResult()
+void QtThreadPLC::emit_roller_done_qualified(CMD_CTRL::BodyRollerQualified _qualified)
 {
-	CMD_CTRL::BodyRollerQualified qualified_t = CMD_CTRL::BodyRollerQualified::UnQualified;
 
-	
+	CMD_CTRL::SJTS_MACHINE_STATUS sjts_status_t;
 
-	return qualified_t;
+	if (_qualified == CMD_CTRL::BodyRollerQualified::Qualified) {
+		sjts_status_t = CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneQualified;
+	}
+	else if(_qualified == CMD_CTRL::BodyRollerQualified::UnQualified) {
+		sjts_status_t = CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneUnqualified;
+	}
+	else
+	{
+		Q_ASSERT(0);
+	}
+	emit status_sjts(sjts_status_t);
+
+
 }
 /*-------------------------------------*/
 /**
@@ -484,6 +483,18 @@ void QtThreadPLC::run_socket_work()
 	}
 
 }
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+
 /*-------------------------------------*/
 /**
 *

@@ -103,6 +103,7 @@ public:
 
 	static std::string FS_getDirName(std::string path);
 	static bool FS_checkUserPath(std::string userPath);
+	static bool FS_checkUserPath_add_divide(std::string& userPath);
 	
 	static std::string FS_createPath(std::string path_base, std::string path_sub, boolean CREATE_FLAG=true);
 	static std::string FS_createDir(std::string _path);

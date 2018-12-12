@@ -59,7 +59,6 @@ TARGET_LINK_LIBRARIES(QT_SOCKET_BASE
 						pthreads
 						MY_SDK_LIB
 						QT_SDK_LIB
-						JQLibrary
 	) 
 ############################################################ 
 ############################################################

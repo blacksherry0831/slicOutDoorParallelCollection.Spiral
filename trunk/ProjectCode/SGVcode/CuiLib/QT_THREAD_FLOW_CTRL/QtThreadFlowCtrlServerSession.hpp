@@ -31,10 +31,10 @@ public:
 	QtThreadFlowCtrlServerSession(qintptr _socket);
 	~QtThreadFlowCtrlServerSession(void);
 protected:
-
-
-
+	
 public:
+	virtual void beforeSendMsg();
+	void init_work_flow(QSharedPointer<CMD_CTRL> _cmd);
 	void record_work_flow(QSharedPointer<CMD_CTRL> _cmd);
 protected: 
 	virtual void run();

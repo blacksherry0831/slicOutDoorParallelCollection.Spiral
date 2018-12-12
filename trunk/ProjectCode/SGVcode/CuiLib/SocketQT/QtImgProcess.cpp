@@ -52,10 +52,16 @@ void QtImgProcess::ImgProcessIpl(IplImage * _img,const IMG_PROC _img_proc)
 		float threshold = 0.5;
 		float max_value = 255;
 		int threshold_type = CV_THRESH_BINARY;
+#if 0
 		TimeMeasure tm;
 		tm.start("th");
+#endif // 0
 			cvThreshold(_img, _img, threshold, 255, threshold_type);//·§Öµ100	
+#if 0
 		tm.stop();
+#endif // 0
+
+	
 	}
 
 	if (_img_proc.ShowBinaryClassifyThickly) {
@@ -196,14 +202,24 @@ void QtImgProcess::run()
 
 	const ChannelsData*    channels_data_t = ChannelsData::getInstance();
 	
-	while (M_THREAD_RUN){		
-			
-		if ( channels_data_t->IsReceiving() && JQCPUMonitor::cpuUsagePercentageIn5Second()>0.95 ){
+	while (M_THREAD_RUN){	
+
+#if 0
+		if (channels_data_t->IsReceiving() && JQCPUMonitor::cpuUsagePercentageIn5Second()>0.99) {
 			//TCP now is transfer , cpu is busy
 			this->SleepMy();
-		}else{
+	}
+		else {
 			this->processImgCmd();
 		}
+#else
+
+			this->processImgCmd();
+
+#endif // 0
+	
+
+
 		
 	}
 

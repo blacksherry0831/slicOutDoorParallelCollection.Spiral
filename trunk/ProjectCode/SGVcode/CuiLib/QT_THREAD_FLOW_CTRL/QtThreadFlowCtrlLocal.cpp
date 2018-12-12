@@ -13,7 +13,7 @@
 *
 */
 /*-------------------------------------*/
-QtThreadFlowCtrlLocal::QtThreadFlowCtrlLocal(QObject *parent):QtThreadBase(parent)
+QtThreadFlowCtrlLocal::QtThreadFlowCtrlLocal(QObject *parent):QtThreadFlowCtrlBase(parent)
 {
 
 
@@ -53,10 +53,11 @@ QtThreadFlowCtrlLocal::~QtThreadFlowCtrlLocal(void)
 /*-------------------------------------*/
 void QtThreadFlowCtrlLocal::run()
 {
-	this->SleepMy(2000);
 	
 	while (M_THREAD_RUN)
 	{
+		this->wait4WorkFlowStart();
+		
 		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady);
 		this->SleepMy(2000);
 
@@ -74,9 +75,19 @@ void QtThreadFlowCtrlLocal::run()
 				this->SleepMy(2000);
 		}
 
+		this->setWorkFlowDone(FALSE);
+
 		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RollerDone);
-		this->SleepMy(2000);
-		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneQualified);
+		
+
+		int qualified_status_t = this->wait4ImgProcessResult();
+		
+		if (qualified_status_t)	{
+				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneQualified);
+		}else {
+				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneUnqualified);
+		}
+	
 		this->SleepMy(2000);
 	}
 
@@ -86,7 +97,10 @@ void QtThreadFlowCtrlLocal::run()
 *
 */
 /*-------------------------------------*/
-
+int QtThreadFlowCtrlLocal::socket_thread_run_condition()
+{
+	return M_THREAD_RUN ;
+}
 /*-------------------------------------*/
 /**
 *

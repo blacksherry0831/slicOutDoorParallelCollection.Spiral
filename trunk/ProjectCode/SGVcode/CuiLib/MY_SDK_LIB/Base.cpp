@@ -878,23 +878,19 @@ int Base::CRACK_FILE_NAME_get_circle_byPath(std::string path)
 /*-----------------------------------------*/
 std::string Base::FS_createPath(std::string path_base, std::string path_sub, boolean CREATE_FLAG)
 {
-	std::stringstream ss_file_full_path;
+	FS_checkUserPath_add_divide(path_base);
+			
+	std::string create_path_t = path_base + path_sub;
 
-	if (FS_checkUserPath(path_base)==false) {
-		path_base.append("\\");
-	}
-
-	ss_file_full_path << path_base;
-	
-	ss_file_full_path << path_sub << "\\";
-	
-	const char * file_full_path_t = ss_file_full_path.str().c_str();
+	FS_checkUserPath_add_divide(create_path_t);
+			
+	const char * file_full_path_t = create_path_t.c_str();
 	
 	if (CREATE_FLAG) {
 		FS_createDir(file_full_path_t);
 	}
 
-	return ss_file_full_path.str();
+	return create_path_t;
 }
 /*-----------------------------------------*/
 /**
@@ -994,6 +990,25 @@ bool  Base::FS_checkUserPath(std::string userPath)
 		return false;
 	}
 
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+bool Base::FS_checkUserPath_add_divide(std::string & userPath)
+{
+	if (FS_checkUserPath(userPath))
+	{
+		return true;
+	}
+	else
+	{
+		userPath.append("\\");
+
+		return false;
+	}
 }
 /*-----------------------------------------*/
 /**
