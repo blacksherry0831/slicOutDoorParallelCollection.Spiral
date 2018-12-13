@@ -251,6 +251,8 @@ void  QtThreadSocketClient::connect2ServerIfNoConnected()
 				emit socket_connect_state(false);
 			}
 
+			this->SleepMy();
+
 		} while (M_THREAD_RUN);
 		
 	}

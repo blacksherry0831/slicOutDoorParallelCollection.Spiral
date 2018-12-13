@@ -44,6 +44,6 @@ signals:
 	void work_flow_done(int);
 	void running_client_sessions(int);
 public slots:
-	void client_session_status(int _client, int _status);
+	void client_session_work_state_work_flow(int _client, int _status);
 	void running_client_sessions_change();
 };

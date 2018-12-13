@@ -9,6 +9,7 @@ QtThreadFlowCtrlServerSession::QtThreadFlowCtrlServerSession(qintptr _socket):Qt
 {
 	mWorkFlowStart=FALSE;
 	mWorkFlowEnd=FALSE;
+	mWorkFlowStep = 0;
 }
 /*-------------------------------------*/
 /**
@@ -68,6 +69,7 @@ void QtThreadFlowCtrlServerSession::RecordCmd(QSharedPointer<CMD_CTRL> _cmd)
 /*-------------------------------------*/
 void QtThreadFlowCtrlServerSession::run_socket_work()
 {
+	TimeMeasure tm;
 
 	QSharedPointer<CMD_CTRL> cmd_t = this->GetMsg();
 	QSharedPointer<CMD_CTRL> cmd_resp_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
@@ -76,7 +78,18 @@ void QtThreadFlowCtrlServerSession::run_socket_work()
 		this->SleepMy(100);
 	}else {
 	
+		
+#if 1
+		if (cmd_t->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP)) {
+			tm.start("CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP");
+		}
+#endif	
 		int status_t=this->send_and_read_cmd_resp(cmd_t,cmd_resp_t);
+#if 1
+		if (cmd_t->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP)) {
+			tm.stop();
+		}
+#endif
 		this->record_work_flow(cmd_t);
 
 	}
@@ -139,8 +152,14 @@ void QtThreadFlowCtrlServerSession::init_work_flow(QSharedPointer<CMD_CTRL> _cmd
 /*-------------------------------------*/
 void QtThreadFlowCtrlServerSession::record_work_flow(QSharedPointer<CMD_CTRL> _cmd)
 {
+#if _DEBUG
+	mWorkFlowStep++;
+#endif
+
 	if (_cmd->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START)) {
+				Q_ASSERT(mWorkFlowStart == FALSE && mWorkFlowEnd == FALSE);
 				mWorkFlowStart = TRUE;
+				mWorkFlowStep = 0;
 	}else if (_cmd->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_00)) {
 
 
@@ -155,9 +174,11 @@ void QtThreadFlowCtrlServerSession::record_work_flow(QSharedPointer<CMD_CTRL> _c
 	}else if (_cmd->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP)) {
 		
 		if (mWorkFlowStart) {
+				Q_ASSERT(mWorkFlowStep==5);
 				mWorkFlowEnd = TRUE;
 				emit client_session_work_state(this->mPort, TRUE);
-			}
+		}
+
 
 	}else {
 		Q_ASSERT(FALSE);

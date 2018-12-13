@@ -33,22 +33,26 @@ QtThreadFlowCtrlBase::~QtThreadFlowCtrlBase(void)
 *
 */
 /*-------------------------------------*/
-int QtThreadFlowCtrlBase::getWorkFlowDone()
+int QtThreadFlowCtrlBase::getWorkFlowDones()
 {
-	return this->mWorkFlowDone;
+	return this->mWorkFlowDoneClientThreads;
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void QtThreadFlowCtrlBase::setWorkFlowDone(int _work_flow)
+void QtThreadFlowCtrlBase::setWorkFlowDones(int _work_flow)
 {
-	this->mWorkFlowDone = _work_flow;
+
+	this->mWorkFlowDoneClientThreads = _work_flow;
+
 #if _DEBUG
-	if (this->mWorkFlowDone == TRUE) {
-		std::cout <<""<<std::endl;
+
+	if (this->mWorkFlowDoneClientThreads) {
+		printf_event("WORK FLOW","mWorkFlowDones==TRUE");
 	}
+
 #endif // _DEBUG
 
 }
@@ -68,7 +72,7 @@ void QtThreadFlowCtrlBase::setClientSessionCount(int _count)
 /*-------------------------------------*/
 int QtThreadFlowCtrlBase::wait4WorkFlowStart()
 {
-	this->setWorkFlowDone(FALSE);
+	this->setWorkFlowDones(0);
 
 	do
 	{
@@ -108,13 +112,12 @@ int QtThreadFlowCtrlBase::wait4ImgProcessResult()
 {
 	CMD_CTRL::BodyRollerQualified qualified_t = CMD_CTRL::BodyRollerQualified::Qualified;
 
-	TimeMeasure tm;
-	tm.start(__func__);
-
+	TimeMeasure tm(__func__);
+	
 	while (this->socket_thread_run_condition())
 	{
 
-		if (this->getWorkFlowDone() == TRUE) {
+		if (this->getWorkFlowDones()) {
 			break;
 		}
 		else
@@ -123,12 +126,19 @@ int QtThreadFlowCtrlBase::wait4ImgProcessResult()
 		}
 
 	}
-
-	tm.stop();
-
-	this->setWorkFlowDone(FALSE);
 	
 	return qualified_t;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadFlowCtrlBase::emit_roller_done()
+{
+	this->setWorkFlowDones(0);
+
+	emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RollerDone);
 }
 /*-------------------------------------*/
 /**

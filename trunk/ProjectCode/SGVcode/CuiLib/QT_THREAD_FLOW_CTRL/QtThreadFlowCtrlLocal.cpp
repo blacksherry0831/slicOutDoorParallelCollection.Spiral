@@ -75,9 +75,8 @@ void QtThreadFlowCtrlLocal::run()
 				this->SleepMy(2000);
 		}
 
-		this->setWorkFlowDone(FALSE);
-
-		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RollerDone);
+	
+		this->emit_roller_done();
 		
 
 		int qualified_status_t = this->wait4ImgProcessResult();

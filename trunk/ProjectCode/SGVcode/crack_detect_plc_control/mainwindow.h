@@ -39,8 +39,8 @@ private:
 	void update_work_flow_status_ex(QtThreadFlowCtrlBase* _work_flow,
 									QtThreadFlowCtrlServer* _Server);
 
-	void NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c);
-	void beforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c);
+	void tcpSvrNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c);
+	void tcpSvrBeforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c);
 
 private:
 	void init_connect();

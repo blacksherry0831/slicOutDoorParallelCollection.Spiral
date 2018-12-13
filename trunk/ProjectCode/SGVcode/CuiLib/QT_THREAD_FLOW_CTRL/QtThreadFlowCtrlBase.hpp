@@ -26,11 +26,13 @@ public:
 	explicit QtThreadFlowCtrlBase(QObject *parent = Q_NULLPTR);
 	~QtThreadFlowCtrlBase(void);
 private:
-	int  mWorkFlowDone;
+	int  mWorkFlowDoneClientThreads;
 	int  mClientSessionCount;
+protected:
+	void emit_roller_done();
 public:
-	int   getWorkFlowDone();	
-	void  setWorkFlowDone(int _work_flow);
+	int   getWorkFlowDones();	
+	void  setWorkFlowDones(int _work_flow);
 	
 	int  getClientSessionCount();
 	void  setClientSessionCount(int _count);

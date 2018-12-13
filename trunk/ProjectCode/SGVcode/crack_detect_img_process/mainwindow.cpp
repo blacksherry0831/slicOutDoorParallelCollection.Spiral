@@ -606,10 +606,12 @@ void MainWindow::workflow_remote()
 /*-------------------------------------*/
 void MainWindow::tcp_server_work_flow_dones(int _status)
 {
+
 	if (_status) {
 		printf_event("WORK FLOW", "all client thread done");
-		this->mFlowCtrlLocal->setWorkFlowDone(_status);
+		this->mFlowCtrlLocal->setWorkFlowDones(_status);
 	}
+
 }
 /*-------------------------------------*/
 /**

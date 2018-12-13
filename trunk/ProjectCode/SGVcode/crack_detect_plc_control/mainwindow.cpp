@@ -44,7 +44,6 @@ void MainWindow::update_work_flow_status_ex(QtThreadFlowCtrlBase* _work_flow,
 	QtThreadFlowCtrlServer* _Server)
 {
 
-
 	if (_work_flow != Q_NULLPTR &&
 		_Server != Q_NULLPTR) {
 	
@@ -53,7 +52,6 @@ void MainWindow::update_work_flow_status_ex(QtThreadFlowCtrlBase* _work_flow,
 		_work_flow->setClientSessionCount(channels_enable);
 
 	}
-
 
 }
 /*-------------------------------------*/
@@ -124,8 +122,8 @@ void MainWindow::sjts_status(const int _sjts_status_int)
 
 	if (_sjts_status== CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady){
 		
-		beforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
-		NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
+		tcpSvrBeforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
+		tcpSvrNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
 
 	}else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneQualified ||
 		_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneUnqualified) {
@@ -134,23 +132,23 @@ void MainWindow::sjts_status(const int _sjts_status_int)
 	
 	}else if (_sjts_status== CMD_CTRL::SJTS_MACHINE_STATUS::RollerDone) {
 	
-		NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP);
+		tcpSvrNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP);
 	
 	}else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart01) {
 		
-		NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01);
+		tcpSvrNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01);
 	
 	}else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop01) {
 		
-		NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01);
+		tcpSvrNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01);
 	
 	}else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart00) {
 		
-		NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_00);
+		tcpSvrNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_00);
 	
 	}else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop00) {
 		
-		NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00);
+		tcpSvrNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00);
 	
 	}else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortError) {
 		printf_event("SIGNAL","SerialPortError");
@@ -312,7 +310,7 @@ void MainWindow::check_box_clr()
 /*-------------------------------------*/
 void MainWindow::socket_connect_state_Auto_equipment(int _status)
 {
-	this->ui->checkBox_plc->setStyleSheet(mCheckBoxRunStatus[_status]);
+	this->ui->checkBox_plc->setChecked(_status);
 }
 /*-------------------------------------*/
 /**
@@ -322,7 +320,7 @@ void MainWindow::socket_connect_state_Auto_equipment(int _status)
 
 void MainWindow::thread_running_state_Auto_equipment(int _status)
 {
-	this->ui->checkBox_plc->setChecked(_status);
+	this->ui->checkBox_plc->setStyleSheet(mCheckBoxRunStatus[_status]);
 }
 /*-------------------------------------*/
 /**
@@ -332,8 +330,8 @@ void MainWindow::thread_running_state_Auto_equipment(int _status)
 void  MainWindow::tcp_server_work_flow_dones(int _status)
 {
 	if (_status) {
-		printf_event("WORK FLOW", "all client thread done");
-		this->mPlcdataServer->setWorkFlowDone(_status);
+		printf_event("WORK FLOW", "all client thread work done !");
+		this->mPlcdataServer->setWorkFlowDones(_status);
 	}
 }
 /*-------------------------------------*/
@@ -353,7 +351,7 @@ void MainWindow::init_class_member_base()
 *
 */
 /*-------------------------------------*/
-void MainWindow::NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c)
+void MainWindow::tcpSvrNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c)
 {
 	mFlowServerServer->NotifiedClientSession(_type_c);
 }
@@ -371,7 +369,7 @@ void MainWindow::tcp_server_running_client_sessions(int _running_sessions)
 *
 */
 /*-------------------------------------*/
-void MainWindow::beforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c)
+void MainWindow::tcpSvrBeforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c)
 {
 
 	mFlowServerServer->beforeNotifiedClientSession(_type_c);

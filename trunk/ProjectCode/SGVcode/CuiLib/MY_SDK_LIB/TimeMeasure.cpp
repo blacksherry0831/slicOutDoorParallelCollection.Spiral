@@ -6,7 +6,10 @@
 *
 */
 /*-----------------------------------------*/
-
+TimeMeasure::TimeMeasure(std::string _event)
+{
+	this->start(_event);
+}
 /*-----------------------------------------*/
 /**
 *
@@ -15,7 +18,7 @@
 /*-----------------------------------------*/
 TimeMeasure::TimeMeasure(void)
 {
-	
+	this->IsTimeMeasure = FALSE;
 }
 /*-----------------------------------------*/
 /**
@@ -25,7 +28,10 @@ TimeMeasure::TimeMeasure(void)
 /*-----------------------------------------*/
 TimeMeasure::~TimeMeasure(void)
 {
-	
+	if (this->IsTimeMeasure)
+	{
+		this->stop();
+	}
 }
 /*-----------------------------------------*/
 /**
@@ -50,7 +56,7 @@ void TimeMeasure::start(std::string _event)
 #endif // TRUE
 
 	
-
+	this->IsTimeMeasure = TRUE;
 
 }
 /*-----------------------------------------*/
@@ -70,12 +76,13 @@ void TimeMeasure::stop()
 	printf("%s(ms):%0.3f\n", mEVENT.c_str(), dfTim*1000);
 #endif
 
-#if TRUE
+#if defined(linux) || defined(__linux) || defined(__linux__) ||defined( __GNUC__)
 	end_time = clock(); 
 	dur = (double)(end_time - start_time);	
 	printf("%s(S):%0.3f\n", mEVENT.c_str(), (dur / CLOCKS_PER_SEC));
-#endif // 0
+#endif
 
+	this->IsTimeMeasure = FALSE;
 	
 }
 /*-----------------------------------------*/

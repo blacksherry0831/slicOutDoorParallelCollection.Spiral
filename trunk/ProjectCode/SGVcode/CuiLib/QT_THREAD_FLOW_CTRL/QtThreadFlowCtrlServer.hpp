@@ -53,11 +53,5 @@ public:
 	void beforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _event);
 	QVector<QString> getRunningSessionIpAddr();
 private:
-	int IsWorkFlowDoneAllThread();
-
-public slots:
-	void tcp_server_work_flow_dones(int _status);
-	void tcp_server_running_client_sessions(int _running_sessions);
-
 
 };

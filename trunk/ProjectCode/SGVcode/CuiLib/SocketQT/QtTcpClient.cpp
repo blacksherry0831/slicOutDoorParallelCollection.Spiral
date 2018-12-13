@@ -174,14 +174,12 @@ int QtTcpClient::ReadMy_all(int _size)
 		error_t + "Socket Read time out error !";
 		qDebug() << error_t;
 #endif		
-		
-#if _DEBUG
-		Q_ASSERT(0);
-#endif // _DEBUG
-
 		mSocketReadTimeOut += MAX_MSECS;
 		
 		if (mSocketReadTimeOut>mSocketReadMaxTimeOut){
+#if _DEBUG
+			Q_ASSERT(0);
+#endif // _DEBUG
 			return mSocketConnected = 0;
 		}
 

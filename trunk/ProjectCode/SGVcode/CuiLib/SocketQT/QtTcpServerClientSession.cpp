@@ -197,15 +197,21 @@ int QtTcpServerClientSession::IsWorkFlowDoneAllThread()
 {
 	QMutexLocker locker(&m_clients_mutex);
 
-	int work_flow_done = FALSE;
+	int work_flow_done = 0;
 
 	for (QList<QSharedPointer<QtThreadSocketClient>>::iterator item = m_clientThreads.begin(); item != m_clientThreads.end(); item++)
 	{
 		QSharedPointer<QtThreadSocketClient>  thread_socket_session_t = (*item);
 		if (thread_socket_session_t->isRunning()) {
-			work_flow_done |= thread_socket_session_t->IsWorkFlowDone();
+				if (thread_socket_session_t->IsWorkFlowDone()) {
+					work_flow_done++;
+				}
+				else
+				{
+					return FALSE;
+				}
 		}
-
+		
 	}
 
 	return work_flow_done;

@@ -19,6 +19,8 @@
 #include "../SocketQT/conf_ip.h"
 #include "SocketQT/CMD_CTRL_Q.hpp"
 /*-------------------------------------*/
+#include "MY_SDK_LIB/TimeMeasure.hpp"
+/*-------------------------------------*/
 /**
 *
 *
@@ -31,7 +33,9 @@ public:
 	QtThreadFlowCtrlServerSession(qintptr _socket);
 	~QtThreadFlowCtrlServerSession(void);
 protected:
-	
+
+private:
+	int mWorkFlowStep;
 public:
 	virtual void beforeSendMsg();
 	void init_work_flow(QSharedPointer<CMD_CTRL> _cmd);

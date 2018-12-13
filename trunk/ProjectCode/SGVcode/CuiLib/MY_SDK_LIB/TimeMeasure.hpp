@@ -5,9 +5,11 @@
 class TimeMeasure
 {
 public:
+	TimeMeasure(std::string _event);
 	TimeMeasure(void);
 	~TimeMeasure(void);
 private:
+	int IsTimeMeasure;
 	std::string mEVENT;
 #if _MSC_VER
 	LARGE_INTEGER litmp;

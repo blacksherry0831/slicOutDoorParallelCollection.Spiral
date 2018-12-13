@@ -31,12 +31,12 @@ void  QtThreadFlowCtrlServer::connecTcp2Thread()
 	this->connect(sender_t,
 		SIGNAL(work_flow_done(int)),
 		this,
-		SLOT(tcp_server_work_flow_dones(int)));
+		SIGNAL(work_flow_done(int)));
 
 	this->connect(sender_t,
 		SIGNAL(running_client_sessions(int)),
 		this,
-		SLOT(tcp_server_running_client_sessions(int)));
+		SIGNAL(running_client_sessions(int)));
 
 }
 /*-------------------------------------*/
@@ -136,36 +136,19 @@ QVector<QString> QtThreadFlowCtrlServer::getRunningSessionIpAddr()
 *
 */
 /*-------------------------------------*/
-int QtThreadFlowCtrlServer::IsWorkFlowDoneAllThread()
-{
-#if  0
 
-	if (!this->mQtTcpServer.isNull()) {
-		return this->mQtTcpServer->IsWorkFlowDoneAllThread();		
-	}
-
-#endif
-	return 0;
-
-}
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void QtThreadFlowCtrlServer::tcp_server_work_flow_dones(int _status)
-{
-	emit work_flow_done(_status);
-}
+
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void QtThreadFlowCtrlServer::tcp_server_running_client_sessions(int _running_sessions)
-{
-	emit running_client_sessions(_running_sessions);
-}
+
 /*-------------------------------------*/
 /**
 *

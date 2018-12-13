@@ -96,9 +96,7 @@ void QtThreadPLC::do_run_work(QSharedPointer<BE_1105_Driver>	 _be_1105)
 
 	this->stepMotorRun(_be_1105);
 	
-	this->setWorkFlowDone(FALSE);
-
-	emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RollerDone);
+	this->emit_roller_done();
 
 	int qualified_status_t = this->wait4ImgProcessResult();
 

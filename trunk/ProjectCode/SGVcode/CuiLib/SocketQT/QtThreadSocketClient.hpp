@@ -115,6 +115,7 @@ public:
 protected:
 	int mWorkFlowStart;
 	int mWorkFlowEnd;
+	
 public:
 	int IsWorkFlowDone();
 };

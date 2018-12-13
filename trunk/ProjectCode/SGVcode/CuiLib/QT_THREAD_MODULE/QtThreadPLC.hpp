@@ -42,6 +42,7 @@ private:
 protected:
 	void emit_step_motor_start(int _circle);
 	void emit_step_motor_stop(int _circle);
+	
 	void emit_roller_done_qualified(CMD_CTRL::BodyRollerQualified _qualified);
 
 public:
