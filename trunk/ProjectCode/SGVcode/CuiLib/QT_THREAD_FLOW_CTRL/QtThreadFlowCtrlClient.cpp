@@ -190,12 +190,11 @@ void QtThreadFlowCtrlClient::run()
 /*-------------------------------------*/
 int QtThreadFlowCtrlClient::wait_4_inner_done()
 {
-	int wait_time = 10 * 1000;
+	const int SLEEP_STEP = 100;
+	int wait_time = 15 * 1000;
 	int result_t = FALSE;
-	TimeMeasure tm;
-
-	tm.start(__func__);
-
+	TimeMeasure tm(__func__);
+	
 	do
 	{
 
@@ -204,15 +203,12 @@ int QtThreadFlowCtrlClient::wait_4_inner_done()
 			result_t=TRUE;
 			break;
 		}
-
-		this->SleepMy(100);
-		wait_time -= 100;
-		this->SendHeartBeatCmdReadResp5s();
+		
+		wait_time -= SLEEP_STEP;
+		this->SleepMy_HeartBeatReadResp5s(SLEEP_STEP);
 
 	} while (socket_thread_run_condition() &&wait_time>0);
-
-	tm.stop();
-
+	
 	return  result_t;
 }
 /*-------------------------------------*/

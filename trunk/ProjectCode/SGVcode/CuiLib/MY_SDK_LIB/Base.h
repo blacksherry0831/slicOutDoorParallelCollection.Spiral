@@ -11,6 +11,7 @@ public:
     static	int str2int(int &int_temp, const std::string &string_temp);
 	static  std::string int2str(int value_t);
 public:
+	static char pathSplit();
 
 	//static string GetNameExt4path(void);
 

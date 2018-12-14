@@ -99,7 +99,11 @@ void QtThreadSocketClient::init_socket()
 *
 */
 /*-------------------------------------*/
-
+int QtThreadSocketClient::SleepMy_HeartBeatReadResp5s(int _100ms)
+{
+	this->SleepMy(_100ms);
+	return this->SendHeartBeatCmdReadResp5s();
+}
 /*-------------------------------------*/
 /**
 *

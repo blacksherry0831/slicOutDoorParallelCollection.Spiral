@@ -679,7 +679,7 @@ float CrackDetection::GetFeatureFast(const IplImage*  _img_binary, const int _ma
 			if (ImgData[ci + STEP*ri]) {
 				points++;
 			}
-
+			
 		}
 	}
 

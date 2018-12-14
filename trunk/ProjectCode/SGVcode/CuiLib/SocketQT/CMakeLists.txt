@@ -45,8 +45,7 @@ ENDIF ()
 				exCircleData.cpp
 				ChannelsData.cpp
 				ChannelsData4Show.cpp
-					
-				QtImgProcess.cpp
+				
 				QtTcpServerTest.cpp
 				QtLink.cpp
 				Saveframe.cpp)		

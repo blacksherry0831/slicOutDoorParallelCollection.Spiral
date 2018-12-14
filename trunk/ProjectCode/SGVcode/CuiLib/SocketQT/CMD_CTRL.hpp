@@ -8,6 +8,7 @@
 *
 */
 /*-----------------------------------*/
+#include "type_socket_qt.h"
 #include "CMD_CTRL_DATA.hpp"
 /*-----------------------------------*/
 /**
@@ -30,9 +31,10 @@ public:
 /*-------------------------------------*/
 public:
 	std::string mIpAddrRemote;
+	std::string mIpAddrLocal;
 	std::string mCurrentCircleTime;
-
-	
+	float mFeature;	
+	IMG_PROC mImgProc;
 public:
 	
 	void SetIpAddrRemote(QTcpSocket* _pSocket);

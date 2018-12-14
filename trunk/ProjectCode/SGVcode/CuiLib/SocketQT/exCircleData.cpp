@@ -102,13 +102,14 @@ void exCircleData::record(QSharedPointer<CMD_CTRL> _cmd_ctrl)
 	this->assert_channel(_cmd_ctrl);
 
 	if (_cmd_ctrl->IsImgFrame()) {
-		
+		const float FEATURE=0;
 			const std::string IPADDR = _cmd_ctrl->mIpAddrRemote;
 			IplImage* img_t = _cmd_ctrl->getIplimage();
 
 				this->mSaveFrame.SetChannel(mChannel)
 					->SetFrameCount(mFrameCount)
 					->SetIpAddr(IPADDR)
+					->SetImgCmd(_cmd_ctrl)
 					->SaveFrame2Disk(img_t);
 
 	}

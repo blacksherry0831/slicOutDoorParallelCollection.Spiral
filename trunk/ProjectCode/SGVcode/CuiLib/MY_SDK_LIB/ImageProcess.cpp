@@ -173,9 +173,7 @@ CvRect ImageProcess::findTestArea(IplImage *image_gray,std::string readfile_name
 		rect_cut_t.y=max_idx-delta;
 		rect_cut_t.width=image_gray->width;
 		rect_cut_t.height=delta*2;
-
-
-
+		
 	}
 	delete[] image_Y_sum;
 	cvReleaseImage(&image_temp);

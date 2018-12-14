@@ -36,8 +36,10 @@ QtImgProcess::~QtImgProcess(void)
 *
 */
 /*-------------------------------------*/
-void QtImgProcess::ImgProcessIpl(IplImage * _img,const IMG_PROC _img_proc)
+float QtImgProcess::ImgProcessIpl(IplImage * _img,const IMG_PROC _img_proc)
 {
+	float feature_t = 0;
+
 	const CvRect rect = cvGetImageROI(_img);
 	cvResetImageROI(_img);
 
@@ -65,10 +67,33 @@ void QtImgProcess::ImgProcessIpl(IplImage * _img,const IMG_PROC _img_proc)
 	}
 
 	if (_img_proc.ShowBinaryClassifyThickly) {
-		CrackDetection::GetFeatureFastEx(_img, 11, 7, 2);
+		feature_t=CrackDetection::GetFeatureFastEx(_img, 11, 7, 2);
 	}
 
 	cvSetImageROI(_img, rect);
+
+	return feature_t;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtImgProcess::ImgProcInner(IplImage * _img)
+{
+
+	const int WIDTH = _img->width;
+	const int HEIGHT = _img->height;
+	if ( WIDTH== 960 && HEIGHT==544) {
+	
+		for (size_t hi = HEIGHT-4; hi < HEIGHT; hi++)
+		{
+			cvLine(_img, cvPoint(0, hi), cvPoint(WIDTH, hi), cvScalar(0));
+		}
+	
+	}
+	
+
 }
 /*-------------------------------------*/
 /**
@@ -87,7 +112,16 @@ int QtImgProcess::ImgProcessCMD_CTRL(QSharedPointer<CMD_CTRL> _cmd,const IMG_PRO
 		Q_ASSERT(_img_proc.CurrentChannel>=0 && _img_proc.CurrentChannel<8);
 
 		IplImage* img_t = _cmd->getIplimage();
-		ImgProcessIpl(img_t,_img_proc);
+#if 1
+		this->ImgProcInner(img_t);
+#endif // 1
+
+		const float feature_t=ImgProcessIpl(img_t,_img_proc);
+		if (_img_proc.ShowBinaryClassifyThickly)
+		{
+			_cmd->mFeature = feature_t;
+			_cmd->mImgProc = _img_proc;
+		}
 
 	}else {
 
@@ -106,20 +140,14 @@ void QtImgProcess::processImgCmd()
 	QSharedPointer<exCircleData> circleData = channels_data_t->getChannelData(mImgProc.CurrentChannel);
 
 	if (circleData->QueueSize()) {
-
+			
 			QSharedPointer<CMD_CTRL> cmd_t = circleData->getImg();
+			IMG_PROC_record_work_flow(cmd_t);
+			const float feature_t = ImgProcessCMD_CTRL(cmd_t, mImgProc);
+			
+			ChannelsData4Show::getInstance()->ConfigRecordImg(cmd_t);		
+			this->EnqueueImg4ShowUI(cmd_t);	
 
-			ChannelsData4Show::getInstance()->ConfigRecordImg(cmd_t);
-
-			if (ImgProcessCMD_CTRL(cmd_t, mImgProc)) {		
-					ChannelsData4Show::getInstance()->EnqueueImg(cmd_t);
-					processImgCmdDone(cmd_t);
-			}
-			else
-			{
-				Q_ASSERT(0);
-			}
-				
 	}else {
 		this->SleepMy();
 	}
@@ -129,21 +157,7 @@ void QtImgProcess::processImgCmd()
 *
 */
 /*-------------------------------------*/
-void QtImgProcess::processImgCmdFlowCtrl(QSharedPointer<CMD_CTRL> _cmd)
-{
 
-	if (_cmd->IsImgStart()) {
-		IMG_PROC_Start();
-	}
-	else if (_cmd->IsImgEnd()) {
-		IMG_PROC_End();
-	}
-	else if (_cmd->IsImgFrame()) {
-		IMG_PROC_Frames();
-	}else {
-		Q_ASSERT(0);
-	}
-}
 /*-------------------------------------*/
 /**
 *
@@ -246,8 +260,16 @@ void QtImgProcess::closeServer()
 }
 /*-------------------------------------*/
 /**
-
-
+*
+*/
+/*-------------------------------------*/
+void QtImgProcess::EnqueueImg4ShowUI(QSharedPointer<CMD_CTRL> _cmd)
+{
+	ChannelsData4Show::getInstance()->EnqueueImg(_cmd);
+	this->emit_img_signals(_cmd);
+}
+/*-------------------------------------*/
+/**
 *
 */
 /*-------------------------------------*/
@@ -342,6 +364,26 @@ int  QtImgProcess::IMG_PROC_Done()
 *
 */
 /*-------------------------------------*/
+void QtImgProcess::IMG_PROC_record_work_flow(QSharedPointer<CMD_CTRL> _cmd)
+{
+	if (_cmd->IsImgStart()) {
+		IMG_PROC_Start();
+	}
+	else if (_cmd->IsImgEnd()) {
+		IMG_PROC_End();
+	}
+	else if (_cmd->IsImgFrame()) {
+		IMG_PROC_Frames();
+	}
+	else {
+		Q_ASSERT(0);
+	}
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void  QtImgProcess::IMG_PROC_Frames()
 {
 	mImgProc.Frames++;
@@ -351,11 +393,7 @@ void  QtImgProcess::IMG_PROC_Frames()
 *
 */
 /*-------------------------------------*/
-void  QtImgProcess::processImgCmdDone(QSharedPointer<CMD_CTRL> _cmd)
-{
-	this->emit_img_signals(_cmd);
-	this->processImgCmdFlowCtrl(_cmd);
-}
+
 /*-------------------------------------*/
 /**
 *

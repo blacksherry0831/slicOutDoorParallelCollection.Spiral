@@ -83,6 +83,7 @@ public:
 	
 	int SendHearbeatCmd5s(int _need_resp);
 	int SendHeartBeatCmdReadResp5s();
+	int SleepMy_HeartBeatReadResp5s(int _100ms=100);
 public:
 	ResultMy read_n_byte(int _n);
 	ResultMy write_n_byte(const char * const _data, const int _size);

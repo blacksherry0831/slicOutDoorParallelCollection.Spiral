@@ -53,6 +53,26 @@ std::string Base::int2str(int value_t)
 *
 */
 /*-----------------------------------------*/
+char Base::pathSplit()
+{
+	char split_t;
+
+#if defined(_WIN32) || defined(_WIN64) || defined( _MSC_VER)
+	split_t='\\';
+#endif
+
+#if defined(linux) || defined(__linux) || defined(__linux__) ||defined( __GNUC__)
+	split_t = '/';	
+#endif
+	return split_t;
+
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
 std::string Base::base_name(std::string const & path)
 {
 	return path.substr(path.find_last_of("/\\") + 1);
@@ -1005,8 +1025,7 @@ bool Base::FS_checkUserPath_add_divide(std::string & userPath)
 	}
 	else
 	{
-		userPath.append("\\");
-
+		userPath.push_back(pathSplit());
 		return false;
 	}
 }

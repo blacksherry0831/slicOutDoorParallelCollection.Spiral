@@ -12,7 +12,7 @@
 /*-------------------------------------*/
 #include "SocketQT/CMD_CTRL.hpp"
 /*-------------------------------------*/
-#include "SocketQT/QtImgProcess.hpp"
+#include "QtImgProcess.hpp"
 /*-------------------------------------*/
 /**
 *
