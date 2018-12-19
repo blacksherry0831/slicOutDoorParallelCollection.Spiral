@@ -18,7 +18,9 @@
 *
 */
 /*-------------------------------------*/
-
+#if defined(QT_VERSION)
+#include <QtXml>
+#endif // defined(QT_VERSION)
 /*-------------------------------------*/
 /**
 *
@@ -31,8 +33,10 @@ public:
 	Saveframe();
 	~Saveframe();
 private:
-	
 
+	QSharedPointer<QDomDocument> mXml;
+
+	std::string mFeatureFileName;
 	std::string mIpAddrPath;
 	
 	std::string mTimePath;
@@ -45,18 +49,18 @@ private:
 private:
 	QSharedPointer<CMD_CTRL> mCmd;
 	
-	std::string mIpaddr;
+	std::string mIpAddrRemote;
 	int mChannel;
 	int mFrameCount;
 	int mIsSaveFrame;
-
+private:
+	void init_xml();
+	void save_xml(QString _save_full_path, QSharedPointer<QDomDocument> _Xml);
+	void add_xml();
 public:
 	Saveframe* SetImgCmd(QSharedPointer<CMD_CTRL> _img_cmd);
-public:
-	Saveframe* SetTime(std::string _time);
-	Saveframe* SetChannel(int _ch);
-	Saveframe* SetFrameCount(int _count);
-	Saveframe* SetIpAddr(std::string _ipAddr);
+private:
+	Saveframe* SetStartTime(std::string _time);
 public:
 	 void SaveFrame2Disk(IplImage* img_t);
 	 
@@ -68,13 +72,15 @@ public:
 
 	 void init_normal_path(std::string _prefix="");
 
+	 void init_ip_time_path();
+
 	 void init();
 
 	 int isInitParam();
 	 
 	 void initParam();
 public:
-	Saveframe* start_record();
+	Saveframe* start_record(QSharedPointer<CMD_CTRL> _img_cmd);
 	Saveframe* stop_record();
 	Saveframe* save_record(int _is_save);
 };

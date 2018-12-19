@@ -2,10 +2,12 @@
 
 #include "cpp_stl.h"
 
-#include "qt_all.h"
-
-
-
+#include <QString> 
+#include <QDateTime> 
+/**
+*
+*
+*/
 class QBase
 {
 public:

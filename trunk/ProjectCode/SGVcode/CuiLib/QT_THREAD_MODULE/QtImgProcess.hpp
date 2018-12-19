@@ -51,9 +51,7 @@ public:
 public:
 	 void ImgProcInner(IplImage * _img);
 	 int ImgProcessCMD_CTRL(QSharedPointer<CMD_CTRL> _cmd,const IMG_PROC _img_proc);
-	 
 	 void processImgCmd();
-
 private:
 	void emit_img_signals(QSharedPointer<CMD_CTRL> _cmd);
 	void setPriorityMy();

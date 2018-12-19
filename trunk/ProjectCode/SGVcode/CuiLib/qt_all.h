@@ -1,7 +1,7 @@
 #ifndef QT_ALL_H
 #define QT_ALL_H
 
-#include <QtGlobal>
+
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QtGui>

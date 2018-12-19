@@ -67,11 +67,11 @@ void exCircleData::destory()
 *
 */
 /*-------------------------------------*/
-void exCircleData::start_record(std::string _time_t)
+void exCircleData::start_record(QSharedPointer<CMD_CTRL> _cmd)
 {
 	this->init();
-
-	mSaveFrame.start_record()->SetTime(_time_t);
+	
+	mSaveFrame.start_record(_cmd);
 		
 }
 /*-------------------------------------*/
@@ -102,14 +102,10 @@ void exCircleData::record(QSharedPointer<CMD_CTRL> _cmd_ctrl)
 	this->assert_channel(_cmd_ctrl);
 
 	if (_cmd_ctrl->IsImgFrame()) {
-		const float FEATURE=0;
-			const std::string IPADDR = _cmd_ctrl->mIpAddrRemote;
+			
 			IplImage* img_t = _cmd_ctrl->getIplimage();
 
-				this->mSaveFrame.SetChannel(mChannel)
-					->SetFrameCount(mFrameCount)
-					->SetIpAddr(IPADDR)
-					->SetImgCmd(_cmd_ctrl)
+				this->mSaveFrame.SetImgCmd(_cmd_ctrl)
 					->SaveFrame2Disk(img_t);
 
 	}

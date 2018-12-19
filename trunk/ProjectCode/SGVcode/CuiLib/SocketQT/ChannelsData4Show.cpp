@@ -117,10 +117,10 @@ void ChannelsData4Show::start_record(QSharedPointer<CMD_CTRL> _cmd)
 	const int CHANNEL = _cmd->Channel();
 	Q_ASSERT(CHANNEL >= 0 && CHANNEL <= 7);
 	Q_ASSERT(!_cmd->mCurrentCircleTime.empty());
-	const std::string time_t = _cmd->mCurrentCircleTime;
+	
 
 	if (!mChannelsData[CHANNEL].isNull()){
-			mChannelsData[CHANNEL]->start_record(time_t);
+			mChannelsData[CHANNEL]->start_record(_cmd);
 	}	
 
 }

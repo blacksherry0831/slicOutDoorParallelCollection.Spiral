@@ -47,7 +47,7 @@ private:
 public:
 	void init();
 	void destory();
-	void start_record(std::string _time_t);
+	void start_record(QSharedPointer<CMD_CTRL> _cmd);
 	void stop_record();
 	void record(QSharedPointer<CMD_CTRL> _cmd_ctrl);
 	void save_record(int _is_save);

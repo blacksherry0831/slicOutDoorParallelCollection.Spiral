@@ -128,7 +128,7 @@ void QtThread8Video::ProcessCmd(QSharedPointer<CMD_CTRL> _cmd)
 
 	ChannelsData* channelsData = ChannelsData::getInstance();
 	channelsData->EnqueueImgAll(_cmd);
-#if _DEBUG && 0	
+#if _DEBUG && 0
 	if (_cmd->IsImgStart()) {
 		std::cout << "Image Start!" << std::endl;
 	}else if (_cmd->IsImgEnd()) {

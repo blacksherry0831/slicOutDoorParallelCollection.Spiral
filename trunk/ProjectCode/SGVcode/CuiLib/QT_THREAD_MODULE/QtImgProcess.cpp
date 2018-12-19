@@ -17,8 +17,7 @@ QtImgProcess::QtImgProcess(int _channel)
 #endif // TRUE
 	mImgProc.CurrentChannel = _channel;
 	mImgProc.ThresholdClassifyThickly = 0.02;
-	
-	
+		
 	this->M_THREAD_RUN = true;
 	this->mSleepTime = 0;
 }
@@ -151,6 +150,7 @@ void QtImgProcess::processImgCmd()
 	}else {
 		this->SleepMy();
 	}
+
 }
 /*-------------------------------------*/
 /**
