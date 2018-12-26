@@ -105,6 +105,7 @@ protected:
 private:
 	int SendHearbeatCmd(int _need_resp);
 	int SendHeartBeatCmdReadResp();
+	void SendHearbeatResp(QSharedPointer<CMD_CTRL> _cmd);
 private:
 	CMD_CTRL_Q mCmdMsgQ;
 public:

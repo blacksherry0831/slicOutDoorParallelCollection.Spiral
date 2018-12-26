@@ -23,6 +23,7 @@ ENDIF ()
 				QtTcpServerClientSession.cpp	
 				QtTcpServer.cpp
 				
+				QtTcpClientBase.cpp
 				QtTcpClient.cpp
 				
 				QtThreadServer.cpp
@@ -37,6 +38,7 @@ ENDIF ()
 				CMD_CTRL_DATA_ARM_FPGA.cpp
 				CMD_CTRL_DATA_PLC.cpp				
 				CMD_CTRL_DATA.cpp
+				
 				
 				CMD_CTRL.cpp
 				CMD_CTRL_Q.cpp				

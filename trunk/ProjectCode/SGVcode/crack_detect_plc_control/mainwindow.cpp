@@ -61,7 +61,7 @@ void MainWindow::update_work_flow_status_ex(QtThreadFlowCtrlBase* _work_flow,
 /*-------------------------------------*/
 void MainWindow::init_connect()
 {
-	this->init_connect_plc();
+	this->init_connect_work_flow(mPlcdataServer.data());
 
 #if  defined(QT_VERSION)
 	this->connect(mFlowServerServer.data(),
@@ -85,32 +85,7 @@ void MainWindow::init_connect()
 *
 */
 /*-------------------------------------*/
-void MainWindow::init_connect_plc()
-{
-	Q_ASSERT(!mPlcdataServer.isNull());
 
-#if  defined(QT_VERSION)
-	const QObject * PlcdataServer_sender = mPlcdataServer.data();
-	this->connect(PlcdataServer_sender,
-		SIGNAL(status_sjts(int)),
-		this,
-		SLOT(sjts_status(int))
-	);
-
-	this->connect(PlcdataServer_sender,
-		SIGNAL(socket_connect_state(int)),
-		this,
-		SLOT(socket_connect_state_Auto_equipment(int))
-	);
-
-	this->connect(PlcdataServer_sender,
-		SIGNAL(thread_running_state(int)),
-		this,
-		SLOT(thread_running_state_Auto_equipment(int))
-	);
-
-#endif //  defined(Q_VERSION)
-}
 /*-------------------------------------*/
 /**
 *
@@ -375,3 +350,39 @@ void MainWindow::tcpSvrBeforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _typ
 	mFlowServerServer->beforeNotifiedClientSession(_type_c);
 
 }
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::init_connect_work_flow(QObject* _sender)
+{
+	Q_ASSERT(_sender!=Q_NULLPTR);
+
+#if  defined(QT_VERSION)
+	
+	this->connect(_sender,
+		SIGNAL(status_sjts(int)),
+		this,
+		SLOT(sjts_status(int))
+		);
+
+	this->connect(_sender,
+		SIGNAL(socket_connect_state(int)),
+		this,
+		SLOT(socket_connect_state_Auto_equipment(int))
+		);
+
+	this->connect(_sender,
+		SIGNAL(thread_running_state(int)),
+		this,
+		SLOT(thread_running_state_Auto_equipment(int))
+		);
+
+#endif //  defined(Q_VERSION)
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/

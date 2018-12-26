@@ -131,6 +131,9 @@ private:
 	void init_class_member_base();
 	void init_ping_ssh();
 	void printf_event(std::string _event, std::string _msg);
+#if FLOW_CTRL_USE_LOCAL_SERVER 
+	void init_connect_work_flow();
+#endif
 public:
 	void destory_ping_ssh();
 	void init_menu();
@@ -210,7 +213,7 @@ public slots:
 	void toggleShowBinaryImg();
 	void toggleShowClassifyThickly();
 	void toggleImgCollect();
-
+	void toggleBlockStep02(bool _block);
 #endif // TRUE
 
 #if TRUE

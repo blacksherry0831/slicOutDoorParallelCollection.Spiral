@@ -7,6 +7,8 @@
 #include "CMD_CTRL.hpp"
 
 #include "SerialPort/BE_1105_Dirver.hpp"
+
+#include "QtTcpClientBase.hpp"
 /*-------------------------------------*/
 #define HEART_BEAT_FREQUENCY (5)
 /*-------------------------------------*/
@@ -15,57 +17,31 @@
 *
 */
 /*-------------------------------------*/
-enum ResultMy
-{
-	INIT_MY = 255,
-	SocketErrorMy = -1,
-	SocketErrotTimeout=-2,
-	TRUE_MY = 1,
-	FALSE_MY = 0,
-};
+
 /*-------------------------------------*/
 /**
 *
 *
 */
 /*-------------------------------------*/
-class QtTcpClient :public QTcpSocket
+class QtTcpClient :public QtTcpClientBase
 {
 	Q_OBJECT
+public:
+	enum SOCKET_STATUS {
+		Error=-1,
+		DisConnected = 0,
+		Connected = 1,
+		ReadWriteTimeOut =1,
+		ErrorOccur=1,
+		
+	};
 protected:
 	int  MAX_MSECS;
 public:
 	explicit QtTcpClient(QObject *parent = Q_NULLPTR);
 	~QtTcpClient(void);
-private:
-	QByteArray m_buffer;
-	int m_buffer_Length;
-private:
-	unsigned int mSocketReadMaxTimeOut;
-protected:
-	int mSocketRun;
-	int mSocketConnected;
-	int mSocketErrorOccur;
-	unsigned int mSocketReadTimeOut;
-public:
-	int init();
-	ResultMy read_n_byte(int _n);
-	ResultMy write_n_byte(const char* const _data, const int _size);
-	int ReadAllMy(const int _size);
-	int ReadMy(const int _size);
-	int ReadMy_seg(const int _size);
-	int ReadMy_all(const int _size);
-	int WriteMy(QByteArray _data);
-	int WriteMy(const char* const _data,const int _size);
-public:
-	int IsSocketAlive();
-	int IsSocketConnected();
-	int IsSocketError();
-	void SetReadTimeOutMy(const unsigned int _max_time_out_ms);
-	void disconnectFromHostMy();
-public:
-	void startSocketRun();
-	void stopSocketRun();
+
 public:
 	int Send_1_cmd(CMD_CTRL *_cmd);
 	int Read_1_cmd(CMD_CTRL *_cmd);
@@ -79,9 +55,6 @@ public:
 	int SendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP _type);
 	int SendPlcIntoInter(int _step);
 	int SendPlcRollerQualified(int _qualified);
-
-signals:
-	void socket_connect_state(int);
 public:
 
 };

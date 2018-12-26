@@ -16,7 +16,7 @@
 QtThreadFlowCtrlLocal::QtThreadFlowCtrlLocal(QObject *parent):QtThreadFlowCtrlBase(parent)
 {
 
-
+	mBlock = true;
 	
 }
 /*-------------------------------------*/
@@ -53,26 +53,30 @@ QtThreadFlowCtrlLocal::~QtThreadFlowCtrlLocal(void)
 /*-------------------------------------*/
 void QtThreadFlowCtrlLocal::run()
 {
-	
+	const int TIME_INTERVAL = 5000;
+	const int TIME_VIDEO = 20*1000;
 	while (M_THREAD_RUN)
 	{
+		this->SleepMy(TIME_INTERVAL);
 		this->wait4WorkFlowStart();
 		
 		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady);
-		this->SleepMy(2000);
+		this->SleepMy(TIME_INTERVAL);
 
 		{
 				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart00);
-				this->SleepMy(15*1000);
+				this->SleepMy(TIME_VIDEO);
 				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop00);
-				this->SleepMy(2000);
+				this->SleepMy(TIME_INTERVAL);
 		}
 	
 		{
 				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart01);
-				do { this->SleepMy(15 * 1000); } while (M_THREAD_RUN && 0);
+				do {
+					this->SleepMy(TIME_VIDEO); 
+				} while (M_THREAD_RUN && mBlock);
 				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop01);
-				this->SleepMy(2000);
+				this->SleepMy(TIME_INTERVAL);
 		}
 
 	
@@ -87,7 +91,7 @@ void QtThreadFlowCtrlLocal::run()
 				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneUnqualified);
 		}
 	
-		this->SleepMy(2000);
+		this->SleepMy(TIME_INTERVAL);
 	}
 
 }
@@ -105,7 +109,10 @@ int QtThreadFlowCtrlLocal::socket_thread_run_condition()
 *
 */
 /*-------------------------------------*/
-
+void QtThreadFlowCtrlLocal::SetBlock(bool _block)
+{
+	this->mBlock = _block;
+}
 /*-------------------------------------*/
 /**
 *

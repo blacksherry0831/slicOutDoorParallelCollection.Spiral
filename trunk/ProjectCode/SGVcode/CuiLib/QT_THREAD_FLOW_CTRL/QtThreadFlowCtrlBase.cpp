@@ -111,10 +111,11 @@ int QtThreadFlowCtrlBase::getClientSessionCount()
 int QtThreadFlowCtrlBase::wait4ImgProcessResult()
 {
 	CMD_CTRL::BodyRollerQualified qualified_t = CMD_CTRL::BodyRollerQualified::Qualified;
-
+	int WAIT_TIME_MS=15*1000;
+	const int SLEEP_TIME = 100;
 	TimeMeasure tm(__func__);
 	
-	while (this->socket_thread_run_condition())
+	while (this->socket_thread_run_condition() && WAIT_TIME_MS>0)
 	{
 
 		if (this->getWorkFlowDones()) {
@@ -122,11 +123,17 @@ int QtThreadFlowCtrlBase::wait4ImgProcessResult()
 		}
 		else
 		{
-			this->SleepMy();
+			this->SleepMy(SLEEP_TIME);
+			WAIT_TIME_MS -= SLEEP_TIME;
 		}
 
 	}
 	
+	if (WAIT_TIME_MS<=0)
+	{
+		qualified_t = CMD_CTRL::BodyRollerQualified::UnQualified;//time out 
+	}
+
 	return qualified_t;
 }
 /*-------------------------------------*/

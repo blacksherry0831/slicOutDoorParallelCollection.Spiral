@@ -19,7 +19,7 @@
 *
 */
 /*-------------------------------------*/
-QtTcpClient::QtTcpClient(QObject *parent):QTcpSocket(parent)
+QtTcpClient::QtTcpClient(QObject *parent):QtTcpClientBase(parent)
 {
 	
 	MAX_MSECS =30000;
@@ -30,7 +30,7 @@ QtTcpClient::QtTcpClient(QObject *parent):QTcpSocket(parent)
 #if _DEBUG
 
 #else
-m_buffer.reserve(2 * 1024 * 1024);
+	m_buffer.reserve(2 * 1024 * 1024);
 #endif // _DEBUG
 
 }
@@ -49,198 +49,7 @@ QtTcpClient::~QtTcpClient(void)
 *
 */
 /*-------------------------------------*/
-int QtTcpClient::init()
-{
-	return 0;
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-int QtTcpClient::ReadAllMy(const int _size)
-{
-	Q_ASSERT(_size >= 0);
 
-#if 1
-
-	return this->ReadMy_all(_size);
-#else
-	return ReadMy_seg(_size);
-#endif // 0
-
-	
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-int QtTcpClient::ReadMy(const int _size)
-{
-	//QByteArray qba;	
-	 char buff[16*1024];
-
-	if (this->waitForReadyRead(MAX_MSECS)) {
-	
-		
-
-		int len_t=this->read(buff, 16*1024);
-
-//		SocketError error = this->error();
-//		qDebug() << this->errorString();
-		
-		if (len_t > 0) {
-			m_buffer.append(buff,len_t);
-			return TRUE;
-		
-		}else{
-			return FALSE;
-		}
-	}else {
-
-		SocketError error=this->error();
-		QString  error_str_t = this->errorString();
-		if (error == SocketError::ConnectionRefusedError
-			&&  error_str_t.isEmpty()) {
-			//maybe time out
-			return TRUE;
-		}else{
-			qDebug() << error_str_t;
-			return FALSE;
-		}
-		
-	}
-
-	return IsSocketAlive();
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-int QtTcpClient::ReadMy_seg(const int _size)
-{
-	QByteArray qba(_size,0);	
-	char* buff = qba.data();
-	int size_left = _size;
-
-	while (this->mSocketRun){
-		
-								if (this->waitForReadyRead(MAX_MSECS)) {
-
-											int len_t = this->readData(&buff[_size-size_left], size_left);
-		
-											if (len_t > 0) {
-												size_left -= len_t;
-											}else {
-												return FALSE;//socket error
-											}
-											
-											if (size_left==0) {
-												return TRUE;
-											}
-
-								}else {
-
-									return IsSocketError();
-								}
-				
-	}
-	
-	return IsSocketAlive();
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-int QtTcpClient::ReadMy_all(int _size)
-{
-	Q_ASSERT(_size >= 0);
-
-	QByteArray qba;
-	mSocketReadTimeOut=0;
-	if (this->waitForReadyRead(MAX_MSECS)) {
-		
-		qba = this->readAll();
-		Q_ASSERT(qba.size() > 0);
-		m_buffer.append(qba);
-		return qba.size();
-
-	}else {
-#if _DEBUG
-		QString error_t = __func__;
-		error_t + "Socket Read time out error !";
-		qDebug() << error_t;
-#endif		
-		mSocketReadTimeOut += MAX_MSECS;
-		
-		if (mSocketReadTimeOut>mSocketReadMaxTimeOut){
-#if _DEBUG
-			Q_ASSERT(0);
-#endif // _DEBUG
-			return mSocketConnected = 0;
-		}
-
-		return this->IsSocketError();
-
-	}
-
-
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-int QtTcpClient::WriteMy(QByteArray _data)
-{
-	return this->WriteMy(_data.data(),_data.size());
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-int QtTcpClient::WriteMy(const char* const _data,const int _size)
-{
-	assert(_size > 0);
-	assert(_data!=NULL);
-
-	const char* buff_t = _data;
-	int left = _size;
-
-	do
-	{
-		const int size = this->writeData(buff_t, left);
-
-		if (size==-1){
-			return FALSE;//error
-		}else if(size>=0){
-	
-				if (this->waitForBytesWritten(MAX_MSECS)) {
-					//success
-					left -= size;
-					buff_t += size;
-
-				}else{
-					return FALSE;//if the operation timed out, or if an error occurred
-				}
-
-
-		}else{
-			assert(0);
-
-		}
-		
-
-	} while (left>0);	
-	
-	assert(left == 0);
-
-	return TRUE;
-}
 /*-------------------------------------*/
 /**
 *
@@ -349,10 +158,10 @@ int  QtTcpClient::Read_1_cmd(CMD_CTRL *_cmd)
 	do {
 	
 		if (this->m_buffer.size() < HeaderSize) {
-			if (this->ReadAllMy(HeaderSize) == FALSE) return FALSE;
+			if (this->ReadAllMy(HeaderSize) == SOCKET_STATUS::Error) return FALSE;
 		}
 		if (DataALLSize_ != -1 && this->m_buffer.size() < DataALLSize_) {
-			if (this->ReadAllMy(DataALLSize_) == FALSE) return FALSE;
+			if (this->ReadAllMy(DataALLSize_) ==SOCKET_STATUS::Error) return FALSE;
 		}
 
 		while (this->m_buffer.size()>=HeaderSize)
@@ -429,7 +238,7 @@ int QtTcpClient::Read_nSize_2_body(CMD_CTRL * _cmd)
 	do
 	{
 		
-		if (this->ReadAllMy(body_size) == FALSE) return FALSE;
+		if (this->ReadAllMy(body_size) == SOCKET_STATUS::Error) return FALSE;
 
 		if (m_buffer.size() >= body_size) {
 			//read enough data
@@ -455,254 +264,6 @@ int QtTcpClient::Read_nSize_2_body(CMD_CTRL * _cmd)
 *
 */
 /*-------------------------------------*/
-int QtTcpClient::IsSocketAlive()
-{
-	return this->IsSocketConnected();
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-int QtTcpClient::IsSocketConnected()
-{
-	QAbstractSocket::SocketState stat_t = this->state();
-	QAbstractSocket::SocketError error_t = this->error();
-	if (stat_t == QAbstractSocket::SocketState::UnconnectedState) {
-
-		std::cout << "socket is UnconnectedState" << std::endl;
-		
-	}
-	else if (stat_t == QAbstractSocket::SocketState::HostLookupState) {
-
-		std::cout << "socket is HostLookupState" << std::endl;	
-		return TRUE;
-
-	}
-	else if (stat_t == QAbstractSocket::SocketState::ConnectingState) {
-
-		std::cout << "socket is ConnectingState" << std::endl;	
-	
-		return TRUE;
-		
-	}
-	else if (stat_t == QAbstractSocket::SocketState::ConnectedState) {
-#if FALSE
-		std::cout << "socket is ConnectedState" << std::endl;
-#endif // FALSE
-		return TRUE;
-
-	}
-	else if (stat_t == QAbstractSocket::SocketState::BoundState) {
-
-		std::cout << "socket is BoundState" << std::endl;		
-
-	}
-	else if (stat_t == QAbstractSocket::SocketState::ClosingState) {
-
-		std::cout << "socket is :ClosingState" << std::endl;
-
-	}
-	else if (stat_t == QAbstractSocket::SocketState::ListeningState) {
-
-		std::cout << "socket is ListeningState" << std::endl;	
-		return TRUE;
-
-	}
-	else {
-		
-
-	}
-
-	return FALSE;
-
-
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-int QtTcpClient::IsSocketError()
-{
-
-	if (this->IsSocketAlive()==TRUE) {	
-	
-		SocketError error = this->error();
-		QString  error_str_t = this->errorString();
-		
-		qDebug() << error_str_t;
-
-		if (error == SocketError::SocketTimeoutError) {
-
-			return TRUE;//time out
-
-		} else {
-		
-
-		}
-
-		
-	
-	}
-
-	return FALSE;
-
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtTcpClient::disconnectFromHostMy()
-{
-	QAbstractSocket::SocketState stat_t = this->state();
-	if (stat_t== QAbstractSocket::SocketState::ConnectedState) {
-		this->disconnectFromHost();
-		if (QAbstractSocket::ConnectedState == this->state())
-			this->waitForDisconnected();
-	}
-
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtTcpClient::startSocketRun()
-{
-	mSocketRun = TRUE;
-	m_buffer.clear();
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtTcpClient::stopSocketRun()
-{
-	mSocketRun = FALSE;
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-ResultMy QtTcpClient::read_n_byte(int _n)
-{
-	int  len_t = 0;
-	char buff[1024];
-	ResultMy result_my_t=ResultMy::INIT_MY;
-	Q_ASSERT(_n<=1024);
-
-	if (this->waitForReadyRead(MAX_MSECS)) {
-		
-		len_t = this->read(buff, _n);
-		
-		if (len_t >= 0) {
-			m_buffer.append(buff, len_t);
-			result_my_t=ResultMy::TRUE_MY;
-
-		}else if(len_t==-1) {
-			this->mSocketErrorOccur = TRUE;
-			result_my_t = ResultMy::SocketErrorMy;
-		}else {
-			Q_ASSERT(FALSE);
-		}
-
-	}else {
-
-		SocketError error = this->error();
-		QString  error_str_t = this->errorString();
-		if ( error_str_t.isEmpty()) {
-			result_my_t = ResultMy::SocketErrotTimeout;
-		}
-		else {
-			result_my_t = ResultMy::SocketErrorMy;
-		}
-
-	}
-
-	if (!IsSocketAlive()) {
-
-		result_my_t = ResultMy::SocketErrorMy;
-
-	}
-
-	return result_my_t;
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-ResultMy QtTcpClient::write_n_byte(const char * const _data, const int _size)
-{
-	Q_ASSERT(_size > 0);
-	Q_ASSERT(_data != NULL);
-
-	const char* buff_t = _data;
-	int left = _size;
-	ResultMy result_my_t = ResultMy::INIT_MY;
-
-	do
-	{
-		const int size = this->write(buff_t, left);
-
-		if (size == -1) {
-
-			result_my_t = ResultMy::SocketErrorMy;
-			return result_my_t;
-		
-		}else if (size >= 0) {
-
-			if (this->waitForBytesWritten(MAX_MSECS)) {
-				//success
-				left -= size;
-				buff_t += size;
-
-			}
-			else {
-
-				result_my_t = ResultMy::SocketErrorMy;
-
-				//if the operation timed out, or if an error occurred
-			}
-
-
-		}
-		else {
-			Q_ASSERT(0);
-
-		}
-
-
-	} while (left>0);
-
-	Q_ASSERT(left == 0);
-	
-	if (left==0)
-	{
-		result_my_t = ResultMy::TRUE_MY;
-	}
-	else
-	{
-		result_my_t = ResultMy::FALSE_MY;
-	}
-
-	return result_my_t;
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
 int QtTcpClient::getByteTcpRead()
 {
 	int data_result = 0xffffffff;
@@ -719,33 +280,6 @@ int QtTcpClient::getByteTcpRead()
 
 	return  data_result;
 
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtTcpClient::SetReadTimeOutMy(const unsigned int _max_time_out_ms)
-{
-	mSocketReadMaxTimeOut = _max_time_out_ms;
 }
 /*-------------------------------------*/
 /**

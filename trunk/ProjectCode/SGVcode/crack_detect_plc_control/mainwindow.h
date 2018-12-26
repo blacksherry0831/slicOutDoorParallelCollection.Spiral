@@ -44,7 +44,8 @@ private:
 
 private:
 	void init_connect();
-	void init_connect_plc();
+	
+	void init_connect_work_flow(QObject* _sender);
 	void init_ctrols();
 	void init_members();
 	void init_class_member_base();

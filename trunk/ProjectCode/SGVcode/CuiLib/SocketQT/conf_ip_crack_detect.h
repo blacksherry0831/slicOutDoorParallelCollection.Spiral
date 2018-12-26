@@ -78,7 +78,7 @@
 #define TCP_PORT_SSH (22)
 #define TCP_PORT_IPC_FLOW_CTRL (20001)
 /*-------------------------------------*/
-
+#define BORD_VIDEO_SINGLE		("192.168.100.140")
 /*-------------------------------------*/
 #define USE_THREAD_CRACK_PRIORITY (0)
 /*-------------------------------------*/

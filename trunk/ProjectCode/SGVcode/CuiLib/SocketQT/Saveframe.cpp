@@ -375,26 +375,22 @@ void Saveframe::init_normal_path(std::string _prefix)
 */
 /*-------------------------------------*/
 void Saveframe::init_ip_time_path()
-{
+{		
 
-		if (this->mIsSaveFrame){
+		if (0 != this->mIpAddrRemote.compare("") &&
+			0 != this->mCmd->mCurrentCircleTime.compare("")) {
 
-				if (0 != this->mIpAddrRemote.compare("") &&
-					0 != this->mCmd->mCurrentCircleTime.compare("")) {
+					this->mIpAddrPath = Base::FS_createPath(PathCfg::ImageDataBaseRoot_CrackPath, this->mIpAddrRemote, mIsSaveFrame);
+					this->mTimePath = Base::FS_createPath(this->mIpAddrPath, PathCfg::PrefixTime + this->mCmd->mCurrentCircleTime, mIsSaveFrame);
+					this->mFeatureFileName.clear();
 
-							this->mIpAddrPath = Base::FS_createPath(PathCfg::ImageDataBaseRoot_CrackPath, this->mIpAddrRemote);
-							this->mTimePath = Base::FS_createPath(this->mIpAddrPath, PathCfg::PrefixTime + this->mCmd->mCurrentCircleTime);
-							this->mFeatureFileName.clear();
+					this->mFeatureFileName.append(this->mIpAddrRemote).append(".")
+						.append(this->mCmd->mCurrentCircleTime).append(".")
+						.append("ch").append(Base::int2str(mChannel ))
+						.append("xml");
 
-							this->mFeatureFileName.append(this->mIpAddrRemote).append(".")
-								.append(this->mCmd->mCurrentCircleTime).append(".")
-								.append("ch").append(Base::int2str(mChannel ))
-								.append("xml");
-
-				}
-		
-		}
-
+		}		
+	
 }
 /*-------------------------------------*/
 /**

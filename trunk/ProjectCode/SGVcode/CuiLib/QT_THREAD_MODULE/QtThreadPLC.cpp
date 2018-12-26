@@ -79,43 +79,21 @@ void QtThreadPLC::do_run_work(QSharedPointer<BE_1105_Driver>	 _be_1105)
 {
 	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
 	
-	this->wait4WorkFlowStart();
+	this->wait4WorkFlowStart();	
 	
-#if TRUE
-	//rooler ready
 	if (wait4PlcRoolerReady(cmd_t) == TRUE) {
-		//roooler is ready !!!
-		m_socket->SendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP::CT_OK);
-		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady);
+				//rooler ready		
+
+				this->doPlcStepMotorRun(_be_1105);
+								
+				int qualified_status_t = this->wait4ImgProcessResult();
+
+				//rooler is ok or bad
+				sendPlcRollerQualifiedEx(qualified_status_t);
+
+
+
 	}
-	else {
-		emit socket_connect_state(FALSE);
-		return;
-	}
-#endif // 0
-
-	this->stepMotorRun(_be_1105);
-	
-	this->emit_roller_done();
-
-	int qualified_status_t = this->wait4ImgProcessResult();
-
-	
-	
-#if TRUE
-	//rooler is ok or bad
-	m_socket->SendPlcRollerQualified(qualified_status_t);
-
-	if (this->wait4PlcResp(cmd_t) == FALSE) {
-		
-		return;
-	}
-	else {
-	
-	}
-#endif // TRUE
-
-	this->emit_roller_done_qualified( (CMD_CTRL::BodyRollerQualified)qualified_status_t);
 
 }
 /*-------------------------------------*/
@@ -132,22 +110,22 @@ void QtThreadPLC::do_run_work(QSharedPointer<BE_1105_Driver>	 _be_1105)
 int QtThreadPLC::MoveSlidingThenRunMotor(QSharedPointer<BE_1105_Driver>	 be_1105,const int _pos, int _isRun)
 {
 	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
-	int IS_SOCKET_OK = FALSE;
+	
 #if TRUE
 	//Into Inter
 	m_socket->SendPlcIntoInter(_pos);
 
 	do {
 
-		IS_SOCKET_OK = Read_1_cmd_process_hearbeat(cmd_t);
-		if (IS_SOCKET_OK == 0) {
-			std::cout << "EVENT>>" << "Socket Error !" << std::endl;
+		this->Read_1_plc_cmd_process_hearbeat(cmd_t);
+				
+		if (this->GetSocketConnected()) {
 			return FALSE;
 		}
-
+		
 		if (cmd_t->IsIntoInnerReady()) {
 				//roooler is ready !!!
-			std::cout << "EVENT>> " << "Now into inter  !" <<_pos << std::endl;
+			
 			if (_isRun) {
 
 				this->emit_step_motor_start(_pos-1);
@@ -161,33 +139,29 @@ int QtThreadPLC::MoveSlidingThenRunMotor(QSharedPointer<BE_1105_Driver>	 be_1105
 			}
 			return TRUE;
 
+		}
+		else if (cmd_t->isHeartbeatCmd()) {
+			
 		}else if (cmd_t->IsRoolerReady()) {
-			continue;
+			return FALSE;
 		}else if (cmd_t->IsAbortStop()) {
-			printf_event("EVENT", "Rooler is Abort Stop !");
-
 			return FALSE;
 		}else{
-			std::cout << "EVENT>>" << "Error Cmd!" << std::endl;
+			
 			return FALSE;
 		}
 
-	} while (m_socket->IsSocketAlive());
+	} while (this->socket_thread_run_condition());
 	
 #endif // TRUE
-	return IS_SOCKET_OK;
+	return this->GetSocketConnected();
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-int QtThreadPLC::read_plc_cmd(QSharedPointer<CMD_CTRL> _cmd)
-{
-	int IS_SOCKET_OK_t = Read_1_cmd_process_hearbeat(_cmd);
 
-	return IS_SOCKET_OK_t;
-}
 /*-------------------------------------*/
 /**
 *
@@ -232,22 +206,22 @@ void QtThreadPLC::process_plc_cmd(QSharedPointer<CMD_CTRL> _cmd, QSharedPointer<
 /*-------------------------------------*/
 int QtThreadPLC::process_plc_cmd_easy(QSharedPointer<CMD_CTRL> _cmd)
 {
+	this->print_cmd(_cmd);
+
 	do {
 
 		if (_cmd->IsRoolerReady()) {
-			//rooler is ready !!!
-			printf_event("EVENT", "Rooler is Ready !");
+			//rooler is ready !!!		
 			break;
 
 		}else if (_cmd->IsIntoInnerReady()) {
-			printf_event("EVENT", "RESP");
-
+			
 		}else if (_cmd->IsResp()) {
-			printf_event("EVENT", "RESP");
+			
 			break;
 
 		}else {
-			printf_event("ERROR", "Error Cmd!");
+			
 			return FALSE;
 
 		}
@@ -277,25 +251,27 @@ int QtThreadPLC::wait4PlcResp(QSharedPointer<CMD_CTRL> _cmd)
 
 	do {
 
-		Read_1_cmd_process_hearbeat(_cmd);
+		this->Read_1_plc_cmd_process_hearbeat(_cmd);
+		
 		if (GetSocketConnected() == 0) {
-			std::cout << "EVENT>>" << "Socket Error !" << std::endl;
 			return FALSE;
 		}
 
+		
 		if (_cmd->IsResp()) {
 			std::cout << "Done !" << std::endl;
 			return TRUE;
 		}
-		else if (_cmd->IsRoolerReady()) {
+		else if(_cmd->isHeartbeatCmd()){
+
+		}else if (_cmd->IsRoolerReady()) {
 			return FALSE; 
 		}
 		else {
-			printf_event("ERROR", "Error Cmd!");
 			return FALSE;
 		}
 
-	} while (m_socket->IsSocketAlive());
+	} while (this->socket_thread_run_condition());
 
 	
 
@@ -309,32 +285,27 @@ int QtThreadPLC::wait4PlcResp(QSharedPointer<CMD_CTRL> _cmd)
 int QtThreadPLC::wait4PlcRoolerReady(QSharedPointer<CMD_CTRL> _cmd)
 {
 	
-
 	do {
 
-	    Read_1_cmd_process_hearbeat(_cmd);
-		if (GetSocketConnected() == 0) {
-			printf_event("EVENT", "Socket Error !");
+		this->Read_1_plc_cmd_process_hearbeat(_cmd);
+			   		
+		if (GetSocketConnected() == 0) {		
 			return FALSE;
 		}
-
+		
 		if (_cmd->IsResp()) {
-			printf_event("EVENT", "RESP");
-			break;
-		}
-		else if (_cmd->IsRoolerReady()) {
-			printf_event("EVENT", "Rooler is Ready !");
+			
+		}else if (_cmd->IsRoolerReady()) {
+			//roooler is ready !!!
+			sendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP::CT_OK);
 			return TRUE;
 		}
-		else if (_cmd->IsAbortStop())
-		{
-			printf_event("EVENT", "Rooler is Abort Stop !");
-
+		else if (_cmd->IsAbortStop()){
+			return FALSE;
+		}else if (_cmd->isHeartbeatCmd()) {
+		
 		}else{
-			printf_event("ERROR", "Error Cmd!");
-			printf_event("ERROR", "this is Error Cmd ! do you know why ????????????????");
-			//Q_ASSERT(FALSE);
-			break;
+			
 		}
 
 	} while (this->socket_thread_run_condition());
@@ -368,6 +339,20 @@ void  QtThreadPLC::init_serial_port(QSharedPointer<BE_1105_Driver>	 _be_1105)
 		}
 
 	} while (_be_1105->init() == FALSE && M_THREAD_RUN);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int QtThreadPLC::doPlcStepMotorRun(QSharedPointer<BE_1105_Driver> _be_1105)
+{
+	int result_t=this->stepMotorRun(_be_1105);
+	 	
+	this->emit_roller_done();
+
+	return result_t;
+
 }
 /*-------------------------------------*/
 /**
@@ -486,13 +471,104 @@ void QtThreadPLC::run_socket_work()
 *
 */
 /*-------------------------------------*/
-
+void QtThreadPLC::print_undefined_cmd(QSharedPointer<CMD_CTRL> _cmd)
+{
+	printf_event("ERROR", "Error Cmd!");
+	printf_event("ERROR", "this is Error Cmd ! do you know why ????????????????");
+}
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
+void QtThreadPLC::print_cmd(QSharedPointer<CMD_CTRL> _cmd)
+{
+	if (_cmd->IsRoolerReady()) {
+		//rooler is ready !!!
+		printf_event("EVENT", "Rooler is Ready !");
+		
+	}
+	else if (_cmd->IsIntoInnerReady()) {
+		
+		printf_event("EVENT", "Now into inter  !");
+	}
+	else if (_cmd->isHeartbeatCmd()) {
+		printf_event("EVENT", "Hearbeat@rcv !");
+	}
+	else if (_cmd->IsResp()) {
+		printf_event("EVENT", "RESP");		
+	}
+	else if (_cmd->IsAbortStop())
+	{
+		printf_event("EVENT", "Rooler is Abort Stop !");
+	}else {
+		print_undefined_cmd(_cmd);
+	}
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadPLC::print_socket_connected()
+{
+	if (GetSocketConnected() == 0) {
+		printf_event("EVENT", "Socket Error !");
+	}
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int QtThreadPLC::sendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP _type)
+{
+	int result_t=m_socket->SendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP::CT_OK);
+	emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady);
+	return result_t;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int QtThreadPLC::Read_1_plc_cmd_process_hearbeat(QSharedPointer<CMD_CTRL> _cmd)
+{
 
+	if (Read_1_cmd_process_hearbeat(_cmd)) {
+	
+			this->print_cmd(_cmd);
+	}
+	else {
+			this->print_socket_connected();	
+	
+	}
+
+	return this->GetSocketConnected();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int QtThreadPLC::sendPlcRollerQualifiedEx(int _qualified)
+{
+	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
+	//rooler is ok or bad
+	m_socket->SendPlcRollerQualified(_qualified);
+
+	if (this->wait4PlcResp(cmd_t) == FALSE) {
+
+		return FALSE;
+	}
+	else {
+
+	}
+
+	this->emit_roller_done_qualified((CMD_CTRL::BodyRollerQualified)_qualified);
+
+	return TRUE;
+}
 /*-------------------------------------*/
 /**
 *

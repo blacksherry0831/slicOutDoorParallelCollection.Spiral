@@ -35,21 +35,27 @@ public:
 	
 private:
 	CMD_CTRL_Q  mCmds;
+private:
+	int sendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP _type);
 private: 
-	
 	void init_serial_port(QSharedPointer<BE_1105_Driver>	 be_1105);
 	int stepMotorRun(QSharedPointer<BE_1105_Driver>	 _be_1105);
+	int doPlcStepMotorRun(QSharedPointer<BE_1105_Driver>	 _be_1105);
 protected:
 	void emit_step_motor_start(int _circle);
-	void emit_step_motor_stop(int _circle);
-	
+	void emit_step_motor_stop(int _circle);	
 	void emit_roller_done_qualified(CMD_CTRL::BodyRollerQualified _qualified);
-
+protected:
+	void print_undefined_cmd(QSharedPointer<CMD_CTRL> _cmd);
+	void print_cmd(QSharedPointer<CMD_CTRL> _cmd);
+	void print_socket_connected();
 public:
 		
 	int MoveSlidingThenRunMotor(QSharedPointer<BE_1105_Driver>	 be_1105,const int _pos,int _isRun);
 
-	int read_plc_cmd(QSharedPointer<CMD_CTRL> _cmd);
+	int sendPlcRollerQualifiedEx(int _qualified);
+	int Read_1_plc_cmd_process_hearbeat(QSharedPointer<CMD_CTRL> _cmd);
+
 	void process_plc_cmd(QSharedPointer<CMD_CTRL> _cmd, QSharedPointer<BE_1105_Driver> _be_1105);
 
 	int process_plc_cmd_easy(QSharedPointer<CMD_CTRL> _cmd);

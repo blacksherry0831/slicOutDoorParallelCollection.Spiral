@@ -473,6 +473,9 @@ int QtThreadSocketClient::Send_1_cmd_resp(CMD_CTRL::CMD_TYPE_02_RESP _resp, int 
 int  QtThreadSocketClient::Read_1_cmd(QSharedPointer<CMD_CTRL> _cmd)
 {
 	mSocketConnected = this->m_socket->Read_1_cmd(_cmd.data());
+	
+	emit socket_connect_state(mSocketConnected);
+	
 	return mSocketConnected;
 }
 /*-------------------------------------*/
@@ -485,22 +488,36 @@ int  QtThreadSocketClient::Read_1_cmd_process_hearbeat(QSharedPointer<CMD_CTRL> 
 	
 	if (Read_1_cmd(_cmd)>0)
 	{
-		if (_cmd->isHeartbeatCmd())
-		{
-			int status_t = _cmd->GetCmdParam();
-
-			if (CMD_CTRL::BodyHearBeatResp::HB_RESP==status_t){
-				this->Send_1_cmd_resp(CMD_CTRL::CMD_TYPE_02_RESP::CT_OK);
-			}else if (CMD_CTRL::BodyHearBeatResp::HB_NONE == status_t){
-				Q_ASSERT(1);
-			}else{
-				Q_ASSERT(0);
-			}
-
-		}
+		this->SendHearbeatResp(_cmd);
 	}
 
 	return mSocketConnected;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadSocketClient::SendHearbeatResp(QSharedPointer<CMD_CTRL> _cmd)
+{
+	if (_cmd->isHeartbeatCmd())
+	{
+		int status_t = _cmd->GetCmdParam();
+
+		if (CMD_CTRL::BodyHearBeatResp::HB_RESP == status_t) {
+			this->Send_1_cmd_resp(CMD_CTRL::CMD_TYPE_02_RESP::CT_OK);
+		}
+		else if (CMD_CTRL::BodyHearBeatResp::HB_NONE == status_t) {
+			Q_ASSERT(CMD_CTRL::BodyHearBeatResp::HB_NONE == status_t);
+		}
+		else if (CMD_CTRL::BodyHearBeatResp::HB_NOTHING == status_t) {
+			Q_ASSERT(CMD_CTRL::BodyHearBeatResp::HB_NOTHING == status_t);
+		}
+		else {
+			Q_ASSERT(0);
+		}
+
+	}
 }
 /*-------------------------------------*/
 /**

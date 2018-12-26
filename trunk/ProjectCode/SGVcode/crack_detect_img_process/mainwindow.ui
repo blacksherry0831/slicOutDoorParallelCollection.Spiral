@@ -386,6 +386,7 @@
     </property>
     <addaction name="action_stop_bg_srv"/>
     <addaction name="action_stop_bg_srv_force"/>
+    <addaction name="action_block_in_step02"/>
    </widget>
    <widget class="QMenu" name="menu_view">
     <property name="title">
@@ -502,6 +503,17 @@
   <action name="action_workflow_remote">
    <property name="text">
     <string>远程控制</string>
+   </property>
+  </action>
+  <action name="action_block_in_step02">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>阻塞在步骤二</string>
    </property>
   </action>
  </widget>

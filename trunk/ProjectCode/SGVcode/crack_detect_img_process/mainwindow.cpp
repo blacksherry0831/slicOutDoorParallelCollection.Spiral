@@ -228,9 +228,12 @@ void MainWindow::init_menu()
 {
 
 #if TRUE
-	connect(ui->actionSetCutRect, SIGNAL(triggered()), this, SLOT(SetCutRectMethod()));
 	connect(ui->action_stop_bg_srv, SIGNAL(triggered()), this, SLOT(StopVideo()));
 	connect(ui->action_stop_bg_srv_force, SIGNAL(triggered()), this, SLOT(StopVideoForce()));
+	connect(ui->action_block_in_step02, SIGNAL(triggered(bool)), this, SLOT(toggleBlockStep02(bool)));
+#endif
+#if TRUE
+	connect(ui->actionSetCutRect, SIGNAL(triggered()), this, SLOT(SetCutRectMethod()));
 	connect(ui->actionEnable_ping_SSH, SIGNAL(triggered()), this, SLOT(start_ping_ssh()));
 #endif // TRUE
 
@@ -281,6 +284,7 @@ void MainWindow::init_controls()
 	ui->comboBox_IpAddr->addItem(BORD_VIDEO_IN_LONG);
 	ui->comboBox_IpAddr->addItem(BORD_VIDEO_IN_SHORT);
 	ui->comboBox_IpAddr->addItem(BORD_VIDEO_OUT);
+	ui->comboBox_IpAddr->addItem(BORD_VIDEO_SINGLE);
 
 	ui->comboBox_IpAddr->setCurrentIndex(ui->comboBox_IpAddr->findText(BORD_VIDEO_OUT));
 
@@ -1085,30 +1089,17 @@ void MainWindow::ConnectVideo()
 	connect(mFlowCtrlClient.data(), SIGNAL(thread_running_state(int)), this, SLOT(CheckBox_thread_status_flow_ctrl_video(int)));
 	
 #if FLOW_CTRL_USE_LOCAL_SERVER 
+	this->init_connect_work_flow();
 
-		this->connect(mFlowCtrlLocal.data(),
-		SIGNAL(status_sjts(int)),
+	this->connect(mFlowServerServerLocal.data(),
+		SIGNAL(work_flow_done(int)),
 		this,
-		SLOT(sjts_status(int)));
+		SLOT(tcp_server_work_flow_dones(int)));
 
-//		mFlowCtrlTimer->start(1000);
-
-	/*	connect(mFlowCtrlTimer,
-			SIGNAL(timeout()),
-			this,
-			SLOT(update_work_flow_status()));*/
-
-		this->connect(mFlowServerServerLocal.data(),
-			SIGNAL(work_flow_done(int)),
-			this,
-			SLOT(tcp_server_work_flow_dones(int)));
-
-		this->connect(mFlowServerServerLocal.data(),
-			SIGNAL(running_client_sessions(int)),
-			this,
-			SLOT(tcp_server_running_client_sessions(int)));
-
-
+	this->connect(mFlowServerServerLocal.data(),
+		SIGNAL(running_client_sessions(int)),
+		this,
+		SLOT(tcp_server_running_client_sessions(int)));
 #endif
 
 	this->connect(mFlowCtrlClient.data(),
@@ -1373,44 +1364,28 @@ void MainWindow::beforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c)
 *
 */
 /*-------------------------------------*/
-//void MainWindow::update_work_flow_status()
-//{
-//
-//	this->update_work_flow_status_ex(mFlowCtrlLocal.data(), mFlowServerServerLocal.data());
-//
-//
-//}
+#if FLOW_CTRL_USE_LOCAL_SERVER 
+void MainWindow::init_connect_work_flow()
+{
+	this->connect(mFlowCtrlLocal.data(),
+		SIGNAL(status_sjts(int)),
+		this,
+		SLOT(sjts_status(int)));
+}
+#endif
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-//void  MainWindow::update_work_flow_status_ex(QtThreadFlowCtrlBase* _work_flow,QtThreadFlowCtrlServer* _Server)
-//{
-//
-//#if FLOW_CTRL_USE_LOCAL_SERVER 
-//
-//	if (_work_flow!=Q_NULLPTR &&
-//		_Server!=Q_NULLPTR) {
-//
-//		 {
-//		
-//				QVector<QString>  v_qstr_t = _Server->getRunningSessionIpAddr();
-//				const int channels_enable = v_qstr_t.size();
-//				
-//
-//				
-//				_work_flow->setClientSessionCount(channels_enable);
-//
-//
-//		
-//		}		
-//
-//	}
-//
-//#endif
-//
-//}
+void MainWindow::toggleBlockStep02(bool _block)
+{
+#if FLOW_CTRL_USE_LOCAL_SERVER 
+	if (!mFlowCtrlLocal.isNull()) {
+		mFlowCtrlLocal->SetBlock(_block);
+	}
+#endif
+}
 /*-------------------------------------*/
 /**
 *
