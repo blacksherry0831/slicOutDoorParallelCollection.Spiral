@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 
+#include "QT_SDK_LIB/QBase.h"
 
 #include "QT_THREAD_MODULE/QtThreadPLC.hpp"
 
@@ -50,7 +51,7 @@ private:
 	void init_members();
 	void init_class_member_base();
 	void ShowSjtsStatusOnUI(CMD_CTRL::SJTS_MACHINE_STATUS __sjts_status);
-	void printf_event(std::string _event, std::string _msg="");
+	
 	void check_box_clr();
 public slots:
 	   void sjts_status(int _sjts_status_int);

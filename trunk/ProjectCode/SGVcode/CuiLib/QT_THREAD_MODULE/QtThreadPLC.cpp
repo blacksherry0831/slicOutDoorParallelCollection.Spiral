@@ -236,10 +236,7 @@ int QtThreadPLC::process_plc_cmd_easy(QSharedPointer<CMD_CTRL> _cmd)
 *
 */
 /*-------------------------------------*/
-void QtThreadPLC::printf_event(std::string _event, std::string _msg)
-{
-	std::cout << _event<< ">>" << _msg<< std::endl;
-}
+
 /*-------------------------------------*/
 /**
 *
@@ -299,8 +296,14 @@ int QtThreadPLC::wait4PlcRoolerReady(QSharedPointer<CMD_CTRL> _cmd)
 			//roooler is ready !!!
 			sendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP::CT_OK);
 			return TRUE;
+
 		}
-		else if (_cmd->IsAbortStop()){
+		else if (_cmd->IsRoolerReadyError()) {
+			//roooler is ready !!!
+			sendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP::CT_OK);
+			return TRUE;
+
+		}else if (_cmd->IsAbortStop()){
 			return FALSE;
 		}else if (_cmd->isHeartbeatCmd()) {
 		
@@ -497,13 +500,14 @@ void QtThreadPLC::print_cmd(QSharedPointer<CMD_CTRL> _cmd)
 	}
 	else if (_cmd->IsResp()) {
 		printf_event("EVENT", "RESP");		
-	}
-	else if (_cmd->IsAbortStop())
-	{
+	}else if (_cmd->IsRoolerReadyError()) {
+		printf_event("EVENT", "Rooler is Ready ERROR !");
+	}else if (_cmd->IsAbortStop()){
 		printf_event("EVENT", "Rooler is Abort Stop !");
 	}else {
 		print_undefined_cmd(_cmd);
 	}
+
 }
 /*-------------------------------------*/
 /**

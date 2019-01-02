@@ -60,7 +60,7 @@ public:
 
 	int process_plc_cmd_easy(QSharedPointer<CMD_CTRL> _cmd);
 
-	void printf_event(std::string _event,std::string _msg);
+
 
 	int wait4PlcResp(QSharedPointer<CMD_CTRL> _cmd);
 	int wait4PlcRoolerReady(QSharedPointer<CMD_CTRL> _cmd);

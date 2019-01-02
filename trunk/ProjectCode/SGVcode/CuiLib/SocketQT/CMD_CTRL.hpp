@@ -77,6 +77,7 @@ public:
 	int isHeartbeatCmd();
 	int IsIntoInnerReady();
 	int IsRoolerReady();
+	int IsRoolerReadyError();
 	int IsAbortStop();
 	/*-------------------------------------*/
 	int IsImgStart();

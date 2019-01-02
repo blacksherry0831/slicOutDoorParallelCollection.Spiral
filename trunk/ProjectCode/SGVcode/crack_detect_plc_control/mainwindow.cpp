@@ -126,9 +126,9 @@ void MainWindow::sjts_status(const int _sjts_status_int)
 		tcpSvrNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00);
 	
 	}else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortError) {
-		printf_event("SIGNAL","SerialPortError");
+		QBase::printf_event("SIGNAL","SerialPortError");
 	}else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortIsOpen) {
-		printf_event("SIGNAL","SerialPortIsOpen");
+		QBase::printf_event("SIGNAL","SerialPortIsOpen");
 	}else{
 		Q_ASSERT(0);
 	}
@@ -140,10 +140,7 @@ void MainWindow::sjts_status(const int _sjts_status_int)
 *
 */
 /*-------------------------------------*/
-void MainWindow::printf_event(std::string _event, std::string _msg)
-{
-	std::cout << _event << ">>" << _msg << std::endl;
-}
+
 /*-------------------------------------*/
 /**
 *
@@ -305,7 +302,7 @@ void MainWindow::thread_running_state_Auto_equipment(int _status)
 void  MainWindow::tcp_server_work_flow_dones(int _status)
 {
 	if (_status) {
-		printf_event("WORK FLOW", "all client thread work done !");
+		QBase::printf_event("WORK FLOW", "all client thread work done !");
 		this->mPlcdataServer->setWorkFlowDones(_status);
 	}
 }

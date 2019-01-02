@@ -34,6 +34,7 @@ public:
 	/*-----------------------------------*/
 
 	enum CMD_PLC_STATUS_TYPE {
+		CS_READY_ERROR =0x11,//this is a error 
 		CS_READY = 0x10,
 		CS_MOVE2POS =0x20,
 		CS_ABORT= 0x30

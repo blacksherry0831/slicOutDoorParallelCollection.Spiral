@@ -278,6 +278,23 @@ int CMD_CTRL::IsRoolerReady()
 *
 */
 /*-------------------------------------*/
+int CMD_CTRL::IsRoolerReadyError()
+{
+	//¹¤¼þ¾ÍÐ÷
+	if (this->f_header.f_cmd[0] == CMD_PLC_TYPE::CT_STATUS &&
+		this->f_header.f_cmd[1] == CMD_PLC_STATUS_TYPE::CS_READY_ERROR) {
+
+		return TRUE;
+
+	}
+
+	return FALSE;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 int CMD_CTRL::IsAbortStop()
 {
 	//¼±Í£
