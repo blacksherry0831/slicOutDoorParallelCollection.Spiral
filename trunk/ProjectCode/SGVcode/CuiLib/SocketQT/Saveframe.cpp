@@ -315,8 +315,8 @@ std::string  Saveframe::initFileName()
 /*-------------------------------------*/
 void Saveframe::initPath()
 {
-	const float feature_t = this->mCmd->mFeature;
-	const float feature_th_t = this->mCmd->mImgProc.ThresholdClassifyThickly;
+	const float feature_t = this->mCmd->mFeature;// [0 ,1]
+	const float FEATHER_THRESHOLD = this->mCmd->mImgProc.ThresholdClassifyThickly; //set feature to 1,set all image pos
 	int pos_neg;
 
 	if (feature_t==-1)
@@ -325,7 +325,7 @@ void Saveframe::initPath()
 	}
 	else
 	{
-			if (feature_t<feature_th_t) {
+			if (feature_t<FEATHER_THRESHOLD) {
 				pos_neg = 1;
 			}
 			else {

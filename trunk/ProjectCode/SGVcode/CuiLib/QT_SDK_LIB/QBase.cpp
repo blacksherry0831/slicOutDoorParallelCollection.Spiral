@@ -86,3 +86,13 @@ QString QBase::AesEncode(QString _key, QByteArray _body,int _mode)
 *
 */
 /*-----------------------------------------*/
+void QBase::printf_event(std::string _event, std::string _msg)
+{
+	std::cout << _event << ">>" << _msg << std::endl;
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/

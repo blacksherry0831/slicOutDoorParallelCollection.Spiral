@@ -37,7 +37,7 @@ QtImgProcess::~QtImgProcess(void)
 /*-------------------------------------*/
 float QtImgProcess::ImgProcessIpl(IplImage * _img,const IMG_PROC _img_proc)
 {
-	float feature_t = 0;
+	float feature_t = -1;
 
 	const CvRect rect = cvGetImageROI(_img);
 	cvResetImageROI(_img);

@@ -19,5 +19,6 @@ public:
 	static  QString SYS_getCurrentTime_Q(const QString _format);
 public:
 	static QString AesEncode(QString _key, QByteArray _body, int _mode);
+	static void printf_event(std::string _event, std::string _msg = "");
 };
 

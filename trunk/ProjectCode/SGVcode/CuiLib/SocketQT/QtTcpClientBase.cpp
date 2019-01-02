@@ -63,7 +63,6 @@ int  QtTcpClientBase::ReadAllMy(const int _size)
 	Q_ASSERT(_size >= 0);
 
 #if 1
-
 	return this->ReadMy_all(_size);
 #else
 	return ReadMy_seg(_size);
@@ -129,26 +128,39 @@ int  QtTcpClientBase::ReadMy_seg(const int _size)
 		
 								if (this->waitForReadyRead(MAX_MSECS)) {
 
-											int len_t = this->readData(&buff[_size-size_left], size_left);
+											int len_t = this->read(&buff[_size-size_left], size_left);
 		
 											if (len_t > 0) {
 												size_left -= len_t;
-											}else {
-												return FALSE;//socket error
+											}else if (len_t == 0) {
+												Q_ASSERT(1);//no data
+											}else if (len_t == -1) {
+												this->mSocketConnected = SOCKET_STATUS::DisConnected;
+												return SOCKET_STATUS::Error;//socket error
+											}
+											else {
+												Q_ASSERT(0);
 											}
 											
-											if (size_left==0) {
-												return TRUE;
-											}
-
 								}else {
 
-									return IsSocketError();
+									mSocketReadTimeOut += MAX_MSECS;
+									
+								}
+
+								if (size_left == 0)
+								{
+									break;
 								}
 				
 	}
 	
-	return IsSocketAlive();
+	if (size_left==0)
+	{
+		m_buffer.append(qba);
+	}
+	
+	return (_size-size_left);
 }
 /*-------------------------------------*/
 /**
@@ -214,7 +226,7 @@ int  QtTcpClientBase::WriteMy(const char* const _data,const int _size)
 
 	do
 	{
-		const int size = this->writeData(buff_t, left);
+		const int size = this->write(buff_t, left);
 
 		if (size==-1){
 			this->mSocketConnected = SOCKET_STATUS::DisConnected;
@@ -231,6 +243,7 @@ int  QtTcpClientBase::WriteMy(const char* const _data,const int _size)
 					this->mSocketConnected = SOCKET_STATUS::DisConnected;
 					this->mSocketWriteTimeOut = SOCKET_STATUS::ReadWriteTimeOut;
 					return FALSE;//if the operation timed out, or if an error occurred
+					
 				}
 
 
@@ -239,8 +252,12 @@ int  QtTcpClientBase::WriteMy(const char* const _data,const int _size)
 
 		}
 		
+		if (left==0)
+		{
+			break;
+		}
 
-	} while (left>0);	
+	} while (this->mSocketRun);
 	
 	assert(left == 0);
 

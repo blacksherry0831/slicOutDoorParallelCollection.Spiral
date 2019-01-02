@@ -159,46 +159,49 @@ int  QtTcpClient::Read_1_cmd(CMD_CTRL *_cmd)
 	
 		if (this->m_buffer.size() < HeaderSize) {
 			if (this->ReadAllMy(HeaderSize) == SOCKET_STATUS::Error) return FALSE;
+		}else {
+			if (DataALLSize_ != -1 && this->m_buffer.size() < DataALLSize_) {
+				if (this->ReadAllMy(DataALLSize_ - HeaderSize) == SOCKET_STATUS::Error) return FALSE;
+			}		
 		}
-		if (DataALLSize_ != -1 && this->m_buffer.size() < DataALLSize_) {
-			if (this->ReadAllMy(DataALLSize_) ==SOCKET_STATUS::Error) return FALSE;
-		}
+				
+		const int CurrentBuffSize = this->m_buffer.size();
 
-		while (this->m_buffer.size()>=HeaderSize)
+		while (CurrentBuffSize>=HeaderSize)
 		{
+			if (CurrentBuffSize >= HeaderSize) {			
 
-			if(	(m_buffer[0]=='Y')&&
-				(m_buffer[1]=='j')&&
-				(m_buffer[2]=='k')&&
-				(m_buffer[3] == 'j')){
-#if TRUE
-				const int CurrentBuffSize = this->m_buffer.size();
-				if (CurrentBuffSize >= HeaderSize) {
+				if ((m_buffer[0] == 'Y') &&
+					(m_buffer[1] == 'j') &&
+					(m_buffer[2] == 'k') &&
+					(m_buffer[3] == 'j')) {					
 
-					char *  header_data = m_buffer.data();
+						char *  header_data = m_buffer.data();
 
-					BodySize_ = CMD_CTRL_DATA::GetCMDBodySize((CMD_CTRL_DATA::CMD_CTRL_HEADER*) header_data);
+						BodySize_ = CMD_CTRL_DATA::GetCMDBodySize((CMD_CTRL_DATA::CMD_CTRL_HEADER*) header_data);
 
-					if (BodySize_ < 2)	BodySize_ = 2;
-				
-					DataALLSize_ = HeaderSize + BodySize_ + 1;
-				
-					if (DataALLSize_ != -1 && this->m_buffer.size() >= DataALLSize_) {
-						_cmd->Parse(m_buffer.data(), DataALLSize_);
-						m_buffer.remove(0, DataALLSize_);
-						return TRUE;
-					}
+						if (BodySize_ < 2)	BodySize_ = 2;
 
+						DataALLSize_ = HeaderSize + BodySize_ + 1;
+
+						if (DataALLSize_ != -1 && CurrentBuffSize >= DataALLSize_) {
+							_cmd->Parse(m_buffer.data(), DataALLSize_);
+							m_buffer.remove(0, DataALLSize_);
+							return TRUE;
+						}
+
+					break;
+				}
+				else
+				{
+					Q_ASSERT(0);
+					m_buffer.remove(0, 1);
 				}
 
-#endif // TRUE
-				break;
 			}
-			else
-			{
-			//	assert(0);
-				m_buffer.remove(0, 1);
-			}
+
+
+
 
 		}
 					
