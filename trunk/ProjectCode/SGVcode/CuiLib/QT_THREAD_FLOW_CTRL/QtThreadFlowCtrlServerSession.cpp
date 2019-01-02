@@ -157,19 +157,28 @@ void QtThreadFlowCtrlServerSession::record_work_flow(QSharedPointer<CMD_CTRL> _c
 #endif
 
 	if (_cmd->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START)) {
+
 				Q_ASSERT(mWorkFlowStart == FALSE && mWorkFlowEnd == FALSE);
 				mWorkFlowStart = TRUE;
 				mWorkFlowStep = 0;
+
+		QBase::printf_event("WORK FLOW SESSION","CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START");
+			
 	}else if (_cmd->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_00)) {
 
+		QBase::printf_event("WORK FLOW SESSION", "CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_00");
 
 	}else if (_cmd->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00)) {
 
+		QBase::printf_event("WORK FLOW SESSION", "CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00");
+
 	}else if (_cmd->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01)) {
 
+		QBase::printf_event("WORK FLOW SESSION", "CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01");
 	
 	}else if (_cmd->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01)) {
-			
+
+		QBase::printf_event("WORK FLOW SESSION", "CMD_CTRL::CMD_TYPE_LOCAL:CT_FPGA_STOP_01");
 
 	}else if (_cmd->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP)) {
 		
@@ -179,9 +188,14 @@ void QtThreadFlowCtrlServerSession::record_work_flow(QSharedPointer<CMD_CTRL> _c
 				emit client_session_work_state(this->mPort, TRUE);
 		}
 
+		QBase::printf_event("WORK FLOW SESSION", "CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP");
 
 	}else {
+
+		QBase::printf_event("WORK FLOW SESSION", "ERROR ");
+
 		Q_ASSERT(FALSE);
+
 	}
 
 }

@@ -4,6 +4,7 @@
 
 #include "qt_all.h"
 
+#include "QT_SDK_LIB\QBase.h"
 /*-------------------------------------*/
 /**
 *

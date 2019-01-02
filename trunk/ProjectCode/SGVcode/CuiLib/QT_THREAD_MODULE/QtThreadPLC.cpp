@@ -119,7 +119,7 @@ int QtThreadPLC::MoveSlidingThenRunMotor(QSharedPointer<BE_1105_Driver>	 be_1105
 
 		this->Read_1_plc_cmd_process_hearbeat(cmd_t);
 				
-		if (this->GetSocketConnected()) {
+		if (0==this->GetSocketConnected()) {
 			return FALSE;
 		}
 		
@@ -540,12 +540,10 @@ int QtThreadPLC::Read_1_plc_cmd_process_hearbeat(QSharedPointer<CMD_CTRL> _cmd)
 {
 
 	if (Read_1_cmd_process_hearbeat(_cmd)) {
-	
 			this->print_cmd(_cmd);
 	}
 	else {
 			this->print_socket_connected();	
-	
 	}
 
 	return this->GetSocketConnected();
