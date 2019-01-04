@@ -179,12 +179,17 @@ void Saveframe::add_xml()
 {
 	if (!mXml.isNull())
 	{
+					QDomElement root = this->mXml->documentElement();
 					QDomElement frame = this->mXml->createElement("frame");
 
 						{
 								QDomElement filename = this->mXml->createElement("filename");
 								QDomText filename_v=this->mXml->createTextNode(QString::fromStdString(mImageName));
 								filename.appendChild(filename_v);
+
+								QDomElement frameidx = this->mXml->createElement("frameidx");
+								QDomText frameidx_v = this->mXml->createTextNode(QString::number(mFrameCount));
+								frameidx.appendChild(frameidx_v);
 
 								QDomElement channel = this->mXml->createElement("channel");
 								QDomText channel_v= this->mXml->createTextNode(QString::number(mChannel));
@@ -195,12 +200,14 @@ void Saveframe::add_xml()
 								feature.appendChild(feature_v);
 
 								frame.appendChild(filename);
+								frame.appendChild(frameidx);
 								frame.appendChild(channel);
 								frame.appendChild(feature);
 
 						}
 
-				 this->mXml->appendChild(frame);
+
+						root.appendChild(frame);
 	}
 
 
@@ -387,7 +394,7 @@ void Saveframe::init_ip_time_path()
 					this->mFeatureFileName.append(this->mIpAddrRemote).append(".")
 						.append(this->mCmd->mCurrentCircleTime).append(".")
 						.append("ch").append(Base::int2str(mChannel ))
-						.append("xml");
+						.append(".xml");
 
 		}		
 	
