@@ -66,7 +66,7 @@ float QtImgProcess::ImgProcessIpl(IplImage * _img,const IMG_PROC _img_proc)
 	}
 
 	if (_img_proc.ShowBinaryClassifyThickly) {
-		feature_t=CrackDetection::GetFeatureFastEx(_img, 11, 7, 2);
+		feature_t=CrackDetection::GetFeatureFastEx(_img, 11, 7, 5);
 	}
 
 	cvSetImageROI(_img, rect);
