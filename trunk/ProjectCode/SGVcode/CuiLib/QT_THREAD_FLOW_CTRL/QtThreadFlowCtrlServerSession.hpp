@@ -36,6 +36,9 @@ protected:
 
 private:
 	int mWorkFlowStep;
+	
+private:
+	void emit_client_session_work_state(int _port,int _done, int _quality);
 public:
 	virtual void beforeSendMsg();
 	void init_work_flow(QSharedPointer<CMD_CTRL> _cmd);

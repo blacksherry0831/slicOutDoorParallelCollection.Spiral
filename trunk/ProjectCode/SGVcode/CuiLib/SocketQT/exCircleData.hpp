@@ -41,6 +41,7 @@ private:
 	int mChannel;
 	int mIsSaveFrame;
 	Saveframe mSaveFrame;
+	QVector<int> mResult;
 private:
 	void clear();
 	void assert_channel(QSharedPointer<CMD_CTRL> _cmd_ctrl);
@@ -51,6 +52,8 @@ public:
 	void stop_record();
 	void record(QSharedPointer<CMD_CTRL> _cmd_ctrl);
 	void save_record(int _is_save);
+private:
+	void setResult(QSharedPointer<CMD_CTRL> _cmd_ctrl);
 public:
 	QSharedPointer<CMD_CTRL> mAverage;
 	QSharedPointer<CMD_CTRL> mSigma;
@@ -61,5 +64,5 @@ public:
 	QSharedPointer<CMD_CTRL> getImg();
 	void setImg(QSharedPointer<CMD_CTRL> _cmd_ctrl);
 	float fps();
-
+	int IsCrack();
 };

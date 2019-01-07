@@ -753,3 +753,12 @@ int QtThreadSocketClient::IsWorkFlowDone()
 *
 */
 /*-------------------------------------*/
+int QtThreadSocketClient::getWorkFlowResult()
+{
+	return mWorkFlowResult;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/

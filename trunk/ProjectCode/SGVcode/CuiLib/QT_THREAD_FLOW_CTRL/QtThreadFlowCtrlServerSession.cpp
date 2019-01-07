@@ -161,6 +161,7 @@ void QtThreadFlowCtrlServerSession::record_work_flow(QSharedPointer<CMD_CTRL> _c
 				Q_ASSERT(mWorkFlowStart == FALSE && mWorkFlowEnd == FALSE);
 				mWorkFlowStart = TRUE;
 				mWorkFlowStep = 0;
+				mWorkFlowResult = CMD_CTRL::CMD_TYPE_02_RESP::CT_ERROR;
 
 		QBase::printf_event("WORK FLOW SESSION","CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START");
 			
@@ -185,7 +186,8 @@ void QtThreadFlowCtrlServerSession::record_work_flow(QSharedPointer<CMD_CTRL> _c
 		if (mWorkFlowStart) {
 				Q_ASSERT(mWorkFlowStep==5);
 				mWorkFlowEnd = TRUE;
-				emit client_session_work_state(this->mPort, TRUE);
+				mWorkFlowResult = _cmd->GetCmd01();//CMD_CTRL::CMD_TYPE_02_RESP::CT_OK; CMD_CTRL::CMD_TYPE_02_RESP::CT_ERROR
+				emit_client_session_work_state(this->mPort, TRUE, mWorkFlowResult);
 		}
 
 		QBase::printf_event("WORK FLOW SESSION", "CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP");
@@ -204,7 +206,11 @@ void QtThreadFlowCtrlServerSession::record_work_flow(QSharedPointer<CMD_CTRL> _c
 *
 */
 /*-------------------------------------*/
-
+void QtThreadFlowCtrlServerSession::emit_client_session_work_state(int _port, int _done, int _quality)
+{
+	Q_ASSERT(_quality == CMD_CTRL::CMD_TYPE_02_RESP::CT_OK || _quality == CMD_CTRL::CMD_TYPE_02_RESP::CT_ERROR);
+	emit client_session_work_state(_port,_done, _quality);
+}
 /*-------------------------------------*/
 /**
 *

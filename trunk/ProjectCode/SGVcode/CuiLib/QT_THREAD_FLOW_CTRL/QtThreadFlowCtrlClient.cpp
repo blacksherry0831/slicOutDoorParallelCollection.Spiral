@@ -82,10 +82,24 @@ void QtThreadFlowCtrlClient::run_socket_work()
 					QtThreadClientCtrl::SetCmd(cmd_t);//set work flow 2 
 
 					if (cmd_t->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP)) {					
-							this->wait_4_inner_done();					
+							
+							this->wait_4_inner_done();	
+							
+							int resp_t = CMD_CTRL::CMD_TYPE_02_RESP::CT_OK;
+
+							if (ChannelsData4Show::getInstance()->HaveCrack()) {
+								resp_t = CMD_CTRL::CMD_TYPE_02_RESP::CT_OK;
+							}else {
+								resp_t = CMD_CTRL::CMD_TYPE_02_RESP::CT_ERROR;
+							}
+
+							this->Send_1_cmd_resp((CMD_CTRL::CMD_TYPE_02_RESP)resp_t);
+					
+					}else {					
+							this->Send_1_cmd_resp(CMD_CTRL::CMD_TYPE_02_RESP::CT_OK);					
 					}
 					
-					this->Send_1_cmd_resp(CMD_CTRL::CMD_TYPE_02_RESP::CT_OK);
+					
 				}
 
 		}
@@ -198,7 +212,7 @@ int QtThreadFlowCtrlClient::wait_4_inner_done()
 	do
 	{
 
-		if (this->IsImgProcessDone())
+		if (this->IsImgProcDone())
 		{
 			result_t=TRUE;
 			break;
@@ -216,13 +230,9 @@ int QtThreadFlowCtrlClient::wait_4_inner_done()
 *
 */
 /*-------------------------------------*/
-int  QtThreadFlowCtrlClient::IsImgProcessDone()
+int  QtThreadFlowCtrlClient::IsImgProcDone()
 {
-	if (ChannelsData::getInstance()->QueueSize()>0) {
-		return FALSE;
-	}
-
-	return TRUE;
+	return ChannelsData::getInstance()->IsImgProcessDone();
 }
 /*-------------------------------------*/
 /**

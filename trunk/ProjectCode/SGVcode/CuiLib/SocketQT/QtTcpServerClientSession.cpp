@@ -222,6 +222,35 @@ int QtTcpServerClientSession::IsWorkFlowDoneAllThread()
 *
 */
 /*-------------------------------------*/
+int QtTcpServerClientSession::WorkFlowDoneQuality()
+{
+	QMutexLocker locker(&m_clients_mutex);
+
+#if 1
+	if (m_clientThreads.size() == 0) {
+		return CMD_CTRL::CMD_TYPE_02_RESP::CT_ERROR;
+	}
+#endif
+#if 1
+	for (QList<QSharedPointer<QtThreadSocketClient>>::iterator item = m_clientThreads.begin(); item != m_clientThreads.end(); item++)
+	{
+			QSharedPointer<QtThreadSocketClient>  thread_socket_session_t = (*item);
+				if (thread_socket_session_t->isRunning()) {
+						const int work_done_result_t = thread_socket_session_t->getWorkFlowResult();
+							if (work_done_result_t == CMD_CTRL::CMD_TYPE_02_RESP::CT_ERROR){
+								return CMD_CTRL::CMD_TYPE_02_RESP::CT_ERROR;
+							}
+				}
+
+	}
+#endif
+	return CMD_CTRL::CMD_TYPE_02_RESP::CT_OK;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void  QtTcpServerClientSession::client_session_status(int _client, int _status)
 {
 

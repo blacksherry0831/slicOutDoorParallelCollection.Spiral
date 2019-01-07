@@ -219,7 +219,7 @@ public slots:
 #if TRUE
 	void workflow_local();
 	void workflow_remote();
-	void tcp_server_work_flow_dones(int _status);
+	void tcp_server_work_flow_dones(int _status,int _quality);
 	void tcp_server_running_client_sessions(int _running_sessions);
 #endif // TRUE
 

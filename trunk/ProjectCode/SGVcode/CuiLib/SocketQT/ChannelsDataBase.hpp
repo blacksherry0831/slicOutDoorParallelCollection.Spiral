@@ -15,25 +15,26 @@
 #include "exCircleData.hpp"
 #include "Saveframe.hpp"
 #include "CMD_CTRL.hpp"
-#include "ChannelsDataBase.hpp"
 /*-------------------------------------*/
 /**
 *
 *
 */
 /*-------------------------------------*/
-class ChannelsData: public ChannelsDataBase
+class ChannelsDataBase
 {
-private:
-	ChannelsData();
-	~ChannelsData();
-private:
-	static ChannelsData gChannelsData;
+protected:
+	ChannelsDataBase();
+	~ChannelsDataBase();
+protected:
+	static ChannelsDataBase gChannelsData;
+	std::vector<QSharedPointer<exCircleData>> mChannelsData;
+	int mIsReceiving;
 private:
 	void EnqueueCmd(QSharedPointer<CMD_CTRL> _cmd);
 	void MyImgAssert(QSharedPointer<CMD_CTRL> _cmd);
 public:
-	static ChannelsData* getInstance();
+	static ChannelsDataBase* getInstance();
 	int IsReceiving() const;
 public:
 	QSharedPointer<exCircleData> getChannelData(int _ch);

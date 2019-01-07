@@ -14,21 +14,20 @@
 /*-----------------------------------*/
 #include "exCircleData.hpp"
 #include "Saveframe.hpp"
+#include "ChannelsDataBase.hpp"
 /*-------------------------------------*/
 /**
 *
 *
 */
 /*-------------------------------------*/
-class ChannelsData4Show
+class ChannelsData4Show : public ChannelsDataBase
 {
 private:
 	ChannelsData4Show();
 	~ChannelsData4Show();
 private:
 	static ChannelsData4Show gChannelsData;
-	std::vector<QSharedPointer<exCircleData>> mChannelsData;
-
 	QMutex mTimeMutex;
 public:
 	static ChannelsData4Show* getInstance();
@@ -43,6 +42,8 @@ public:
 	void stop_record(QSharedPointer<CMD_CTRL> _cmd);
 	void record(QSharedPointer<CMD_CTRL> _cmd);
 	void save_record(int _is_save);
-	
-
+public:
+	int  QueueSize();
+	int HaveCrack();
+	int  IsImgProcessDone();
 };

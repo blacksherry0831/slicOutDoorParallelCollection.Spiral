@@ -65,9 +65,9 @@ void MainWindow::init_connect()
 
 #if  defined(QT_VERSION)
 	this->connect(mFlowServerServer.data(),
-		SIGNAL(work_flow_done(int)),
+		SIGNAL(work_flow_done(int,int)),
 		this,
-		SLOT(tcp_server_work_flow_dones(int)));
+		SLOT(tcp_server_work_flow_dones(int,int)));
 
 #endif
 	
@@ -299,11 +299,11 @@ void MainWindow::thread_running_state_Auto_equipment(int _status)
 *
 */
 /*-------------------------------------*/
-void  MainWindow::tcp_server_work_flow_dones(int _status)
+void  MainWindow::tcp_server_work_flow_dones(int _status, int _quality)
 {
 	if (_status) {
 		QBase::printf_event("WORK FLOW", "all client thread work done !");
-		this->mPlcdataServer->setWorkFlowDones(_status);
+		this->mPlcdataServer->setWorkFlowDones(_status,_quality);
 	}
 }
 /*-------------------------------------*/

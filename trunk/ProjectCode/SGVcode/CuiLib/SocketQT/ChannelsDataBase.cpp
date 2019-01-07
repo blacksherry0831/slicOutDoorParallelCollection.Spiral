@@ -1,5 +1,5 @@
 //#include "stdafx.h"
-#include "ChannelsData.hpp"
+#include "ChannelsDataBase.hpp"
 
 #include "QT_SDK_LIB/QBase.h"
 /*-------------------------------------*/
@@ -8,14 +8,14 @@
 *
 */
 /*-------------------------------------*/
-ChannelsData ChannelsData::gChannelsData;
+ChannelsDataBase ChannelsDataBase::gChannelsData;
 /*-------------------------------------*/
 /**
 *
 *
 */
 /*-------------------------------------*/
-ChannelsData::ChannelsData()
+ChannelsDataBase::ChannelsDataBase()
 {
 	mChannelsData.resize(CAMERA_CHANNELS);
 	const int length = CAMERA_CHANNELS;
@@ -33,7 +33,7 @@ ChannelsData::ChannelsData()
 *
 */
 /*-------------------------------------*/
-ChannelsData::~ChannelsData()
+ChannelsDataBase::~ChannelsDataBase()
 {
 	mChannelsData.clear();
 }
@@ -42,7 +42,7 @@ ChannelsData::~ChannelsData()
 *
 */
 /*-------------------------------------*/
-QSharedPointer<exCircleData> ChannelsData::getChannelData(int _ch)
+QSharedPointer<exCircleData> ChannelsDataBase::getChannelData(int _ch)
 {
 	QSharedPointer<exCircleData> circleData = mChannelsData.at(_ch);
 	return circleData;
@@ -52,7 +52,7 @@ QSharedPointer<exCircleData> ChannelsData::getChannelData(int _ch)
 *
 */
 /*-------------------------------------*/
-void ChannelsData::EnqueueImgAll(QSharedPointer<CMD_CTRL> _cmd)
+void ChannelsDataBase::EnqueueImgAll(QSharedPointer<CMD_CTRL> _cmd)
 {
 	this->MyImgAssert(_cmd);
 
@@ -84,7 +84,7 @@ void ChannelsData::EnqueueImgAll(QSharedPointer<CMD_CTRL> _cmd)
 *
 */
 /*-------------------------------------*/
-void ChannelsData::MyImgAssert(QSharedPointer<CMD_CTRL> _cmd)
+void ChannelsDataBase::MyImgAssert(QSharedPointer<CMD_CTRL> _cmd)
 {
 	
 	const int CHANNEL = _cmd->Channel();
@@ -96,7 +96,7 @@ void ChannelsData::MyImgAssert(QSharedPointer<CMD_CTRL> _cmd)
 *
 */
 /*-------------------------------------*/
-int ChannelsData::QueueSize()
+int ChannelsDataBase::QueueSize()
 {
 	int queue_size_t = 0;
 
@@ -118,7 +118,7 @@ int ChannelsData::QueueSize()
 *
 */
 /*-------------------------------------*/
-ChannelsData* ChannelsData::getInstance()
+ChannelsDataBase* ChannelsDataBase::getInstance()
 {
 	return &gChannelsData;
 }
@@ -127,7 +127,7 @@ ChannelsData* ChannelsData::getInstance()
 *
 */
 /*-------------------------------------*/
-int ChannelsData::IsReceiving() const
+int ChannelsDataBase::IsReceiving() const
 {
 	return mIsReceiving;
 }
@@ -136,7 +136,7 @@ int ChannelsData::IsReceiving() const
 *
 */
 /*-------------------------------------*/
-void ChannelsData::EnqueueCmd(QSharedPointer<CMD_CTRL> _cmd)
+void ChannelsDataBase::EnqueueCmd(QSharedPointer<CMD_CTRL> _cmd)
 {
 		const int CHANNEL = _cmd->Channel();
 		mChannelsData.at(CHANNEL)->setImg(_cmd);
@@ -147,9 +147,9 @@ void ChannelsData::EnqueueCmd(QSharedPointer<CMD_CTRL> _cmd)
 *
 */
 /*-------------------------------------*/
-int ChannelsData::IsImgProcessDone()
+int ChannelsDataBase::IsImgProcessDone()
 {
-	if (ChannelsData::getInstance()->QueueSize()>0) {
+	if (ChannelsDataBase::getInstance()->QueueSize()>0) {
 		return FALSE;
 	}
 

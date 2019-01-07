@@ -16,6 +16,7 @@
 #include "../SocketQT/conf_ip.h"
 
 #include "SocketQT/ChannelsData.hpp"
+#include "SocketQT/ChannelsData4Show.hpp"
 /*-------------------------------------*/
 #include "QT_THREAD_MODULE/QtThreadClientCtrl.hpp"
 /*-------------------------------------*/
@@ -43,7 +44,7 @@ public:
 #endif
 	int wait_4_inner_done();
 
-	int IsImgProcessDone();
+	int IsImgProcDone();
 protected: 
 /*-------------------------------------*/
 signals:

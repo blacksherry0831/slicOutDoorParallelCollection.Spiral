@@ -45,6 +45,8 @@ ENDIF ()
 				
 				QtThreadSocketClient.cpp
 				exCircleData.cpp
+				
+				ChannelsDataBase.cpp
 				ChannelsData.cpp
 				ChannelsData4Show.cpp
 				

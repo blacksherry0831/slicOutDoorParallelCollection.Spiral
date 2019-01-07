@@ -94,7 +94,7 @@ signals:
 void socket_connect_state(int);
 void thread_running_state(int);
 void running_client_sessions_change();
-void client_session_work_state(int ,int);
+void client_session_work_state(int ,int,int);
 
 public slots:
 
@@ -117,7 +117,8 @@ public:
 protected:
 	int mWorkFlowStart;
 	int mWorkFlowEnd;
-	
+	int mWorkFlowResult;
 public:
 	int IsWorkFlowDone();
+	int getWorkFlowResult();
 };

@@ -29,9 +29,9 @@ void  QtThreadFlowCtrlServer::connecTcp2Thread()
 	const QObject* sender_t = mQtTcpServer.data();
 
 	this->connect(sender_t,
-		SIGNAL(work_flow_done(int)),
+		SIGNAL(work_flow_done(int,int)),
 		this,
-		SIGNAL(work_flow_done(int)));
+		SIGNAL(work_flow_done(int,int)));
 
 	this->connect(sender_t,
 		SIGNAL(running_client_sessions(int)),
@@ -88,8 +88,7 @@ void QtThreadFlowCtrlServer::NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _eve
 		){				
 				this->mQtTcpServer->NotifiedClientSession(_event);
 		 }
-
-
+	
 }
 /*-------------------------------------*/
 /**

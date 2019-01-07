@@ -571,6 +571,15 @@ int CMD_CTRL::GetCmd00()
 *
 */
 /*-------------------------------------*/
+int CMD_CTRL::GetCmd01()
+{
+	return this->f_header.f_cmd[1];
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 int CMD_CTRL::GetCmdParam()
 {
 	Q_ASSERT(this->f_data.size() >= 2);

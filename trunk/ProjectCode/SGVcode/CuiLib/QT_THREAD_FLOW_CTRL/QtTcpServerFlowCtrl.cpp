@@ -30,7 +30,7 @@ QtTcpServerFlowCtrl::~QtTcpServerFlowCtrl()
 /*-------------------------------------*/
 void QtTcpServerFlowCtrl::connectClient2Server(const QObject * _sender)
 {
-	this->connect(_sender, SIGNAL(client_session_work_state(int, int)), this, SLOT(client_session_work_state_work_flow(int, int)));
+	this->connect(_sender, SIGNAL(client_session_work_state(int, int,int)), this, SLOT(client_session_work_state_work_flow(int, int,int)));
 	this->connect(_sender, SIGNAL(running_client_sessions_change()), this, SLOT(running_client_sessions_change()));
 }
 /*-------------------------------------*/
@@ -106,13 +106,15 @@ void QtTcpServerFlowCtrl::initWorkMode()
 *
 */
 /*-------------------------------------*/
-void QtTcpServerFlowCtrl::client_session_work_state_work_flow(int _client, int _status)
+void QtTcpServerFlowCtrl::client_session_work_state_work_flow(int _client, int _status,int _quality)
 {
+
 	const int done_t = this->IsWorkFlowDoneAllThread();
+	const int quality_t = this->WorkFlowDoneQuality();
 	if (done_t)
 	{
 		//all done
-		emit work_flow_done(done_t);
+		emit work_flow_done(done_t, quality_t);
 	}
 
 }

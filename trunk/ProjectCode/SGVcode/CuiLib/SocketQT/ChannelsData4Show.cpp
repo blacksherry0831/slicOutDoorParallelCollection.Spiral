@@ -158,9 +158,55 @@ void ChannelsData4Show::save_record(int _is_save)
 *
 */
 /*-------------------------------------*/
+int ChannelsData4Show::HaveCrack()
+{
+	const int SIZE = mChannelsData.size();
 
+	for (size_t chi = 0; chi <SIZE; chi++)
+	{
+		if (!mChannelsData[chi].isNull())
+		{
+			if (mChannelsData[chi]->IsCrack()) {
+				return TRUE;
+			}
+		}
+
+	}
+
+	return FALSE;
+}
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
+int  ChannelsData4Show::QueueSize()
+{
+	int queue_size_t = 0;
+
+	const int SIZE = mChannelsData.size();
+
+	for (size_t chi = 0; chi <SIZE; chi++)
+	{
+		if (!mChannelsData[chi].isNull())
+		{
+			queue_size_t += mChannelsData[chi]->QueueSize();
+		}
+
+	}
+
+	return queue_size_t;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int ChannelsData4Show::IsImgProcessDone()
+{
+	if (ChannelsData4Show::getInstance()->QueueSize()>0) {
+		return FALSE;
+	}
+
+	return TRUE;
+}

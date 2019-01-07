@@ -59,7 +59,7 @@ public slots:
 	   void update_work_flow_status();
 	   void socket_connect_state_Auto_equipment(int _status);
 	   void thread_running_state_Auto_equipment(int _status);
-	   void tcp_server_work_flow_dones(int _status);
+	   void tcp_server_work_flow_dones(int _status, int _quality);
 	   void tcp_server_running_client_sessions(int _running_sessions);
 };
 

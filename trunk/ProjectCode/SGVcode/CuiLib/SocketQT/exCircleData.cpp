@@ -52,6 +52,7 @@ void exCircleData::init()
 	mStartTime = clock();
 	mFrameCount = 0;
 	mIsSaveFrame = FALSE;
+	mResult.clear();
 }
 /*-------------------------------------*/
 /**
@@ -109,6 +110,9 @@ void exCircleData::record(QSharedPointer<CMD_CTRL> _cmd_ctrl)
 					->SaveFrame2Disk(img_t);
 
 	}
+
+	this->setResult(_cmd_ctrl);
+
 }
 /*-------------------------------------*/
 /**
@@ -184,6 +188,57 @@ void exCircleData::assert_channel(QSharedPointer<CMD_CTRL> _cmd_ctrl)
 		Q_ASSERT(CHANNEL == mChannel);
 	}
 #endif
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void exCircleData::setResult(QSharedPointer<CMD_CTRL> _cmd_ctrl)
+{
+	
+	float THRESHOLD = _cmd_ctrl->mImgProc.ThresholdClassifyThickly;
+	float FEATURE = _cmd_ctrl->mFeature;
+
+	if (_cmd_ctrl->IsImgFrame()) {
+					
+			if (FEATURE >= 0-1E-6) {
+					int   CLSAAIFY = FEATURE < THRESHOLD ? 0 : 1;
+					this->mResult.push_back(CLSAAIFY);
+			}
+
+	}
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int exCircleData::IsCrack()
+{
+	int pos_count = 0;
+	int neg_count = 0;
+	float  BLANK = 0.1;
+	const int TOTAL = mResult.size();
+	const int START = TOTAL*BLANK;
+	const int END = TOTAL*(1-BLANK);
+
+	for (int i = START; END; i++){
+
+			int reslut_classify_t = mResult.at(i);
+			if (reslut_classify_t == 1) {
+				pos_count++;
+			}
+			else
+			{
+				neg_count++;
+			}
+		
+	}
+
+	return pos_count;
+
 }
 /*-------------------------------------*/
 /**

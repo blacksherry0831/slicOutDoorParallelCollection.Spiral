@@ -36,7 +36,7 @@ public:
 	explicit QtThreadFlowCtrlServer(QObject *parent);
 	~QtThreadFlowCtrlServer(void);
 signals:
-	void work_flow_done(int);
+	void work_flow_done(int,int);
 	void running_client_sessions(int);
 	
 private:

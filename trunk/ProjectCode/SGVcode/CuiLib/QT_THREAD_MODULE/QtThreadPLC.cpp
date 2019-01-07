@@ -77,6 +77,7 @@ QtThreadPLC::~QtThreadPLC(void)
 /*-------------------------------------*/
 void QtThreadPLC::do_run_work(QSharedPointer<BE_1105_Driver>	 _be_1105)
 {
+
 	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
 	
 	this->wait4WorkFlowStart();	
@@ -90,11 +91,9 @@ void QtThreadPLC::do_run_work(QSharedPointer<BE_1105_Driver>	 _be_1105)
 
 				//rooler is ok or bad
 				sendPlcRollerQualifiedEx(qualified_status_t);
-
-
-
+				
 	}
-
+	 
 }
 /*-------------------------------------*/
 /**

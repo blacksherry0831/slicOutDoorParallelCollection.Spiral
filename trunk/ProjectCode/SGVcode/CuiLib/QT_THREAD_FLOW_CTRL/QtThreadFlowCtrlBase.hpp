@@ -27,12 +27,15 @@ public:
 	~QtThreadFlowCtrlBase(void);
 private:
 	int  mWorkFlowDoneClientThreads;
+	int  mWorkFlowDoneClientThreadsResult;
 	int  mClientSessionCount;
 protected:
 	void emit_roller_done();
 public:
 	int   getWorkFlowDones();	
-	void  setWorkFlowDones(int _work_flow);
+	int   getWorkFLowResult();
+	CMD_CTRL::BodyRollerQualified   getWorkFLowQualified();
+	void  setWorkFlowDones(int _work_flow, int _result);
 	
 	int  getClientSessionCount();
 	void  setClientSessionCount(int _count);

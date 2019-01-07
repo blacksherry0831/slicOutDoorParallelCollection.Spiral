@@ -608,12 +608,12 @@ void MainWindow::workflow_remote()
 *
 */
 /*-------------------------------------*/
-void MainWindow::tcp_server_work_flow_dones(int _status)
+void MainWindow::tcp_server_work_flow_dones(int _status,int _quality)
 {
 
 	if (_status) {
 		printf_event("WORK FLOW", "all client thread done");
-		this->mFlowCtrlLocal->setWorkFlowDones(_status);
+		this->mFlowCtrlLocal->setWorkFlowDones(_status,_quality);
 	}
 
 }
@@ -1092,9 +1092,9 @@ void MainWindow::ConnectVideo()
 	this->init_connect_work_flow();
 
 	this->connect(mFlowServerServerLocal.data(),
-		SIGNAL(work_flow_done(int)),
+		SIGNAL(work_flow_done(int,int)),
 		this,
-		SLOT(tcp_server_work_flow_dones(int)));
+		SLOT(tcp_server_work_flow_dones(int,int)));
 
 	this->connect(mFlowServerServerLocal.data(),
 		SIGNAL(running_client_sessions(int)),

@@ -38,6 +38,7 @@ public:
 	QVector<QString> getRunningSessionIpAddr();
 protected:
 	int IsWorkFlowDoneAllThread();
+	int WorkFlowDoneQuality();
 public:
 	void execMy();
 public:
