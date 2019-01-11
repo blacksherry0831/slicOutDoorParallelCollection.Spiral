@@ -87,7 +87,7 @@ void QtThreadPLC::do_run_work(QSharedPointer<BE_1105_Driver>	 _be_1105)
 
 				this->doPlcStepMotorRun(_be_1105);
 								
-				int qualified_status_t = this->wait4ImgProcessResult();
+				CMD_CTRL::BodyRollerQualified qualified_status_t = this->wait4ImgProcessResult();
 
 				//rooler is ok or bad
 				sendPlcRollerQualifiedEx(qualified_status_t);
@@ -429,34 +429,11 @@ void QtThreadPLC::emit_step_motor_stop(int _circle)
 *
 */
 /*-------------------------------------*/
-void QtThreadPLC::emit_roller_done_qualified(CMD_CTRL::BodyRollerQualified _qualified)
-{
-
-	CMD_CTRL::SJTS_MACHINE_STATUS sjts_status_t;
-
-	if (_qualified == CMD_CTRL::BodyRollerQualified::Qualified) {
-		sjts_status_t = CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneQualified;
-	}
-	else if(_qualified == CMD_CTRL::BodyRollerQualified::UnQualified) {
-		sjts_status_t = CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneUnqualified;
-	}
-	else
-	{
-		Q_ASSERT(0);
-	}
-	emit status_sjts(sjts_status_t);
-
-
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
 void QtThreadPLC::run_socket_work()
 {
 
-	m_socket->SetReadTimeOutMy(1000*60*2);//2 min
+	//m_socket->SetReadTimeOutMy(1000*60*2);//2 min
+	m_socket->SetReadTimeOutMy(UINT_MAX);//2 min
 
 	QSharedPointer<BE_1105_Driver>	 be_1105 = QSharedPointer<BE_1105_Driver>(new BE_1105_Driver(Q_NULLPTR));
 
@@ -554,6 +531,12 @@ int QtThreadPLC::Read_1_plc_cmd_process_hearbeat(QSharedPointer<CMD_CTRL> _cmd)
 /*-------------------------------------*/
 int QtThreadPLC::sendPlcRollerQualifiedEx(int _qualified)
 {
+
+#if 1
+	_qualified = CMD_CTRL::BodyRollerQualified::Qualified;
+	//全部设置为合格
+#endif
+
 	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
 	//rooler is ok or bad
 	m_socket->SendPlcRollerQualified(_qualified);
@@ -565,7 +548,7 @@ int QtThreadPLC::sendPlcRollerQualifiedEx(int _qualified)
 	else {
 
 	}
-
+	
 	this->emit_roller_done_qualified((CMD_CTRL::BodyRollerQualified)_qualified);
 
 	return TRUE;

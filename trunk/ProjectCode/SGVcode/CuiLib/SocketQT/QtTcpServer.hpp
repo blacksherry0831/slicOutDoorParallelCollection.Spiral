@@ -21,7 +21,7 @@ class QtTcpServer :public QtTcpServerClientSession
 	Q_OBJECT
 public:
 	explicit QtTcpServer(QObject *parent=nullptr);
-	 QtTcpServer(QObject *parent ,QSharedPointer<QtThreadSocketClient> _clientThread);
+	 QtTcpServer(QObject *parent ,QSharedPointer<QtThreadSocketClientCmdQ> _clientThread);
 
 	 ~QtTcpServer();	
 

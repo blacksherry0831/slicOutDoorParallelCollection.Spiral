@@ -48,8 +48,9 @@ public:
 	void setRectCutCmd(int _channel, CvRect _rect_cut);
 	void setModeChangeCmd(int _wm);
 	void setSigmaChangeCmd(int _sigma);
+	void setSigmaQueryCmd();
 public:
-	std::vector<unsigned char>	getRespCmd(CMD_TYPE_02_RESP _type);
+	std::vector<unsigned char>	getRespCmd(CMD_TYPE_02_RESP _type, int _param);
 	std::vector<unsigned char>	getRespPLCmd(CMD_TYPE_02_RESP _type);
 	std::vector<unsigned char>	getPLCLRIntoCmd(int _step);
 	std::vector<unsigned char>  getRollerQualifiedCmd(int _qualified);
@@ -59,6 +60,7 @@ public:
 	std::vector<unsigned char>  getRectCfgCmd(int _channel, CvRect _rect_cut);
 	std::vector<unsigned char>  getModeChangeCmd(int _wm);
 	std::vector<unsigned char>  getSigmaChangeCmd(int _sigma);
+	std::vector<unsigned char>  getSigmaQueryCmd();
 private:
 	std::vector<unsigned char>	getFpgaStartCmd(int _type, WorkMode _wm);
 	std::vector<unsigned char>  getLocalCmd(int _cmd00, int _cmd01=0x00);
@@ -68,7 +70,7 @@ public:
 public:
 	static void adjRect44(CvRect* rect);
 public:
-	
+	int getQualified();
 public:
 	void Parse(char* _data,int _size);
 public:
@@ -79,6 +81,8 @@ public:
 	int IsRoolerReady();
 	int IsRoolerReadyError();
 	int IsAbortStop();
+	int IsSigmaQueryCmd();
+	int IsSigmaChangeCmd();
 	/*-------------------------------------*/
 	int IsImgStart();
 	int IsImgEnd();
@@ -99,6 +103,7 @@ public:
 	int GetCmd00();
 	int GetCmd01();
 	int GetCmdParam();
+	int SetCmdParam(int _param);
 
 	
 };

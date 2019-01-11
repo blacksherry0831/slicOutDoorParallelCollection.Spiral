@@ -152,7 +152,7 @@ void MainWindow::img_stat_show_ex(int _p_stat, int _channel, int _frames, void* 
 		if (!cmd_ctrl_image[_channel].isNull()) {
 			
 			QSharedPointer<QImage> qimg = cmd_ctrl_image[_channel]->getQimage();
-
+			DrawUnqualified(cmd_ctrl_image[_channel]);
 			ShowImage(labelImage[_channel], qimg.data());
 
 		}
@@ -240,7 +240,7 @@ void MainWindow::init_menu()
 #if TRUE
 	connect(ui->actionShow_Cut_Area, SIGNAL(triggered()), this, SLOT(toggleShowCutArea()));
 	connect(ui->action_Show_Binary_Img, SIGNAL(triggered()), this, SLOT(toggleShowBinaryImg()));
-	connect(ui->action_Show_Classify_Thickly, SIGNAL(triggered()), this, SLOT(toggleShowClassifyThickly()));
+	connect(ui->action_Show_Classify_Thickly, SIGNAL(triggered(bool)), this, SLOT(toggleShowClassifyThickly(bool)));
 	connect(ui->action_img_collect, SIGNAL(triggered()), this, SLOT(toggleImgCollect()));
 #endif // TRUE
 
@@ -378,6 +378,36 @@ void MainWindow::connect_img_ch(int _connect,const QObject *receiver)
 		this->mImg8Process->ConnectAllImg2View(_connect, receiver);
 	}
 
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::DrawUnqualified(QSharedPointer<CMD_CTRL> _cmd)
+{
+
+	IplImage * img_t = _cmd->getIplimage();
+	const int Width = img_t->width;
+	const int Height = img_t->height;
+	const int Thickness = 3;
+	CvScalar Color=cvScalar(255,255,255);
+	
+
+
+	if (_cmd->IsImgFrame()) {
+	
+				if (_cmd->getQualified()==CMD_CTRL::BodyRollerQualified::UnQualified) {
+#if _DEBUG || 0
+					cvLine(img_t, cvPoint(0, 0), cvPoint(Width,Height),Color, Thickness);
+					cvLine(img_t, cvPoint(0, Height), cvPoint(Width,0),Color, Thickness);
+#endif
+				}
+
+	}
+
+
+	
 }
 /*-------------------------------------*/
 /**
@@ -575,6 +605,8 @@ void MainWindow::ComboBox_IpAddr_changed(const QString& _str)
 void MainWindow::Slider_img_sigma_change(int _sigma)
 {
 	mCtrlServer->SetImgSigmaCmd(_sigma);
+	this->mImgProc.Sigma = _sigma;
+	mImg8Process->SetAllImgSigma(_sigma);
 }
 /*-------------------------------------*/
 /**
@@ -852,7 +884,7 @@ void MainWindow::toggleShowBinaryImg()
 *
 */
 /*-------------------------------------*/
-void MainWindow::toggleShowClassifyThickly()
+void MainWindow::toggleShowClassifyThickly(bool _checked)
 {
 	bool ok;
 	double double_min = 0;
@@ -938,9 +970,12 @@ void MainWindow::StartVideoBasic(int mode)
 	mFlowServerServerLocal->startServer();
 	mFlowCtrlLocal->startServer();
 #endif
+	
+#if TRUE
+	while (mCtrlServer->isRunning() == false);
 
-
-
+	mCtrlServer->GetImgSigmaCmd();
+#endif
 
 }
 /*-------------------------------------*/
@@ -990,7 +1025,6 @@ void MainWindow::ClickButton_CutArea()
 void MainWindow::StartVideoModeSelected()
 {
 	
-
 	if (!this->IsBgThreadRunning())
 	{
 			this->CheckBox_img_mode_change();
@@ -1081,6 +1115,7 @@ void MainWindow::ConnectVideo()
 		
 	connect(mCtrlServer.data(), SIGNAL(socket_connect_state(int)), this, SLOT(CheckBox_fpga_ctrl(int)));
 	connect(mCtrlServer.data(), SIGNAL(thread_running_state(int)), this, SLOT(CheckBox_thread_status_fpga_ctrl(int)));
+	connect(mCtrlServer.data(), SIGNAL(SigmaChanged(int)), ui->horizontalSlider_sigma, SLOT(setValue(int)));
 
 	connect(mVideoDataServer.data(), SIGNAL(socket_connect_state(int)), this, SLOT(CheckBox_fpga_image_video(int)));
 	connect(mVideoDataServer.data(), SIGNAL(thread_running_state(int)), this, SLOT(CheckBox_thread_status_fpga_image_video(int)));

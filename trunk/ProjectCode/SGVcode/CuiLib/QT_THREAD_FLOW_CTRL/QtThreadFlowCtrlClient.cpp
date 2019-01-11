@@ -77,7 +77,7 @@ void QtThreadFlowCtrlClient::run_socket_work()
 				if (cmd_t->isHeartbeatCmd()) {
 					cmd_t.clear();
 				}else{
-					this->emit_work_flow_status_sjts(cmd_t);//emit work fflow
+					this->emit_work_flow_status_sjts(cmd_t);//emit work flow
 					
 					QtThreadClientCtrl::SetCmd(cmd_t);//set work flow 2 
 
@@ -85,15 +85,17 @@ void QtThreadFlowCtrlClient::run_socket_work()
 							
 							this->wait_4_inner_done();	
 							
-							int resp_t = CMD_CTRL::CMD_TYPE_02_RESP::CT_OK;
+							int resp_body_t = CMD_CTRL::BodyRollerQualified::UnQualified;
 
 							if (ChannelsData4Show::getInstance()->HaveCrack()) {
-								resp_t = CMD_CTRL::CMD_TYPE_02_RESP::CT_OK;
-							}else {
-								resp_t = CMD_CTRL::CMD_TYPE_02_RESP::CT_ERROR;
+								resp_body_t = CMD_CTRL::BodyRollerQualified::UnQualified;//спик╨ш
+								printf_event("HaveCrack", "CMD_CTRL::BodyRollerQualified::UnQualified");
+							}else {							
+								resp_body_t = CMD_CTRL::BodyRollerQualified::Qualified;//нчик╨ш
+								printf_event("HaveCrack", "CMD_CTRL::BodyRollerQualified::Qualified");
 							}
 
-							this->Send_1_cmd_resp((CMD_CTRL::CMD_TYPE_02_RESP)resp_t);
+							this->Send_1_cmd_resp(CMD_CTRL::CMD_TYPE_02_RESP::CT_OK,resp_body_t);
 					
 					}else {					
 							this->Send_1_cmd_resp(CMD_CTRL::CMD_TYPE_02_RESP::CT_OK);					

@@ -14,6 +14,7 @@ typedef struct {
 	int Frames;
 	int CurrentSerialNumber;
 	int IsSaveFrame;
+	int Sigma;
 }IMG_PROC;
 
 

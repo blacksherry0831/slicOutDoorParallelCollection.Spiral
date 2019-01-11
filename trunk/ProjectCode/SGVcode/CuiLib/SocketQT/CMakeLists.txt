@@ -41,9 +41,11 @@ ENDIF ()
 				
 				
 				CMD_CTRL.cpp
-				CMD_CTRL_Q.cpp				
-				
-				QtThreadSocketClient.cpp
+				CMD_CTRL_Q.cpp	
+
+				QtThreadSocketClient.cpp				
+				QtThreadSocketClientCmdQ.cpp
+
 				exCircleData.cpp
 				
 				ChannelsDataBase.cpp

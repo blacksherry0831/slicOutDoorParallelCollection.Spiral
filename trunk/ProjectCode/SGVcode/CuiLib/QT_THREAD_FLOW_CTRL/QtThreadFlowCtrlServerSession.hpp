@@ -14,7 +14,7 @@
 *
 */
 /*-------------------------------------*/
-#include "../SocketQT/QtThreadSocketClient.hpp"
+#include "../SocketQT/QtThreadSocketClientCmdQ.hpp"
 #include "../SocketQT/QtTcpClient.hpp"
 #include "../SocketQT/conf_ip.h"
 #include "SocketQT/CMD_CTRL_Q.hpp"
@@ -26,7 +26,7 @@
 *
 */
 /*-------------------------------------*/
-class QtThreadFlowCtrlServerSession :public QtThreadSocketClient
+class QtThreadFlowCtrlServerSession :public QtThreadSocketClientCmdQ
 {
 
 public:
@@ -42,7 +42,7 @@ private:
 public:
 	virtual void beforeSendMsg();
 	void init_work_flow(QSharedPointer<CMD_CTRL> _cmd);
-	void record_work_flow(QSharedPointer<CMD_CTRL> _cmd);
+	void record_work_flow(QSharedPointer<CMD_CTRL> _cmd, QSharedPointer<CMD_CTRL> _cmd_resp);
 protected: 
 	virtual void run();
 	void RecordCmd(QSharedPointer<CMD_CTRL> _cmd);

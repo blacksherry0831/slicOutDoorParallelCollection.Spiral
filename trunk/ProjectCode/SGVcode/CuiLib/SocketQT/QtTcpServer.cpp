@@ -23,7 +23,7 @@ QtTcpServer::QtTcpServer(QObject *parent) :QtTcpServerClientSession(parent)
 *
 */
 /*-------------------------------------*/
-QtTcpServer::QtTcpServer(QObject *parent, QSharedPointer<QtThreadSocketClient> _clientThread) :QtTcpServerClientSession(parent,_clientThread)
+QtTcpServer::QtTcpServer(QObject *parent, QSharedPointer<QtThreadSocketClientCmdQ> _clientThread) :QtTcpServerClientSession(parent,_clientThread)
 {
 	
 }
@@ -45,7 +45,7 @@ void QtTcpServer::incomingConnection(qintptr socketDescriptor)
 {
 	qDebug() << "New Connect is connect" << socketDescriptor;
 	
-	QSharedPointer<QtThreadSocketClient> client_thread;
+	QSharedPointer<QtThreadSocketClientCmdQ> client_thread;
 	
 	Q_ASSERT(FALSE);
 

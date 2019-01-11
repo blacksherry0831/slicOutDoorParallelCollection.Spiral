@@ -21,7 +21,7 @@ class QtTcpServerTest :public QtTcpServer
 public:
 	explicit QtTcpServerTest(QObject *parent);
 	explicit QtTcpServerTest(QObject *parent,int _serverPort);
-	explicit QtTcpServerTest(QObject *parent,QSharedPointer<QtThreadSocketClient> _clientThread);
+	explicit QtTcpServerTest(QObject *parent,QSharedPointer<QtThreadSocketClientCmdQ> _clientThread);
 	 ~QtTcpServerTest();
 	
 

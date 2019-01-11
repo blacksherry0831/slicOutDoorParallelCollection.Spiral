@@ -44,7 +44,6 @@ private:
 protected:
 	void emit_step_motor_start(int _circle);
 	void emit_step_motor_stop(int _circle);	
-	void emit_roller_done_qualified(CMD_CTRL::BodyRollerQualified _qualified);
 protected:
 	void print_undefined_cmd(QSharedPointer<CMD_CTRL> _cmd);
 	void print_cmd(QSharedPointer<CMD_CTRL> _cmd);

@@ -194,3 +194,17 @@ float QtThread8ImgProcess::GetClassifyThicklyThreshold()
 *
 */
 /*-------------------------------------*/
+void QtThread8ImgProcess::SetAllImgSigma(int _sigma)
+{
+
+	foreach(auto task_t, mTaskObj)
+	{
+		task_t->SetImgProcSigma(_sigma);
+	}
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/

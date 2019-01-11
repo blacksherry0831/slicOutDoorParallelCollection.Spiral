@@ -157,7 +157,10 @@ void QtImgProcess::processImgCmd()
 *
 */
 /*-------------------------------------*/
-
+void QtImgProcess::SetImgProcSigma(int _sigma)
+{
+	this->mImgProc.Sigma = _sigma;
+}
 /*-------------------------------------*/
 /**
 *
@@ -165,7 +168,7 @@ void QtImgProcess::processImgCmd()
 /*-------------------------------------*/
 void QtImgProcess::SetImgProcCutArea(int _param)
 {
-	this->mImgProc.ShowBinaryClassifyThickly = _param;
+	this->mImgProc.ShowCutArea = _param;
 }
 /*-------------------------------------*/
 /**

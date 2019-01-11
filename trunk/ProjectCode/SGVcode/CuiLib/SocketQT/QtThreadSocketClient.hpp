@@ -106,14 +106,8 @@ private:
 	int SendHearbeatCmd(int _need_resp);
 	int SendHeartBeatCmdReadResp();
 	void SendHearbeatResp(QSharedPointer<CMD_CTRL> _cmd);
-private:
-	CMD_CTRL_Q mCmdMsgQ;
 public:
 	virtual void beforeSendMsg();
-public:
-	void SetMsg(QSharedPointer<CMD_CTRL> _msg);
-	QSharedPointer<CMD_CTRL> GetMsg();
-	void ClearMsg();
 protected:
 	int mWorkFlowStart;
 	int mWorkFlowEnd;

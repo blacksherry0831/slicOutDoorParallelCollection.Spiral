@@ -23,7 +23,7 @@ QtTcpServerClientSession::QtTcpServerClientSession(QObject *parent) :QTcpServer(
 *
 */
 /*-------------------------------------*/
-QtTcpServerClientSession::QtTcpServerClientSession(QObject *parent, QSharedPointer<QtThreadSocketClient> _clientThread) :QTcpServer(parent)
+QtTcpServerClientSession::QtTcpServerClientSession(QObject *parent, QSharedPointer<QtThreadSocketClientCmdQ> _clientThread) :QTcpServer(parent)
 {
 	
 }
@@ -55,7 +55,7 @@ void QtTcpServerClientSession::RemoveDoneThread()
 {	
 	QMutexLocker locker(&m_clients_mutex);
 	
-	for (QList<QSharedPointer<QtThreadSocketClient>>::iterator item = m_clientThreads.begin(); item != m_clientThreads.end(); item++){
+	for (QList<QSharedPointer<QtThreadSocketClientCmdQ>>::iterator item = m_clientThreads.begin(); item != m_clientThreads.end(); item++){
 
 		if ((*item)->isFinished()) {
 
@@ -70,7 +70,7 @@ void QtTcpServerClientSession::RemoveDoneThread()
 *
 */
 /*-------------------------------------*/
-void QtTcpServerClientSession::SaveRunningThread(QSharedPointer<QtThreadSocketClient> _client)
+void QtTcpServerClientSession::SaveRunningThread(QSharedPointer<QtThreadSocketClientCmdQ> _client)
 {
 	QMutexLocker locker(&m_clients_mutex);
 	m_clientThreads.push_back(_client);
@@ -80,7 +80,7 @@ void QtTcpServerClientSession::SaveRunningThread(QSharedPointer<QtThreadSocketCl
 *
 */
 /*-------------------------------------*/
-void QtTcpServerClientSession::ProcessRunningThread(QSharedPointer<QtThreadSocketClient> _client)
+void QtTcpServerClientSession::ProcessRunningThread(QSharedPointer<QtThreadSocketClientCmdQ> _client)
 {
 	this->SaveRunningThread(_client);
 	this->RemoveDoneThread();
@@ -103,7 +103,7 @@ void  QtTcpServerClientSession::SendMsg2ClientSession(QSharedPointer<CMD_CTRL> _
 {
 	QMutexLocker locker(&m_clients_mutex);
 	
-	for (QList<QSharedPointer<QtThreadSocketClient>>::iterator item = m_clientThreads.begin();item != m_clientThreads.end();item++)
+	for (QList<QSharedPointer<QtThreadSocketClientCmdQ>>::iterator item = m_clientThreads.begin();item != m_clientThreads.end();item++)
 	{
 
 		if ((*item)->isRunning()) {
@@ -124,7 +124,7 @@ void QtTcpServerClientSession::BeforeSendMsg2ClientSession(QSharedPointer<CMD_CT
 {
 	QMutexLocker locker(&m_clients_mutex);
 
-	for (QList<QSharedPointer<QtThreadSocketClient>>::iterator item = m_clientThreads.begin(); item != m_clientThreads.end(); item++)
+	for (QList<QSharedPointer<QtThreadSocketClientCmdQ>>::iterator item = m_clientThreads.begin(); item != m_clientThreads.end(); item++)
 	{
 
 		if ((*item)->isRunning()) {
@@ -150,7 +150,7 @@ QVector<QString>  QtTcpServerClientSession::getRunningSessionIpAddr()
 
 	QVector<QString> list_t;
 	
-	for (QList<QSharedPointer<QtThreadSocketClient>>::iterator item = m_clientThreads.begin(); item != m_clientThreads.end(); item++)
+	for (QList<QSharedPointer<QtThreadSocketClientCmdQ>>::iterator item = m_clientThreads.begin(); item != m_clientThreads.end(); item++)
 	{
 
 		if ((*item)->isRunning()) {
@@ -177,7 +177,7 @@ void  QtTcpServerClientSession::StopRunningThread()
 
 
 
-	for (QList<QSharedPointer<QtThreadSocketClient>>::iterator item = m_clientThreads.begin(); item != m_clientThreads.end(); item++)
+	for (QList<QSharedPointer<QtThreadSocketClientCmdQ>>::iterator item = m_clientThreads.begin(); item != m_clientThreads.end(); item++)
 	{
 		QSharedPointer<QtThreadSocketClient>  thread_socket_session_t = (*item);
 		if (thread_socket_session_t->isRunning()) {
@@ -199,7 +199,7 @@ int QtTcpServerClientSession::IsWorkFlowDoneAllThread()
 
 	int work_flow_done = 0;
 
-	for (QList<QSharedPointer<QtThreadSocketClient>>::iterator item = m_clientThreads.begin(); item != m_clientThreads.end(); item++)
+	for (QList<QSharedPointer<QtThreadSocketClientCmdQ>>::iterator item = m_clientThreads.begin(); item != m_clientThreads.end(); item++)
 	{
 		QSharedPointer<QtThreadSocketClient>  thread_socket_session_t = (*item);
 		if (thread_socket_session_t->isRunning()) {
@@ -228,23 +228,23 @@ int QtTcpServerClientSession::WorkFlowDoneQuality()
 
 #if 1
 	if (m_clientThreads.size() == 0) {
-		return CMD_CTRL::CMD_TYPE_02_RESP::CT_ERROR;
+		return CMD_CTRL::BodyRollerQualified::UnQualified;
 	}
 #endif
 #if 1
-	for (QList<QSharedPointer<QtThreadSocketClient>>::iterator item = m_clientThreads.begin(); item != m_clientThreads.end(); item++)
+	for (auto item = m_clientThreads.begin(); item != m_clientThreads.end(); item++)
 	{
 			QSharedPointer<QtThreadSocketClient>  thread_socket_session_t = (*item);
 				if (thread_socket_session_t->isRunning()) {
 						const int work_done_result_t = thread_socket_session_t->getWorkFlowResult();
-							if (work_done_result_t == CMD_CTRL::CMD_TYPE_02_RESP::CT_ERROR){
-								return CMD_CTRL::CMD_TYPE_02_RESP::CT_ERROR;
+							if (work_done_result_t == CMD_CTRL::BodyRollerQualified::UnQualified){
+								return CMD_CTRL::BodyRollerQualified::UnQualified;
 							}
 				}
 
 	}
 #endif
-	return CMD_CTRL::CMD_TYPE_02_RESP::CT_OK;
+	return CMD_CTRL::BodyRollerQualified::Qualified;
 }
 /*-------------------------------------*/
 /**

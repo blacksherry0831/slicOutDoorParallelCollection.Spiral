@@ -53,43 +53,42 @@ QtThreadFlowCtrlLocal::~QtThreadFlowCtrlLocal(void)
 /*-------------------------------------*/
 void QtThreadFlowCtrlLocal::run()
 {
-	const int TIME_INTERVAL = 5000;
-	const int TIME_VIDEO = 20*1000;
+	const int TIME_INTERVAL = 2000;
+	const int TIME_VIDEO = 15*1000;
 	while (M_THREAD_RUN)
 	{
 		this->SleepMy(TIME_INTERVAL);
 		this->wait4WorkFlowStart();
 		
-		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady);
 		this->SleepMy(TIME_INTERVAL);
-
+		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady);
+		
 		{
+				this->SleepMy(TIME_INTERVAL);
 				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart00);
 				this->SleepMy(TIME_VIDEO);
 				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop00);
-				this->SleepMy(TIME_INTERVAL);
+				
 		}
 	
 		{
+				this->SleepMy(TIME_INTERVAL);
 				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart01);
 				do {
 					this->SleepMy(TIME_VIDEO); 
 				} while (M_THREAD_RUN && mBlock);
-				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop01);
 				this->SleepMy(TIME_INTERVAL);
+				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop01);
+				
 		}
 
 	
 		this->emit_roller_done();
 		
 
-		int qualified_status_t = this->wait4ImgProcessResult();
+		CMD_CTRL::BodyRollerQualified qualified_status_t = this->wait4ImgProcessResult();
 		
-		if (qualified_status_t)	{
-				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneQualified);
-		}else {
-				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneUnqualified);
-		}
+		this->emit_roller_done_qualified(qualified_status_t);
 	
 		this->SleepMy(TIME_INTERVAL);
 	}

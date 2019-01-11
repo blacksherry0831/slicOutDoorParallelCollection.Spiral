@@ -3,7 +3,7 @@
 #include "cpp_stl.h"
 
 
-#include "QtThreadSocketClient.hpp"
+#include "QtThreadSocketClientCmdQ.hpp"
 #include "QtTcpClient.hpp"
 /*-------------------------------------*/
 /**
@@ -11,7 +11,7 @@
 *
 */
 /*-------------------------------------*/
-class QtThreadClientCtrlTest :public QtThreadSocketClient
+class QtThreadClientCtrlTest :public QtThreadSocketClientCmdQ
 {
 
 public:

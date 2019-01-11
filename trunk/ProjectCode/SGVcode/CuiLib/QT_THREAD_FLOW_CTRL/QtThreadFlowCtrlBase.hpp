@@ -43,8 +43,9 @@ public:
 public:
 
 	int wait4WorkFlowStart();
-	int wait4ImgProcessResult();
-
+	CMD_CTRL::BodyRollerQualified wait4ImgProcessResult();
+	CMD_CTRL::SJTS_MACHINE_STATUS BodyRollerQualified_2_SJTS_MACHINE_STATUS(CMD_CTRL::BodyRollerQualified _qualified);
+	void emit_roller_done_qualified(CMD_CTRL::BodyRollerQualified _qualified);
 public:
 
 

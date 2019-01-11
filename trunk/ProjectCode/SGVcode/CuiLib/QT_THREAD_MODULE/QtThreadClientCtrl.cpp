@@ -98,7 +98,7 @@ int QtThreadClientCtrl::SendCmdCtrl()
 
 	if (cmds.IsValid()) {
 		
-		QSharedPointer<CMD_CTRL> cmd_ctrl_t=cmds.getCmd();
+		QSharedPointer<CMD_CTRL> cmd_ctrl_t=GetCmd();
 		
 		return	Send_1_cmd(cmd_ctrl_t);
 	
@@ -119,7 +119,7 @@ int QtThreadClientCtrl::ProcessCmds()
 	int result_t=INIT_MY;
 	if (cmds.IsValid()) {
 
-				QSharedPointer<CMD_CTRL> cmd_ctrl_t = cmds.getCmd();
+				QSharedPointer<CMD_CTRL> cmd_ctrl_t = GetCmd();
 		
 				if (cmd_ctrl_t->IsCmdRemote()) {
 					result_t =this->ProcessRemoteCmds(cmd_ctrl_t);
@@ -186,6 +186,28 @@ int QtThreadClientCtrl::ProcessLocalCmds(QSharedPointer<CMD_CTRL> cmd_ctrl_t)
 *
 */
 /*-------------------------------------*/
+void QtThreadClientCtrl::emit_cmd_resp(QSharedPointer<CMD_CTRL> _cmd_ctrl,QSharedPointer<CMD_CTRL> _cmd_resp)
+{
+
+	if (_cmd_ctrl->IsSigmaQueryCmd()) {
+
+		const int SIGMA = _cmd_resp->GetCmdParam();
+
+		emit SigmaChanged(SIGMA);
+	}
+	else if (_cmd_ctrl->IsSigmaChangeCmd()) {
+	
+	
+	}else{
+
+	}
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 int QtThreadClientCtrl::ProcessRemoteCmds(QSharedPointer<CMD_CTRL> cmd_ctrl_t)
 {
 	QSharedPointer<CMD_CTRL> cmd_resp_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
@@ -193,9 +215,15 @@ int QtThreadClientCtrl::ProcessRemoteCmds(QSharedPointer<CMD_CTRL> cmd_ctrl_t)
 	Q_ASSERT(cmd_ctrl_t->IsCmdRemote());
 
 	if (cmd_ctrl_t->IsCmdRemote()){
-		//cmd is remote cmd
-		 return this->send_and_read_cmd(cmd_ctrl_t, cmd_resp_t);
 
+		//cmd is remote cmd
+
+		 const int result=this->send_and_read_cmd(cmd_ctrl_t, cmd_resp_t);
+		 
+		 this->emit_cmd_resp(cmd_ctrl_t, cmd_resp_t);
+		 
+		 return result;
+		 
 	}
 	return INIT_MY;
 }
@@ -207,6 +235,17 @@ int QtThreadClientCtrl::ProcessRemoteCmds(QSharedPointer<CMD_CTRL> cmd_ctrl_t)
 void QtThreadClientCtrl::SetWorkMode(CMD_CTRL::WorkMode _wm)
 {
 	mWorkMode = _wm;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadClientCtrl::SetCmdWhenRunning(QSharedPointer<CMD_CTRL> _cmd)
+{
+	if (this->isRunning()) {
+		QtThreadClientCtrl::SetCmd(_cmd);
+	}
 }
 /*-------------------------------------*/
 /**
@@ -239,9 +278,23 @@ void QtThreadClientCtrl::SetImgSigmaCmd(int _sigma)
 
 	cmd_t->getSigmaChangeCmd(_sigma);
 
-	if (this->isRunning()) {
-		QtThreadClientCtrl::cmds.setCmd(cmd_t);
-	}
+	this->SetCmdWhenRunning(cmd_t);
+
+	
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadClientCtrl::GetImgSigmaCmd()
+{
+	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
+
+	cmd_t->getSigmaQueryCmd();
+
+	this->SetCmdWhenRunning(cmd_t);
+	
 }
 /*-------------------------------------*/
 /**
@@ -298,13 +351,13 @@ void QtThreadClientCtrl::SetLocalCmd(int cmd_00)
 
 	QSharedPointer<CMD_CTRL> cmd_t = CMD_CTRL::getLocalCmdEx(cmd_00);
 
-	QtThreadClientCtrl::cmds.setCmd(cmd_t);
-
-#if _DEBUG
+	SetCmd(cmd_t);
 	
-#endif // _DEBUG
+}
 
-	
+QSharedPointer<CMD_CTRL>  QtThreadClientCtrl::GetCmd()
+{
+	return cmds.getCmd();
 }
 /*-------------------------------------*/
 /**

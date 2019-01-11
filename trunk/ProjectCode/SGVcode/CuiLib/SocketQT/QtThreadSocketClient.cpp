@@ -420,33 +420,6 @@ void QtThreadSocketClient::beforeSendMsg()
 *
 */
 /*-------------------------------------*/
-void QtThreadSocketClient::SetMsg(QSharedPointer<CMD_CTRL> _msg)
-{
-	mCmdMsgQ.setCmd(_msg);
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-QSharedPointer<CMD_CTRL> QtThreadSocketClient::GetMsg()
-{
-	return mCmdMsgQ.getCmd();
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtThreadSocketClient::ClearMsg()
-{
-	mCmdMsgQ.clear();
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
 int  QtThreadSocketClient::Send_1_cmd(QSharedPointer<CMD_CTRL> _cmd)
 {
 	mSocketConnected = this->m_socket->Send_1_cmd(_cmd.data());
@@ -461,7 +434,7 @@ int QtThreadSocketClient::Send_1_cmd_resp(CMD_CTRL::CMD_TYPE_02_RESP _resp, int 
 {
 	QSharedPointer<CMD_CTRL> qsp_resp_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
 	
-	qsp_resp_t->getRespCmd(_resp);
+	qsp_resp_t->getRespCmd(_resp,_resp_value);
 
 	return Send_1_cmd(qsp_resp_t);
 }

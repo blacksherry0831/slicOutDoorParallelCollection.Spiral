@@ -154,7 +154,7 @@ public slots:
 	
 	void toggleShowCutArea();
 	void toggleShowBinaryImg();
-	void toggleShowClassifyThickly();
+	void toggleShowClassifyThickly(bool _checked);
 
 	void toggleImgCollect();
 

@@ -61,7 +61,7 @@ signals:
 	void img_stat_ex(int _p_stat, int _channel, int _frames,void* _data=Q_NULLPTR);
 
 public:
-
+	void SetImgProcSigma(int _sigma);
 	void SetImgProcCutArea(int _param);
 	void SetImgProcBinaryImg(int _param);
 	void SetImgProcBinaryClassifyThickly(int _param);

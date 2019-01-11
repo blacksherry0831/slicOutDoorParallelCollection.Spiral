@@ -7,6 +7,8 @@
 #endif
 
 #include "SocketQT/QtThreadSocketClient.hpp"
+#include "SocketQT/QtThreadSocketClientCmdQ.hpp"
+
 #include "SocketQT/QtTcpClient.hpp"
 #include "SocketQT/CMD_CTRL_Q.hpp"
 
@@ -17,7 +19,7 @@
 *
 */
 /*-------------------------------------*/
-class QtThreadClientCtrl :public QtThreadSocketClient
+class QtThreadClientCtrl :public QtThreadSocketClientCmdQ
 {
 	Q_OBJECT
 public:
@@ -37,7 +39,9 @@ private:
 	int mHeartBeatFreq;
 private:
 	static CMD_CTRL_Q cmds;
+	static QSharedPointer<CMD_CTRL> GetCmd();
 public:
+	void SetCmdWhenRunning(QSharedPointer<CMD_CTRL> _cmd);
 	static void SetCmd(QSharedPointer<CMD_CTRL> _cmd);
 	static void SetLocalCmd(int cmd_00);
 	static void ClearCmd();
@@ -58,11 +62,17 @@ public:
 	void SetWorkModeCmd(CMD_CTRL::WorkMode _wm);
 	
 	void SetImgSigmaCmd(int _sigma);
+	void GetImgSigmaCmd();
 
 	int SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C _start_stop);
 	
+	void emit_cmd_resp(QSharedPointer<CMD_CTRL> _cmd_ctrl, QSharedPointer<CMD_CTRL> _cmd_resp);
 public slots:
-	
+
+signals:
+	   void SigmaChanged(int);
+
+
 protected:
 
 #if _DEBUG

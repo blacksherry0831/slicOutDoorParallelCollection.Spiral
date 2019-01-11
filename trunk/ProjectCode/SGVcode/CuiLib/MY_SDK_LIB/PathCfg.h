@@ -14,5 +14,6 @@ public:
 	const static std::string	PrefixChannel;
 	const static std::string	PrefixTime;
 	const static std::string    PrefixFrame;
+	const static std::string	PrefixSigma;
 };
 

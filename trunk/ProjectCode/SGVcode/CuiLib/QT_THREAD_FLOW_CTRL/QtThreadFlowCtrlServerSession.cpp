@@ -5,7 +5,7 @@
 *
 */
 /*-------------------------------------*/
-QtThreadFlowCtrlServerSession::QtThreadFlowCtrlServerSession(qintptr _socket):QtThreadSocketClient(_socket)
+QtThreadFlowCtrlServerSession::QtThreadFlowCtrlServerSession(qintptr _socket):QtThreadSocketClientCmdQ(_socket)
 {
 	mWorkFlowStart=FALSE;
 	mWorkFlowEnd=FALSE;
@@ -90,7 +90,7 @@ void QtThreadFlowCtrlServerSession::run_socket_work()
 			tm.stop();
 		}
 #endif
-		this->record_work_flow(cmd_t);
+		this->record_work_flow(cmd_t,cmd_resp_t);
 
 	}
 
@@ -150,7 +150,7 @@ void QtThreadFlowCtrlServerSession::init_work_flow(QSharedPointer<CMD_CTRL> _cmd
 *
 */
 /*-------------------------------------*/
-void QtThreadFlowCtrlServerSession::record_work_flow(QSharedPointer<CMD_CTRL> _cmd)
+void QtThreadFlowCtrlServerSession::record_work_flow(QSharedPointer<CMD_CTRL> _cmd, QSharedPointer<CMD_CTRL> _cmd_resp)
 {
 #if _DEBUG
 	mWorkFlowStep++;
@@ -186,10 +186,9 @@ void QtThreadFlowCtrlServerSession::record_work_flow(QSharedPointer<CMD_CTRL> _c
 		if (mWorkFlowStart) {
 				Q_ASSERT(mWorkFlowStep==5);
 				mWorkFlowEnd = TRUE;
-				mWorkFlowResult = _cmd->GetCmd01();//CMD_CTRL::CMD_TYPE_02_RESP::CT_OK; CMD_CTRL::CMD_TYPE_02_RESP::CT_ERROR
+				mWorkFlowResult = _cmd_resp->GetCmdParam();
 				emit_client_session_work_state(this->mPort, TRUE, mWorkFlowResult);
 		}
-
 		QBase::printf_event("WORK FLOW SESSION", "CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP");
 
 	}else {
@@ -208,7 +207,7 @@ void QtThreadFlowCtrlServerSession::record_work_flow(QSharedPointer<CMD_CTRL> _c
 /*-------------------------------------*/
 void QtThreadFlowCtrlServerSession::emit_client_session_work_state(int _port, int _done, int _quality)
 {
-	Q_ASSERT(_quality == CMD_CTRL::CMD_TYPE_02_RESP::CT_OK || _quality == CMD_CTRL::CMD_TYPE_02_RESP::CT_ERROR);
+	Q_ASSERT(_quality == CMD_CTRL::BodyRollerQualified::Qualified || _quality == CMD_CTRL::BodyRollerQualified::UnQualified);
 	emit client_session_work_state(_port,_done, _quality);
 }
 /*-------------------------------------*/

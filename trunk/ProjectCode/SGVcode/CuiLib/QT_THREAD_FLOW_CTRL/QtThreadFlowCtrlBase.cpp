@@ -51,7 +51,17 @@ void QtThreadFlowCtrlBase::setWorkFlowDones(int _work_flow,int _result)
 #if _DEBUG
 
 	if (this->mWorkFlowDoneClientThreads) {
-		printf_event("WORK FLOW","mWorkFlowDones==TRUE");
+		
+				printf_event("WORK FLOW","mWorkFlowDones==TRUE");
+
+				if (this->mWorkFlowDoneClientThreadsResult == CMD_CTRL::BodyRollerQualified::Qualified) {
+					printf_event("WORK FLOW RESULT", "==Qualified");
+				}
+				else
+				{
+					printf_event("WORK FLOW RESULT", "==Unqualified");
+				}
+
 	}
 
 #endif // _DEBUG
@@ -109,7 +119,7 @@ int QtThreadFlowCtrlBase::getClientSessionCount()
 *
 */
 /*-------------------------------------*/
-int QtThreadFlowCtrlBase::wait4ImgProcessResult()
+CMD_CTRL::BodyRollerQualified QtThreadFlowCtrlBase::wait4ImgProcessResult()
 {
 	CMD_CTRL::BodyRollerQualified qualified_t = CMD_CTRL::BodyRollerQualified::Qualified;
 	int WAIT_TIME_MS=15*1000;
@@ -170,20 +180,47 @@ int QtThreadFlowCtrlBase::getWorkFLowResult()
 /*-------------------------------------*/
 CMD_CTRL::BodyRollerQualified QtThreadFlowCtrlBase::getWorkFLowQualified()
 {
-	CMD_CTRL::BodyRollerQualified  qualified_t = CMD_CTRL::BodyRollerQualified::UnQualified;
-	
-	if (this->getWorkFLowResult() == CMD_CTRL::CMD_TYPE_02_RESP::CT_OK) {
+	CMD_CTRL::BodyRollerQualified  qualified_t =(CMD_CTRL::BodyRollerQualified) this->getWorkFLowResult();
 		
-		qualified_t = CMD_CTRL::BodyRollerQualified::Qualified;
-	
-	}else if (this->getWorkFLowResult() == CMD_CTRL::CMD_TYPE_02_RESP::CT_ERROR) {
-	
-		qualified_t = CMD_CTRL::BodyRollerQualified::UnQualified;
-	
-	}else {
-		Q_ASSERT(FALSE);
-	}
+	Q_ASSERT(qualified_t== CMD_CTRL::BodyRollerQualified::Qualified || qualified_t == CMD_CTRL::BodyRollerQualified::UnQualified);
+		
 	return qualified_t;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+CMD_CTRL::SJTS_MACHINE_STATUS QtThreadFlowCtrlBase::BodyRollerQualified_2_SJTS_MACHINE_STATUS(CMD_CTRL::BodyRollerQualified _qualified)
+{
+
+	CMD_CTRL::SJTS_MACHINE_STATUS sjts_status_t;
+
+	if (_qualified == CMD_CTRL::BodyRollerQualified::Qualified) {
+		sjts_status_t = CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneQualified;
+	}
+	else if (_qualified == CMD_CTRL::BodyRollerQualified::UnQualified) {
+		sjts_status_t = CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneUnqualified;
+	}
+	else
+	{
+		Q_ASSERT(0);
+	}
+	return sjts_status_t;
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void  QtThreadFlowCtrlBase::emit_roller_done_qualified(CMD_CTRL::BodyRollerQualified _qualified)
+{
+
+	CMD_CTRL::SJTS_MACHINE_STATUS sjts_status_t = this->BodyRollerQualified_2_SJTS_MACHINE_STATUS(_qualified);
+	
+	emit status_sjts(sjts_status_t);
+	
 }
 /*-------------------------------------*/
 /**

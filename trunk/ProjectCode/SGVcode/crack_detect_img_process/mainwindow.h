@@ -145,6 +145,7 @@ public:
 	void SetFpgaArmLinuxIpAddr(QString _str);
 
 public:
+	static void DrawUnqualified(QSharedPointer<CMD_CTRL> _cmd);
 	static void ShowImage(QLabel* _qlab, QImage *_p_qimg);
 	static void ShowImageFast(QLabel* _qlab, QImage* const _p_qimg);
 public:
@@ -211,7 +212,7 @@ public slots:
 
 	void toggleShowCutArea();
 	void toggleShowBinaryImg();
-	void toggleShowClassifyThickly();
+	void toggleShowClassifyThickly(bool _checked);
 	void toggleImgCollect();
 	void toggleBlockStep02(bool _block);
 #endif // TRUE

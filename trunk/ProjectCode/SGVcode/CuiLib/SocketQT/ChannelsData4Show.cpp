@@ -170,7 +170,6 @@ int ChannelsData4Show::HaveCrack()
 				return TRUE;
 			}
 		}
-
 	}
 
 	return FALSE;

@@ -224,7 +224,7 @@ int exCircleData::IsCrack()
 	const int START = TOTAL*BLANK;
 	const int END = TOTAL*(1-BLANK);
 
-	for (int i = START; END; i++){
+	for (int i = START;i< END; i++){
 
 			int reslut_classify_t = mResult.at(i);
 			if (reslut_classify_t == 1) {

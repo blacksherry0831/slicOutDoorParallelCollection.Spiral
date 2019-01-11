@@ -16,6 +16,7 @@
 CMD_CTRL::CMD_CTRL()
 {
 	mFeature = -1;
+	memset(&mImgProc, 0, sizeof(IMG_PROC));
 }
 /*-------------------------------------*/
 /**
@@ -161,6 +162,16 @@ void CMD_CTRL::setSigmaChangeCmd(int _sigma)
 *
 */
 /*-------------------------------------*/
+void CMD_CTRL::setSigmaQueryCmd()
+{
+	f_header.f_cmd[0] = CMD_TYPE::CT_QUERY;
+	f_header.f_cmd[1] = CMD_TYPE_02_I::CT_IMG_SIGMA_CHANGE;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 
 /*-------------------------------------*/
 /**
@@ -203,10 +214,17 @@ int CMD_CTRL::IsConvertDoneCmd()
 /*-------------------------------------*/
 int CMD_CTRL::IsResp()
 {
-	if (this->f_header.f_cmd[0] == 'r' && this->f_header.f_cmd[1] == 0x00) {
-		return TRUE;
+
+	if (this->f_header.f_cmd[0] == CMD_TYPE::CT_RESP  ) {
+
+			Q_ASSERT(this->f_header.f_cmd[1] == CMD_TYPE_02_RESP::CT_OK || this->f_header.f_cmd[1] == CMD_TYPE_02_RESP::CT_ERROR || this->f_header.f_cmd[1] == CMD_TYPE_02_RESP::CT_NONE);
+			
+			return TRUE;
+
 	}	
+
 	return FALSE;
+
 }
 /*-------------------------------------*/
 /**
@@ -305,6 +323,43 @@ int CMD_CTRL::IsAbortStop()
 
 	return FALSE;
 
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int CMD_CTRL::IsSigmaQueryCmd()
+{
+	if  (CMD_TYPE::CT_QUERY==f_header.f_cmd[0]) {
+			
+			if (CMD_TYPE_02_I::CT_IMG_SIGMA_CHANGE==f_header.f_cmd[1]) {
+		
+				return TRUE;
+			}
+	
+	}
+
+	return FALSE;
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int CMD_CTRL::IsSigmaChangeCmd()
+{
+	if (CMD_TYPE::CT_IMG == f_header.f_cmd[0]) {
+
+		if (CMD_TYPE_02_I::CT_IMG_SIGMA_CHANGE == f_header.f_cmd[1]) {
+
+			return TRUE;
+		}
+
+	}
+
+	return FALSE;
 }
 /*-------------------------------------*/
 /**
@@ -591,12 +646,27 @@ int CMD_CTRL::GetCmdParam()
 *
 */
 /*-------------------------------------*/
-std::vector<unsigned char> CMD_CTRL::getRespCmd(CMD_TYPE_02_RESP _type)
+int CMD_CTRL::SetCmdParam(int _param)
+{
+	Q_ASSERT(this->f_data.size() >= 2);
+	 
+	 this->f_data[0]=_param%256;
+	 this->f_data[1]=_param/256;
+	
+	 return _param;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+std::vector<unsigned char> CMD_CTRL::getRespCmd(CMD_TYPE_02_RESP _type,int _param)
 {
 	this->setRespCmd(_type, WorkMode::RESP);
 	this->initHeader();
 	this->initpc2pc();
 	this->SetDataSize();
+	this->SetCmdParam(_param);
 	this->initCRC();
 	return this->Data();
 }
@@ -750,6 +820,19 @@ std::vector<unsigned char> CMD_CTRL::getSigmaChangeCmd(int _sigma)
 *
 */
 /*-------------------------------------*/
+std::vector<unsigned char> CMD_CTRL::getSigmaQueryCmd()
+{
+	this->setSigmaQueryCmd();
+	this->initHeader();
+	this->initPc2Arm();
+
+	return this->Data();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void CMD_CTRL::adjRect44(CvRect * rect)
 {
 	while (rect->x%4!=0) rect->x++;
@@ -757,13 +840,28 @@ void CMD_CTRL::adjRect44(CvRect * rect)
 	while (rect->width % 4 != 0) rect->width--;	
 
 }
-
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
+int CMD_CTRL::getQualified()
+{
+	float THRESHOLD =this->mImgProc.ThresholdClassifyThickly;
+	float FEATURE =this->mFeature;
+	int CLASSIFY = BodyRollerQualified::Qualified;
+	
+	if (this->IsImgFrame()) {
 
+		if (FEATURE >= 0 - 1E-6) {
+			CLASSIFY = FEATURE < THRESHOLD ? BodyRollerQualified::Qualified : BodyRollerQualified::UnQualified;//0== Q 1==unQ
+			
+		}
+
+	}
+
+	return CLASSIFY;
+}
 /*-------------------------------------*/
 /**
 *

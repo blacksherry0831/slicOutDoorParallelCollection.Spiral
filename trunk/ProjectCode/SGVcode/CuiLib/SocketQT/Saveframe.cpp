@@ -310,6 +310,7 @@ std::string  Saveframe::initFileName()
 		.append(PathCfg::PrefixTime).append(this->mCmd->mCurrentCircleTime).append(".")
 		.append(PathCfg::PrefixChannel).append(Base::int2str(this->mChannel)).append(".")
 		.append(PathCfg::PrefixFrame).append(Base::int2str(this->mFrameCount)).append(".")
+		.append(PathCfg::PrefixSigma).append(Base::int2str(this->mCmd->mImgProc.Sigma)).append(".")
 		.append("png");
 
 	return mImageName;

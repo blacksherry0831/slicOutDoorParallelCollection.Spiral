@@ -197,7 +197,7 @@ void MainWindow::init_menu()
 #if TRUE
 	connect(ui->actionShow_Cut_Area, SIGNAL(triggered()), this, SLOT(toggleShowCutArea()));
 	connect(ui->action_Show_Binary_Img, SIGNAL(triggered()), this, SLOT(toggleShowBinaryImg()));
-	connect(ui->action_Show_Classify_Thickly, SIGNAL(triggered()), this, SLOT(toggleShowClassifyThickly()));
+	connect(ui->action_Show_Classify_Thickly, SIGNAL(triggered(bool)), this, SLOT(toggleShowClassifyThickly(bool)));
 	connect(ui->action_img_collect, SIGNAL(triggered()), this, SLOT(toggleImgCollect()));
 #endif // TRUE
 
@@ -714,7 +714,7 @@ void MainWindow::toggleShowBinaryImg()
 *
 */
 /*-------------------------------------*/
-void MainWindow::toggleShowClassifyThickly()
+void MainWindow::toggleShowClassifyThickly(bool _checked)
 {
 
 	if (ui->action_Show_Classify_Thickly->isChecked()) {

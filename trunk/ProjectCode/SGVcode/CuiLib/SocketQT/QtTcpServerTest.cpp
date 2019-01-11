@@ -26,7 +26,7 @@ QtTcpServerTest::QtTcpServerTest(QObject *parent, int _serverPort) :QtTcpServer(
 *
 */
 /*-------------------------------------*/
-QtTcpServerTest::QtTcpServerTest(QObject *parent, QSharedPointer<QtThreadSocketClient> _clientThread) :QtTcpServer(parent, _clientThread)
+QtTcpServerTest::QtTcpServerTest(QObject *parent, QSharedPointer<QtThreadSocketClientCmdQ> _clientThread) :QtTcpServer(parent, _clientThread)
 {
 	
 }
@@ -50,7 +50,7 @@ void QtTcpServerTest::incomingConnection(qintptr socketDescriptor)
 
 	qDebug() << "New Connect is connect" << socketDescriptor;
 	
-	QSharedPointer<QtThreadSocketClient> client_thread=QSharedPointer<QtThreadSocketClient>(new QtThreadClientCtrlTest(socketDescriptor));
+	auto client_thread=QSharedPointer<QtThreadSocketClientCmdQ>(new QtThreadClientCtrlTest(socketDescriptor));
 
 	client_thread->start();
 		

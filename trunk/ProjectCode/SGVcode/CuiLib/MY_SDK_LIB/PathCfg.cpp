@@ -44,6 +44,8 @@ const std::string  PathCfg::PrefixTime="time";
 /*-----------------------------------------*/
 const std::string  PathCfg::PrefixFrame="frame";
 /*-----------------------------------------*/
+const std::string  PathCfg::PrefixSigma = "sigma";
+/*-----------------------------------------*/
 /**
 *
 *
