@@ -147,32 +147,32 @@ int QtThreadClientCtrl::ProcessLocalCmds(QSharedPointer<CMD_CTRL> cmd_ctrl_t)
 {
 	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
 	int	cmd_status_t =INIT_MY;
-
+	const uint seq_t = cmd_ctrl_t->GetCmdFrameSeq();
 	if (cmd_ctrl_t->IsCmdLocal()){
 		
 					if (cmd_ctrl_t->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START)){
 
-						cmd_status_t = SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C::CT_START);
+						cmd_status_t = SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C::CT_START, seq_t);
 
 					}else if (cmd_ctrl_t->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_00)) {
 					
-						cmd_status_t = SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C::CT_START_00);
+						cmd_status_t = SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C::CT_START_00, seq_t);
 
 					}else if (cmd_ctrl_t->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00)) {
 					
-						cmd_status_t = SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C::CT_STOP_00);
+						cmd_status_t = SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C::CT_STOP_00, seq_t);
 
 					}else if (cmd_ctrl_t->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01)) {
 
-						cmd_status_t = SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C::CT_START_01);
+						cmd_status_t = SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C::CT_START_01, seq_t);
 					
 					}else if (cmd_ctrl_t->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01)) {
 
-						cmd_status_t = SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C::CT_STOP_01);
+						cmd_status_t = SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C::CT_STOP_01, seq_t);
 					
 					}else if (cmd_ctrl_t->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP)) {
 						
-						cmd_status_t = SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C::CT_STOP);
+						cmd_status_t = SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C::CT_STOP,seq_t);
 
 					}else {
 				
@@ -301,10 +301,10 @@ void QtThreadClientCtrl::GetImgSigmaCmd()
 *
 */
 /*-------------------------------------*/
-int QtThreadClientCtrl::SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C _start_stop)
+int QtThreadClientCtrl::SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C _start_stop,uint _circle_seq)
 {
 	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
-	QSharedPointer<CMD_CTRL> qsp_cc_t = CMD_CTRL::getFpgaStartCmdEx(_start_stop, mWorkMode);
+	QSharedPointer<CMD_CTRL> qsp_cc_t = CMD_CTRL::getFpgaStartCmdEx(_start_stop, mWorkMode,_circle_seq);
 
 	if (_start_stop){
 		this->emit_status_message(mStatusMessage = QString("CMD>> Send Start cmd"));		

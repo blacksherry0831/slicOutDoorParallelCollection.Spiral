@@ -55,10 +55,10 @@ QtTcpClient::~QtTcpClient(void)
 *
 */
 /*-------------------------------------*/
-int QtTcpClient::Send_Start_CMD(CMD_CTRL::CMD_TYPE_02_C _type_c, CMD_CTRL::WorkMode _wm)
+int QtTcpClient::Send_Start_CMD(CMD_CTRL::CMD_TYPE_02_C _type_c, CMD_CTRL::WorkMode _wm,uint _circle_seq)
 {
 	
-	QSharedPointer<CMD_CTRL> qsp_cc_t = CMD_CTRL::getFpgaStartCmdEx(_type_c, _wm);
+	QSharedPointer<CMD_CTRL> qsp_cc_t = CMD_CTRL::getFpgaStartCmdEx(_type_c, _wm,_circle_seq);
 	
 	return this->Send_1_cmd(qsp_cc_t.data()  );
 

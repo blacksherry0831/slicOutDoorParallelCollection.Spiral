@@ -424,7 +424,7 @@ QVector<QString> QtThreadClientLifeCycle::LoadStringMy(QString _path)
 /*-------------------------------------*/
 bool QtThreadClientLifeCycle::SaveSerialNumber(QString _ip, QString _str)
 {
-	std::string time_std_str_t=QBase::SYS_getCurrentTime("yyyyMMddhhmmssdd");
+	std::string time_std_str_t=QBase::SYS_getCurrentTime("yyyyMMddhhmmss");
 
 	QString filefullpath_t = _ip.append(".")
 							.append(time_std_str_t.c_str()).append(".")

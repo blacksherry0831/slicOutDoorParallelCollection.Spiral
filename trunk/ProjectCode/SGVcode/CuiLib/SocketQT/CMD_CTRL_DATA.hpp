@@ -153,6 +153,7 @@ protected:
 	void initpc2plcLR();
 	void initpc2pc();
 	void initCRC();
+
 public:
 	void SetDataSize(const int _body_size = 2);
 public:
@@ -168,7 +169,10 @@ public:
 	static QSharedPointer<QImage> IplImageToQImage(IplImage * const img);
 
 	void initHearbeatCmd(int _need_resp);
-
+	void SetCmdFrameSeq(uint _cmd_idx);
+	QString GetCmdFrameSeqStr();
+public:
+	uint GetCmdFrameSeq();
 public:
 	IplImageU* getIplimageU();
 	QSharedPointer<QImage> getQimage();

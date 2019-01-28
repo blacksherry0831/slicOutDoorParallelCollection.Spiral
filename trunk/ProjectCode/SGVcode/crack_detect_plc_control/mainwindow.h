@@ -40,8 +40,8 @@ private:
 	void update_work_flow_status_ex(QtThreadFlowCtrlBase* _work_flow,
 									QtThreadFlowCtrlServer* _Server);
 
-	void tcpSvrNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c);
-	void tcpSvrBeforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c);
+	void tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL _type_c, int _cmd_idx = 0);
+	void tcpSvrBeforeNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL _type_c, QString _msg="");
 
 private:
 	void init_connect();
@@ -54,7 +54,7 @@ private:
 	
 	void check_box_clr();
 public slots:
-	   void sjts_status(int _sjts_status_int);
+	   void sjts_status(int _sjts_status_int, QString _msg);
 	   void update_link_status();
 	   void update_work_flow_status();
 	   void socket_connect_state_Auto_equipment(int _status);

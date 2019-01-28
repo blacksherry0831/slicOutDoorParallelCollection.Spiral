@@ -194,22 +194,14 @@ void QtThread8Video::emit_img_signals(QSharedPointer<CMD_CTRL> cmd_t)
 /*-------------------------------------*/
 void  QtThread8Video::set_record_time(QSharedPointer<CMD_CTRL> _cmd)
 {
-	
-
+#if _DEBUG
+	const uint seq = _cmd->GetCmdFrameSeq();
+#endif
 	if (_cmd->IsImgStart()) {
 
-		if (mTimeCurrent.empty())
-		{
-			_cmd->mCurrentCircleTime=mTimeCurrent = QBase::SYS_getCurrentTime("yyyyMMddhhmmssdd");
-		}
-		else
-		{
-			_cmd->mCurrentCircleTime = mTimeCurrent;
-		}
+		mTimeCurrent = _cmd->mCurrentCircleTime;
 
-
-	}
-	else if (_cmd->IsImgEnd()) {
+	}else if (_cmd->IsImgEnd()) {
 
 		mTimeCurrent.clear();
 

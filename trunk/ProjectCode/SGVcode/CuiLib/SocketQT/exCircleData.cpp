@@ -219,7 +219,7 @@ int exCircleData::IsCrack()
 {
 	int pos_count = 0;
 	int neg_count = 0;
-	float  BLANK = 0.1;
+	double  BLANK = 0.1;
 	const int TOTAL = mResult.size();
 	const int START = TOTAL*BLANK;
 	const int END = TOTAL*(1-BLANK);

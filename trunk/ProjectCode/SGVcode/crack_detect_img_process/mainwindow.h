@@ -164,8 +164,8 @@ public slots:
 		void stopVideoBasicForce();
 		void ConnectVideo();
 
-		void NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c);
-		void beforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c);
+		void NotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL _type_c, int _cmd_idx=0);
+		void beforeNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL _type_c, QString _msg="");
 
 #if TRUE
 		void img_stat_show_ex(int  _p_stat, int _channel, int _frames, void* _data);
@@ -229,8 +229,8 @@ public slots:
 	
 	void statusBarshowMessage(QString _msg);
 
-	void sjts_status(const int _sjts_status_int);
-	void sjts_fpga_work_flow_status_rcv(const int _arm_linux_fpga_work_flow_int);
+	void sjts_status(const int _sjts_status_int, QString _msg);
+	void sjts_fpga_work_flow_status_rcv(const int _arm_linux_fpga_work_flow_int, QString _seq);
 
 };
 

@@ -12,7 +12,7 @@
 *
 */
 /*-------------------------------------*/
-QtThreadFlowCtrlClient::QtThreadFlowCtrlClient():QtThreadSocketClient()
+QtThreadFlowCtrlClient::QtThreadFlowCtrlClient():QtThreadSocketClientSig()
 {
 	
 #if 1
@@ -117,9 +117,9 @@ void QtThreadFlowCtrlClient::run_socket_work()
 /*-------------------------------------*/
 int QtThreadFlowCtrlClient::emit_work_flow_status_sjts(QSharedPointer<CMD_CTRL> _cmd)
 {
-	int sig_t = _cmd->GetCmd00();
-	
-	emit status_sjts(sig_t);
+	const int sig_t = _cmd->GetCmd00();
+	const QString seq_t = _cmd->GetCmdFrameSeqStr();
+	emit status_sjts(sig_t,seq_t);
 
 
 	if (_cmd->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START)) {

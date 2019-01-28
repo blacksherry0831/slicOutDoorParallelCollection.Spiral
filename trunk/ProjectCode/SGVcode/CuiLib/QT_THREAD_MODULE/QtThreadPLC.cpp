@@ -332,12 +332,12 @@ void  QtThreadPLC::init_serial_port(QSharedPointer<BE_1105_Driver>	 _be_1105)
 
 		if (_be_1105->init() == TRUE) {
 			
-			emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortIsOpen);
+			emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortIsOpen,"");
 			break;
 			
 		}else{
 			this->SleepMy(1000);
-			emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortError);
+			emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortError,"");
 		}
 
 	} while (_be_1105->init() == FALSE && M_THREAD_RUN);
@@ -395,11 +395,11 @@ int QtThreadPLC::stepMotorRun(QSharedPointer<BE_1105_Driver>	 _be_1105)
 void QtThreadPLC::emit_step_motor_start(int _circle)
 {
 	if (_circle==0){
-		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart00);
+		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart00,"");
 	}
 	else if (_circle==1)
 	{
-		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart01);
+		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart01,"");
 	}else
 	{
 		Q_ASSERT(FALSE);
@@ -413,11 +413,11 @@ void QtThreadPLC::emit_step_motor_start(int _circle)
 void QtThreadPLC::emit_step_motor_stop(int _circle)
 {
 	if (_circle == 0) {
-		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop00);
+		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop00,"");
 	}
 	else if (_circle == 1)
 	{
-		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop01);
+		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop01,"");
 	}
 	else
 	{
@@ -504,7 +504,7 @@ void QtThreadPLC::print_socket_connected()
 int QtThreadPLC::sendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP _type)
 {
 	int result_t=m_socket->SendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP::CT_OK);
-	emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady);
+	emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady,CircleSeq());
 	return result_t;
 }
 /*-------------------------------------*/

@@ -64,7 +64,7 @@ public:
 	void SetImgSigmaCmd(int _sigma);
 	void GetImgSigmaCmd();
 
-	int SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C _start_stop);
+	int SendCmd2FPGA(CMD_CTRL::CMD_TYPE_02_C _start_stop, uint _circle_seq);
 	
 	void emit_cmd_resp(QSharedPointer<CMD_CTRL> _cmd_ctrl, QSharedPointer<CMD_CTRL> _cmd_resp);
 public slots:

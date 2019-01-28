@@ -13,7 +13,7 @@
 *
 */
 /*-------------------------------------*/
-QtThreadFlowCtrlBase::QtThreadFlowCtrlBase(QObject *parent): QtThreadSocketClient(parent)
+QtThreadFlowCtrlBase::QtThreadFlowCtrlBase(QObject *parent):QtThreadSocketClientSig(parent)
 {
 
 
@@ -162,7 +162,7 @@ void QtThreadFlowCtrlBase::emit_roller_done()
 {
 	this->setWorkFlowDones(0,CMD_CTRL::CMD_TYPE_02_RESP::CT_ERROR);
 
-	emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RollerDone);
+	emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RollerDone,"");
 }
 /*-------------------------------------*/
 /**
@@ -219,8 +219,19 @@ void  QtThreadFlowCtrlBase::emit_roller_done_qualified(CMD_CTRL::BodyRollerQuali
 
 	CMD_CTRL::SJTS_MACHINE_STATUS sjts_status_t = this->BodyRollerQualified_2_SJTS_MACHINE_STATUS(_qualified);
 	
-	emit status_sjts(sjts_status_t);
+	emit status_sjts(sjts_status_t,"");
 	
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+QString  QtThreadFlowCtrlBase::CircleSeq()
+{
+	const uint time_t = QDateTime::currentDateTime().toTime_t();
+		
+	return QString::number(time_t);
 }
 /*-------------------------------------*/
 /**

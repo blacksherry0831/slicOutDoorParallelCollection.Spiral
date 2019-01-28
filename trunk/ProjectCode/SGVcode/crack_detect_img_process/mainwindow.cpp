@@ -1138,9 +1138,9 @@ void MainWindow::ConnectVideo()
 #endif
 
 	this->connect(mFlowCtrlClient.data(),
-		SIGNAL(status_sjts(int)),
+		SIGNAL(status_sjts(int,QString)),
 		this,
-		SLOT(sjts_fpga_work_flow_status_rcv(int))
+		SLOT(sjts_fpga_work_flow_status_rcv(int,QString))
 		);
 
 	connect_img_ch(TRUE, this);
@@ -1270,14 +1270,14 @@ void MainWindow::printf_event(std::string _event, std::string _msg)
 *
 */
 /*-------------------------------------*/
-void MainWindow::sjts_status(const int _sjts_status_int)
+void MainWindow::sjts_status(const int _sjts_status_int,QString _msg)
 {
 	const CMD_CTRL::SJTS_MACHINE_STATUS _sjts_status = (CMD_CTRL::SJTS_MACHINE_STATUS) _sjts_status_int;
 
 	if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady) {
 
-		beforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
-		NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
+		beforeNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
+		NotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START,_msg.toUInt());
 
 	}
 	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneQualified ||
@@ -1288,27 +1288,27 @@ void MainWindow::sjts_status(const int _sjts_status_int)
 	}
 	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::RollerDone) {
 
-		NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP);
+		NotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP);
 
 	}
 	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart01) {
 
-		NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01);
+		NotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01);
 
 	}
 	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop01) {
 
-		NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01);
+		NotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01);
 
 	}
 	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart00) {
 
-		NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_00);
+		NotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_00);
 
 	}
 	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop00) {
 
-		NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00);
+		NotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00);
 
 	}
 	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortError) {
@@ -1327,7 +1327,7 @@ void MainWindow::sjts_status(const int _sjts_status_int)
 *
 */
 /*-------------------------------------*/
-void MainWindow::sjts_fpga_work_flow_status_rcv(const int  _arm_linux_fpga_work_flow_int)
+void MainWindow::sjts_fpga_work_flow_status_rcv(const int  _arm_linux_fpga_work_flow_int,QString _seq)
 {	
 	//RollerDoneQualified
 	
@@ -1375,11 +1375,10 @@ void MainWindow::sjts_fpga_work_flow_status_rcv(const int  _arm_linux_fpga_work_
 *
 */
 /*-------------------------------------*/
-void MainWindow::NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c)
+void MainWindow::NotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL _type_c,int _cmd_idx)
 {
-
-#if FLOW_CTRL_USE_LOCAL_SERVER 
-	mFlowServerServerLocal->NotifiedClientSession(_type_c);
+#if FLOW_CTRL_USE_LOCAL_SERVER 	
+	mFlowServerServerLocal->NotifiedClientSession(_type_c,_cmd_idx);
 #endif	
 
 }
@@ -1388,7 +1387,7 @@ void MainWindow::NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c)
 *
 */
 /*-------------------------------------*/
-void MainWindow::beforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c)
+void MainWindow::beforeNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL _type_c,QString _msg)
 {
 #if FLOW_CTRL_USE_LOCAL_SERVER 
 	mFlowServerServerLocal->beforeNotifiedClientSession(_type_c);
@@ -1403,9 +1402,9 @@ void MainWindow::beforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c)
 void MainWindow::init_connect_work_flow()
 {
 	this->connect(mFlowCtrlLocal.data(),
-		SIGNAL(status_sjts(int)),
+		SIGNAL(status_sjts(int,QString)),
 		this,
-		SLOT(sjts_status(int)));
+		SLOT(sjts_status(int, QString)));
 }
 #endif
 /*-------------------------------------*/

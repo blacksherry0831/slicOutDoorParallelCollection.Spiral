@@ -61,24 +61,28 @@ void QtThreadFlowCtrlLocal::run()
 		this->wait4WorkFlowStart();
 		
 		this->SleepMy(TIME_INTERVAL);
-		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady);
+
+		
+
+
+		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady,CircleSeq());
 		
 		{
 				this->SleepMy(TIME_INTERVAL);
-				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart00);
+				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart00,"");
 				this->SleepMy(TIME_VIDEO);
-				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop00);
+				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop00,"");
 				
 		}
 	
 		{
 				this->SleepMy(TIME_INTERVAL);
-				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart01);
+				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart01,"");
 				do {
 					this->SleepMy(TIME_VIDEO); 
 				} while (M_THREAD_RUN && mBlock);
 				this->SleepMy(TIME_INTERVAL);
-				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop01);
+				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop01,"");
 				
 		}
 
@@ -112,6 +116,7 @@ void QtThreadFlowCtrlLocal::SetBlock(bool _block)
 {
 	this->mBlock = _block;
 }
+
 /*-------------------------------------*/
 /**
 *

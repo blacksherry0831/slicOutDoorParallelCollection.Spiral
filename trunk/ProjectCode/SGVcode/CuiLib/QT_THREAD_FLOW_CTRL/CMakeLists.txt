@@ -25,6 +25,8 @@ ENDIF ()
 				
 				QtTcpServerFlowCtrl.cpp
 				
+				QtThreadSocketClientSig.cpp
+				
 				QtThreadFlowCtrlClient.cpp
 				QtThreadFlowCtrlServer.cpp
 				QtThreadFlowCtrlServerSession.cpp)		

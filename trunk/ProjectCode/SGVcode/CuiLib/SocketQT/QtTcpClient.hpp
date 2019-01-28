@@ -49,7 +49,7 @@ public:
 	int Read_nSize_2_body(CMD_CTRL *_cmd);
 	int getByteTcpRead();
 public:
-	int Send_Start_CMD(CMD_CTRL::CMD_TYPE_02_C _type_c, CMD_CTRL::WorkMode _wm);
+	int Send_Start_CMD(CMD_CTRL::CMD_TYPE_02_C _type_c, CMD_CTRL::WorkMode _wm,uint _circle_seq);
 	int SendHearbeatCmd(int _need_resp);
 public:
 	int SendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP _type);

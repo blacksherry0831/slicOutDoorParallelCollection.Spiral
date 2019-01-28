@@ -91,14 +91,14 @@ void MainWindow::init_connect()
 *
 */
 /*-------------------------------------*/
-void MainWindow::sjts_status(const int _sjts_status_int)
+void MainWindow::sjts_status(const int _sjts_status_int, QString _msg)
 {
 	const CMD_CTRL::SJTS_MACHINE_STATUS _sjts_status = (CMD_CTRL::SJTS_MACHINE_STATUS) _sjts_status_int;
 
 	if (_sjts_status== CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady){
 		
-		tcpSvrBeforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
-		tcpSvrNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
+		tcpSvrBeforeNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
+		tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START,_msg.toUInt());
 
 	}else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneQualified ||
 		_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneUnqualified) {
@@ -107,23 +107,23 @@ void MainWindow::sjts_status(const int _sjts_status_int)
 	
 	}else if (_sjts_status== CMD_CTRL::SJTS_MACHINE_STATUS::RollerDone) {
 	
-		tcpSvrNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP);
+		tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP);
 	
 	}else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart01) {
 		
-		tcpSvrNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01);
+		tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01);
 	
 	}else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop01) {
 		
-		tcpSvrNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01);
+		tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01);
 	
 	}else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart00) {
 		
-		tcpSvrNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_00);
+		tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_00);
 	
 	}else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop00) {
 		
-		tcpSvrNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00);
+		tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00);
 	
 	}else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortError) {
 		QBase::printf_event("SIGNAL","SerialPortError");
@@ -323,9 +323,9 @@ void MainWindow::init_class_member_base()
 *
 */
 /*-------------------------------------*/
-void MainWindow::tcpSvrNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c)
+void MainWindow::tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL _type_c, int _cmd_idx)
 {
-	mFlowServerServer->NotifiedClientSession(_type_c);
+	mFlowServerServer->NotifiedClientSession(_type_c, _cmd_idx);
 }
 /*-------------------------------------*/
 /**
@@ -341,7 +341,7 @@ void MainWindow::tcp_server_running_client_sessions(int _running_sessions)
 *
 */
 /*-------------------------------------*/
-void MainWindow::tcpSvrBeforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c)
+void MainWindow::tcpSvrBeforeNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL _type_c, QString _msg)
 {
 
 	mFlowServerServer->beforeNotifiedClientSession(_type_c);
@@ -359,9 +359,9 @@ void MainWindow::init_connect_work_flow(QObject* _sender)
 #if  defined(QT_VERSION)
 	
 	this->connect(_sender,
-		SIGNAL(status_sjts(int)),
+		SIGNAL(status_sjts(int, QString)),
 		this,
-		SLOT(sjts_status(int))
+		SLOT(sjts_status(int, QString))
 		);
 
 	this->connect(_sender,

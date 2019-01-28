@@ -62,11 +62,11 @@ public:
 	std::vector<unsigned char>  getSigmaChangeCmd(int _sigma);
 	std::vector<unsigned char>  getSigmaQueryCmd();
 private:
-	std::vector<unsigned char>	getFpgaStartCmd(int _type, WorkMode _wm);
-	std::vector<unsigned char>  getLocalCmd(int _cmd00, int _cmd01=0x00);
+	std::vector<unsigned char>	getFpgaStartCmd(int _type, WorkMode _wm,uint _circle_seq);
+	std::vector<unsigned char>  getLocalCmd(int _cmd00, int _cmd01 = 0x00, uint _circle_seq = 0);
 public:
-	static QSharedPointer<CMD_CTRL> getLocalCmdEx(int _cmd00, int _cmd01 = 0x00);
-	static QSharedPointer<CMD_CTRL> getFpgaStartCmdEx(int _type, WorkMode _wm);
+	static QSharedPointer<CMD_CTRL> getLocalCmdEx(int _cmd00, int _cmd01 = 0x00,int _cmd_idx=0);
+	static QSharedPointer<CMD_CTRL> getFpgaStartCmdEx(int _type, WorkMode _wm,uint _circle_seq);
 public:
 	static void adjRect44(CvRect* rect);
 public:
@@ -104,6 +104,6 @@ public:
 	int GetCmd01();
 	int GetCmdParam();
 	int SetCmdParam(int _param);
-
+	std::string  SetCurrentCircleTime();
 	
 };

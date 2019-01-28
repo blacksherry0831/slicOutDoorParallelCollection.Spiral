@@ -56,7 +56,7 @@ QString QBase::SYS_getCurrentTime_Q(const QString _format)
 	QString current_time_t;
 
 	if (_format.isEmpty()) {
-		const QString format_t=QString("yyyy-MM-dd hh:mm:ss dd");
+		const QString format_t=QString("yyyy-MM-dd hh:mm:ss");
 		current_time_t = time.toString(format_t);
 	}
 
@@ -79,6 +79,16 @@ QString QBase::AesEncode(QString _key, QByteArray _body,int _mode)
 	
 
 	return decodedString;
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+QString QBase::uint2Qstring(uint _num)
+{
+	return QString::number(_num);
 }
 /*-----------------------------------------*/
 /**

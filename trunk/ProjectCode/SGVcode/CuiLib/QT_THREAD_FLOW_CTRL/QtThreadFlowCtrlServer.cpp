@@ -80,13 +80,13 @@ void QtThreadFlowCtrlServer::StopDestoryTcpServer()
 *
 */
 /*-------------------------------------*/
-void QtThreadFlowCtrlServer::NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _event)
+void QtThreadFlowCtrlServer::NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _event, int _cmd_idx)
 {	
 	if (	this->isRunning() &&
 			M_THREAD_RUN &&
 			!this->mQtTcpServer.isNull()
 		){				
-				this->mQtTcpServer->NotifiedClientSession(_event);
+				this->mQtTcpServer->NotifiedClientSession(_event,_cmd_idx);
 		 }
 	
 }

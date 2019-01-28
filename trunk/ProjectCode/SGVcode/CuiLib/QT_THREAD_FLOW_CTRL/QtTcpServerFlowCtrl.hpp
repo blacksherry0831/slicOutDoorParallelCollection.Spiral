@@ -38,7 +38,7 @@ protected:
 private:
 	int mWorkFlowDone;
 public:
-	void NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c);
+	void NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c,int _cmd_idx=0);
 	void beforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c);
 signals:
 	void work_flow_done(int,int);

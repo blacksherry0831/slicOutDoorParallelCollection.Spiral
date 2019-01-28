@@ -11,21 +11,23 @@
 /*-------------------------------------*/
 #include "MY_SDK_LIB/TimeMeasure.hpp"
 /*-------------------------------------*/
-#include "../SocketQT/QtThreadSocketClient.hpp"
+
 #include "../SocketQT/QtTcpClient.hpp"
 #include "../SocketQT/conf_ip.h"
-
+/*-------------------------------------*/
 #include "SocketQT/ChannelsData.hpp"
 #include "SocketQT/ChannelsData4Show.hpp"
 /*-------------------------------------*/
 #include "QT_THREAD_MODULE/QtThreadClientCtrl.hpp"
+/*-------------------------------------*/
+#include "QtThreadSocketClientSig.hpp"
 /*-------------------------------------*/
 /**
 *
 *
 */
 /*-------------------------------------*/
-class QtThreadFlowCtrlClient :public QtThreadSocketClient
+class QtThreadFlowCtrlClient :public  QtThreadSocketClientSig
 {
 	Q_OBJECT
 public:
@@ -46,9 +48,6 @@ public:
 
 	int IsImgProcDone();
 protected: 
-/*-------------------------------------*/
-signals:
-		void status_sjts(int);
-/*-------------------------------------*/
+
 
 };

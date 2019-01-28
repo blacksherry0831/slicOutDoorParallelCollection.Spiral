@@ -8,17 +8,19 @@
 /*-------------------------------------*/
 #include "MY_SDK_LIB/TimeMeasure.hpp"
 /*-------------------------------------*/
-#include "SocketQT/QtThreadSocketClient.hpp"
+
 #include "SocketQT/QtTcpClient.hpp"
 #include "SocketQT/conf_ip.h"
 #include "SocketQT/CMD_CTRL_Q.hpp"
+/*-------------------------------------*/
+#include "QtThreadSocketClientSig.hpp"
 /*-------------------------------------*/
 /**
 *
 *
 */
 /*-------------------------------------*/
-class QtThreadFlowCtrlBase :public QtThreadSocketClient
+class QtThreadFlowCtrlBase :public QtThreadSocketClientSig
 {
 	Q_OBJECT
 public:
@@ -31,6 +33,7 @@ private:
 	int  mClientSessionCount;
 protected:
 	void emit_roller_done();
+	QString  CircleSeq();
 public:
 	int   getWorkFlowDones();	
 	int   getWorkFLowResult();
@@ -49,8 +52,6 @@ public:
 public:
 
 
-signals:
-	
-	void status_sjts(int);
+
 
 };

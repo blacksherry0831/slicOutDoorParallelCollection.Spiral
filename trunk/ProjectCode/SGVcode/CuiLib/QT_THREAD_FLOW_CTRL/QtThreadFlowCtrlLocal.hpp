@@ -35,10 +35,10 @@ public:
 	~QtThreadFlowCtrlLocal(void);
 public:
 	void SetBlock(bool _block);
+	
 private: 
 	bool mBlock;
 public:
-
 	virtual void run();
 
 	virtual int socket_thread_run_condition();

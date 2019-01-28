@@ -300,3 +300,41 @@ IplImageU * CMD_CTRL_DATA::getIplimageU()
 *
 */
 /*-------------------------------------*/
+void CMD_CTRL_DATA::SetCmdFrameSeq(uint _cmd_idx)
+{
+
+		this->f_header.f_cmd_idx[0] = _cmd_idx % 256;
+		this->f_header.f_cmd_idx[1] = _cmd_idx /256 % 256;	
+		this->f_header.f_cmd_idx[2] = _cmd_idx /256 /256% 256;
+		this->f_header.f_cmd_idx[3] = _cmd_idx /256 /256 /256 % 256;
+					
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+uint CMD_CTRL_DATA::GetCmdFrameSeq()
+{
+	const uint ucharMax = 256;
+	uint seq_t= this->f_header.f_cmd_idx[0]+
+				this->f_header.f_cmd_idx[1] *ucharMax + 
+				this->f_header.f_cmd_idx[2] *ucharMax *ucharMax +
+				this->f_header.f_cmd_idx[3] *ucharMax *ucharMax *ucharMax;
+
+//	Q_ASSERT(seq_t != 0);
+	return seq_t;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+QString CMD_CTRL_DATA::GetCmdFrameSeqStr()
+{
+	 uint time_t=GetCmdFrameSeq();
+
+	 QDateTime qdt = QDateTime::fromTime_t(time_t);
+
+	return qdt.toString(QString("yyyyMMdd.hhmmss"));
+}

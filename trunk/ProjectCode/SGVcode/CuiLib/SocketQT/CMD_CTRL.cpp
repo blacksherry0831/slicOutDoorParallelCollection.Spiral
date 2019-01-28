@@ -366,10 +366,15 @@ int CMD_CTRL::IsSigmaChangeCmd()
 *
 */
 /*-------------------------------------*/
-std::vector<unsigned char> CMD_CTRL::getFpgaStartCmd(int _type, WorkMode _wm)
+std::vector<unsigned char> CMD_CTRL::getFpgaStartCmd(int _type, WorkMode _wm,uint _circle_seq)
 {
-	this->setFpgaConvertCmd(_type,_wm);
+
 	this->initHeader();
+
+	this->setFpgaConvertCmd(_type,_wm);
+
+	this->SetCmdFrameSeq(_circle_seq);
+
 	this->initPc2Arm();
 	
 	return this->Data();
@@ -460,6 +465,8 @@ int CMD_CTRL::InitImg()
 			m_img = this->getIplimageU();
 			
 			this->InitIplimage();
+
+			this->SetCurrentCircleTime();
 	}
 
 	return TRUE;
@@ -715,7 +722,7 @@ std::vector<unsigned char> CMD_CTRL::getRollerQualifiedCmd(int _qualified)
 *
 */
 /*-------------------------------------*/
-std::vector<unsigned char> CMD_CTRL::getLocalCmd(int _cmd00,int _cmd01)
+std::vector<unsigned char> CMD_CTRL::getLocalCmd(int _cmd00, int _cmd01, uint _circle_seq)
 {
 
 	this->initHeader();
@@ -727,6 +734,8 @@ std::vector<unsigned char> CMD_CTRL::getLocalCmd(int _cmd00,int _cmd01)
 
 #endif // TRUE
 
+	this->SetCmdFrameSeq(_circle_seq);
+
 	this->SetCmdLocal();
 	this->initCRC();
 	return this->Data();
@@ -736,11 +745,11 @@ std::vector<unsigned char> CMD_CTRL::getLocalCmd(int _cmd00,int _cmd01)
 *
 */
 /*-------------------------------------*/
-QSharedPointer<CMD_CTRL> CMD_CTRL::getLocalCmdEx(int _cmd00, int _cmd01)
+QSharedPointer<CMD_CTRL> CMD_CTRL::getLocalCmdEx(int _cmd00, int _cmd01,int _cmd_idx)
 {	
 	QSharedPointer<CMD_CTRL> qsp_c_c_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
 
-	qsp_c_c_t->getLocalCmd(_cmd00,_cmd01);
+	qsp_c_c_t->getLocalCmd(_cmd00,_cmd01,_cmd_idx);
 
 	return qsp_c_c_t;
 }
@@ -749,11 +758,11 @@ QSharedPointer<CMD_CTRL> CMD_CTRL::getLocalCmdEx(int _cmd00, int _cmd01)
 *
 */
 /*-------------------------------------*/
-QSharedPointer<CMD_CTRL> CMD_CTRL::getFpgaStartCmdEx(int _type, WorkMode _wm)
+QSharedPointer<CMD_CTRL> CMD_CTRL::getFpgaStartCmdEx(int _type, WorkMode _wm,uint _circle_seq)
 {
 	QSharedPointer<CMD_CTRL> qsp_c_c_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
 
-	qsp_c_c_t->getFpgaStartCmd(_type, _wm);
+	qsp_c_c_t->getFpgaStartCmd(_type, _wm,_circle_seq);
 
 	return qsp_c_c_t;
 }
@@ -867,7 +876,10 @@ int CMD_CTRL::getQualified()
 *
 */
 /*-------------------------------------*/
-
+std::string CMD_CTRL::SetCurrentCircleTime()
+{
+	return 	this->mCurrentCircleTime=this->GetCmdFrameSeqStr().toStdString();
+}
 /*-------------------------------------*/
 /**
 *
