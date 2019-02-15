@@ -481,53 +481,107 @@ int BE_1105_Driver::IsCmdPosDone()
 
 	return BE_RESP::TIME_OUT;
 }
+
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-unsigned char * BE_1105_Driver::get_cmd(int run_mode,int speed,float circle)
-{	
+void BE_1105_Driver::set_cmd_ctrl_exec_times(int _times)
+{
+	if (m_cmd_ctrl[1] == 0x04) {
+		m_cmd_ctrl[5] = _times;
+	}else{
+		m_cmd_ctrl[5] = 0x00;
+	}
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void BE_1105_Driver::init_cmd_ctrl(unsigned char * _cmd,int _addr,unsigned int _div_factor,int _pulse_run,int _pulse_up_down)
+{
+	_cmd[0] = 0xBA;// 实时控制指令
+	
+	_cmd[2] = _div_factor / 256;
+	_cmd[3] = _div_factor % 256;
+	_cmd[4] = _addr;
+	
+
+	_cmd[8]  = _pulse_run / 256 / 256;//行进脉冲
+	_cmd[9]  = _pulse_run / 256 % 256;
+	_cmd[10] = _pulse_run % 256;
+
+	_cmd[11] = _pulse_up_down / 256;//加速脉冲
+	_cmd[12] = _pulse_up_down % 256;
+
+	_cmd[13] = _pulse_up_down / 256;//减速脉冲
+	_cmd[14] = _pulse_up_down % 256;
+		
+	_cmd[16] = 0xFE;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void BE_1105_Driver::fill_cmd_ctrl_15_crc(unsigned char * _cmd)
+{
+	_cmd[15] = m_cmd_ctrl[0];
+	for (int i = 1; i < 15; i++) {
+		_cmd[15] ^= m_cmd_ctrl[i];
+	}
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+unsigned char * BE_1105_Driver::get_auto_cmd(int run_mode, int speed)
+{
+	const float circle = 1;
 	const unsigned int division_factor = speed;
-	const unsigned int be_1105_addr = 0;
 	const unsigned int one_circle = 25000;
-	const unsigned int run_pulse =one_circle*circle;	
-	const unsigned int run_up_down_pulse = one_circle*0.01;//平滑
+	const unsigned int run_pulse = one_circle*circle;
+	const unsigned int run_up_down_pulse = 10;//平滑
+			
+	m_cmd_ctrl[1] = BE_1105_RUN_MOD_AUTO;//自动模式
+		
+	m_cmd_ctrl[6] =run_mode ;
+
+	m_cmd_ctrl[7] = 0x30;
+	
+	set_cmd_ctrl_exec_times(0x03);
+	this->init_cmd_ctrl(m_cmd_ctrl,m_be_1105_addr, division_factor, run_pulse, run_up_down_pulse);
+	this->fill_cmd_ctrl_15_crc(m_cmd_ctrl);
+
+	return m_cmd_ctrl;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+unsigned char * BE_1105_Driver::get_cmd(int run_mode, int speed, float circle)
+{
+
+	const unsigned int division_factor = speed;
+
+	const unsigned int one_circle = 25000;
+	const unsigned int run_pulse = one_circle*circle;
+	const unsigned int run_up_down_pulse = 10;//平滑
 	m_circle = circle;
 
-	m_cmd_ctrl[0] = 0xBA;// 实时控制指令
-	m_cmd_ctrl[1] = 0x01;//单步模式
+	m_cmd_ctrl[1] = BE_1105_RUN_MOD_STEP;//单步模式
 
-	m_cmd_ctrl[2] = division_factor/256;
-	m_cmd_ctrl[3] = division_factor%256;
+	m_cmd_ctrl[6] = run_mode;
 
-	m_cmd_ctrl[4] = be_1105_addr;
+	m_cmd_ctrl[7] = 0x31;
 
-	if (m_cmd_ctrl[1] == 0x04) {
-		m_cmd_ctrl[5] = 0;//执行次数
-	}else{
-		m_cmd_ctrl[5] = 0;	
-	}
-
-	m_cmd_ctrl[6] =run_mode;
-
-	m_cmd_ctrl[7] =0x31;
-
-	m_cmd_ctrl[8] = run_pulse/256/256;//行进脉冲
-	m_cmd_ctrl[9] = run_pulse/256%256;
-	m_cmd_ctrl[10] = run_pulse%256;
-
-	m_cmd_ctrl[11] = run_up_down_pulse /256;//加速脉冲
-	m_cmd_ctrl[12] = run_up_down_pulse %256;	
-	
-	m_cmd_ctrl[13] = run_up_down_pulse /256;//减速脉冲
-	m_cmd_ctrl[14] = run_up_down_pulse %256;
-	
-	m_cmd_ctrl[15] = m_cmd_ctrl[0];
-	for (int i = 1; i < 15; i++) {
-		m_cmd_ctrl[15]^=m_cmd_ctrl[i];
-	}	
-	m_cmd_ctrl[16] =0xFE;
+	set_cmd_ctrl_exec_times(0);
+	this->init_cmd_ctrl(m_cmd_ctrl, m_be_1105_addr, division_factor, run_pulse, run_up_down_pulse);
+	this->fill_cmd_ctrl_15_crc(m_cmd_ctrl);
 
 	return m_cmd_ctrl;
 }
@@ -551,6 +605,20 @@ unsigned char * BE_1105_Driver::get_query_cmd()
 	m_cmd_query[4] = 0xFE;//结束符
 
 	return m_cmd_query;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int BE_1105_Driver::SendAutoCmd(int run_mode, int speed, float circle)
+{
+	m_cmd_mode = 0xBA;
+	memset(m_status, 0x55, sizeof(m_status));
+	this->mLatestOrder.clear();
+	const int BE1105_SEND_CMD_LEN = 17;
+	
+	return this->serial_write(this->get_auto_cmd(run_mode,speed), BE1105_SEND_CMD_LEN);
 }
 /*-------------------------------------*/
 /**

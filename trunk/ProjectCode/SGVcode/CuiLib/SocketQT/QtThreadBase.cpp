@@ -103,8 +103,7 @@ void QtThreadBase::startServer()
 /*-------------------------------------*/
 void QtThreadBase::closeServer()
 {
-	this->M_THREAD_RUN = false;
-	quit();
+	this->closeServerAsync();
 }
 /*-------------------------------------*/
 /**
@@ -113,7 +112,8 @@ void QtThreadBase::closeServer()
 /*-------------------------------------*/
 void QtThreadBase::closeServerAsync()
 {
-	this->closeServer();
+	this->M_THREAD_RUN = false;
+	quit();
 }
 /*-------------------------------------*/
 /**
@@ -122,9 +122,8 @@ void QtThreadBase::closeServerAsync()
 /*-------------------------------------*/
 void QtThreadBase::closeServerSync()
 {
-	this->closeServer();
+	this->closeServerAsync();
 	this->wait4ServerClose();
-
 }
 /*-------------------------------------*/
 /**
@@ -158,12 +157,7 @@ void QtThreadBase::wait4ServerClose()
 *
 */
 /*-------------------------------------*/
-void QtThreadBase::closeRunningServer()
-{
-	if (this->isRunning()) {
-		this->closeServer();
-	}
-}
+
 /*-------------------------------------*/
 /**
 *

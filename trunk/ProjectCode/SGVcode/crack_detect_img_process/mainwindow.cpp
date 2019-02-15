@@ -644,7 +644,7 @@ void MainWindow::tcp_server_work_flow_dones(int _status,int _quality)
 {
 
 	if (_status) {
-		printf_event("WORK FLOW", "all client thread done");
+		QBase::printf_event("WORK FLOW", "all client thread done");
 		this->mFlowCtrlLocal->setWorkFlowDones(_status,_quality);
 	}
 
@@ -1069,22 +1069,20 @@ void MainWindow::StopVideoForce()
 /*-------------------------------------*/
 void MainWindow::stopVideoBasic()
 {
-
+	//Í¬²½
 #if IMG_PROCESS_USE_STEP_MOTOR
-	mStepMotor->closeRunningServer();
-#endif 
-		
-	
+	mStepMotor->closeServerSync();
+#endif 	
 
-	mFlowCtrlClient->closeRunningServer();
+	mFlowCtrlClient->closeServerSync();
 	
-	mCtrlServer->closeRunningServer();
+	mCtrlServer->closeServerSync();
 		
-	mVideoDataServer->closeRunningServer();
+	mVideoDataServer->closeServerSync();
 
 #if FLOW_CTRL_USE_LOCAL_SERVER 
-	mFlowServerServerLocal->closeRunningServer();
-	mFlowCtrlLocal->closeRunningServer();
+	mFlowServerServerLocal->closeServerSync();
+	mFlowCtrlLocal->closeServerSync();
 #endif		
 
 
@@ -1261,10 +1259,7 @@ void MainWindow::CheckBox_thread_status_flow_ctrl_video(int _stat_t)
 *
 */
 /*-------------------------------------*/
-void MainWindow::printf_event(std::string _event, std::string _msg)
-{
-	std::cout << _event << ">>" << _msg << std::endl;
-}
+
 /*-------------------------------------*/
 /**
 *
@@ -1312,12 +1307,14 @@ void MainWindow::sjts_status(const int _sjts_status_int,QString _msg)
 
 	}
 	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortError) {
-		printf_event("SIGNAL", "SerialPortError");
+		QBase::printf_event("SIGNAL", "SerialPortError");
 	}
 	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortIsOpen) {
-		printf_event("SIGNAL", "SerialPortIsOpen");
+		QBase::printf_event("SIGNAL", "SerialPortIsOpen");
 	}
-	else {
+	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::ClientError){
+		QBase::printf_event("ClientError", _msg.toStdString());
+	}else {
 		Q_ASSERT(0);
 	}
 

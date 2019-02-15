@@ -10,12 +10,12 @@
 #include "IStepMotor.hpp"
 
 #include <QtCore>
+/*-------------------------------------*/
 
 /*-------------------------------------*/
-/**
-*
-*
-*/
+#define BE_1105_RUN_MOD_POINT	(0x00)
+#define BE_1105_RUN_MOD_STEP	(0x01)
+#define BE_1105_RUN_MOD_AUTO	(0x02) 
 /*-------------------------------------*/
 #define BE_1105_RUN_POS 0x01
 #define BE_1105_RUN_NEG 0x02 
@@ -26,8 +26,8 @@
 #define BE_1105_RUN_SPEED_10_02K (64000)
 #define BE_1105_RUN_SPEED_25_00K (65000)
 /*-------------------------------------*/
-#define BE_1105_RUN_SPEED_FASTEST	(BE_1105_RUN_SPEED_25_00K)
-#define BE_1105_RUN_SPEED_15S		(64500)
+#define BE_1105_RUN_SPEED_FASTEST	(65000)
+#define BE_1105_RUN_SPEED_15S		(64600)
 #define BE_1105_RUN_ONE_CIRCLE		(10)
 /*-------------------------------------*/
 #define BE_1105_RUN_SPEED_CRACK_DETECT (BE_1105_RUN_SPEED_15S)
@@ -94,14 +94,19 @@ public:
 	int		m_circle;
 public:
 	unsigned char * get_cmd(int run_mode, int speed, float circle=1);
+	//unsigned char * get_cmd_run(int run_mode);
+	unsigned char * get_auto_cmd(int run_mode,int speed);
 	unsigned char * get_query_cmd();
 	int  SendCmd(int run_mode, int speed, float circle=1);
+	int  SendAutoCmd(int run_mode, int speed, float circle = 1);
 	int  SendRunStatusCmd();
 	int  SendCmd4Done(int _run_mode, int _speed, float _circle = 1);
 	int  SendQueryCmd(int mode);
 	int  ReadResp();
 	void ClearResp();
-
+	void init_cmd_ctrl(unsigned char * _cmd, int _addr, unsigned int _div_factor, int _pulse_run, int _pulse_up_down=10);
+	void set_cmd_ctrl_exec_times(int _times = 0);
+	void fill_cmd_ctrl_15_crc(unsigned char * _cmd);
 /*-------------------------------------------------------*/
 private:	
 	static  BE_1105_Driver* _instance;

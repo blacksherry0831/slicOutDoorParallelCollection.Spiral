@@ -92,7 +92,8 @@ int QtThreadFlowCtrlBase::wait4WorkFlowStart()
 			return TRUE;
 		}
 		else {
-			this->SleepMy();
+			this->SleepMy(1000);
+			emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::ClientError,"NoClient");
 		}
 
 	} while (socket_thread_run_condition());
@@ -232,6 +233,45 @@ QString  QtThreadFlowCtrlBase::CircleSeq()
 	const uint time_t = QDateTime::currentDateTime().toTime_t();
 		
 	return QString::number(time_t);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int QtThreadFlowCtrlBase::sendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP _type)
+{
+	int result_t = this->m_socket->SendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP::CT_OK);
+
+	return result_t;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void  QtThreadFlowCtrlBase::emit_roller_ready()
+{
+	emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady, CircleSeq());
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void  QtThreadFlowCtrlBase::process_machine_error(QString _msg)
+{
+	this->emit_machine_error(_msg);
+	this->M_THREAD_RUN = false;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void  QtThreadFlowCtrlBase::emit_machine_error(QString _msg)
+{
+	emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::SjtsMachineInnerError,_msg);
 }
 /*-------------------------------------*/
 /**

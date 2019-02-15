@@ -35,7 +35,7 @@ public:
 	void closeServerAsync();
 	void closeServerSync();
 	void wait4ServerClose();
-	void closeRunningServer();
+	
 private:
 
 signals:

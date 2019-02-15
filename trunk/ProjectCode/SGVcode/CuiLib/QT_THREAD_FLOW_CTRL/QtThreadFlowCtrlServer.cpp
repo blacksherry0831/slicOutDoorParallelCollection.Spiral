@@ -71,9 +71,20 @@ void QtThreadFlowCtrlServer::StopDestoryTcpServer()
 		
 	}else{
 		mQtTcpServer->close();
+#if 0
 		mQtTcpServer.clear();
+#endif
 	}
 
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadFlowCtrlServer::closeServerAsync()
+{
+	M_THREAD_RUN = false;
 }
 /*-------------------------------------*/
 /**
@@ -109,12 +120,7 @@ void QtThreadFlowCtrlServer::beforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCA
 *
 */
 /*-------------------------------------*/
-void QtThreadFlowCtrlServer::closeRunningServer()
-{
-	if (this->isRunning()) {
-		this->closeServer();
-	}
-}
+
 /*-------------------------------------*/
 /**
 *

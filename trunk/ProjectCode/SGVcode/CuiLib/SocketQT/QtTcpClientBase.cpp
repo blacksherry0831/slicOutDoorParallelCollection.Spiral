@@ -189,7 +189,7 @@ int  QtTcpClientBase::ReadMy_all(int _size)
 				mSocketReadTimeOut += MAX_MSECS;
 		
 				if (mSocketReadTimeOut>mSocketReadMaxTimeOut){
-#if _DEBUG
+#if _DEBUG && 0
 							Q_ASSERT(0);
 #endif // _DEBUG
 							this->mSocketConnected = SOCKET_STATUS::DisConnected;

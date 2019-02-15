@@ -243,7 +243,8 @@ void QtThread8Video::run_socket_work()
 			std::cout << "ErrorCmd" << std::endl;
 #if  _DEBUG
 			if (GetSocketConnected()){
-					Q_ASSERT(0);
+				//	Q_ASSERT(0);
+				std::cout << "Socket DisConnected" << std::endl;
 			}
 #endif //  _DEBUG
 		}

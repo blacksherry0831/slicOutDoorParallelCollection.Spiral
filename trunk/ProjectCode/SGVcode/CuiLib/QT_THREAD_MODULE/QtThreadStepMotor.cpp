@@ -319,23 +319,36 @@ void QtThreadStepMotor::startServer()
 /*-------------------------------------*/
 void QtThreadStepMotor::closeServer()
 {
+	this->closeServerSync();
+}
+/*-------------------------------------*/
+/**
+*@note Í¬²½
+*/
+/*-------------------------------------*/
+void QtThreadStepMotor::closeServerSync()
+{
+	this->closeServerAsync();
+	this->wait4ServerClose();
+}
+/*-------------------------------------*/
+/**
+*@note Òì²½
+*/
+/*-------------------------------------*/
+void QtThreadStepMotor::closeServerAsync()
+{
 	QtThreadBase::closeServer();
-	if (!mBE_1105.isNull()){
+	if (!mBE_1105.isNull()) {
 		mBE_1105->stopSerialPortRun();
 	}
-	this->wait4ServerClose();
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void QtThreadStepMotor::closeRunningServer()
-{
-	if (this->isRunning()) {
-		this->closeServer();
-	}
-}
+
 /*-------------------------------------*/
 /**
 *

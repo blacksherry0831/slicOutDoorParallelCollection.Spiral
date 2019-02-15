@@ -74,11 +74,13 @@ public:
 public:
 	void Parse(char* _data,int _size);
 public:
+	int IsOperationMode();
 	int IsConvertDoneCmd();
 	int IsResp();
 	int isHeartbeatCmd();
 	int IsIntoInnerReady();
 	int IsRoolerReady();
+	int IsRoolerPosReady();
 	int IsRoolerReadyError();
 	int IsAbortStop();
 	int IsSigmaQueryCmd();

@@ -67,7 +67,8 @@ public:
 public:
 	void startServer();
 	void closeServer();
-	void closeRunningServer();
+	void closeServerAsync();
+	void closeServerSync();
 	void wait4ServerClose();
 private:
 

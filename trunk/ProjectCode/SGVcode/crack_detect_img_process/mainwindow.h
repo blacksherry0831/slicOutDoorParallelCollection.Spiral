@@ -130,7 +130,7 @@ private:
 	void init_class_member_ptr();
 	void init_class_member_base();
 	void init_ping_ssh();
-	void printf_event(std::string _event, std::string _msg);
+
 #if FLOW_CTRL_USE_LOCAL_SERVER 
 	void init_connect_work_flow();
 #endif

@@ -130,28 +130,36 @@ void QtThreadSocketClient::startServer()
 *
 */
 /*-------------------------------------*/
-void QtThreadSocketClient::closeServer()
+void QtThreadSocketClient::closeServerAsync()
 {
 	int count = 0;
 
-	QtThreadBase::closeServer();
+	QtThreadBase::closeServerAsync();
 
 	if (!m_socket.isNull()) {
 		m_socket->stopSocketRun();
 	}
 
-	this->wait4ServerClose();
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void QtThreadSocketClient::closeRunningServer()
+void QtThreadSocketClient::closeServer()
 {
-	if (this->isRunning()) {
-		this->closeServer();
-	}
+	this->closeServerSync();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadSocketClient::closeServerSync()
+{
+	this->closeServerAsync();
+
+	this->wait4ServerClose();
 }
 /*-------------------------------------*/
 /**
@@ -164,7 +172,7 @@ void QtThreadSocketClient::wait4ServerClose()
 	while (this->isRunning()) {
 
 		QThread::sleep(1);
-		this->emit_status_message(QString("wait for thread done").append(QString::number(count++)));
+		this->emit_status_message(QString("wait for [socket] thread done").append(QString::number(count++)));
 
 	}
 }
@@ -730,8 +738,3 @@ int QtThreadSocketClient::getWorkFlowResult()
 {
 	return mWorkFlowResult;
 }
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/

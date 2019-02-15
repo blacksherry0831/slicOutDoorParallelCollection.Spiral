@@ -132,7 +132,14 @@ public:
 	static std::vector<float> process_histogram(std::vector<float>& histogram, std::vector<std::vector<CvPoint>>&  point_sets, std::vector<float>& delta_out, int HISTOGRAM_DIM, int width, int height);
 	static int GetLineProperty(std::vector<CvPoint> point_set, std::vector<float> delta, float& sum_delta, int& idx);
 public:
+
 	static void Svm_Lean(std::vector<float> FeatureData, int FeatureDim, std::vector<INT32> FeatureClassify, int method, std::string path);
+
+	static void SvmLeanFromFile(std::string _featureFile,
+						 std::string _classifyFile,
+						int _method,
+						std::string _path);
+
 public:
 	static void CuiResize(IplImage * src, IplImage * dst, const int m_step, const int n_step);
 public:

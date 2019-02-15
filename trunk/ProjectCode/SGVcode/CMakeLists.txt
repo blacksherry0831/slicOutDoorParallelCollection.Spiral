@@ -329,6 +329,10 @@ ELSEIF (CMAKE_SYSTEM_NAME MATCHES "Windows")
 		ADD_EXECUTABLE(EXE_CRACK_IN main_gui_crack/main_crack_in.cpp)
 		TARGET_LINK_LIBRARIES(EXE_CRACK_IN
 							MY_SDK_LIB) 
+
+		ADD_EXECUTABLE(EXE_CRACK_SVM main_gui_crack/main_crack_svm.cpp)
+		TARGET_LINK_LIBRARIES(EXE_CRACK_SVM
+							MY_SDK_LIB) 
 		
 	endif() 
 	#################################################

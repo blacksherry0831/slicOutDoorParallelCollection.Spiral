@@ -42,7 +42,8 @@ private:
 
 	void tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL _type_c, int _cmd_idx = 0);
 	void tcpSvrBeforeNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL _type_c, QString _msg="");
-
+public:
+	void closeServerAsync();
 private:
 	void init_connect();
 	

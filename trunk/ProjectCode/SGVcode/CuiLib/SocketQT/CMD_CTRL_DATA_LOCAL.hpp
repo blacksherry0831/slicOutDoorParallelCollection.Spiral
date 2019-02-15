@@ -25,22 +25,26 @@ public:
 public:
 	enum SJTS_MACHINE_STATUS
 	{
-		RoolerReady=1,
+		RoolerReady = 1,
 
-		StepMotorStart00=2,
-		StepMotorStop00=3,
+		StepMotorStart00 = 2,
+		StepMotorStop00 = 3,
 
-		StepMotorStart01=4,
-		StepMotorStop01=5,
+		StepMotorStart01 = 4,
+		StepMotorStop01 = 5,
 
-		RollerDone=6,
+		RollerDone = 6,
 
-		
-		RollerDoneUnqualified=7,
-		RollerDoneQualified=8,
 
-		SerialPortIsOpen=10,
-		SerialPortError=11,
+		RollerDoneUnqualified = 7,
+		RollerDoneQualified = 8,
+
+		SerialPortIsOpen = 10,
+		SerialPortError = 11,
+
+		ClientError = 12,
+
+		SjtsMachineInnerError = 13,
 
 	};
 

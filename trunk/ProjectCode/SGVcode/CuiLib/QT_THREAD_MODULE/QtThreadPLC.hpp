@@ -31,19 +31,23 @@ public:
 public:
 	explicit QtThreadPLC(QObject *parent = Q_NULLPTR);
 	~QtThreadPLC(void);
-public:
-	
+private:
+	int mBe1105RunDir;
 private:
 	CMD_CTRL_Q  mCmds;
-private:
-	int sendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP _type);
 private: 
 	void init_serial_port(QSharedPointer<BE_1105_Driver>	 be_1105);
 	int stepMotorRun(QSharedPointer<BE_1105_Driver>	 _be_1105);
 	int doPlcStepMotorRun(QSharedPointer<BE_1105_Driver>	 _be_1105);
+
+
+	int stepMotorRunFast(QSharedPointer<BE_1105_Driver>	 _be_1105);
+	int stepMotorRunStop(QSharedPointer<BE_1105_Driver>	 _be_1105);
+
 protected:
 	void emit_step_motor_start(int _circle);
 	void emit_step_motor_stop(int _circle);	
+	void process_fatal_error(QSharedPointer<CMD_CTRL> _cmd);
 protected:
 	void print_undefined_cmd(QSharedPointer<CMD_CTRL> _cmd);
 	void print_cmd(QSharedPointer<CMD_CTRL> _cmd);
@@ -63,6 +67,8 @@ public:
 
 	int wait4PlcResp(QSharedPointer<CMD_CTRL> _cmd);
 	int wait4PlcRoolerReady(QSharedPointer<CMD_CTRL> _cmd);
+
+	int wait4PlcRoolerPosReady(QSharedPointer<CMD_CTRL> _cmd);
 
 	void do_run_work(QSharedPointer<BE_1105_Driver>	 _be_1105);
 

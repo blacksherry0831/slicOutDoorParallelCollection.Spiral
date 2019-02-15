@@ -46,8 +46,8 @@ protected:
 private:
 	void connecTcp2Thread();
 	void StopDestoryTcpServer();
-public:
-	void closeRunningServer();
+public:	
+	void closeServerAsync();
 public:
 	void NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _event, int _cmd_idx=0);
 	void beforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _event);

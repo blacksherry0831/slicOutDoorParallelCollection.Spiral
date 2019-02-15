@@ -15,7 +15,8 @@ IF (CBB_BUILDING_CRACK_DETECTION)
    
 # Tell CMake to create the helloworld executable
 add_executable(EXE_CRACK_DETECT_PLC_CONTROL  WIN32
-							
+							singleapplication.cpp
+							singleapplication_p.cpp
                             main.cpp
 							mainwindow.cpp
 							 ${ui_FILES})

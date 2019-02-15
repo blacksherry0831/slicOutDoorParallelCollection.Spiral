@@ -37,7 +37,11 @@ public:
 		CS_READY_ERROR =0x11,//this is a error 
 		CS_READY = 0x10,
 		CS_MOVE2POS =0x20,
-		CS_ABORT= 0x30
+		CS_ABORT= 0x30,
+		CS_POS_READY = 0x40,
+		
+		CS_MODE_CURRENT_MANUAL = 0x50,
+		CS_MODE_CURRENT_AUTO = 0x51,
 	};
 
 	/*-----------------------------------*/

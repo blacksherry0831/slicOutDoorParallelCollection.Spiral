@@ -48,7 +48,9 @@ protected:
 public:
 	void startServer();
 	void closeServer();
-	void closeRunningServer();
+	void closeServerAsync();
+	void closeServerSync();
+	
 public:
 	QtThreadStepMotor* SetBordIPaddr(QString _ipAddr);
 

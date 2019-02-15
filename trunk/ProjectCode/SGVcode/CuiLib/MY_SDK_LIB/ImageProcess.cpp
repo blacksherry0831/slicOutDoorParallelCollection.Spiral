@@ -3619,6 +3619,19 @@ std::vector<float> ImageProcess::crack_get_image_feature(IplImage *diff_org,std:
 *
 */
 /*----------------------------------------------------------------*/
+void ImageProcess::SvmLeanFromFile(std::string _featureFile, std::string _classifyFile, int _method, std::string _path)
+{
+	  CvMat* mat_feature_t=(CvMat*) cvLoad(_featureFile.c_str());
+
+	  CvMat* mat_classifyFile_t = (CvMat*)cvLoad(_classifyFile.c_str());
+
+
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
 void ImageProcess::Svm_Lean(std::vector<float> FeatureData,int FeatureDim, std::vector<INT32> FeatureClassify,int method,std::string path)
 {
 #if (CV_MAJOR_VERSION==2)&&(CV_MINOR_VERSION==4)
@@ -3648,12 +3661,12 @@ void ImageProcess::Svm_Lean(std::vector<float> FeatureData,int FeatureDim, std::
 	CvSVMParams params;
 	assert(method>=0&&method<20);
 
-	if (method == 0){
+	if (method == CvSVM::LINEAR){
 //#ifdef SVM_USE_Linear
 		params.svm_type = CvSVM::C_SVC;
 		params.kernel_type = CvSVM::LINEAR;
 		params.term_crit = cvTermCriteria(CV_TERMCRIT_ITER, 1e5, FLT_EPSILON);
-	}else if (method==1){
+	}else if (method== CvSVM::RBF){
 //#ifdef SVM_USE_Gaussian
 		params.svm_type = CvSVM::C_SVC;
 		params.kernel_type = CvSVM::RBF;
@@ -3665,7 +3678,7 @@ void ImageProcess::Svm_Lean(std::vector<float> FeatureData,int FeatureDim, std::
 		//params.gamma = 10;//增加容错，调小gamma
 		//params.C = 8;//增加容错，调小C;
 
-	}else if(method ==2){
+	}else if(method == CvSVM::POLY){
 //#ifdef SVM_USE_Poly
 		params.svm_type = CvSVM::C_SVC;
 		params.kernel_type = CvSVM::POLY;

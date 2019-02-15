@@ -1,17 +1,15 @@
 #include "mainwindow.h"
-
-
+/*-------------------------------------*/
 #include <QApplication>
-
+/*-------------------------------------*/
 #include "cpp_stl.h"
 #include "opencv_stl.h"
-
+/*-------------------------------------*/
 #include "QT_THREAD_MODULE/QtThreadPLC.hpp"
-
 #include "QT_THREAD_FLOW_CTRL/QtThreadFlowCtrlServer.hpp"
-
-
-
+/*-------------------------------------*/
+#include <singleapplication.h>
+/*-------------------------------------*/
 
 #ifdef _MSC_VER
 #ifndef NDEBUG
@@ -42,7 +40,13 @@ int plcServer(int argc, char *argv[])
 int plcServerGUI(int argc, char *argv[])
 {
 		int EXEC_RESULT = 0;
-		QApplication a(argc, argv);
+		SingleApplication a(argc, argv);
+
+		if (a.isSecondary()) {
+			
+			a.exit(0);
+		}
+
 
 		MainWindow w;
 

@@ -259,7 +259,18 @@ int CMD_CTRL::SensorStat()
 *
 */
 /*-------------------------------------*/
+int CMD_CTRL::IsOperationMode()
+{
+	//工件就绪
+	if (this->f_header.f_cmd[0] == CMD_PLC_TYPE::CT_STATUS) {
 
+		if (this->f_header.f_cmd[1] == CMD_PLC_STATUS_TYPE::CS_MODE_CURRENT_MANUAL ||
+			this->f_header.f_cmd[1] == CMD_PLC_STATUS_TYPE::CS_MODE_CURRENT_AUTO) {
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
 /*-------------------------------------*/
 /**
 *
@@ -285,6 +296,23 @@ int CMD_CTRL::IsRoolerReady()
 	if (this->f_header.f_cmd[0] ==CMD_PLC_TYPE::CT_STATUS &&
 		this->f_header.f_cmd[1] ==CMD_PLC_STATUS_TYPE::CS_READY) {
 		
+		return TRUE;
+
+	}
+
+	return FALSE;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int CMD_CTRL::IsRoolerPosReady()
+{
+	//工件就绪
+	if (this->f_header.f_cmd[0] == CMD_PLC_TYPE::CT_STATUS &&
+		this->f_header.f_cmd[1] == CMD_PLC_STATUS_TYPE::CS_POS_READY) {
+
 		return TRUE;
 
 	}
