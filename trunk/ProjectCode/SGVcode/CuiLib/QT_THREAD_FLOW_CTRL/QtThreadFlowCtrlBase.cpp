@@ -143,15 +143,14 @@ CMD_CTRL::BodyRollerQualified QtThreadFlowCtrlBase::wait4ImgProcessResult()
 	
 	if (WAIT_TIME_MS<=0)
 	{
+		//time out error
 		qualified_t = CMD_CTRL::BodyRollerQualified::UnQualified;//time out 
 	}
 	else
 	{
 		qualified_t = this->getWorkFLowQualified();
 	}
-
-
-
+	
 	return qualified_t;
 }
 /*-------------------------------------*/

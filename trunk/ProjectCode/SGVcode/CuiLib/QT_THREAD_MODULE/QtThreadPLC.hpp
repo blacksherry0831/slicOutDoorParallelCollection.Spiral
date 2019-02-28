@@ -68,7 +68,7 @@ public:
 	int wait4PlcResp(QSharedPointer<CMD_CTRL> _cmd);
 	int wait4PlcRoolerReady(QSharedPointer<CMD_CTRL> _cmd);
 
-	int wait4PlcRoolerPosReady(QSharedPointer<CMD_CTRL> _cmd);
+	int wait4PlcRoolerPosReady(QSharedPointer<CMD_CTRL> _cmd, QSharedPointer<BE_1105_Driver>	 _be_1105);
 
 	void do_run_work(QSharedPointer<BE_1105_Driver>	 _be_1105);
 

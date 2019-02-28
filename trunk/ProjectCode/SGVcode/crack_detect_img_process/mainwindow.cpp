@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	
 	this->initGlobal();
 		
+	this->StartVideoModeSelected();
 }
 /*-------------------------------------*/
 /**
@@ -62,13 +63,20 @@ void MainWindow::init_class_member()
 /*-------------------------------------*/
 void MainWindow::init_class_member_ptr()
 {
+	mAppSetting = QSharedPointer<QSettings>(new QSettings(tr("Nanjing Yjkj"),tr("Visual inspection")));
 #if TRUE
 	mQimageGray = QSharedPointer<QImage>(new QImage(1920, 1080, QImage::Format_Grayscale8));
 	mQimageGray->fill(125);
 #endif
 
 #if IMG_PROCESS_USE_STEP_MOTOR
-	mStepMotor = QSharedPointer<QtThreadStepMotor>(new QtThreadStepMotor());
+	mFlowCtrlLocal = QSharedPointer<QtThreadStepMotor>(new QtThreadStepMotor());
+#else
+
+#if FLOW_CTRL_USE_LOCAL_SERVER 
+	mFlowCtrlLocal = QSharedPointer<QtThreadFlowCtrlLocal>(new QtThreadFlowCtrlLocal(this));
+#endif
+
 #endif // 0
 
 	mCtrlServer = QSharedPointer<QtThreadClientCtrl>(new QtThreadClientCtrl());
@@ -83,14 +91,7 @@ void MainWindow::init_class_member_ptr()
 
 #if FLOW_CTRL_USE_LOCAL_SERVER 
 	mFlowServerServerLocal = QSharedPointer<QtThreadFlowCtrlServer>(new QtThreadFlowCtrlServer(this));
-	mFlowCtrlLocal = QSharedPointer<QtThreadFlowCtrlLocal>(new QtThreadFlowCtrlLocal(this));
 #endif
-
-
-
-#if IMG_PROCESS_USE_STEP_MOTOR
-	mStepMotor->SetCmdCtrlPipe(mCtrlServer);
-#endif // IMG_PROCESS_USE_STEP_MOTOR
 	
 	//////////////////////////////////////////////////////////////////
 	mthread = QSharedPointer<QThread>(new QThread());
@@ -118,6 +119,7 @@ void MainWindow::init_class_member_base()
 
 //	mFlowCtrlTimer = new QTimer(this);
 
+	mAppKeyXilinxFpgaArm = "KeytXilinxFpgaArm";
 }
 /*-------------------------------------*/
 /**
@@ -160,7 +162,7 @@ void MainWindow::img_stat_show_ex(int _p_stat, int _channel, int _frames, void* 
 	}
 	else if ((_p_stat >> 8) == CMD_CTRL::CMD_TYPE_02_C::CT_START) {
 
-
+		ShowImageChGray(_channel);
 
 	}
 	else if ((_p_stat >> 8) == CMD_CTRL::CMD_TYPE_02_C::CT_STOP) {
@@ -286,7 +288,16 @@ void MainWindow::init_controls()
 	ui->comboBox_IpAddr->addItem(BORD_VIDEO_OUT);
 	ui->comboBox_IpAddr->addItem(BORD_VIDEO_SINGLE);
 
-	ui->comboBox_IpAddr->setCurrentIndex(ui->comboBox_IpAddr->findText(BORD_VIDEO_OUT));
+	QString IpAddr_t= mAppSetting->value(mAppKeyXilinxFpgaArm).toString();
+
+	if (IpAddr_t.isEmpty()) {
+			ui->comboBox_IpAddr->setCurrentIndex(ui->comboBox_IpAddr->findText(BORD_VIDEO_OUT));	
+	}
+	else
+	{
+			ui->comboBox_IpAddr->setCurrentIndex(ui->comboBox_IpAddr->findText(IpAddr_t));
+	}
+
 
 	connect(ui->comboBox_IpAddr, SIGNAL(currentIndexChanged(const QString &)), this, SLOT(ComboBox_IpAddr_changed(const QString &)));
 
@@ -393,8 +404,6 @@ void MainWindow::DrawUnqualified(QSharedPointer<CMD_CTRL> _cmd)
 	const int Thickness = 3;
 	CvScalar Color=cvScalar(255,255,255);
 	
-
-
 	if (_cmd->IsImgFrame()) {
 	
 				if (_cmd->getQualified()==CMD_CTRL::BodyRollerQualified::UnQualified) {
@@ -405,9 +414,25 @@ void MainWindow::DrawUnqualified(QSharedPointer<CMD_CTRL> _cmd)
 				}
 
 	}
-
-
-	
+		
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::ShowImageChGray(int _ch)
+{
+	ShowImageCh(_ch, mQimageGray.data());
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::ShowImageCh(int _ch, QImage *_p_qimg)
+{
+	ShowImage(labelImage[_ch], _p_qimg);
 }
 /*-------------------------------------*/
 /**
@@ -415,10 +440,8 @@ void MainWindow::DrawUnqualified(QSharedPointer<CMD_CTRL> _cmd)
 */
 /*-------------------------------------*/
 void MainWindow::ShowImage(QLabel* _qlab,QImage *_p_qimg)
-{
-	
+{	
 	ShowImageFast(_qlab, _p_qimg);
-	
 }
 /*-------------------------------------*/
 /**
@@ -806,17 +829,20 @@ void MainWindow::initUIlabelImage()
 *
 */
 /*-------------------------------------*/
+
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void MainWindow::initUIlabelImageView()
 {
 
 	const int chs = sizeof(labelImage) / sizeof(void*);
 
-	for (size_t chi = 0; chi < chs; chi++) {		
-			
-			ShowImage(labelImage[chi], mQimageGray.data());
-
+	for (size_t chi = 0; chi < chs; chi++) {			
+			ShowImageChGray(chi);
 	}
-
 
 }
 /*-------------------------------------*/
@@ -960,10 +986,6 @@ void MainWindow::StartVideoBasic(int mode)
 	mVideoDataServer->startServer();
 #endif
 
-#if IMG_PROCESS_USE_STEP_MOTOR
-	mStepMotor->startServer();
-#endif 
-
 	this->mFlowCtrlClient->startServer();
 
 #if FLOW_CTRL_USE_LOCAL_SERVER 
@@ -1070,9 +1092,6 @@ void MainWindow::StopVideoForce()
 void MainWindow::stopVideoBasic()
 {
 	//Í¬²½
-#if IMG_PROCESS_USE_STEP_MOTOR
-	mStepMotor->closeServerSync();
-#endif 	
 
 	mFlowCtrlClient->closeServerSync();
 	
@@ -1082,9 +1101,9 @@ void MainWindow::stopVideoBasic()
 
 #if FLOW_CTRL_USE_LOCAL_SERVER 
 	mFlowServerServerLocal->closeServerSync();
-	mFlowCtrlLocal->closeServerSync();
-#endif		
+#endif	
 
+	mFlowCtrlLocal->closeServerSync();
 
 	this->IsBgThreadRunning();
 	
@@ -1204,10 +1223,7 @@ void  MainWindow::SetFpgaArmLinuxIpAddr(QString _str)
 	mFpgaArmLinuxIpAddr = _str;
 	mCtrlServer->SetIpAddr(mFpgaArmLinuxIpAddr);
 	mVideoDataServer->SetIpAddr(mFpgaArmLinuxIpAddr);
-
-#if IMG_PROCESS_USE_STEP_MOTOR
-	mStepMotor->SetBordIPaddr(mFpgaArmLinuxIpAddr);
-#endif 
+	mAppSetting->setValue(mAppKeyXilinxFpgaArm,_str);
 }
 /*-------------------------------------*/
 /**

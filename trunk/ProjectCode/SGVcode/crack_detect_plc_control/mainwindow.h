@@ -43,7 +43,7 @@ private:
 	void tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL _type_c, int _cmd_idx = 0);
 	void tcpSvrBeforeNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL _type_c, QString _msg="");
 public:
-	void closeServerAsync();
+	void closeServerAsyncM();
 private:
 	void init_connect();
 	
@@ -54,6 +54,9 @@ private:
 	void ShowSjtsStatusOnUI(CMD_CTRL::SJTS_MACHINE_STATUS __sjts_status);
 	
 	void check_box_clr();
+
+public:
+	void  keyPressEvent(QKeyEvent *e);
 public slots:
 	   void sjts_status(int _sjts_status_int, QString _msg);
 	   void update_link_status();

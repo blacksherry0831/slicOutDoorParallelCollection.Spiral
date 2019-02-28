@@ -41,22 +41,28 @@ int plcServerGUI(int argc, char *argv[])
 {
 		int EXEC_RESULT = 0;
 		SingleApplication a(argc, argv);
+		
+		if (a.isPrimary()) {		
+			MainWindow w;
+			w.setWindowTitle(w.tr("this is Primary 2019-2-19 15:28:13"));
+			w.show();
+		
+	#if defined(linux) || defined(__linux) || defined(__linux__) ||defined( __GNUC__)
+			//w.hide();
+	#endif	
+			return  EXEC_RESULT = a.exec();
 
-		if (a.isSecondary()) {
-			
+		}else	if (a.isSecondary()) {
+
 			a.exit(0);
 		}
-
-
-		MainWindow w;
-
-		w.show();
-
-#if defined(linux) || defined(__linux) || defined(__linux__) ||defined( __GNUC__)
-		w.hide();
-#endif
+		else {
 		
-		return  EXEC_RESULT = a.exec();
+			a.exit(0);
+		
+		}
+
+		return -1;
 	
 }
 

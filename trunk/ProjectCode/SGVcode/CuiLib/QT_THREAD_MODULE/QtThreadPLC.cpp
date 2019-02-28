@@ -86,13 +86,10 @@ void QtThreadPLC::do_run_work(QSharedPointer<BE_1105_Driver>	 _be_1105)
 	if (wait4PlcRoolerReady(cmd_t) == TRUE) {
 				//rooler ready		
 
-		this->stepMotorRunFast(_be_1105);			
+				
 
-					if (wait4PlcRoolerPosReady(cmd_t) == TRUE) {
+					if (wait4PlcRoolerPosReady(cmd_t,_be_1105) == TRUE) {
 		
-						this->stepMotorRunStop(_be_1105);
-			
-
 							this->doPlcStepMotorRun(_be_1105);
 								
 							CMD_CTRL::BodyRollerQualified qualified_status_t = this->wait4ImgProcessResult();
@@ -101,8 +98,12 @@ void QtThreadPLC::do_run_work(QSharedPointer<BE_1105_Driver>	 _be_1105)
 							sendPlcRollerQualifiedEx(qualified_status_t);
 		
 					}
+					else
+					{
+						this->stepMotorRunStop(_be_1105);
+					}
 
-		this->stepMotorRunStop(_be_1105);
+		
 
 				
 	}
@@ -341,10 +342,12 @@ int QtThreadPLC::wait4PlcRoolerReady(QSharedPointer<CMD_CTRL> _cmd)
 *
 */
 /*-------------------------------------*/
-int QtThreadPLC::wait4PlcRoolerPosReady(QSharedPointer<CMD_CTRL> _cmd)
+int QtThreadPLC::wait4PlcRoolerPosReady(QSharedPointer<CMD_CTRL> _cmd, QSharedPointer<BE_1105_Driver>	 _be_1105)
 {
 	do {
 		
+		this->stepMotorRunFast(_be_1105);
+
 		this->Read_1_plc_cmd_process_hearbeat(_cmd);
 
 		if (GetSocketConnected() == 0) {
@@ -365,18 +368,19 @@ int QtThreadPLC::wait4PlcRoolerPosReady(QSharedPointer<CMD_CTRL> _cmd)
 			return FALSE;
 		}
 		else if (_cmd->IsRoolerReadyError()) {
-			//roooler is ready !!!
 			sendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP::CT_OK);
+			this->stepMotorRunStop(_be_1105);
 			return FALSE;
 
 		}else if (_cmd->IsAbortStop()) {
-
+			this->stepMotorRunStop(_be_1105);
 			return FALSE;
 
 		}else if (_cmd->isHeartbeatCmd()) {
 
 		}else if(_cmd->IsRoolerPosReady()){
 			sendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP::CT_OK);
+			this->stepMotorRunStop(_be_1105);
 			return TRUE;
 		}
 		else {
@@ -506,6 +510,9 @@ void QtThreadPLC::run_socket_work()
 	while (socket_thread_run_condition()){
 		this->do_run_work(be_1105);
 	}
+
+	this->stepMotorRunStop(be_1105);
+	be_1105->close();
 
 }
 /*-------------------------------------*/

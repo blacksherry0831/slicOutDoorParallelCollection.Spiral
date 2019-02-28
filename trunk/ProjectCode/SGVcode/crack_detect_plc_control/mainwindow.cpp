@@ -141,8 +141,13 @@ void MainWindow::sjts_status(const int _sjts_status_int, QString _msg)
 	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::ClientError){
 		QBase::printf_event("ClientError", _msg.toStdString());
 	}else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::SjtsMachineInnerError) {
-		closeServerAsync();
-		this->close();
+		closeServerAsyncM();
+#if 1
+		QTimer *timer = new QTimer(this);
+		connect(timer, SIGNAL(timeout()), this, SLOT(close()));
+		timer->start(1000);
+#endif
+
 	}else {
 		Q_ASSERT(0);
 	}
@@ -401,10 +406,30 @@ void MainWindow::init_connect_work_flow(QObject* _sender)
 *
 */
 /*-------------------------------------*/
-void MainWindow::closeServerAsync()
+void MainWindow::closeServerAsyncM()
 {
 	mPlcdataServer->closeServerAsync();
 	mFlowServerServer->closeServerAsync();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void  MainWindow::keyPressEvent(QKeyEvent *e)
+{
+#if 0
+	// ²¶×½ Ctrl + Alt + A ×éºÏ¼ü;
+	if (e->key() == Qt::Key_S && e->modifiers() == (Qt::AltModifier | Qt::ControlModifier)) 
+	{ 
+		if (this->isHidden()) {
+			this->show();
+		}
+		else {
+			this->hide();
+		}
+	}
+#endif
 }
 /*-------------------------------------*/
 /**

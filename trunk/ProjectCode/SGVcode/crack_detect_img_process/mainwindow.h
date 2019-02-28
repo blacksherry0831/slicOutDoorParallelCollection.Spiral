@@ -60,7 +60,7 @@ class MainWindow;
 *
 */
 /*-------------------------------------*/
-#define IMG_PROCESS_USE_STEP_MOTOR (0)
+#define IMG_PROCESS_USE_STEP_MOTOR (1)
 #define FLOW_CTRL_USE_LOCAL_SERVER (1)
 /*-------------------------------------*/
 /**
@@ -104,12 +104,17 @@ public:
 	QSharedPointer<QtThread8ImgProcess>		mImg8Process;
 
 #if IMG_PROCESS_USE_STEP_MOTOR
-	QSharedPointer<QtThreadStepMotor>		mStepMotor;
+	QSharedPointer<QtThreadStepMotor>		mFlowCtrlLocal;
+#else
+
+#if FLOW_CTRL_USE_LOCAL_SERVER 
+	QSharedPointer<QtThreadFlowCtrlLocal>	mFlowCtrlLocal;
+#endif
+
 #endif
 
 #if FLOW_CTRL_USE_LOCAL_SERVER 
 	QSharedPointer<QtThreadFlowCtrlServer> mFlowServerServerLocal;
-	QSharedPointer<QtThreadFlowCtrlLocal>  mFlowCtrlLocal;
 #endif
 	
 public:
@@ -143,11 +148,15 @@ public:
 	void destory_all();
 	void connect_img_ch(int _connect, const QObject *receiver);
 	void SetFpgaArmLinuxIpAddr(QString _str);
-
+	void ShowImageChGray(int _ch);
+	void ShowImageCh(int _ch, QImage *_p_qimg);
 public:
 	static void DrawUnqualified(QSharedPointer<CMD_CTRL> _cmd);
 	static void ShowImage(QLabel* _qlab, QImage *_p_qimg);
 	static void ShowImageFast(QLabel* _qlab, QImage* const _p_qimg);
+public:
+	QSharedPointer<QSettings> mAppSetting;
+	QString  mAppKeyXilinxFpgaArm;
 public:
 	static QImage * IplImageToQImage( IplImage* const img);
 public:

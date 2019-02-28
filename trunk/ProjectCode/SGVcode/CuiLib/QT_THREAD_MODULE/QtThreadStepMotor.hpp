@@ -14,12 +14,14 @@
 /*-------------------------------------*/
 #include "SerialPort/BE_1105_Dirver.hpp"
 /*-------------------------------------*/
+#include "QT_THREAD_FLOW_CTRL/QtThreadFlowCtrlBase.hpp"
+/*-------------------------------------*/
 /**
 *
 *
 */
 /*-------------------------------------*/
-class QtThreadStepMotor :public QtThreadBase
+class QtThreadStepMotor :public QtThreadFlowCtrlBase
 {
 
 public:
@@ -29,11 +31,13 @@ protected:
 	std::string mCurrentBord;
 	QSharedPointer<BE_1105_Driver>	 mBE_1105;
 	QSharedPointer <QtThreadSocketClient> mCmdCtrlPipe;
-
+private:
+	bool mBlock;
 private:
 	static const int TIME_GAP;
 	static const int BLOCK_IN_STEP02;
 	int RUN_MODE;
+	int mBe1105RunDir;
 protected:
 	void StepMotorRun();
 public:
@@ -41,16 +45,25 @@ public:
 	int IsCmdCtrlPipeOK();
 	void Wait4ImgProcess(int _time);
 	void blockInStep02();
+public:
+	void hardware_init();
+	
+	void hardware_roller_run();
+
+	void hardware_roller_run_base();
+	void hardware_roller_run_base_x5();
 protected: 
 	virtual void run();
 	void run_no_step_motor();
 	void run_normal();
 public:
+	void  init_serial_port(QSharedPointer<BE_1105_Driver>	 _be_1105);
+public:
 	void startServer();
 	void closeServer();
 	void closeServerAsync();
 	void closeServerSync();
-	
+	void SetBlock(bool _block);
 public:
 	QtThreadStepMotor* SetBordIPaddr(QString _ipAddr);
 

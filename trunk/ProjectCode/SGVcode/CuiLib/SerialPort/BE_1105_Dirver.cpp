@@ -122,8 +122,6 @@ void BE_1105_Driver::Join()
 void BE_1105_Driver::close()
 {
 	
-	
-	this->Join();
 	SerialPortBase::close();
 }
 /*-------------------------------------*/

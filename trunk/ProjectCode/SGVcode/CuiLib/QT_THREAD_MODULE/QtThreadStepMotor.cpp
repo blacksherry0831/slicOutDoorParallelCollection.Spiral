@@ -19,7 +19,8 @@ const int QtThreadStepMotor::BLOCK_IN_STEP02= TRUE;
 QtThreadStepMotor::QtThreadStepMotor()
 {
 	this->mThreadName = "Step Motor Thread ";
-	this->RUN_MODE = 0;
+	this->RUN_MODE = 1;
+	this->mBe1105RunDir = BE_1105_RUN_NEG;
 }
 /*-------------------------------------*/
 /**
@@ -191,99 +192,92 @@ void QtThreadStepMotor::run_no_step_motor()
 *
 */
 /*-------------------------------------*/
+void QtThreadStepMotor::hardware_roller_run()
+{
+#if 0
+	this->hardware_roller_run_base_x5();
+#else
+	this->hardware_roller_run_base();
+#endif
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void  QtThreadStepMotor::hardware_roller_run_base()
+{
+	this->mBE_1105->SendCmd4Done(mBe1105RunDir,
+		BE_1105_RUN_SPEED_15S_BASE,
+		BE_1105_RUN_ONE_CIRCLE_BASE);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void  QtThreadStepMotor::hardware_roller_run_base_x5()
+{
+	this->mBE_1105->SendCmd4Done(mBe1105RunDir,
+		BE_1105_RUN_SPEED_CRACK_DETECT,
+		BE_1105_RUN_CIRCLE_CRACK_DETECT);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadStepMotor::hardware_init()
+{
+	this->mBE_1105 = QSharedPointer<BE_1105_Driver>(new BE_1105_Driver(Q_NULLPTR));
+
+	this->init_serial_port(mBE_1105);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void QtThreadStepMotor::run_normal()
 {
-	
-	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
+	const int TIME_INTERVAL = 2000;
+	const int TIME_VIDEO = 15 * 1000;
 
-	mBE_1105 = QSharedPointer<BE_1105_Driver>(new BE_1105_Driver(Q_NULLPTR));
+	this->hardware_init();	
 
-	/*-------------------------------------*/
-	this->emit_status_message(mStatusMessage = "Thread>> Ctrl Thread Start");
-	/*-------------------------------------*/
-	do {
+	while (M_THREAD_RUN)
+	{
+		this->SleepMy(TIME_INTERVAL);
+		this->wait4WorkFlowStart();
 
-		mBE_1105->open_auto();
+		this->SleepMy(TIME_INTERVAL);
+		
+		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady, CircleSeq());
 
-		if (mBE_1105->init() == TRUE) {
-			break;
-		}
-		else {
-			this->SleepMy(1000);
-			std::cout << "EVENT>>" << "Cant Open Serial Port !" << std::endl;
-		}
-
-		if (M_THREAD_RUN == FALSE) {
-			break;
+		{
+			this->SleepMy(TIME_INTERVAL);
+			emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart00, "");			
+			this->hardware_roller_run();			
+			emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop00, "");
 		}
 
-	} while (mBE_1105->init() == FALSE);
-	/*-------------------------------------*/
-	QtThreadClientCtrl::ClearCmd();
-	/*-------------------------------------*/
-
-	while (M_THREAD_RUN) {
-
-
-		if (this->IsCmdCtrlPipeOK()) {
-
-
-
-			QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
-			this->emit_status_message(mStatusMessage = "CT_FPGA_START");
-
-			{
-
-				DEBUG_TEST;
-				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_00);
-				this->emit_status_message(mStatusMessage = "CT_FPGA_START_00");
-				{
-					DEBUG_TEST;
-					this->StepMotorRun();
-				}
-				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00);
-				this->emit_status_message(mStatusMessage = "CT_FPGA_STOP_00");
-#if 0
-				this->Wait4ImgProcess(TIME_GAP);
-#endif // 0
-
-
-
-				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01);
-				this->emit_status_message(mStatusMessage = "CT_FPGA_START_01");
-				{
-					DEBUG_TEST;
-					while (BLOCK_IN_STEP02 && M_THREAD_RUN)
-					{
-						this->StepMotorRun();
-						this->SleepMy(100);
-					}
-					
-					
-				}
-				QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01);
-				this->emit_status_message(mStatusMessage = "CT_FPGA_STOP_01");
-#if 0
-				this->Wait4ImgProcess(TIME_GAP);
-#endif // 0
-
-				
-
-			}QtThreadClientCtrl::SetLocalCmd(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP);
-			this->emit_status_message(mStatusMessage = "CT_FPGA_STOP");
-			DEBUG_TEST;
+		{
+			this->SleepMy(TIME_INTERVAL);
+			emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart01, "");			
+			this->hardware_roller_run();
+			emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop01, "");
 		}
 
 
+		this->emit_roller_done();
+
+
+		CMD_CTRL::BodyRollerQualified qualified_status_t = this->wait4ImgProcessResult();
+
+		this->emit_roller_done_qualified(qualified_status_t);
+
+		this->SleepMy(TIME_INTERVAL);
 	}
-
-
-	/*-------------------------------------*/
-	mBE_1105->close();
-	mBE_1105.clear();
-#if _DEBUG
-	this->emit_status_message(mStatusMessage = "Thread>>  shutdown");
-#endif // _DEBUG
 }
 /*-------------------------------------*/
 /**
@@ -376,6 +370,38 @@ void QtThreadStepMotor::blockInStep02()
 		}
 
 	}
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadStepMotor::SetBlock(bool _block)
+{
+	this->mBlock = _block;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void  QtThreadStepMotor::init_serial_port(QSharedPointer<BE_1105_Driver>	 _be_1105)
+{
+	do {
+		_be_1105->open_auto();
+
+		if (_be_1105->init() == TRUE) {
+
+			emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortIsOpen, "");
+			break;
+
+		}
+		else {
+			this->SleepMy(1000);
+			emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortError, "");
+		}
+
+	} while (_be_1105->init() == FALSE && M_THREAD_RUN);
 }
 /*-------------------------------------*/
 /**
