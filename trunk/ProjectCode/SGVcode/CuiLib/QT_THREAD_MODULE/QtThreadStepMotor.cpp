@@ -207,9 +207,20 @@ void QtThreadStepMotor::hardware_roller_run()
 /*-------------------------------------*/
 void  QtThreadStepMotor::hardware_roller_run_base()
 {
+
+#if 1
 	this->mBE_1105->SendCmd4Done(mBe1105RunDir,
 		BE_1105_RUN_SPEED_15S_BASE,
 		BE_1105_RUN_ONE_CIRCLE_BASE);
+#endif
+
+#if 0
+	this->mBE_1105->SendCmd4Done(mBe1105RunDir,
+		35000,
+		BE_1105_RUN_ONE_CIRCLE_BASE);
+#endif // 0
+
+
 }
 /*-------------------------------------*/
 /**
@@ -263,8 +274,12 @@ void QtThreadStepMotor::run_normal()
 
 		{
 			this->SleepMy(TIME_INTERVAL);
-			emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart01, "");			
-			this->hardware_roller_run();
+			emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart01, "");	
+
+			do {
+			this->hardware_roller_run();			
+			} while (M_THREAD_RUN && mBlock);
+
 			emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop01, "");
 		}
 

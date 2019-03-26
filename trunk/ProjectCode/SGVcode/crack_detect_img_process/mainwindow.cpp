@@ -407,9 +407,11 @@ void MainWindow::DrawUnqualified(QSharedPointer<CMD_CTRL> _cmd)
 	if (_cmd->IsImgFrame()) {
 	
 				if (_cmd->getQualified()==CMD_CTRL::BodyRollerQualified::UnQualified) {
-#if _DEBUG || 0
-					cvLine(img_t, cvPoint(0, 0), cvPoint(Width,Height),Color, Thickness);
-					cvLine(img_t, cvPoint(0, Height), cvPoint(Width,0),Color, Thickness);
+#if _DEBUG 
+		 			if (0) {
+								cvLine(img_t, cvPoint(0, 0), cvPoint(Width,Height),Color, Thickness);
+								cvLine(img_t, cvPoint(0, Height), cvPoint(Width,0),Color, Thickness);					
+					}
 #endif
 				}
 

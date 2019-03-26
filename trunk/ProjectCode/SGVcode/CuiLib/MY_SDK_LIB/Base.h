@@ -88,27 +88,38 @@ public:
 public:
 	static float Math_GetSumF(float * Data,int DataNum);
 public:
+	static std::string& replace_str(std::string& str, const std::string& to_replaced, const std::string& newchars);
+	static void STD_push_back(std::vector<std::string> &dst, std::vector<std::string> &src);
+	static void STD_push_back(std::vector<float> &dst, std::vector<float> &src);
 	static std::vector<float> CombineVector(std::vector<float> v0, std::vector<float> v1);
 public:
 	static int FS_deleteFile(const std::string file_full_path);
 	static int FS_copyFile(const std::string src,const std::string dst);
+
+	static int FS_MoveFile(const std::string src, const std::string dst);
 	
 	static int FS_copyFileSTL(const std::string src, const std::string dst);
 
 	static void FS_getFiles(std::string path, std::string exd, std::vector<std::string>& files);	
-	static void FS_getFilesLinux(std::string path, std::string exd, std::vector<std::string>& files);
-	static void FS_getFilesWin(std::string path, std::string exd, std::vector<std::string>& files);
-
+	
 	static void FS_getDirs(std::string path, std::string flag, std::vector<std::string>& files);
+private:
+	static void FS_getFilesWin(std::string path, std::string exd, std::vector<std::string>& files);
+	static void FS_getFilesLinux(std::string path, std::string exd, std::vector<std::string>& files);
 	static void FS_getDirsWin(std::string path, std::string flag, std::vector<std::string>& files);
-
+public:
+	static std::string FS_getFileName(const std::string& const path);
+	static std::string FS_getSuperDirPath(std::string path);
+	static std::string FS_getEndDirName(std::string path);
+	
 	static std::string FS_getDirName(std::string path);
+
 	static bool FS_checkUserPath(std::string userPath);
 	static bool FS_checkUserPath_add_divide(std::string& userPath);
 	
 	static std::string FS_createPath(std::string path_base, std::string path_sub, boolean CREATE_FLAG=true);
 	static std::string FS_createDir(std::string _path);
-
+public:
 	static int CRACK_FILE_NAME_get_idx(std::string file_full_name);
 	
 	static int CRACK_FILE_NAME_get_channel(std::string file_full_name);
@@ -122,6 +133,8 @@ public:
 
 	static std::string CRACK_PATH_GetFrameChannelDiff(std::string file_base, std::string file_name, std::string add_str="",boolean create_flag=true);
 	static std::string CRACK_PATH_GetFrameChannelDiff(std::string file_base,int CIRCLE,int CHANNEL, std::string add_str,boolean create_flag=true);
+public:
+	static std::string TIME_getCurrentTime(std::string _format= "%Y%m%d%H%M%S");
 
 };
 

@@ -490,6 +490,44 @@ float Base::Math_GetSumF(float * Data, int DataNum)
 *
 */
 /*-----------------------------------------*/
+std::string & Base::replace_str(std::string & str, const std::string & to_replaced, const std::string & newchars)
+{
+	for (std::string::size_type pos(0); pos != std::string::npos; pos += newchars.length())
+	{
+		pos = str.find(to_replaced, pos);
+		if (pos != std::string::npos)
+			str.replace(pos, to_replaced.length(), newchars);
+		else
+			break;
+	}
+	return   str;
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+void Base::STD_push_back(std::vector<std::string> &dst, std::vector<std::string> &src)
+{
+	dst.insert(dst.end(), src.begin(), src.end());
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+void Base::STD_push_back(std::vector<float>& dst, std::vector<float>& src)
+{
+	dst.insert(dst.end(), src.begin(), src.end());
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
 std::vector<float> Base::CombineVector(std::vector<float> v0, std::vector<float> v1)
 {
 	std::vector<float> v_out;
@@ -547,6 +585,18 @@ int Base::FS_copyFile(const std::string src, const std::string dst)
 	
 
 	return copy_result_t;
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+int Base::FS_MoveFile(const std::string src, const std::string dst)
+{
+	FS_copyFileSTL(src, dst);
+	FS_deleteFile(src);
+	return 0;
 }
 /*-----------------------------------------*/
 /**
@@ -776,7 +826,42 @@ void Base::FS_getDirsWin(std::string path, std::string flag, std::vector<std::st
 *
 */
 /*-----------------------------------------*/
+std::string Base::FS_getFileName(const std::string& const path)
+{
+	return path.substr(path.find_last_of("/\\") + 1);
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+std::string Base::FS_getSuperDirPath(std::string path)
+{
+	int pos = path.find_last_of("/\\");
+
+	return path.substr(0,pos);
+		
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
 std::string Base::FS_getDirName(std::string path)
+{
+	std::vector<std::string>  vs = Base::split(path, '\\');
+	std::string dir_name_t = vs.at(vs.size() - 1);//chX.
+	return dir_name_t;
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+std::string Base::FS_getEndDirName(std::string path)
 {
 	std::vector<std::string>  vs = Base::split(path, '\\');
 	std::string dir_name_t = vs.at(vs.size() - 1);//chX.
@@ -1035,3 +1120,18 @@ bool Base::FS_checkUserPath_add_divide(std::string & userPath)
 *
 */
 /*-----------------------------------------*/
+std::string Base::TIME_getCurrentTime(std::string _format)
+{
+	time_t now = time(NULL);
+	struct tm timeinfo = *localtime(&now);
+	char buf[1024];
+	strftime(buf, sizeof(buf), _format.c_str(), &timeinfo);
+
+	std::string time_t(buf);
+	return time_t;
+}
+/*----------------------------------------------------------------*/
+/**
+* @note "%Y%m%d%H%M%S"==20130207142133
+*/
+/*----------------------------------------------------------------*/

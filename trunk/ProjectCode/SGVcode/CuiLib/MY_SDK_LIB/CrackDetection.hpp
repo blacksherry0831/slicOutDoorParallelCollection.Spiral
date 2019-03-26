@@ -46,9 +46,10 @@ public:
 
 	float GetFeature(const int _matrix_size_out, const int _matrix_size_in);
 public:
-	static void Gray2NoiseFast(IplImage* _img, const int _matrix_size_out, const int _matrix_size_in, const int _c_step);
-	static float GetFeatureFast(const IplImage* _img_binary,const int _matrix_size_out, const int _matrix_size_in);
+	static void Gray2NoiseFast(IplImage* _img);
+	static void Binary2Smooth_Line(IplImage* _img);
 
+	static float GetFeatureFast(const IplImage* _img_binary);
 	static float GetFeatureFastEx(IplImage* _img_binary, int _matrix_size_out, const int _matrix_size_in, const int _c_step);
 
 };

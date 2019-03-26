@@ -526,7 +526,7 @@ void CrackDetection::RemoveConnectivity(IplImage* _img, int _size_remove)
 /*-----------------------------------------*/
 void CrackDetection::Binary2Noise(const int _matrix_size_out,const int _matrix_size_in,const int _c_step)
 {
-	Gray2NoiseFast(this->mImgBinaryLink,_matrix_size_out,_matrix_size_in,_c_step);
+	Gray2NoiseFast(this->mImgBinaryLink);
 }
 /*-----------------------------------------*/
 /**
@@ -579,7 +579,7 @@ float CrackDetection::GetFeature(const int _matrix_size_out, const int _matrix_s
 
 	IplImage* const img_t = this->mImgBinaryLink;
 	
-	return GetFeatureFast(img_t,_matrix_size_out,_matrix_size_in);
+	return GetFeatureFast(img_t);
 }
 /*-----------------------------------------*/
 /**
@@ -587,74 +587,72 @@ float CrackDetection::GetFeature(const int _matrix_size_out, const int _matrix_s
 *
 */
 /*-----------------------------------------*/
-void CrackDetection::Gray2NoiseFast(IplImage * _img, const int _matrix_size_out, const int _matrix_size_in, const int _c_step)
+void CrackDetection::Gray2NoiseFast(IplImage * _img)
 {	
 	uchar* const ImgData = (uchar *)_img->imageData;
 	const int STEP = _img->widthStep / sizeof(uchar);
 	const int Width=_img->width;
 	const int Height=_img->height;
-	const int center_c = _matrix_size_out / 2;
-	const int center_r = _matrix_size_out / 2;
-	const int matrix_hsize_out = _matrix_size_out / 2;
-	const int matrix_hsize_in = _matrix_size_in / 2;
-	const int center_c_max = Width - center_c;
-	const int center_r_max = Height - center_r;
+	const int border_size = 1;
+	const int border_w_max = Width - border_size - 1;
+	const int border_h_max = Height - border_size - 1;
 
-	for (size_t ci = center_c; ci < center_c_max; ci += _c_step) {
-		for (size_t ri = center_r; ri <center_r_max; ri += _c_step) {
+#if 1
+	for (size_t wi = 0; wi <Width; wi++)
+	{
+		for (size_t hi = 0; hi <Height; hi++)
+		{
+			if (	wi < border_size || 
+					hi< border_size		||
+					wi>  border_w_max ||
+					hi> border_h_max) {
 
-			const int rect_out_x = ci - matrix_hsize_out;
-			const int rect_out_right = rect_out_x + _matrix_size_out;
-			const int rect_out_y = ri - matrix_hsize_out;
-			const int rect_out_bottom = rect_out_y + _matrix_size_out;
+						ImgData[wi + hi*Width] = 0;
+			
+			}
+		}
 
-			const int rect_in_x = ci - matrix_hsize_in;
-			const int rect_in_y = ri - matrix_hsize_in;
-			const int rect_in_right = rect_in_x + _matrix_size_in;
-			const int rect_in_bottom = rect_in_y + _matrix_size_in;
+	}
+#endif // 0
 
-			int out_pixel_size = 0;
-#if TRUE
+#if 1
+	const int WidthB= Width - border_size;
+	const int HeightB= Height - border_size;
+	const int x_offset[8] = {1,1,1,0,-1,-1,-1,0};
+	const int y_offset[8] = {-1,0,1,1,1,0,-1,-1};
+	
+	for (size_t wi = border_size; wi <WidthB; wi++)
+	{
+		for (size_t hi = border_size; hi <HeightB; hi++)
+		{
+			int img_data= ImgData[wi + hi*STEP];
+			if (img_data==255)
+			{
+						int isPoint=0;
+						for (size_t gi = 0; gi < 8; gi++)
+						{
+							int gwi = wi + x_offset[gi];
+							int ghi = hi + y_offset[gi];
+							int img_data_g= ImgData[gwi + ghi*STEP];
+							if (img_data_g == 255) {
+								isPoint++;
+								break;
+							}
 
-			for (size_t cio = rect_out_x; cio < rect_out_right; cio++) {
-				for (size_t rio = rect_out_y; rio <rect_out_bottom; rio++) {
-
-					if (cio >= rect_in_x  &&
-						cio<rect_in_right &&
-						rio >= rect_in_y &&
-						rio<rect_in_bottom) {
-						//in
-						//ImgData[cio + STEP*rio] = 128;
-
-					}
-					else {
-						//ring
-						if (ImgData[cio + STEP*rio]) {
-							//this point is not null,
-							out_pixel_size++;
 						}
-						//ImgData[cio + STEP*rio] = 255;
-					}
+						if (isPoint==0) {
+							ImgData[wi + hi*STEP] = 0;							
+						}
 
-				}
-
-			}
-#endif 
-
-#if TRUE
-			if (out_pixel_size == 0) {
-				//out ring no 
-				for (size_t cii = rect_in_x; cii < rect_in_right; cii++) {
-					for (size_t rii = rect_in_y; rii <rect_in_bottom; rii++) {
-						ImgData[cii + STEP*rii] = 0;
-					}
-				}
 
 			}
-#endif // TRUE
 
 		}
+
 	}
+#endif
+
+		
 }
 /*-----------------------------------------*/
 /**
@@ -662,13 +660,89 @@ void CrackDetection::Gray2NoiseFast(IplImage * _img, const int _matrix_size_out,
 *
 */
 /*-----------------------------------------*/
-float CrackDetection::GetFeatureFast(const IplImage*  _img_binary, const int _matrix_size_out, const int _matrix_size_in)
+void CrackDetection::Binary2Smooth_Line(IplImage * _img)
+{
+	uchar* const ImgData = (uchar *)_img->imageData;
+	const int STEP = _img->widthStep / sizeof(uchar);
+	const int Width = _img->width;
+	const int Height = _img->height;
+	const int border_size = 1;
+	const int border_w_min = border_size;
+	const int border_h_min = 0;
+	const int border_w_max = Width - border_size - 1;
+	const int border_h_max = Height;
+	
+	ASSERT(Width==STEP);
+
+#if 1
+	for (size_t wi = 0; wi <Width; wi++)
+	{
+		for (size_t hi = 0; hi <Height; hi++)
+		{
+			if (wi < border_w_min ||
+				hi<  border_h_min ||
+				wi>  border_w_max ||
+				hi> border_h_max) {
+
+				ImgData[wi + hi*STEP] = 0;
+
+			}
+		}
+
+	}
+#endif // 0
+
+#if 1
+	const int WidthB = Width;
+	const int HeightB = Height - border_size;
+	
+	const int x_offset[] = { -1,1};
+	const int y_offset[] = {0,0 };
+	const int SIEZ_OFFSET = sizeof(x_offset) / sizeof(int);
+	for (size_t wi = border_w_min; wi <WidthB; wi++)
+	{
+		for (size_t hi = border_h_min; hi <HeightB; hi++)
+		{
+			int img_data = ImgData[wi + hi*STEP];
+			if (img_data == 255)
+			{
+				int isPoint = 0;
+				for (size_t gi = 0; gi < SIEZ_OFFSET ; gi++)
+				{
+					int gwi = wi + x_offset[gi];
+					int ghi = hi + y_offset[gi];
+					int img_data_g = ImgData[gwi + ghi*STEP];
+					if (img_data_g == 255) {
+						isPoint++;
+						break;
+					}
+
+				}
+				if (isPoint == 0) {
+					ImgData[wi + hi*STEP] = 0;
+				}
+
+
+			}
+
+		}
+
+	}
+#endif
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+float CrackDetection::GetFeatureFast(const IplImage*  _img_binary)
 {
 	const IplImage* const img_t = _img_binary;
 	const uchar* const ImgData = (uchar *)img_t->imageData;
 	const int STEP = img_t->widthStep / sizeof(uchar);
 
-	const int ring_width = _matrix_size_out - _matrix_size_in;
+	const int ring_width = 1;
 	const int rWIDTH = img_t->width-ring_width;
 	const int rHEIGHT = img_t->height-ring_width;
 	unsigned int points = 0;
@@ -676,7 +750,7 @@ float CrackDetection::GetFeatureFast(const IplImage*  _img_binary, const int _ma
 	for (size_t ci = ring_width; ci < rWIDTH; ci++) {
 		for (size_t ri = ring_width; ri <rHEIGHT; ri++) {
 
-			if (ImgData[ci + STEP*ri]) {
+			if (ImgData[ci + STEP*ri]==255) {
 				points++;
 			}
 			
@@ -695,9 +769,17 @@ float CrackDetection::GetFeatureFastEx(IplImage * _img_binary, int _matrix_size_
 {
 //	TimeMeasure tm;
 //	tm.start(__func__);
+#if 0
+	 Gray2NoiseFast(_img_binary);
+#endif // 0
 
-	 Gray2NoiseFast(_img_binary, _matrix_size_out, _matrix_size_in, _c_step);
-	 const float feature_t = GetFeatureFast(_img_binary,_matrix_size_out,_matrix_size_in);
+#if 0
+	 Binary2Smooth_Line(_img_binary);
+
+#endif // 0
+
+
+	 const float feature_t = GetFeatureFast(_img_binary);
 	
 //	tm.stop();
 	 return feature_t;

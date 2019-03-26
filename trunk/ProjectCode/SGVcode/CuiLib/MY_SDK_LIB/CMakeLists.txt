@@ -24,6 +24,9 @@ SET(MY_SDK_SRCS
 	Base.cpp
 	PathCfg.cpp
 	LatLng.cpp
+	Line2Point.cpp
+	BlockAnalysis.cpp
+	BlockProperty.cpp
 	OpencvCamera.cpp
 	ImageProcess.cpp
 	OutCircleFeature.cpp

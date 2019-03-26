@@ -334,10 +334,10 @@ void Saveframe::initPath()
 	else
 	{
 			if (feature_t<FEATHER_THRESHOLD) {
-				pos_neg = 1;
+				pos_neg = 0; //噪声小，是负样本，无伤痕
 			}
 			else {
-				pos_neg = 0;
+				pos_neg = 1;
 			}
 			this->init_pos_neg_path(pos_neg);
 	}

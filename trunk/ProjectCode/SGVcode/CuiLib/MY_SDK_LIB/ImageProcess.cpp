@@ -164,6 +164,7 @@ CvRect ImageProcess::findTestArea(IplImage *image_gray,std::string readfile_name
 		}
 
 		int delta=std::min(max_idx-top_idx,bottom_idx-top_idx);
+
 #if _DEBUG&&0
 		cvDrawRect(image_gray,cvPoint(0,max_idx-delta),cvPoint(image_gray->width,max_idx+delta),cvScalar(255,255,255));
 		cvDrawLine(image_gray,cvPoint(0,max_idx),cvPoint(image_gray->width,max_idx),cvScalar(0,0,0));
@@ -3505,6 +3506,48 @@ int ImageProcess::GetLineProperty(std::vector<CvPoint> point_set, std::vector<fl
 *
 */
 /*----------------------------------------------------------------*/
+int ImageProcess::Save_Feature2TXT(std::vector<float> features,
+	std::vector<INT32> classifies,
+	int feature_dimension,
+	std::string _feature_name,
+	std::string file_base)
+{
+	assert(features.size() == classifies.size()*feature_dimension);
+#if TRUE
+	std::stringstream all_filename;
+	all_filename << file_base << "\\" << _feature_name << classifies.size() << ".txt";//样本个数
+	std::string output_full_name = all_filename.str();
+	std::ofstream outfile;
+	outfile.open(output_full_name); //myfile.bat是存放数据的文件名  
+
+	outfile << std::setiosflags(std::ios::scientific);
+
+	if (outfile.is_open()) {
+
+		for (size_t i = 0; i <classifies.size(); i++) {
+
+
+			for (size_t vi = 0; vi <feature_dimension; vi++) {
+				outfile << features.at(i*feature_dimension + vi) << " ";
+			}
+			outfile << classifies.at(i) << std::endl;
+		}
+
+		outfile.close();
+		return TRUE;
+	}
+	else {
+		std::cout << "不能打开文件!" << std::endl;
+		return FALSE;
+	}
+#endif // TRUE
+	std::cout << "Save Feature Txt at : " << output_full_name << std::endl;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
 std::vector<float> ImageProcess::crack_get_image_feature(IplImage *diff_org,std::string file_base,int frame_idx)
 {
 #if TRUE
@@ -3619,11 +3662,340 @@ std::vector<float> ImageProcess::crack_get_image_feature(IplImage *diff_org,std:
 *
 */
 /*----------------------------------------------------------------*/
-void ImageProcess::SvmLeanFromFile(std::string _featureFile, std::string _classifyFile, int _method, std::string _path)
+void ImageProcess::Svm_Lean_F(std::string _featureFile, std::string _classifyFile, int _method, std::string _path, std::string _module_xml)
 {
 	  CvMat* mat_feature_t=(CvMat*) cvLoad(_featureFile.c_str());
-
 	  CvMat* mat_classifyFile_t = (CvMat*)cvLoad(_classifyFile.c_str());
+
+	  Svm_Lean_M(mat_feature_t,mat_classifyFile_t, _method, _path,_module_xml);
+
+	  cvRelease((void **)&mat_feature_t);
+	  cvRelease((void **)&mat_classifyFile_t);
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+int ImageProcess::Svm_Lean_Predict(CvSVM & _svm, std::vector<float> _feature)
+{
+	CvMat m;
+	cvInitMatHeader(&m, 1, _feature.size(), CV_32FC1, _feature.data());
+	int category = _svm.predict(&m);
+	return category;
+
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+int ImageProcess::Svm_Lean_Save_Feature2XML(CvMat * _feature, CvMat * _classify, std::string _filename)
+{
+	return 0;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+int ImageProcess::Svm_Lean_Save_Feature2TXT(std::vector<float> features,
+	std::vector<INT32> classifies,
+	int feature_dimension,
+	std::string file_base)
+{
+	return Save_Feature2TXT(features,classifies,feature_dimension,"svm.feature.",file_base);
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+int ImageProcess::Hough_Line_CV_STANDARD_TEST(CvArr * image,
+	IplImage *color_dst,
+	double rho,
+	double theta,
+	int threshold)
+{
+	CvMemStorage *storage = cvCreateMemStorage();
+	CvSeq *lines = 0;
+			
+	lines = cvHoughLines2(image, storage, CV_HOUGH_STANDARD, rho,theta,threshold, 0, 0);
+
+	for (int i = 0; i<lines->total; i++)
+	{
+		float *line = (float *)cvGetSeqElem(lines, i);
+		float rho = line[0];
+		float theta = line[1];
+		CvPoint pt1, pt2;
+		double a = cos(theta);
+		double b = sin(theta);
+		if (fabs(a)<0.001)
+		{
+			pt1.x = pt2.x = cvRound(rho);
+			pt1.y = 0;
+			pt2.y = color_dst->height;
+		}
+		else if (fabs(b)<0.001)
+		{
+			pt1.y = pt2.y = cvRound(rho);
+			pt1.x = 0;
+			pt2.x = color_dst->width;
+		}
+		else
+		{
+			pt1.x = 0;
+			pt1.y = cvRound(rho / b);
+			pt2.x = cvRound(rho / a);
+			pt2.y = 0;
+		}
+
+		cvLine(color_dst, pt1, pt2, CV_RGB(255, 0, 0), 1, 8);
+	}
+
+	cvReleaseMemStorage(&storage);
+	return 0;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+int ImageProcess::Hough_Line_CV_PROBABILISTIC_TEST(CvArr * image,
+	IplImage *color_dst,
+	double rho,
+	double theta,
+	int threshold,
+	double _lineLenMin,
+	double _lineGap)
+{
+	CvMemStorage *storage = cvCreateMemStorage();
+	CvSeq *lines = 0;
+	lines = cvHoughLines2(image, storage, CV_HOUGH_PROBABILISTIC, rho, theta,threshold, _lineLenMin,_lineGap);
+	for (int i = 0; i<lines->total; i++)
+	{
+		CvPoint *line = (CvPoint *)cvGetSeqElem(lines, i);
+		cvLine(color_dst, line[0], line[1], CV_RGB(255, 0, 0), 1, CV_AA);
+	}
+	cvReleaseMemStorage(&storage);
+	return 0;
+}
+/*----------------------------------------------------------------*/
+/**
+*@note 查准率
+*/
+/*----------------------------------------------------------------*/
+std::vector<Line2Point> ImageProcess::Hough_Line_CV_PROBABILISTIC_GetLine(
+	CvArr * image,
+	double rho,
+	double theta,
+	int threshold,
+	double _lineLenMin,
+	double _lineGap)
+{
+	std::vector<Line2Point> line_t;
+	CvMemStorage *storage = cvCreateMemStorage();
+	CvSeq *lines = 0;
+	lines = cvHoughLines2(image, storage, CV_HOUGH_PROBABILISTIC, rho, theta, threshold, _lineLenMin, _lineGap);
+	
+	for (int i = 0; i<lines->total; i++)
+	{
+		CvPoint *line = (CvPoint *)cvGetSeqElem(lines, i);
+		
+		line_t.push_back(Line2Point(line[0], line[1]));
+	}
+	
+	cvReleaseMemStorage(&storage);
+
+	return line_t;
+
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+void ImageProcess::LineCalAngle(std::vector<Line2Point>& _lines)
+{
+	for (auto& line : _lines)
+	{
+		line.CalTheta();
+	}
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+std::vector<Line2Point> ImageProcess::LineRemove(
+					std::vector<Line2Point>&  _lines,
+					double _theta_c,
+					double _theta_r)
+{
+		std::vector<Line2Point> lines_t;
+		size_t remove_line_num_t = 0;
+		
+		double theta_min = _theta_c - _theta_r;
+		double theta_max = _theta_c + _theta_r;
+
+		for (const auto & line_t : _lines)
+		{
+
+			double theta_d = line_t.mTheta_d;
+
+			assert(theta_d > -180 && theta_d <= 180);
+
+			if (theta_d>theta_min &&theta_d<theta_max) {
+#if _DEBUG
+				remove_line_num_t++;
+#endif // _DEBUG
+			}
+			else
+			{
+				lines_t.push_back(line_t);
+			}
+			
+		}
+
+	
+
+	return lines_t;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+void ImageProcess::LineDraw(std::vector<Line2Point>& _lines,
+	IplImage * img_t,
+	CvScalar _color,
+	int _thickness)
+{
+
+	for (auto line_t: _lines)
+	{
+		cvLine(img_t,line_t.mP1,line_t.mP2,_color, _thickness);
+	}
+
+}
+/*----------------------------------------------------------------*/
+/**
+*@note 查准率
+*/
+/*----------------------------------------------------------------*/
+float ImageProcess::Svm_Lean_Precision(int tp, int fp, int fn)
+{
+	return 1.0f*tp/(tp+fp);
+}
+/*----------------------------------------------------------------*/
+/**
+*@note 查全率
+*/
+/*----------------------------------------------------------------*/
+float ImageProcess::Svm_Lean_Recall(int tp, int fp, int fn)
+{
+	return 1.0f*tp/(tp+fn);
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+float ImageProcess::Svm_Lean_SAVE_Recall_Precision(int tp, int fp, int fn,std::string _full_path)
+{
+	float recall_t = Svm_Lean_Recall(tp, fp, fn);
+	float Precision_t = Svm_Lean_Precision(tp, fp, fn);
+	
+	std::ofstream outfile;
+	outfile.open(_full_path); //myfile.bat是存放数据的文件名  
+
+
+	outfile << std::setiosflags(std::ios::scientific);
+
+	if (outfile.is_open()) {
+
+		outfile << "tp= " << tp << std::endl;
+		outfile << "fp= " << fp << std::endl;
+		outfile << "fn= " << fn << std::endl;
+		outfile << "p= " << tp+fn << std::endl;
+
+
+			
+				
+		outfile << "Precision(查准率)= " << Precision_t << " "
+			<< "Recall(查全率)= " << recall_t << " " << std::endl;
+		outfile.close();
+	}
+	else {
+		std::cout << "不能打开文件!" << std::endl;
+
+	}
+
+	return 0.0f;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+int ImageProcess::SampleCalPos(int & _tp, int & _fn, int _sample, int _result)
+{
+	if (_sample==_result)
+	{
+		_tp++;
+	}
+	else
+	{
+		_fn++;
+	}
+	return 0;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+int ImageProcess::SampleCalNeg(int & _tn, int & _fp, int _sample, int _result)
+{
+	if (_sample == _result)
+	{
+		_tn++;
+	}
+	else
+	{
+		_fp++;
+	}
+	return 0;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+void ImageProcess::Svm_Lean(std::vector<float> FeatureData,
+	int FeatureDim,
+	std::vector<INT32> FeatureClassify,
+	int method,
+	std::string path,
+	std::string _module_xml)
+{
+
+	const unsigned long samplenum = FeatureClassify.size();//
+	const std::string data_file = "svm.data.learn.xml";
+	const std::string classify_file = "svm.classifies.learn.xml";
+	static CvMat dataMatHeader;//
+	static CvMat resMatHeader;//
+		
+	if (FeatureData.size()==0 || FeatureClassify.size()==0){
+		
+
+	}else{
+
+		Svm_Lean_SAVE_VECTOR(FeatureData,FeatureDim,FeatureClassify,data_file,classify_file);
+
+	}
+
+	Svm_Lean_F(data_file, classify_file, method, path,_module_xml);
 
 
 }
@@ -3632,73 +4004,110 @@ void ImageProcess::SvmLeanFromFile(std::string _featureFile, std::string _classi
 *
 */
 /*----------------------------------------------------------------*/
-void ImageProcess::Svm_Lean(std::vector<float> FeatureData,int FeatureDim, std::vector<INT32> FeatureClassify,int method,std::string path)
+void ImageProcess::Svm_Lean_SAVE_MAT(
+	CvMat* _data_mat,
+	CvMat* _classify_mat,
+	const std::string data_file,
+	const std::string classify_file)
 {
-#if (CV_MAJOR_VERSION==2)&&(CV_MINOR_VERSION==4)
-	
+
+	cvSave(data_file.c_str(), _data_mat);
+	cvSave(classify_file.c_str(), _classify_mat);
+
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+void ImageProcess::Svm_Lean_SAVE_VECTOR(std::vector<float> FeatureData,
+	int FeatureDim,
+	std::vector<INT32> FeatureClassify,
+	const std::string data_file,
+	const std::string classify_file)
+{
+
 	const unsigned long samplenum = FeatureClassify.size();//
-	const std::string data_file = "svm_data.xml";
-	const std::string classify_file = "svm_classifies.xml";
+	
 	static CvMat dataMatHeader;//
 	static CvMat resMatHeader;//
-	const int TotalClasses = 2;;
-	CvMat* data_mat;//
-	CvMat* res_mat;//
 
-	if (FeatureData.size()==0 || FeatureClassify.size()==0){
-		data_mat = (CvMat*)cvLoad(data_file.c_str());
-		res_mat  = (CvMat*)cvLoad(classify_file.c_str());
-
-	}else{
-		res_mat = cvInitMatHeader(&resMatHeader, samplenum, 1, CV_32SC1, FeatureClassify.data());
-		data_mat = cvInitMatHeader(&dataMatHeader, samplenum, FeatureDim, CV_32FC1, FeatureData.data());
-		cvSave(data_file.c_str(), data_mat);
-		cvSave(classify_file.c_str(), res_mat);
+	if (FeatureData.size() == 0 || FeatureClassify.size() == 0) {
+	
 
 	}
+	else {
+		CvMat* res_mat = cvInitMatHeader(&resMatHeader, samplenum, 1, CV_32SC1, FeatureClassify.data());
+		CvMat* data_mat = cvInitMatHeader(&dataMatHeader, samplenum, FeatureDim, CV_32FC1, FeatureData.data());
 
+		Svm_Lean_SAVE_MAT(data_mat, res_mat,data_file,classify_file);
+		
+
+	}
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+void ImageProcess::Svm_Lean_M(CvMat * _data_mat,
+	CvMat * _classify_mat,
+	int _method, 
+	std::string _path,
+	std::string _module_xml)
+{
+#if (CV_MAJOR_VERSION==2)&&(CV_MINOR_VERSION==4)
+		
+	const int TotalClasses = 2;;
+	
 	CvSVM svm;
 	CvSVMParams params;
-	assert(method>=0&&method<20);
+	assert(_method >= 0 && _method<=3);
 
-	if (method == CvSVM::LINEAR){
-//#ifdef SVM_USE_Linear
+	if (_method == CvSVM::LINEAR) {
+		//#ifdef SVM_USE_Linear
 		params.svm_type = CvSVM::C_SVC;
 		params.kernel_type = CvSVM::LINEAR;
 		params.term_crit = cvTermCriteria(CV_TERMCRIT_ITER, 1e5, FLT_EPSILON);
-	}else if (method== CvSVM::RBF){
-//#ifdef SVM_USE_Gaussian
+	}
+	else if (_method == CvSVM::RBF) {
+		//#ifdef SVM_USE_Gaussian
 		params.svm_type = CvSVM::C_SVC;
 		params.kernel_type = CvSVM::RBF;
-		params.term_crit = cvTermCriteria(CV_TERMCRIT_EPS, 1e5, 1E-6F);
+		params.term_crit = cvTermCriteria(CV_TERMCRIT_ITER + CV_TERMCRIT_EPS, 1000, FLT_EPSILON);
 #if 1
 		params.gamma = 1.0 / TotalClasses;//增加容错，调小gamma
 		params.C = 1;//增加容错，调小C;
 #endif // 0
-		//params.gamma = 10;//增加容错，调小gamma
-		//params.C = 8;//增加容错，调小C;
+					 //params.gamma = 10;//增加容错，调小gamma
+					 //params.C = 8;//增加容错，调小C;
 
-	}else if(method == CvSVM::POLY){
-//#ifdef SVM_USE_Poly
+	}
+	else if (_method == CvSVM::POLY) {
+		//#ifdef SVM_USE_Poly
 		params.svm_type = CvSVM::C_SVC;
 		params.kernel_type = CvSVM::POLY;
 		params.term_crit = cvTermCriteria(CV_TERMCRIT_EPS, 1e5, FLT_EPSILON);
 		params.degree = 2;//最高相次
-		params.gamma = 1.0/ TotalClasses;//1/n_features
+		params.gamma = 1.0 / TotalClasses;//1/n_features
 		params.coef0 = 0;
 		params.C = 1;//增加容错，调小C 
-	}else{
+	}
+	else {
 
 	}
 
 	std::cout << "Start SVM Train !" << std::endl;
-		svm.train(data_mat, res_mat, NULL, NULL, params);//☆  
+	svm.train(_data_mat, _classify_mat, NULL, NULL, params);//☆  
 	std::cout << "END SVM Train !" << std::endl;
-													 //☆☆利用训练数据和确定的学习参数,进行SVM学习☆☆☆☆  
-	//const	std::string svmsavepath =path+"SvmModule.xml";
-
-	svm.save(path.c_str(), 0);
+	//☆☆利用训练数据和确定的学习参数,进行SVM学习☆☆☆☆  
 	
+	Base::FS_checkUserPath_add_divide(_path);
+
+	const	std::string svmsavepath =_path+ _module_xml;
+	
+	svm.save(svmsavepath.c_str(), 0);
+
 #endif
 }
 /*----------------------------------------------------------------*/
@@ -3946,6 +4355,39 @@ void ImageProcess::DrawHistogram_fromImage(IplImage * img, std::string file_base
 *
 */
 /*----------------------------------------------------------------*/
+void ImageProcess::DrawBox(CvBox2D rect,IplImage * _img)
+{
+	
+	const int thickness = 1;
+	const int line_type = 8;
+	const CvScalar color = CV_RGB(255, 0, 0);
+	CvPoint2D32f Corners[4]; 
+	
+	cvBoxPoints(rect, Corners); 
+	//转换为矩形的四个顶点 /****由于Opencv 没有自带画倾斜矩形，所以画四条矩形边来代替****/ 
+	for (int i = 0; i < 3; i++)
+		cvLine(_img,
+			cvPoint(int(Corners[i].x),int(Corners[i].y)),
+			cvPoint(int(Corners[i+1].x),int(Corners[i+1].y)),
+			color,
+			thickness,
+			line_type);
+	
+	cvLine(_img,
+		cvPoint(int(Corners[3].x),int(Corners[3].y)),
+		cvPoint(int(Corners[0].x),int(Corners[0].y)),
+		color,
+		thickness,
+		line_type);
+
+	cvEllipseBox(_img, rect, color, thickness, line_type);
+	
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
 void ImageProcess::SaveArray2Disk(float * data, int size,int channel_t,int frame_count, std::string file_base)
 {
 	std::stringstream ss;
@@ -3962,7 +4404,13 @@ void ImageProcess::SaveArray2Disk(float * data, int size,int channel_t,int frame
 
 	myfile.close();
 }
-void ImageProcess::Opencv_SaveVector2CvMatrix(std::string file_name, std::vector<float> vf)
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+void ImageProcess::Opencv_SaveVector2CvMatrix(std::string file_name,
+	std::vector<float> vf)
 {
 	const int DIM = vf.size();
 

@@ -225,7 +225,7 @@ void QtImgProcess::run()
 		if (channels_data_t->IsReceiving() && JQCPUMonitor::cpuUsagePercentageIn5Second()>0.99) {
 			//TCP now is transfer , cpu is busy
 			this->SleepMy();
-	}
+		}
 		else {
 			this->processImgCmd();
 		}
@@ -278,13 +278,15 @@ void QtImgProcess::EnqueueImg4ShowUI(QSharedPointer<CMD_CTRL> _cmd)
 /*-------------------------------------*/
 void QtImgProcess::emit_img_signals(QSharedPointer<CMD_CTRL> _cmd)
 {
+	const int CHANNEL = _cmd->Channel();
+	Q_ASSERT(CHANNEL >= 0 && CHANNEL < 8);
 	if (_cmd->IsImgStart()) {
-		emit img_stat_ex(_cmd->CmdStat(), 0, 0);
+		emit img_stat_ex(_cmd->CmdStat(), CHANNEL, 0);
 	}
 	else if (_cmd->IsImgEnd()) {
-		emit img_stat_ex(_cmd->CmdStat(), 0, 0);
+		emit img_stat_ex(_cmd->CmdStat(), CHANNEL, 0);
 	}else if (_cmd->IsImgFrame()) {
-		const int CHANNEL = _cmd->Channel();
+	
 		QSharedPointer<exCircleData> circleData = ChannelsData::getInstance()->getChannelData(CHANNEL);
 		emit img_stat_ex(_cmd->CmdStat(), CHANNEL, circleData->QueueSize());
 	}

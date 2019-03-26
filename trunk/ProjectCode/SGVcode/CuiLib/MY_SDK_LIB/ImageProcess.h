@@ -1,6 +1,8 @@
-#pragma once
+ #pragma once
 
 #include "opencv_stl.h"
+
+#include "Line2Point.hpp"
 
 class ImageProcess
 {
@@ -130,21 +132,105 @@ public:
 	static float CRACK_get_histgram_area(std::vector<float> histgram, int WIDTH, int HEIGHT, int PN);
 
 	static std::vector<float> process_histogram(std::vector<float>& histogram, std::vector<std::vector<CvPoint>>&  point_sets, std::vector<float>& delta_out, int HISTOGRAM_DIM, int width, int height);
+	
 	static int GetLineProperty(std::vector<CvPoint> point_set, std::vector<float> delta, float& sum_delta, int& idx);
 public:
+	static int Save_Feature2TXT(std::vector<float> features,
+		std::vector<INT32>  classifies,
+		int feature_dimension,
+		std::string _feature_name,
+		std::string file_base);
+public:
 
-	static void Svm_Lean(std::vector<float> FeatureData, int FeatureDim, std::vector<INT32> FeatureClassify, int method, std::string path);
+	static void Svm_Lean(std::vector<float> FeatureData,
+		int FeatureDim,
+		std::vector<INT32> FeatureClassify,
+		int method,
+		std::string path,
+		std::string _module_xml);
 
-	static void SvmLeanFromFile(std::string _featureFile,
+	static void Svm_Lean_M(CvMat* _data_mat,
+		CvMat* _classify_mat,
+		int _method,
+		std::string _path,
+		std::string _module_xml);
+
+	static void Svm_Lean_SAVE_MAT(CvMat* _data_mat,
+		CvMat* _classify_mat,
+		const std::string data_file,
+		const std::string classify_file);
+
+	static void Svm_Lean_SAVE_VECTOR(std::vector<float> FeatureData,
+		int FeatureDim,
+		std::vector<INT32> FeatureClassify,
+		const std::string data_file,
+		const std::string classify_file);
+
+	static void Svm_Lean_F(std::string _featureFile,
 						 std::string _classifyFile,
 						int _method,
-						std::string _path);
+						std::string _path,
+						std::string _module_xml);
+
+	static int Svm_Lean_Predict(CvSVM &_svm,
+		std::vector<float> _feature);
+
+	static int Svm_Lean_Save_Feature2XML(CvMat* _feature,
+		CvMat* _classify,std::string _filename);
+
+	
+	static int Svm_Lean_Save_Feature2TXT(std::vector<float> features,
+		std::vector<INT32>  classifies,
+		int feature_dimension,
+		std::string file_base);
+	
+	static float Svm_Lean_Precision(int tp,int fp,int fn);
+	static float Svm_Lean_Recall(int tp, int fp, int fn);
+	static float Svm_Lean_SAVE_Recall_Precision(int tp, int fp, int fn, std::string _full_path);
+	
+	static int SampleCalPos(int& _tp, int& _fn,int _sample,int _result);
+	static int SampleCalNeg(int& _tn, int& _fp, int _sample, int _result);
+
+public:
+	static int Hough_Line_CV_STANDARD_TEST(CvArr* image,
+		IplImage *color_dst,
+		double rho=1,
+		double theta=CV_PI/180,
+		int threshold=150);
+
+	static int Hough_Line_CV_PROBABILISTIC_TEST(CvArr* image,
+		IplImage *color_dst,
+		double rho=1,
+		double theta=CV_PI/180,
+		int threshold=150,
+		double _lineLenMin = 10,
+		double _lineGap = 2);
+
+	static std::vector<Line2Point> Hough_Line_CV_PROBABILISTIC_GetLine(CvArr* image,
+		double rho = 1,
+		double theta = CV_PI / 180,
+		int threshold = 150,
+		double _lineLenMin = 10,
+		double _lineGap = 2);
+	
+	static void LineCalAngle(std::vector<Line2Point>& _lines);
+
+	static std::vector<Line2Point> LineRemove(
+					std::vector<Line2Point>& _lines,
+					double _theta_c,
+					double _theta_r);
+
+	static void LineDraw(std::vector<Line2Point>& _lines,
+		IplImage * img_t,
+		CvScalar _color= CV_RGB(255, 0, 0),
+		int _thickness=1);
 
 public:
 	static void CuiResize(IplImage * src, IplImage * dst, const int m_step, const int n_step);
 public:
 	static void  DrawHistogram(float *data, int size, std::string file_base, int CHANNEL, int frame_idx, std::vector<float> feature);
 	static void  DrawHistogram_fromImage(IplImage * img, std::string file_base, int CIRCLE, int CHANNEL, int frame_idx, int ColIdx, int hist_bar_height=255, int hist_bar_width=1);
+	static void  DrawBox(CvBox2D rect, IplImage * _img);
 public:
 	static void  SaveArray2Disk(float *data, int size,int channel_t, int frame_count, std::string file_base);
 	
