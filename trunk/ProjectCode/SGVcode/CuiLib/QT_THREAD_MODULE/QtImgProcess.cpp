@@ -16,8 +16,7 @@ QtImgProcess::QtImgProcess(int _channel)
 	memset(&mImgProc, 0, sizeof(IMG_PROC));
 #endif // TRUE
 	mImgProc.CurrentChannel = _channel;
-	mImgProc.ThresholdClassifyThickly = 0.02;
-		
+			
 	this->M_THREAD_RUN = true;
 	this->mSleepTime = 0;
 }
@@ -35,72 +34,65 @@ QtImgProcess::~QtImgProcess(void)
 *
 */
 /*-------------------------------------*/
-float QtImgProcess::ImgProcessIpl(IplImage * _img,const IMG_PROC _img_proc)
+void QtImgProcess::ImgProcessIpl_Base(IplImage * _img, const IMG_PROC _img_proc)
 {
-	float feature_t = -1;
-
 	const CvRect rect = cvGetImageROI(_img);
 	cvResetImageROI(_img);
-
 #if TRUE
-	if (_img_proc.ShowCutArea) {
-		QtThread8VideoProcess::DrawArea(_img, rect);
+	if (_img_proc.ImgProc_Binary) {
+		const float threshold = 0.5;
+		const float max_value = 255;
+		const int threshold_type = CV_THRESH_BINARY;
+		cvThreshold(_img, _img, threshold, max_value, threshold_type);
+	}
+
+	if (_img_proc.ImgProc_Denoise) {
+		CrackDetection::Binary2Smooth_Line(_img);
 	}
 #endif // TRUE
+	cvSetImageROI(_img, rect);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+std::vector<float> QtImgProcess::ImgProcessIpl(IplImage * _img,const IMG_PROC _img_proc)
+{
+	std::vector<float> f_v_t;
+	const CvRect rect = cvGetImageROI(_img);
+	cvResetImageROI(_img);
+			
+#if TRUE
 
-	if (_img_proc.ShowBinaryImg) {
+	if (_img_proc.ImgProc_Binary_Thickly_Classify) {
+		
+		f_v_t = CrackDetection::GetFeatureFast(_img);
+		
+	}else if (_img_proc.ImgProc_Hough_Block_Classify){
 
-		float threshold = 0.5;
-		float max_value = 255;
-		int threshold_type = CV_THRESH_BINARY;
-#if 0
-		TimeMeasure tm;
-		tm.start("th");
-#endif // 0
-			cvThreshold(_img, _img, threshold, 255, threshold_type);//·§Öµ100	
-#if 0
-		tm.stop();
-#endif // 0
+		std::vector<Line2Point> lines_t;
+		const CvScalar color_t=CV_RGB(255,255,255);
+		const int thickness_t=1;
+		f_v_t = CrackDetection::GetCrackImgHoughBlockFeatureBase(_img, _img, lines_t, _img,color_t,thickness_t);
 
-	
+	}else{
+
 	}
 
-	if (_img_proc.ShowBinaryClassifyThickly) {
-		feature_t=CrackDetection::GetFeatureFastEx(_img, 11, 7, 5);
-	}
+#endif // TRUE
 
 	cvSetImageROI(_img, rect);
-
-	return feature_t;
+	return f_v_t;
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void QtImgProcess::ImgProcInner(IplImage * _img)
+std::vector<float> QtImgProcess::ImgProcessCMD_CTRL(QSharedPointer<CMD_CTRL> _cmd,const IMG_PROC _img_proc)
 {
-
-	const int WIDTH = _img->width;
-	const int HEIGHT = _img->height;
-	if ( WIDTH== 960 && HEIGHT==544) {
-	
-		for (size_t hi = HEIGHT-4; hi < HEIGHT; hi++)
-		{
-			cvLine(_img, cvPoint(0, hi), cvPoint(WIDTH, hi), cvScalar(0));
-		}
-	
-	}
-	
-
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-int QtImgProcess::ImgProcessCMD_CTRL(QSharedPointer<CMD_CTRL> _cmd,const IMG_PROC _img_proc)
-{
+	std::vector< float> feature_t;
 
 	if (_cmd->IsImgStart()) {
 
@@ -111,22 +103,74 @@ int QtImgProcess::ImgProcessCMD_CTRL(QSharedPointer<CMD_CTRL> _cmd,const IMG_PRO
 		Q_ASSERT(_img_proc.CurrentChannel>=0 && _img_proc.CurrentChannel<8);
 
 		IplImage* img_t = _cmd->getIplimage();
-#if 1
-		this->ImgProcInner(img_t);
-#endif // 1
+		
+		ImgProcessIpl_RemoveBorder(img_t, _img_proc);
 
-		const float feature_t=ImgProcessIpl(img_t,_img_proc);
-		if (_img_proc.ShowBinaryClassifyThickly)
-		{
-			_cmd->mFeature = feature_t;
-			_cmd->mImgProc = _img_proc;
-		}
+		ImgProcessIpl_Base(img_t, _img_proc);
 
+		feature_t =ImgProcessIpl(img_t,_img_proc);
+
+		ImgProcessIpl_Draw(img_t, _img_proc);
+		
 	}else {
 
 	}
 
-	return TRUE;
+	return feature_t;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtImgProcess::ImgProcessIpl_RemoveBorder(IplImage * _img, const IMG_PROC _img_proc)
+{
+	const int WIDTH = _img->width;
+	const int HEIGHT = _img->height;
+	
+	std::vector<int> row_t;
+	std::vector<int> col_t;
+
+	CrackDetection::Init_RemoveBorder(WIDTH,HEIGHT,row_t,col_t);
+
+	CrackDetection::IMG_RemoveBorder(_img, row_t, col_t);
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtImgProcess::ImgProcessIpl_Draw(IplImage * _img, const IMG_PROC _img_proc)
+{
+	const int Channel = _img_proc.CurrentChannel;
+	std::vector<float> f_v_t;
+	const CvRect rect = cvGetImageROI(_img);
+	cvResetImageROI(_img);
+#if TRUE
+	if (_img_proc.ShowCutArea) {
+		QtThread8VideoProcess::DrawArea(_img, rect);
+		DrawFPS(_img,_img_proc.CurrentChannel);
+	}
+#endif // TRUE
+	cvSetImageROI(_img, rect);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int QtImgProcess::ImgProcessCMD_CTRL_AttachResult(
+	QSharedPointer<CMD_CTRL>& _cmd,
+	const IMG_PROC & _img_proc,
+	const std::vector<float>& _result,
+	const int _classify)
+{
+	_cmd->mFeature = _result;
+	_cmd->mImgProc = _img_proc;
+	_cmd->mClassify = _classify;
+
+	return 0;
 }
 /*-------------------------------------*/
 /**
@@ -141,16 +185,69 @@ void QtImgProcess::processImgCmd()
 	if (circleData->QueueSize()) {
 			
 			QSharedPointer<CMD_CTRL> cmd_t = circleData->getImg();
-			IMG_PROC_record_work_flow(cmd_t);
-			const float feature_t = ImgProcessCMD_CTRL(cmd_t, mImgProc);
 			
-			ChannelsData4Show::getInstance()->ConfigRecordImg(cmd_t);		
+			QSharedPointer<CMD_CTRL> cmd_4_show_t =QSharedPointer<CMD_CTRL>(new CMD_CTRL());
+
+			cmd_4_show_t->Init2BgrBuffer(cmd_t.data());
+			
+			IMG_PROC_record_work_flow(cmd_t);
+			
+			std::vector<float> feature_t= ImgProcessCMD_CTRL(cmd_t, mImgProc);
+			
+			const int classify_t = predictFeature(feature_t,mImgProc);
+			
+			this->ImgProcessCMD_CTRL_AttachResult(cmd_t, mImgProc, feature_t,classify_t);
+			
+			ChannelsData4Show::getInstance()->ConfigRecordImg(cmd_t);	
+
 			this->EnqueueImg4ShowUI(cmd_t);	
 
 	}else {
 		this->SleepMy();
 	}
 
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int QtImgProcess::predictFeature(std::vector<float> _f, const IMG_PROC _img_proc)
+{
+	int Classify_t=0;
+
+	if (_f.size()==0)
+	{
+		return Classify_t = 0;
+	}
+	
+	if (_img_proc.ImgProc_Binary_Thickly_Classify) {
+
+		float THRESHOLD =mThresholdClassifyThickly;
+		float FEATURE = _f.at(0);
+		if (FEATURE >= 0 - 1E-6) {
+			Classify_t = FEATURE < THRESHOLD ? CrackDetection::NEG_CLASS : CrackDetection::POS_CLASS;
+		}
+
+	}else if (_img_proc.ImgProc_Hough_Block_Classify) {
+			Q_ASSERT(_f.size()!=0);
+			const std::vector<float> th_t = CrackDetection::getThresholdInOutCircleHoughBlock(mIpAddrProperty);
+			Classify_t = CrackDetection::predict_in_out_block(_f,mIpAddrProperty,th_t);
+
+	}else {
+
+	}
+
+	return Classify_t;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtImgProcess::SetImgProc_IpAddrProperty(std::string _property)
+{
+	this->mIpAddrProperty = _property;
 }
 /*-------------------------------------*/
 /**
@@ -175,9 +272,18 @@ void QtImgProcess::SetImgProcCutArea(int _param)
 *
 */
 /*-------------------------------------*/
-void QtImgProcess::SetImgProcBinaryImg(int _param)
+void QtImgProcess::SetImgProcBinary(const int _param)
 {
-	this->mImgProc.ShowBinaryImg = _param;
+	this->mImgProc.ImgProc_Binary = _param;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtImgProcess::SetImgProcDenoise(const int _param)
+{
+	this->mImgProc.ImgProc_Denoise = _param;
 }
 /*-------------------------------------*/
 /**
@@ -186,7 +292,39 @@ void QtImgProcess::SetImgProcBinaryImg(int _param)
 /*-------------------------------------*/
 void QtImgProcess::SetImgProcBinaryClassifyThickly(int _param)
 {
-	this->mImgProc.ShowBinaryClassifyThickly = _param;
+	this->mImgProc.ImgProc_Binary_Thickly_Classify = _param;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtImgProcess::SetImgProcHoughBlockClassify(int _param)
+{
+	this->mImgProc.ImgProc_Hough_Block_Classify = _param;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtImgProcess::DrawFPS(IplImage * _img,const int _ch)
+{
+	const int WIDTH = _img->width;
+	const int HEIGHT = _img->height;
+	const ChannelsData*    channels_data_t = ChannelsData::getInstance();
+	const float fps = channels_data_t->getChannelData(_ch)->fps();
+
+	CvFont font;
+	const int thickness = 2;
+	const float scale = 1;
+	cvInitFont(&font, CV_FONT_HERSHEY_COMPLEX, scale, scale, 0, thickness);
+	
+	std::string text_t;
+
+	text_t.append("FPS: ").append(Base::float2str(fps));
+
+	cvPutText(_img,text_t.data(), cvPoint(WIDTH  * 0.7, HEIGHT * 0.1),&font,CV_RGB(255,255,255));
 }
 /*-------------------------------------*/
 /**
@@ -196,7 +334,7 @@ void QtImgProcess::SetImgProcBinaryClassifyThickly(int _param)
 void QtImgProcess::SetClassifyThicklyThreshold(float _threshold)
 {
 	Q_ASSERT(_threshold>=0);
-	this->mImgProc.ThresholdClassifyThickly = _threshold;
+	mThresholdClassifyThickly = _threshold;
 }
 /*-------------------------------------*/
 /**
@@ -205,7 +343,7 @@ void QtImgProcess::SetClassifyThicklyThreshold(float _threshold)
 /*-------------------------------------*/
 float QtImgProcess::GetClassifyThicklyThreshold()
 {
-	return  this->mImgProc.ThresholdClassifyThickly;
+	return  mThresholdClassifyThickly;
 }
 /*-------------------------------------*/
 /**
@@ -217,8 +355,10 @@ void QtImgProcess::run()
 	
 	this->setPriorityMy();
 
+#if _DEBUG
 	const ChannelsData*    channels_data_t = ChannelsData::getInstance();
-	
+#endif // _DEBUG
+		
 	while (M_THREAD_RUN){	
 
 #if 0
@@ -259,7 +399,6 @@ void QtImgProcess::startServer()
 void QtImgProcess::closeServer()
 {
 	this->M_THREAD_RUN = false;
-
 }
 /*-------------------------------------*/
 /**

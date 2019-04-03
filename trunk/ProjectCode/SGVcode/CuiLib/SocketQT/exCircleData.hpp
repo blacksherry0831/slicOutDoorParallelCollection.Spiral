@@ -1,6 +1,7 @@
 #pragma once
-
+/*-----------------------------------*/
 #include "cpp_stl.h"
+#include "platform.h"
 /*-----------------------------------*/
 /**
 *
@@ -35,17 +36,19 @@ public:
 	exCircleData(int _ch);
 	~exCircleData();
 private:
-	clock_t mStartTime;
-	clock_t mCurrentTime;
+	QTime mStartTime;
+	QTime mCurrentTime;
 	int mFrameCount;
 	int mChannel;
 	int mIsSaveFrame;
+	const int START_FRAME_COUNT=3;
 	Saveframe mSaveFrame;
 	QVector<int> mResult;
 private:
 	void clear();
 	void assert_channel(QSharedPointer<CMD_CTRL> _cmd_ctrl);
 public:
+	void initFrameState_FPS();
 	void init();
 	void destory();
 	void start_record(QSharedPointer<CMD_CTRL> _cmd);

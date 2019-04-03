@@ -33,8 +33,9 @@ public:
 	std::string mIpAddrRemote;
 	std::string mIpAddrLocal;
 	std::string mCurrentCircleTime;
-	float mFeature;	
+	std::vector<float> mFeature;	
 	IMG_PROC mImgProc;
+	int mClassify;
 public:
 	
 	void SetIpAddrRemote(QTcpSocket* _pSocket);
@@ -68,6 +69,8 @@ public:
 	static QSharedPointer<CMD_CTRL> getLocalCmdEx(int _cmd00, int _cmd01 = 0x00,int _cmd_idx=0);
 	static QSharedPointer<CMD_CTRL> getFpgaStartCmdEx(int _type, WorkMode _wm,uint _circle_seq);
 public:
+	void Init2BgrBuffer(CMD_CTRL* _cmd);
+public:
 	static void adjRect44(CvRect* rect);
 public:
 	int getQualified();
@@ -92,7 +95,12 @@ public:
 	int CmdStat();
 	int FrameCount();
 	int IsImg();
+	
 	int InitImgCtrlHeader(int VideoCh, int _width, int _height, int _nChannels);
+	int InitIplImageUI(int VideoCh, int _width, int _height, int _nChannels);
+
+	void InitBody(int _width, int _height, int _nChannels);
+
 	int InitImg();
 	int InitIplimage();
 	int Channel();

@@ -3,11 +3,17 @@
 #define TYPE_SOCKET_QT_H
 
 typedef struct {
-
+	
 	int ShowCutArea;
-	int ShowBinaryImg;
-	int ShowBinaryClassifyThickly;
-	float ThresholdClassifyThickly;//¥÷∑÷¿‡„–÷µ
+		
+	int ImgProc_Binary_Thickly_Classify;
+	int ImgProc_Hough_Block_Classify;
+	
+	int ImgProc_Binary;
+	int ImgProc_Denoise;
+	int ImgProc_Hough;
+	int ImgProc_Block;
+		
 	int CurrentChannel;
 	int Start;
 	int End;

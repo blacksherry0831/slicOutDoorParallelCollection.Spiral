@@ -10,6 +10,7 @@ public:
 public:
     static	int str2int(int &int_temp, const std::string &string_temp);
 	static  std::string int2str(int value_t);
+	static  std::string float2str(float _f_v);
 public:
 	static char pathSplit();
 
@@ -108,7 +109,7 @@ private:
 	static void FS_getFilesLinux(std::string path, std::string exd, std::vector<std::string>& files);
 	static void FS_getDirsWin(std::string path, std::string flag, std::vector<std::string>& files);
 public:
-	static std::string FS_getFileName(const std::string& const path);
+	static std::string FS_getFileName(const std::string&  path);
 	static std::string FS_getSuperDirPath(std::string path);
 	static std::string FS_getEndDirName(std::string path);
 	

@@ -33,19 +33,50 @@ QtThreadFlowCtrlLocal::~QtThreadFlowCtrlLocal(void)
 *
 */
 /*-------------------------------------*/
+void QtThreadFlowCtrlLocal::run_normal()
+{
+	const int TIME_INTERVAL = 2000;
+	const int TIME_VIDEO = 15 * 1000;
 
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
+	this->hardware_init();
 
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
+	while (M_THREAD_RUN)
+	{
+		this->SleepMy(TIME_INTERVAL);
+		this->wait4WorkFlowStart();
 
+		this->SleepMy(TIME_INTERVAL);
+
+		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady, CircleSeq());
+
+		{
+			this->SleepMy(TIME_INTERVAL);
+			emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart00, "");
+			this->hardware_roller_run();
+			emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop00, "");
+		}
+
+		{
+			this->SleepMy(TIME_INTERVAL);
+			emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart01, "");
+
+			do {
+				this->hardware_roller_run();
+			} while (M_THREAD_RUN && mBlock);
+
+			emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop01, "");
+		}
+
+		this->emit_roller_done();
+		
+		CMD_CTRL::BodyRollerQualified qualified_status_t = this->wait4ImgProcessResult();
+
+		this->emit_roller_done_qualified(qualified_status_t);
+
+		this->SleepMy(TIME_INTERVAL);
+	}
+
+}
 /*-------------------------------------*/
 /**
 *
@@ -53,50 +84,7 @@ QtThreadFlowCtrlLocal::~QtThreadFlowCtrlLocal(void)
 /*-------------------------------------*/
 void QtThreadFlowCtrlLocal::run()
 {
-	const int TIME_INTERVAL = 2000;
-	const int TIME_VIDEO = 15*1000;
-	while (M_THREAD_RUN)
-	{
-		this->SleepMy(TIME_INTERVAL);
-		this->wait4WorkFlowStart();
-		
-		this->SleepMy(TIME_INTERVAL);
-
-		
-
-
-		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady,CircleSeq());
-		
-		{
-				this->SleepMy(TIME_INTERVAL);
-				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart00,"");
-				this->SleepMy(TIME_VIDEO);
-				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop00,"");
-				
-		}
-	
-		{
-				this->SleepMy(TIME_INTERVAL);
-				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart01,"");
-				do {
-					this->SleepMy(TIME_VIDEO); 
-				} while (M_THREAD_RUN && mBlock);
-				this->SleepMy(TIME_INTERVAL);
-				emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop01,"");
-				
-		}
-
-	
-		this->emit_roller_done();
-		
-
-		CMD_CTRL::BodyRollerQualified qualified_status_t = this->wait4ImgProcessResult();
-		
-		this->emit_roller_done_qualified(qualified_status_t);
-	
-		this->SleepMy(TIME_INTERVAL);
-	}
-
+	this->run_normal();
 }
 /*-------------------------------------*/
 /**
@@ -116,7 +104,33 @@ void QtThreadFlowCtrlLocal::SetBlock(bool _block)
 {
 	this->mBlock = _block;
 }
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadFlowCtrlLocal::hardware_init()
+{
 
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int QtThreadFlowCtrlLocal::hardware_init_status()
+{
+	return 0;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadFlowCtrlLocal::hardware_roller_run()
+{
+
+}
 /*-------------------------------------*/
 /**
 *

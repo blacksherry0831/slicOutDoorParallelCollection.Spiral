@@ -134,10 +134,22 @@ void QtThread8ImgProcess::SetAllImgShowCutRect(int _param)
 /*-------------------------------------*/
 void QtThread8ImgProcess::SetAllImgBinary(int _param)
 {
-	for (size_t i = 0; i <mTaskObj.size(); i++)
-	{
-		mTaskObj[i]->SetImgProcBinaryImg(_param);
+	for (const auto& task_t : mTaskObj) {
+		task_t->SetImgProcBinary(_param);
 	}
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThread8ImgProcess::SetAllImgDenoise(int _param)
+{
+
+	for(const auto& task_t : mTaskObj) {
+		task_t->SetImgProcDenoise(_param);
+	}
+
 }
 /*-------------------------------------*/
 /**
@@ -163,6 +175,17 @@ void QtThread8ImgProcess::SetAllImgClassifyThickly(int _param, float _threshold)
 *
 */
 /*-------------------------------------*/
+void QtThread8ImgProcess::SetAllImgClassifyHoughBlock(int _param, std::vector<float> _threshold_v)
+{
+	for (const auto& task_t : mTaskObj) {
+		task_t->SetImgProcHoughBlockClassify(_param);
+	}
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 int   QtThread8ImgProcess::IMG_PROC_All_Done()
 {
 	for (size_t i = 0; i <mTaskObj.size(); i++)
@@ -174,6 +197,18 @@ int   QtThread8ImgProcess::IMG_PROC_All_Done()
 
 	return TRUE;
 
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThread8ImgProcess::SetAllImg_IpAddrProperty(std::string _in_out)
+{
+	for(auto& task_t: mTaskObj)
+	{
+		task_t->SetImgProc_IpAddrProperty(_in_out);
+	}
 }
 /*-------------------------------------*/
 /**
@@ -197,7 +232,7 @@ float QtThread8ImgProcess::GetClassifyThicklyThreshold()
 void QtThread8ImgProcess::SetAllImgSigma(int _sigma)
 {
 
-	foreach(auto task_t, mTaskObj)
+	for(auto& task_t: mTaskObj)
 	{
 		task_t->SetImgProcSigma(_sigma);
 	}

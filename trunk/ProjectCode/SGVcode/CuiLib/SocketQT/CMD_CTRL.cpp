@@ -15,7 +15,7 @@
 /*-------------------------------------*/
 CMD_CTRL::CMD_CTRL()
 {
-	mFeature = -1;
+	mClassify = 0;
 	memset(&mImgProc, 0, sizeof(IMG_PROC));
 }
 /*-------------------------------------*/
@@ -571,26 +571,41 @@ int CMD_CTRL::IsImg()
 int CMD_CTRL::InitImgCtrlHeader(int VideoCh,int _width, int _height, int _nChannels)
 {
 	
+	InitBody(_width,_height,_nChannels);	
+		
+	initHeaderCmd(CMD_TYPE::CT_IMG, CMD_TYPE_02_I::CT_IMG_FRAME);
+		
+	InitIplImageUI(VideoCh, _width, _height, _nChannels);
+
+	return 0;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void CMD_CTRL::InitBody(int _width, int _height, int _nChannels)
+{
 	const int body_size_t = _width*_height*_nChannels + sizeof(IplImageUI);
-	
-		SetDataSize(body_size_t);
 
-	this->f_header.f_cmd[0] = CMD_TYPE::CT_IMG;
-	this->f_header.f_cmd[1] = CMD_TYPE_02_I::CT_IMG_FRAME;
-	
+	SetDataSize(body_size_t);
 
-	
-	this->Int2UChar(sizeof(IplImageU),this->f_data.data());
-
+	this->Int2UChar(sizeof(IplImageU), this->f_data.data());
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int CMD_CTRL::InitIplImageUI(int VideoCh, int _width, int _height, int _nChannels)
+{
 	IplImageU *img_u = this->getIplimageU();
-
-	this->Int2UChar(_width, img_u->width);
-
+	
 	this->Int2UChar(_width, img_u->width);
 	this->Int2UChar(_height, img_u->height);
-	this->Int2UChar(_nChannels, img_u->nChannels );
+	this->Int2UChar(_nChannels, img_u->nChannels);
 	this->Int2UChar(1, img_u->sensor_stat);
-	this->Int2UChar(VideoCh%8, img_u->IpAddrChannel);
+	this->Int2UChar(VideoCh % 8, img_u->IpAddrChannel);
 
 	return 0;
 }
@@ -884,20 +899,18 @@ void CMD_CTRL::adjRect44(CvRect * rect)
 /*-------------------------------------*/
 int CMD_CTRL::getQualified()
 {
-	float THRESHOLD =this->mImgProc.ThresholdClassifyThickly;
-	float FEATURE =this->mFeature;
-	int CLASSIFY = BodyRollerQualified::Qualified;
+	
+	int Q_classify = BodyRollerQualified::Qualified;
 	
 	if (this->IsImgFrame()) {
 
-		if (FEATURE >= 0 - 1E-6) {
-			CLASSIFY = FEATURE < THRESHOLD ? BodyRollerQualified::Qualified : BodyRollerQualified::UnQualified;//0== Q 1==unQ
+		
+		Q_classify = (mClassify == 1) ? BodyRollerQualified::Qualified : BodyRollerQualified::UnQualified;//0== Q 1==unQ
 			
-		}
 
 	}
 
-	return CLASSIFY;
+	return Q_classify;
 }
 /*-------------------------------------*/
 /**
@@ -913,49 +926,18 @@ std::string CMD_CTRL::SetCurrentCircleTime()
 *
 */
 /*-------------------------------------*/
+void CMD_CTRL::Init2BgrBuffer(CMD_CTRL* _cmd)
+{
 
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
+	const int Channel = _cmd->Channel();
+	const int Width = _cmd->Width();
+	const int Height = _cmd->Height();
+	const int SQE = _cmd->GetCmdFrameSeq();
+	const int cmd_00 = _cmd->GetCmd00();
+	const int cmd_01 = _cmd->GetCmd01();
 
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
+	this->InitImgCtrlHeader(Channel,Width,Height,3);
+}
 /*-------------------------------------*/
 /**
 *

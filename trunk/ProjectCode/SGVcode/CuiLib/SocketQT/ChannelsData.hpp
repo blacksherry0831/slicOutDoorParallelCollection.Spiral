@@ -30,13 +30,12 @@ private:
 private:
 	static ChannelsData gChannelsData;
 private:
-	void EnqueueCmd(QSharedPointer<CMD_CTRL> _cmd);
 	void MyImgAssert(QSharedPointer<CMD_CTRL> _cmd);
 public:
 	static ChannelsData* getInstance();
 	int IsReceiving() const;
 public:
-	QSharedPointer<exCircleData> getChannelData(int _ch);
+	QSharedPointer<exCircleData> getChannelData(int _ch) const;
 	
 	void EnqueueImgAll(QSharedPointer<CMD_CTRL> _cmd);
 

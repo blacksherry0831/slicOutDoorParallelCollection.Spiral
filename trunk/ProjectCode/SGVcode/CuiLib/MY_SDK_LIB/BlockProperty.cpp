@@ -64,6 +64,15 @@ CvBox2D BlockProperty::Box()
 *
 */
 /*-----------------------------------------*/
+CvRect BlockProperty::Rect()
+{
+	return this->mRect;
+}
+/*-----------------------------------------*/
+/**
+*
+*/
+/*-----------------------------------------*/
 void BlockProperty::GetFeatureAll()
 {
 
@@ -115,6 +124,16 @@ CvBox2D BlockProperty::GetMinAreaRect()
 	//cvReleaseMemStorage(&storage);
 
 	return mBox;
+}
+/*-----------------------------------------*/
+/**
+*
+*/
+/*-----------------------------------------*/
+CvRect BlockProperty::getBoundingRect()
+{
+
+	return mRect= cvBoundingRect(m_pContour);
 }
 /*-----------------------------------------*/
 /**

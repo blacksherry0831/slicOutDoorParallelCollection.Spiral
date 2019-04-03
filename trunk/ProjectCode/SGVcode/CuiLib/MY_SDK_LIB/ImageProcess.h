@@ -225,12 +225,19 @@ public:
 		CvScalar _color= CV_RGB(255, 0, 0),
 		int _thickness=1);
 
+	static std::vector<Line2Point> getHoughLines(IplImage* _img_bin,
+		IplImage* _img_draw = nullptr,
+		CvScalar _color = CV_RGB(255, 0, 0),
+		int _thickness = 3);
+
+	static void IMG_RemoveBorder(IplImage* _img_bin,std::vector<int> row,std::vector<int> col);
+
 public:
 	static void CuiResize(IplImage * src, IplImage * dst, const int m_step, const int n_step);
 public:
 	static void  DrawHistogram(float *data, int size, std::string file_base, int CHANNEL, int frame_idx, std::vector<float> feature);
 	static void  DrawHistogram_fromImage(IplImage * img, std::string file_base, int CIRCLE, int CHANNEL, int frame_idx, int ColIdx, int hist_bar_height=255, int hist_bar_width=1);
-	static void  DrawBox(CvBox2D rect, IplImage * _img);
+	static void  DrawBox(CvBox2D rect, IplImage * _img, const CvScalar color=CV_RGB(255,0,0));
 public:
 	static void  SaveArray2Disk(float *data, int size,int channel_t, int frame_count, std::string file_base);
 	

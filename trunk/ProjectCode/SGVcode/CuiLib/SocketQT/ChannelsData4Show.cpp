@@ -53,7 +53,6 @@ QSharedPointer<exCircleData> ChannelsData4Show::getChannelData(int _ch)
 void ChannelsData4Show::ConfigRecordImg(QSharedPointer<CMD_CTRL> _cmd)
 {
 	
-
 	if (_cmd->IsImgStart()) {
 
 		this->start_record(_cmd);
@@ -69,6 +68,7 @@ void ChannelsData4Show::ConfigRecordImg(QSharedPointer<CMD_CTRL> _cmd)
 	}else{	
 		Q_ASSERT(FALSE);
 	}
+
 }
 /*-------------------------------------*/
 /**
@@ -77,12 +77,19 @@ void ChannelsData4Show::ConfigRecordImg(QSharedPointer<CMD_CTRL> _cmd)
 /*-------------------------------------*/
 void ChannelsData4Show::EnqueueImg(QSharedPointer<CMD_CTRL> _cmd)
 {
-	if (_cmd->IsImgFrame()) {
-		const int CHANNEL = _cmd->Channel();
+	
+	if (_cmd->IsImgStart()) {
+		
+	}else if (_cmd->IsImgEnd()) {
+		
+	}else if (_cmd->IsImgFrame()) {
 
-		mChannelsData.at(CHANNEL)->setImg(_cmd);
+		EnqueueCmd(_cmd);
 
+	}else {
+		Q_ASSERT(FALSE);
 	}
+
 }
 /*-------------------------------------*/
 /**
@@ -107,23 +114,7 @@ void ChannelsData4Show::record(QSharedPointer<CMD_CTRL> _cmd)
 
 	}
 }
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void ChannelsData4Show::start_record(QSharedPointer<CMD_CTRL> _cmd)
-{	
-	const int CHANNEL = _cmd->Channel();
-	Q_ASSERT(CHANNEL >= 0 && CHANNEL <= 7);
-	Q_ASSERT(!_cmd->mCurrentCircleTime.empty());
-	
 
-	if (!mChannelsData[CHANNEL].isNull()){
-			mChannelsData[CHANNEL]->start_record(_cmd);
-	}	
-
-}
 /*-------------------------------------*/
 /**
 *

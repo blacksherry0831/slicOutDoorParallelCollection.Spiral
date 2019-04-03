@@ -84,6 +84,8 @@ private:
 	QPalette  mPaletteStatus[2];
 	QString   mCheckBoxRunStatus[2];
 private:
+	static  QString gRemoteBord[];
+private:
 	void initGlobal();
 	void destoryGlobal();
 private:
@@ -103,15 +105,8 @@ public:
 
 	QSharedPointer<QtThread8ImgProcess>		mImg8Process;
 
-#if IMG_PROCESS_USE_STEP_MOTOR
-	QSharedPointer<QtThreadStepMotor>		mFlowCtrlLocal;
-#else
-
-#if FLOW_CTRL_USE_LOCAL_SERVER 
 	QSharedPointer<QtThreadFlowCtrlLocal>	mFlowCtrlLocal;
-#endif
 
-#endif
 
 #if FLOW_CTRL_USE_LOCAL_SERVER 
 	QSharedPointer<QtThreadFlowCtrlServer> mFlowServerServerLocal;
@@ -139,10 +134,16 @@ private:
 #if FLOW_CTRL_USE_LOCAL_SERVER 
 	void init_connect_work_flow();
 #endif
+private:
+	std::string GetInOut();
+	std::string GetIpAddrProperty(QString _ipAddr);
 public:
 	void destory_ping_ssh();
 	void init_menu();
 	void init_controls();
+
+	void init_controls_by_cfg();
+
 	void disableInputCtrls(bool _flag=true);
 	int  IsBgThreadRunning();
 	void destory_all();
@@ -218,12 +219,21 @@ public slots:
 #endif // TRUE
 
 #if TRUE
+	void toggleImageClassifyHoughBlock(bool _status);
+#endif
+
+#if TRUE
+	void toggleImgProcDenoise(bool _status);
+	void toggleImgProcBinary(bool _status);
+#endif // TRUE
+
+#if TRUE
 
 	void toggleShowCutArea();
-	void toggleShowBinaryImg();
 	void toggleShowClassifyThickly(bool _checked);
 	void toggleImgCollect();
 	void toggleBlockStep02(bool _block);
+
 #endif // TRUE
 
 #if TRUE

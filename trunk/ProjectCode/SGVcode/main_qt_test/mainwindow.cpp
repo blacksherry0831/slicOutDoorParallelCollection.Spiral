@@ -64,7 +64,7 @@ void MainWindow::init_class_member()
 	mImg8Process->startTask();
 
 	mCtrlServer->SetDataPipe(mVideoDataServer);
-	mStepMotor->SetCmdCtrlPipe(mCtrlServer);
+	
 
 	//////////////////////////////////////////////////////////////////
 	mthread = QSharedPointer<QThread>(new QThread());
@@ -703,11 +703,11 @@ void MainWindow::toggleShowCutArea()
 void MainWindow::toggleShowBinaryImg()
 {
 	if (ui->action_Show_Binary_Img->isChecked()) {
-		mImgProc.ShowBinaryImg = TRUE;
+		mImgProc.ImgProc_Binary = TRUE;
 	}else {
-		mImgProc.ShowBinaryImg = FALSE;
+		mImgProc.ImgProc_Binary = FALSE;
 	}
-	mImg8Process->SetAllImgBinary(mImgProc.ShowBinaryImg);
+	mImg8Process->SetAllImgBinary(mImgProc.ImgProc_Binary);
 }
 /*-------------------------------------*/
 /**
@@ -717,12 +717,11 @@ void MainWindow::toggleShowBinaryImg()
 void MainWindow::toggleShowClassifyThickly(bool _checked)
 {
 
-	if (ui->action_Show_Classify_Thickly->isChecked()) {
-		mImgProc.ShowBinaryClassifyThickly = TRUE;
-	}else {
-		mImgProc.ShowBinaryClassifyThickly = FALSE;
-	}
-	mImg8Process->SetAllImgClassifyThickly(mImgProc.ShowBinaryClassifyThickly);
+	QAction *action_t = qobject_cast<QAction *>(sender());
+	const bool check_stat_t = action_t->isChecked();
+	mImgProc.ImgProc_Binary_Thickly_Classify =action_t->isChecked();
+	mImg8Process->SetAllImgClassifyThickly(check_stat_t);
+
 }
 /*-------------------------------------*/
 /**

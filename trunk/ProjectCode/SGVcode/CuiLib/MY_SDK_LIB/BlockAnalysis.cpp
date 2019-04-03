@@ -20,8 +20,9 @@
 /*-----------------------------------------*/
 BlockAnalysis::BlockAnalysis(void)
 {
-	this->init_param();
-	this->create_memory();
+	this->init();
+	mImgBinary = nullptr;
+
 }
 /*-----------------------------------------*/
 /**
@@ -39,8 +40,7 @@ BlockAnalysis::~BlockAnalysis(void)
 /*-----------------------------------------*/
 BlockAnalysis::BlockAnalysis(IplImage *_img_bin)
 {
-	this->init_param();
-	this->create_memory();
+	this->init();
 
 	assert(	_img_bin->nChannels==1 &&
 			_img_bin->width%4==0);
@@ -73,11 +73,20 @@ void BlockAnalysis::release_memory()
 *
 */
 /*-----------------------------------------*/
-void BlockAnalysis::FindContours()
+int BlockAnalysis::FindContoursIn()
 {
 	
-	mContoursNum = cvFindContours(mImgBinary, mStorage, &m_pContourHeader, sizeof(CvContour), mMode, mMethod);
+	return mContoursNum = FindContours(mImgBinary);
 	
+}
+/*-----------------------------------------*/
+/**
+*
+*/
+/*-----------------------------------------*/
+int BlockAnalysis::FindContours(IplImage * _img_bin)
+{
+	return mContoursNum = cvFindContours(_img_bin, mStorage, &m_pContourHeader, sizeof(CvContour), mMode, mMethod);
 }
 /*-----------------------------------------*/
 /**
@@ -175,6 +184,24 @@ CvBox2D BlockAnalysis::GetMaxBlockBox()
 *
 */
 /*-----------------------------------------*/
+CvRect BlockAnalysis::GetMaxBlockRect()
+{
+	if (mMaxAreaBlockIdx < 0)
+	{
+		BlockProperty bp_max_t(nullptr);
+		return bp_max_t.Rect();
+	}
+	else
+	{
+
+		return mBlocksProperty[mMaxAreaBlockIdx].getBoundingRect();
+	}
+}
+/*-----------------------------------------*/
+/**
+*
+*/
+/*-----------------------------------------*/
 void BlockAnalysis::analyzeAllBlock()
 {
 	BlockProperty bp_max_t(nullptr);
@@ -236,10 +263,10 @@ std::vector<float> BlockAnalysis::GetAllBlockFeature()
 void BlockAnalysis::DrawContoursAll(IplImage* _img,int _thickness)
 {
 	CvSeq * pContour_t = m_pContourHeader;  //提取轮廓的序列指针
-
+	const int max_level = 1;//绘制轮廓及在其后的相同的级别下轮廓
 	for (; pContour_t != 0; pContour_t = pContour_t->h_next)
 	{
-		cvDrawContours(_img, pContour_t,mExternalColor, mHoleColor, 1, _thickness);	
+		cvDrawContours(_img, pContour_t,mExternalColor, mHoleColor, max_level, _thickness);
 	}
 }
 /*-----------------------------------------*/
@@ -247,12 +274,12 @@ void BlockAnalysis::DrawContoursAll(IplImage* _img,int _thickness)
 *
 */
 /*-----------------------------------------*/
-void BlockAnalysis::DrawMaxContour(IplImage * _img, int _thickness)
+void BlockAnalysis::DrawMaxContour(IplImage * _img,int _thickness,int _max_level)
 {
 
 	const int max_level = 0;//如果等级为0，绘制单独的轮廓。
 	if (mMaxAreaBlockIdx!=-1){
-		cvDrawContours(_img,mBlocksProperty[mMaxAreaBlockIdx].Contour(), mExternalColor, mHoleColor, max_level, _thickness);
+		cvDrawContours(_img,mBlocksProperty[mMaxAreaBlockIdx].Contour(), mExternalColor, mHoleColor, _max_level, _thickness);
 	}
 
 }
@@ -264,7 +291,7 @@ void BlockAnalysis::DrawMaxContour(IplImage * _img, int _thickness)
 void BlockAnalysis::DrawMaxContourBlock(IplImage * _img)
 {
 
-	DrawMaxContour(_img, -1);
+	DrawMaxContour(_img, CV_FILLED);
 
 }
 /*-----------------------------------------*/
@@ -272,9 +299,61 @@ void BlockAnalysis::DrawMaxContourBlock(IplImage * _img)
 *
 */
 /*-----------------------------------------*/
-void BlockAnalysis::DrawBox(IplImage * _img,CvBox2D _box, int _thickness)
+void BlockAnalysis::DrawBox(IplImage * _img,CvBox2D _box, const CvScalar _color, int _thickness)
 {
-		ImageProcess::DrawBox(_box, _img);
+		ImageProcess::DrawBox(_box, _img,_color);
+}
+/*-----------------------------------------*/
+/**
+*
+*/
+/*-----------------------------------------*/
+std::vector<float> BlockAnalysis::getFeatureMaxBlockAll(IplImage * _img_bin, 
+	IplImage * _img_draw,
+	const CvScalar _color,
+	const int _thickness)
+{
+	std::vector<float> f_t;
+
+	this->FindContours(_img_bin);
+	this->GetAllBlockProperty_Area();
+	this->analyzeAllBlock();
+
+	CvBox2D box_t = this->GetMaxBlockBox();
+	CvRect  rect_t = this->GetMaxBlockRect();
+
+
+	if (this->ContoursNum()>0) {
+		if (_img_draw != nullptr)
+		{
+			this->DrawContoursAll(_img_draw, CV_FILLED);
+			this->DrawBox(_img_draw, box_t,_color,_thickness);
+#if 0
+			cvRectangleR(_img_draw, rect_t, CV_RGB(255, 255, 255), thickness);
+#endif // 0
+
+		}
+
+	}
+
+	f_t = this->GetAllBlockFeature();
+
+	return f_t;
+}
+/*-----------------------------------------*/
+/**
+*
+*/
+/*-----------------------------------------*/
+std::vector<float> BlockAnalysis::getFeatureBlock(IplImage * _img_bin, IplImage * _img_draw, const CvScalar _color,const int _thickness)
+{	
+
+	BlockAnalysis ba;
+	
+	std::vector<float> f_t = ba.getFeatureMaxBlockAll(_img_bin,_img_draw);
+
+	return f_t;
+
 }
 /*-----------------------------------------*/
 /**
@@ -302,6 +381,16 @@ float BlockAnalysis::ellipseEccentricity(const CvSize2D32f& _size,float _default
 	
 	}
 
+}
+/*-----------------------------------------*/
+/**
+*
+*/
+/*-----------------------------------------*/
+void BlockAnalysis::init()
+{
+	this->init_param();
+	this->create_memory();
 }
 /*-----------------------------------------*/
 /**

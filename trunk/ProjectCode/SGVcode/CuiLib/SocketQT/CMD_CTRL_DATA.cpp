@@ -95,6 +95,25 @@ void CMD_CTRL_DATA::initHeader()
 *
 */
 /*-------------------------------------*/
+void CMD_CTRL_DATA::initHeaderBodySize(int _body_size)
+{
+	int low0_8bit = _body_size % 256;
+	int high0_8bit = _body_size / 256 % 256;
+
+	int low1_8bit = _body_size / 256 / 256 % 256;
+	int high1_8bit = _body_size / 256 / 256 / 256;
+
+	this->f_header.f_data_len[0] = low0_8bit;
+	this->f_header.f_data_len[1] = high0_8bit;
+
+	this->f_header.f_reserve[0] = low1_8bit;
+	this->f_header.f_reserve[1] = high1_8bit;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void CMD_CTRL_DATA::SetDataSize(const int _body_size)
 {
 	if (f_data.size() < 2) {
@@ -105,17 +124,7 @@ void CMD_CTRL_DATA::SetDataSize(const int _body_size)
 	}
 	this->f_data_size = f_data.size();
 
-	int low0_8bit = this->f_data_size % 256;
-	int high0_8bit = this->f_data_size / 256 % 256;
-
-	int low1_8bit = this->f_data_size / 256 / 256 % 256;
-	int high1_8bit = this->f_data_size / 256 / 256 / 256;
-
-	this->f_header.f_data_len[0] = low0_8bit;
-	this->f_header.f_data_len[1] = high0_8bit;
-
-	this->f_header.f_reserve[0] = low1_8bit;
-	this->f_header.f_reserve[1] = high1_8bit;
+	this->initHeaderBodySize(this->f_data_size);
 
 }
 /*-------------------------------------*/
@@ -262,10 +271,18 @@ QSharedPointer<QImage> CMD_CTRL_DATA::IplImageToQImage(IplImage* const img)
 /*-------------------------------------*/
 void CMD_CTRL_DATA::initHearbeatCmd(int _need_resp)
 {
-	f_header.f_cmd[0] = CMD_TYPE::CT_HEART;
-	f_header.f_cmd[1] = CMD_TYPE_02::CT_BEAT;
-
+	initHeaderCmd(CMD_TYPE::CT_HEART, CMD_TYPE_02::CT_BEAT);
 	this->SetCmdParam(_need_resp);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void CMD_CTRL_DATA::initHeaderCmd(int _cmd00, int _cmd01)
+{
+	f_header.f_cmd[0] = _cmd00;
+	f_header.f_cmd[1] = _cmd01;
 }
 /*-------------------------------------*/
 /**

@@ -7,7 +7,15 @@
 #include <QThread>
 #include <QMessageBox>
 #endif // QT_VERSION
-
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+ QString MainWindow::gRemoteBord[] = {	BORD_VIDEO_IN_LONG,
+										BORD_VIDEO_IN_SHORT,
+										BORD_VIDEO_OUT,
+										BORD_VIDEO_SINGLE};
 /*-------------------------------------*/
 /**
 *
@@ -25,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	
 	this->init_menu();
 	this->init_controls();
+	this->init_controls_by_cfg();
 
 	this->ConnectVideo();
 	
@@ -69,15 +78,7 @@ void MainWindow::init_class_member_ptr()
 	mQimageGray->fill(125);
 #endif
 
-#if IMG_PROCESS_USE_STEP_MOTOR
 	mFlowCtrlLocal = QSharedPointer<QtThreadStepMotor>(new QtThreadStepMotor());
-#else
-
-#if FLOW_CTRL_USE_LOCAL_SERVER 
-	mFlowCtrlLocal = QSharedPointer<QtThreadFlowCtrlLocal>(new QtThreadFlowCtrlLocal(this));
-#endif
-
-#endif // 0
 
 	mCtrlServer = QSharedPointer<QtThreadClientCtrl>(new QtThreadClientCtrl());
 	mVideoDataServer = QSharedPointer<QtThread8Video>(new QtThread8Video());
@@ -144,8 +145,9 @@ void MainWindow::img_stat_show_ex(int _p_stat, int _channel, int _frames, void* 
 {
 
 	QSharedPointer<exCircleData> circleData = ChannelsData4Show::getInstance()->getChannelData(_channel);
-
-	if (circleData->QueueSize()) {
+	
+	
+	if (circleData->QueueSize()) {		
 		cmd_ctrl_image[_channel] = circleData->getImg();
 	}
 	
@@ -197,6 +199,45 @@ void MainWindow::start_ping_ssh()
 *
 */
 /*-------------------------------------*/
+std::string MainWindow::GetInOut()
+{
+	const QString ipaddr_qstr_t= this->ui->comboBox_IpAddr->currentText();
+	
+	return GetIpAddrProperty(ipaddr_qstr_t);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+std::string MainWindow::GetIpAddrProperty(QString _ipAddr)
+{
+	
+	std::string property_t;
+
+	if (QString::compare(_ipAddr, BORD_VIDEO_IN_LONG) == 0) {
+		property_t = CrackDetection::CRACK_IN;
+	}
+	else if (QString::compare(_ipAddr, BORD_VIDEO_IN_SHORT) == 0) {
+		property_t = CrackDetection::CRACK_IN;
+	}
+	else if (QString::compare(_ipAddr, BORD_VIDEO_OUT) == 0) {
+		property_t = CrackDetection::CRACK_OUT;
+	}
+	else if (QString::compare(_ipAddr, BORD_VIDEO_SINGLE) == 0) {
+		property_t = "single";
+	}
+	else {
+		Q_ASSERT(0);
+	}
+
+	return property_t;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void MainWindow::destory_ping_ssh()
 {
 	
@@ -241,9 +282,14 @@ void MainWindow::init_menu()
 
 #if TRUE
 	connect(ui->actionShow_Cut_Area, SIGNAL(triggered()), this, SLOT(toggleShowCutArea()));
-	connect(ui->action_Show_Binary_Img, SIGNAL(triggered()), this, SLOT(toggleShowBinaryImg()));
+
+	connect(ui->action_ImgProc_Binary, SIGNAL(triggered(bool)), this, SLOT(toggleImgProcBinary(bool)));
+	connect(ui->action_ImgProc_Denoise, SIGNAL(triggered(bool)), this, SLOT(toggleImgProcDenoise(bool)));
+
 	connect(ui->action_Show_Classify_Thickly, SIGNAL(triggered(bool)), this, SLOT(toggleShowClassifyThickly(bool)));
 	connect(ui->action_img_collect, SIGNAL(triggered()), this, SLOT(toggleImgCollect()));
+
+	connect(ui->actionHoughBlock_threshold, SIGNAL(triggered(bool)), this, SLOT(toggleImageClassifyHoughBlock(bool)));
 #endif // TRUE
 
 #if TRUE
@@ -283,29 +329,45 @@ void MainWindow::init_controls()
 
 #if TRUE
 
-	ui->comboBox_IpAddr->addItem(BORD_VIDEO_IN_LONG);
-	ui->comboBox_IpAddr->addItem(BORD_VIDEO_IN_SHORT);
-	ui->comboBox_IpAddr->addItem(BORD_VIDEO_OUT);
-	ui->comboBox_IpAddr->addItem(BORD_VIDEO_SINGLE);
+	std::vector<QString> RemoteBord(gRemoteBord, gRemoteBord + sizeof(gRemoteBord) / sizeof(QString));
 
-	QString IpAddr_t= mAppSetting->value(mAppKeyXilinxFpgaArm).toString();
-
-	if (IpAddr_t.isEmpty()) {
-			ui->comboBox_IpAddr->setCurrentIndex(ui->comboBox_IpAddr->findText(BORD_VIDEO_OUT));	
-	}
-	else
+	for (const auto bord_t : RemoteBord)
 	{
-			ui->comboBox_IpAddr->setCurrentIndex(ui->comboBox_IpAddr->findText(IpAddr_t));
+		ui->comboBox_IpAddr->addItem(bord_t);
 	}
-
-
+		
 	connect(ui->comboBox_IpAddr, SIGNAL(currentIndexChanged(const QString &)), this, SLOT(ComboBox_IpAddr_changed(const QString &)));
-
-	this->ComboBox_IpAddr_changed(this->ui->comboBox_IpAddr->currentText());
 
 #endif // TRUE
 
 	this->ui->progressBar_flow_ctrl->setRange(0, CMD_CTRL::CMD_CTRL_DATA_LOCAL::CT_FPGA_STOP);
+	
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::init_controls_by_cfg()
+{
+
+#if TRUE
+	QString IpAddr_t = mAppSetting->value(mAppKeyXilinxFpgaArm).toString();
+
+	if (IpAddr_t.isEmpty()) {
+		ui->comboBox_IpAddr->setCurrentIndex(ui->comboBox_IpAddr->findText(BORD_VIDEO_OUT));
+	}
+	else
+	{
+		ui->comboBox_IpAddr->setCurrentIndex(ui->comboBox_IpAddr->findText(IpAddr_t));
+	}
+
+	this->ComboBox_IpAddr_changed(this->ui->comboBox_IpAddr->currentText());
+#endif // TRUE
+
+
+
+
 }
 /*-------------------------------------*/
 /**
@@ -863,7 +925,10 @@ int MainWindow::openImageShowQDialog(QLabel* _qabel)
 
 				{
 					mImgProc.CurrentChannel =Channel;
-					dialog->SetImgProc(mImgProc);					
+					dialog->SetImgProc(mImgProc);	
+				
+					dialog->SetCmdCtrlImageBuffer(Channel,cmd_ctrl_image[Channel]);
+					
 					dialog->setModal(true);
 					dialog->showFullScreen();
 					dialog->show();
@@ -898,14 +963,43 @@ void MainWindow::toggleShowCutArea()
 *
 */
 /*-------------------------------------*/
-void MainWindow::toggleShowBinaryImg()
+void MainWindow::toggleImageClassifyHoughBlock(bool _status)
 {
-	if (ui->action_Show_Binary_Img->isChecked()) {
-		mImgProc.ShowBinaryImg = TRUE;
-	}else {
-		mImgProc.ShowBinaryImg = FALSE;
-	}
-	mImg8Process->SetAllImgBinary(mImgProc.ShowBinaryImg);
+
+	QAction *action_t = qobject_cast<QAction *>(sender());
+	
+	std::vector<float> feature_t;
+
+	mImgProc.ImgProc_Hough_Block_Classify= action_t->isChecked();
+	
+	mImg8Process->SetAllImgClassifyHoughBlock(mImgProc.ImgProc_Hough_Block_Classify,feature_t);
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::toggleImgProcDenoise(bool _status)
+{
+	QAction *action_t = qobject_cast<QAction *>(sender());
+
+	mImgProc.ImgProc_Denoise = action_t->isChecked();
+
+	mImg8Process->SetAllImgDenoise(mImgProc.ImgProc_Denoise);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::toggleImgProcBinary(bool _status)
+{
+	QAction *action_t = qobject_cast<QAction *>(sender());
+
+	mImgProc.ImgProc_Binary = action_t->isChecked();
+
+	mImg8Process->SetAllImgBinary(mImgProc.ImgProc_Binary);
 }
 /*-------------------------------------*/
 /**
@@ -923,7 +1017,7 @@ void MainWindow::toggleShowClassifyThickly(bool _checked)
 
 	if (ui->action_Show_Classify_Thickly->isChecked()) {
 
-		mImgProc.ShowBinaryClassifyThickly = TRUE;
+		mImgProc.ImgProc_Binary_Thickly_Classify = TRUE;
 
 		threshold_t = QInputDialog::getDouble(this,
 										tr("classify thickly "),
@@ -943,10 +1037,10 @@ void MainWindow::toggleShowClassifyThickly(bool _checked)
 
 
 	}else {
-		mImgProc.ShowBinaryClassifyThickly = FALSE;		
+		mImgProc.ImgProc_Binary_Thickly_Classify = FALSE;
 	}
 	
-	mImg8Process->SetAllImgClassifyThickly(mImgProc.ShowBinaryClassifyThickly, threshold_t);
+	mImg8Process->SetAllImgClassifyThickly(mImgProc.ImgProc_Binary_Thickly_Classify, threshold_t);
 
 }
 /*-------------------------------------*/
@@ -1226,6 +1320,7 @@ void  MainWindow::SetFpgaArmLinuxIpAddr(QString _str)
 	mCtrlServer->SetIpAddr(mFpgaArmLinuxIpAddr);
 	mVideoDataServer->SetIpAddr(mFpgaArmLinuxIpAddr);
 	mAppSetting->setValue(mAppKeyXilinxFpgaArm,_str);
+	mImg8Process->SetAllImg_IpAddrProperty(GetIpAddrProperty(_str));
 }
 /*-------------------------------------*/
 /**

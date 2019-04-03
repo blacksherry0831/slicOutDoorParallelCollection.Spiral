@@ -145,6 +145,7 @@ public:
 /*-------------------------------------*/
 protected:
 	void initHeader();
+	void initHeaderBodySize(int _body_size);
 	void SetCmdParam(const int _data);
 	void init();
 	void destory();
@@ -169,6 +170,9 @@ public:
 	static QSharedPointer<QImage> IplImageToQImage(IplImage * const img);
 
 	void initHearbeatCmd(int _need_resp);
+	
+	void initHeaderCmd(int _cmd00,int _cmd01);
+
 	void SetCmdFrameSeq(uint _cmd_idx);
 	QString GetCmdFrameSeqStr();
 public:

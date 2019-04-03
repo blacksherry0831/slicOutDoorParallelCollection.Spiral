@@ -57,8 +57,11 @@ private:
 	void init_xml();
 	void save_xml(QString _save_full_path, QSharedPointer<QDomDocument> _Xml);
 	void add_xml();
+	QString GetVectorFloat(std::vector<float> _float);
 public:
-	Saveframe* SetImgCmd(QSharedPointer<CMD_CTRL> _img_cmd);
+	Saveframe* set_Param(QSharedPointer<CMD_CTRL> _img_cmd);
+	Saveframe* init_CMD_CTRL(QSharedPointer<CMD_CTRL> _img_cmd);
+	Saveframe* set_CMD_CTRL(QSharedPointer<CMD_CTRL> _img_cmd);
 private:
 	Saveframe* SetStartTime(std::string _time);
 public:

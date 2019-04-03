@@ -33,15 +33,22 @@ public:
 
 	explicit QtThreadFlowCtrlLocal(QObject *parent = Q_NULLPTR);
 	~QtThreadFlowCtrlLocal(void);
-public:
-	void SetBlock(bool _block);
-	
-private: 
+protected:
 	bool mBlock;
 public:
+	void SetBlock(bool _block);
+public:
+	virtual void hardware_init();
+	virtual int  hardware_init_status();
+	virtual void hardware_roller_run();
+public:
+	void run_normal();
 	virtual void run();
-
 	virtual int socket_thread_run_condition();
+public:
+
+
+
 
 	
 

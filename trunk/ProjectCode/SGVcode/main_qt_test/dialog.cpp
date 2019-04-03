@@ -247,7 +247,7 @@ void Dialog::SetShowCutArea(int _show)
 /*-------------------------------------*/
 void Dialog::SetShowBinary(int _show_bin)
 {
-	mImgProcess.ShowBinaryImg = _show_bin;
+	mImgProcess.ImgProc_Binary = _show_bin;
 }
 /*-------------------------------------*/
 /**

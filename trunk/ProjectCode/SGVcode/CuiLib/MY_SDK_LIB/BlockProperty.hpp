@@ -19,7 +19,9 @@ public:
 	float Area() const;
 	CvSeq * Contour();  //提取轮廓的序列指针	
 	CvBox2D Box();
+	CvRect Rect();
 	void GetFeatureAll();
 	void GetFeatureArea();
 	CvBox2D GetMinAreaRect();
+	CvRect  getBoundingRect();
 };

@@ -94,7 +94,7 @@ Saveframe* Saveframe::start_record(QSharedPointer<CMD_CTRL> _img_cmd)
 	const std::string time_t = _img_cmd->mCurrentCircleTime;
 
 	this->initParam();
-	this->SetImgCmd(_img_cmd)->SetStartTime(time_t);
+	this->init_CMD_CTRL(_img_cmd)->SetStartTime(time_t);
 
 	this->init_ip_time_path();
 	this->init_xml();
@@ -196,7 +196,7 @@ void Saveframe::add_xml()
 								channel.appendChild(channel_v);
 
 								QDomElement feature = this->mXml->createElement("feature");
-								QDomText feature_v = this->mXml->createTextNode(QString("%1").arg(mCmd->mFeature));
+								QDomText feature_v = this->mXml->createTextNode(GetVectorFloat(mCmd->mFeature));
 								feature.appendChild(feature_v);
 
 								frame.appendChild(filename);
@@ -218,15 +218,27 @@ void Saveframe::add_xml()
 *
 */
 /*-------------------------------------*/
-Saveframe * Saveframe::SetImgCmd(QSharedPointer<CMD_CTRL> _img_cmd)
-{	
-	this->mCmd->mFeature = _img_cmd->mFeature;
-
-	this->mCmd->mImgProc = _img_cmd->mImgProc;
-
+QString Saveframe::GetVectorFloat(std::vector<float> _float)
+{
+	QString f_v_t;
+	for (const auto f_data_t: _float)
+	{
+		QString f_str = QString("%1").arg(f_data_t);
+		f_v_t.append(f_str).append(" ");
+	}
+	
+	return f_v_t;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+Saveframe * Saveframe::set_Param(QSharedPointer<CMD_CTRL> _img_cmd)
+{
 	this->mChannel = _img_cmd->Channel();
 
-	this->mIpAddrRemote =_img_cmd->mIpAddrRemote;
+	this->mIpAddrRemote = _img_cmd->mIpAddrRemote;
 
 	this->mFrameCount = _img_cmd->FrameCount();
 	
@@ -237,13 +249,26 @@ Saveframe * Saveframe::SetImgCmd(QSharedPointer<CMD_CTRL> _img_cmd)
 *
 */
 /*-------------------------------------*/
-
+Saveframe * Saveframe::init_CMD_CTRL(QSharedPointer<CMD_CTRL> _img_cmd)
+{
+	
+	return this->set_Param(_img_cmd)->set_CMD_CTRL(_img_cmd);
+}
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
+Saveframe * Saveframe::set_CMD_CTRL(QSharedPointer<CMD_CTRL> _img_cmd)
+{
+	this->mCmd->mFeature = _img_cmd->mFeature;
 
+	this->mCmd->mImgProc = _img_cmd->mImgProc;
+
+	this->mCmd->mClassify = _img_cmd->mClassify;
+
+	return this;
+}
 /*-------------------------------------*/
 /**
 *
@@ -254,24 +279,6 @@ Saveframe* Saveframe::SetStartTime(std::string _time)
 	this->mCmd->mCurrentCircleTime = _time;
 	return this;
 }
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
 /*-------------------------------------*/
 /**
 *
@@ -323,27 +330,18 @@ std::string  Saveframe::initFileName()
 /*-------------------------------------*/
 void Saveframe::initPath()
 {
-	const float feature_t = this->mCmd->mFeature;// [0 ,1]
-	const float FEATHER_THRESHOLD = this->mCmd->mImgProc.ThresholdClassifyThickly; //set feature to 1,set all image pos
-	int pos_neg;
+	
+	const int pos_neg = this->mCmd->mClassify;
 
-	if (feature_t==-1)
+	if (this->mCmd->mFeature.size() == 0)
 	{
-			this->init_normal_path();
+		this->init_normal_path();
 	}
 	else
 	{
-			if (feature_t<FEATHER_THRESHOLD) {
-				pos_neg = 0; //噪声小，是负样本，无伤痕
-			}
-			else {
-				pos_neg = 1;
-			}
-			this->init_pos_neg_path(pos_neg);
+		this->init_pos_neg_path(pos_neg);
 	}
-
-
-	
+		
 }
 /*-------------------------------------*/
 /**
@@ -353,14 +351,16 @@ void Saveframe::initPath()
 void Saveframe::init_pos_neg_path(int _pos_neg)
 {
 	std::string pos_neg_prefix;
-	Q_ASSERT(_pos_neg==1 || _pos_neg==0);
-	if (_pos_neg)
-	{
+	Q_ASSERT(_pos_neg==1 || _pos_neg==0 || _pos_neg == -1);
+	
+	if (_pos_neg == 1 ){
 		pos_neg_prefix ="p" ;
-	}
-	else
-	{
+	}else if (_pos_neg == -1){
 		pos_neg_prefix = "n";
+	}else if(_pos_neg == 0){
+		pos_neg_prefix = "";
+	}else{
+
 	}
 
 	this->init_normal_path(pos_neg_prefix);

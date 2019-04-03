@@ -41,9 +41,9 @@ public:
 	void ResizeWindowSize();
 	void SetShowCutArea(int _show);
 	void SetShowBinary(int _show_bin);
-	
+	void SetImgProcChannel(int _ch);
 	void SetImgProc(IMG_PROC _img_proc);
-
+	void SetCmdCtrlImageBuffer(int _ch, QSharedPointer<CMD_CTRL> _cmd_ctrl_img);
 private:
 	int m_WidthImg;
 	int m_HeightImg;
@@ -64,7 +64,9 @@ public slots:
 	void keyReleaseEventSigImg(QKeyEvent *ev);
 
 	void ProcessImage(IplImage * img_t);
-
+public:
+	void ShowQImage(QSharedPointer<QImage> _p_qimg);
+	void ShowCmdCtrlImage(int _ch);
 
 private:
     Ui::Dialog *ui;

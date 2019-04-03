@@ -37,8 +37,19 @@ void exCircleData::clear()
 {
 		mAverage.clear();
 		mSigma.clear();
-		mStartTime = clock();
+		mStartTime = QTime::currentTime();
 		mFrameCount = 0;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void exCircleData::initFrameState_FPS()
+{
+	mStartTime = QTime::currentTime();
+	mFrameCount = 0;
+	mCurrentTime = QTime::currentTime();
 }
 /*-------------------------------------*/
 /**
@@ -47,10 +58,10 @@ void exCircleData::clear()
 /*-------------------------------------*/
 void exCircleData::init()
 {
+	//this->mStartFrameCount = 1;
 	mAverage = Q_NULLPTR;
 	mSigma = Q_NULLPTR;
-	mStartTime = clock();
-	mFrameCount = 0;
+	this->initFrameState_FPS();
 	mIsSaveFrame = FALSE;
 	mResult.clear();
 }
@@ -106,7 +117,7 @@ void exCircleData::record(QSharedPointer<CMD_CTRL> _cmd_ctrl)
 			
 			IplImage* img_t = _cmd_ctrl->getIplimage();
 
-				this->mSaveFrame.SetImgCmd(_cmd_ctrl)
+				this->mSaveFrame.init_CMD_CTRL(_cmd_ctrl)
 					->SaveFrame2Disk(img_t);
 
 	}
@@ -119,21 +130,15 @@ void exCircleData::record(QSharedPointer<CMD_CTRL> _cmd_ctrl)
 *
 */
 /*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
 void exCircleData::IncFrameCount()
 {
 	this->mFrameCount++;
 
-	if (this->mFrameCount == 1) {
-		this->mStartTime = clock();
+	if (this->mFrameCount == START_FRAME_COUNT) {
+		this->mStartTime = QTime::currentTime();
 	}
 	else {
-		this->mCurrentTime = clock();
+		this->mCurrentTime = QTime::currentTime();
 	}
 }
 /*-------------------------------------*/
@@ -167,11 +172,11 @@ void exCircleData::setImg(QSharedPointer<CMD_CTRL> _cmd_ctrl)
 /*-------------------------------------*/
 float exCircleData::fps()
 {
-	clock_t elapsed = mCurrentTime - mStartTime;
-
-	float fps=(this->mFrameCount-1) / (elapsed/1000.0);
-
-	//qDebug() << "FPS:" <<fps;
+	
+	float msecs= mStartTime.msecsTo(mCurrentTime);
+	float secs = msecs / 1000;
+	float frames = this->mFrameCount - START_FRAME_COUNT;
+	float fps=frames / secs;
 
 	return fps;
 }
@@ -197,16 +202,9 @@ void exCircleData::assert_channel(QSharedPointer<CMD_CTRL> _cmd_ctrl)
 void exCircleData::setResult(QSharedPointer<CMD_CTRL> _cmd_ctrl)
 {
 	
-	float THRESHOLD = _cmd_ctrl->mImgProc.ThresholdClassifyThickly;
-	float FEATURE = _cmd_ctrl->mFeature;
-
 	if (_cmd_ctrl->IsImgFrame()) {
-					
-			if (FEATURE >= 0-1E-6) {
-					int   CLSAAIFY = FEATURE < THRESHOLD ? 0 : 1;
-					this->mResult.push_back(CLSAAIFY);
-			}
-
+			const int   CLSAAIFY = _cmd_ctrl->mClassify;
+			this->mResult.push_back(CLSAAIFY);
 	}
 
 }
@@ -219,7 +217,7 @@ int exCircleData::IsCrack()
 {
 	int pos_count = 0;
 	int neg_count = 0;
-	double  BLANK = 0.1;
+	double  BLANK = 0.05;
 	const int TOTAL = mResult.size();
 	const int START = TOTAL*BLANK;
 	const int END = TOTAL*(1-BLANK);

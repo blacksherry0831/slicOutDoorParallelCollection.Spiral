@@ -3883,6 +3883,66 @@ void ImageProcess::LineDraw(std::vector<Line2Point>& _lines,
 *@note 查准率
 */
 /*----------------------------------------------------------------*/
+std::vector<Line2Point> ImageProcess::getHoughLines(IplImage * _img_bin,
+	IplImage * _img_draw,
+	CvScalar _color,
+	int _thickness)
+{
+	const int R_DEGREE = 30;
+
+	std::vector<Line2Point> lines_t = Hough_Line_CV_PROBABILISTIC_GetLine(_img_bin, 1, CV_PI / 180, 15, 6, 5);
+
+	LineCalAngle(lines_t);
+
+	std::vector<Line2Point> lines_remove0_t = LineRemove(lines_t, 90, R_DEGREE);
+	std::vector<Line2Point> lines_remove1_t = LineRemove(lines_remove0_t, -90, R_DEGREE);
+
+	if (_img_bin==_img_draw){
+		cvZero(_img_draw);
+	}
+
+	if (_img_draw != nullptr) {
+		LineDraw(lines_remove1_t, _img_draw, _color, _thickness);
+	}
+
+	return lines_remove1_t;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+void ImageProcess::IMG_RemoveBorder(IplImage * _img_bin, std::vector<int> _row, std::vector<int> _col)
+{
+	uchar* const ImgData = (uchar *)_img_bin->imageData;
+	const int STEP = _img_bin->widthStep / sizeof(uchar);
+	const int Width = _img_bin->width;
+	const int Height = _img_bin->height;
+
+	ASSERT(Width == STEP);
+
+	const int ROW = _row.size();
+	const int COL = _col.size();
+
+	for (size_t rii = 0; rii < ROW; rii++){
+		const int ri = _row.at(rii);
+		uchar * row_start = &ImgData[ri*STEP];
+		memset(row_start,0,STEP);
+	}
+	
+	for (size_t cii = 0; cii <COL ; cii++){
+		const int ci = _col.at(cii);
+		for (size_t ri = 0; ri <Height; ri++){
+				ImgData[ci + ri*STEP] = 0;			
+		}
+	}
+
+}
+/*----------------------------------------------------------------*/
+/**
+*@note 查准率
+*/
+/*----------------------------------------------------------------*/
 float ImageProcess::Svm_Lean_Precision(int tp, int fp, int fn)
 {
 	return 1.0f*tp/(tp+fp);
@@ -4355,12 +4415,12 @@ void ImageProcess::DrawHistogram_fromImage(IplImage * img, std::string file_base
 *
 */
 /*----------------------------------------------------------------*/
-void ImageProcess::DrawBox(CvBox2D rect,IplImage * _img)
+void ImageProcess::DrawBox(CvBox2D rect,IplImage * _img,const CvScalar color)
 {
 	
 	const int thickness = 1;
 	const int line_type = 8;
-	const CvScalar color = CV_RGB(255, 0, 0);
+	
 	CvPoint2D32f Corners[4]; 
 	
 	cvBoxPoints(rect, Corners); 

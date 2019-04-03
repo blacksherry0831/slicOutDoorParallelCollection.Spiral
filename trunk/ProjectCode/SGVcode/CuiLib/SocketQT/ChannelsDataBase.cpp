@@ -58,20 +58,6 @@ void ChannelsDataBase::EnqueueImgAll(QSharedPointer<CMD_CTRL> _cmd)
 
 	this->EnqueueCmd(_cmd);
 
-	if (_cmd->IsImgStart()) {
-
-		this->mIsReceiving = TRUE;
-
-	}else if (_cmd->IsImgEnd()) {
-
-		this->mIsReceiving = FALSE;
-
-	}else if (_cmd->IsImgFrame()) {
-
-	}else {
-
-		Q_ASSERT(FALSE);
-	}
 }
 /*-------------------------------------*/
 /**
@@ -136,11 +122,54 @@ int ChannelsDataBase::IsReceiving() const
 *
 */
 /*-------------------------------------*/
+void ChannelsDataBase::initInternalState_Rcv(QSharedPointer<CMD_CTRL> _cmd)
+{
+	if (_cmd->IsImgStart()) {
+
+		this->mIsReceiving = TRUE;
+
+	}
+	else if (_cmd->IsImgEnd()) {
+
+		this->mIsReceiving = FALSE;
+
+	}
+	else if (_cmd->IsImgFrame()) {
+
+	}
+	else {
+
+		Q_ASSERT(FALSE);
+	}
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void ChannelsDataBase::initInternalState_Record(QSharedPointer<CMD_CTRL> _cmd)
+{
+	if (_cmd->IsImgStart()) {
+		
+		this->start_record(_cmd);
+
+	}else if (_cmd->IsImgEnd()) {
+		
+	}else if (_cmd->IsImgFrame()) {
+
+	}else {
+		Q_ASSERT(FALSE);
+	}
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void ChannelsDataBase::EnqueueCmd(QSharedPointer<CMD_CTRL> _cmd)
 {
 		const int CHANNEL = _cmd->Channel();
 		mChannelsData.at(CHANNEL)->setImg(_cmd);
-	
 }
 /*-------------------------------------*/
 /**
@@ -154,6 +183,34 @@ int ChannelsDataBase::IsImgProcessDone()
 	}
 
 	return TRUE;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void ChannelsDataBase::start_record(QSharedPointer<CMD_CTRL> _cmd)
+{
+	const int CHANNEL = _cmd->Channel();
+	Q_ASSERT(CHANNEL >= 0 && CHANNEL <= 7);
+	Q_ASSERT(!_cmd->mCurrentCircleTime.empty());
+
+
+	if (!mChannelsData[CHANNEL].isNull()) {
+		mChannelsData[CHANNEL]->start_record(_cmd);
+	}
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void ChannelsDataBase::ConfigInternalState(QSharedPointer<CMD_CTRL> _cmd)
+{
+
+	this->initInternalState_Rcv(_cmd);
+	this->initInternalState_Record(_cmd);
 }
 /*-------------------------------------*/
 /**

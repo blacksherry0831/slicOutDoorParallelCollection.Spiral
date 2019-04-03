@@ -3,6 +3,7 @@
 #include <MY_SDK_LIB/Base.h>
 #include <MY_SDK_LIB/ImageProcess.h>
 #include <MY_SDK_LIB/TimeMeasure.hpp>
+#include <MY_SDK_LIB/BlockAnalysis.hpp>
 /*-----------------------------------------*/
 /**
 *
@@ -12,6 +13,14 @@
 #define NOMINMAX
 #undef max
 #undef min
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+const std::string  CrackDetection::CRACK_OUT("out");
+const std::string  CrackDetection::CRACK_IN("in");
 /*-----------------------------------------*/
 /**
 *
@@ -524,6 +533,39 @@ void CrackDetection::RemoveConnectivity(IplImage* _img, int _size_remove)
 *
 */
 /*-----------------------------------------*/
+void CrackDetection::IMG_RemoveBorder(IplImage * _img_bin, std::vector<int> _row, std::vector<int> _col)
+{
+	ImageProcess::IMG_RemoveBorder(_img_bin, _row, _col);	
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+void CrackDetection::Init_RemoveBorder(const int WIDTH,const int HEIGHT, std::vector<int>& _row, std::vector<int>& _col)
+{
+	_row.push_back(0);
+	_row.push_back(HEIGHT - 1);
+
+	_col.push_back(0);
+	_col.push_back(WIDTH - 1);
+
+	if (WIDTH == 960 && HEIGHT == 544) {
+
+		for (size_t ri = HEIGHT - 4; ri < HEIGHT - 1; ri++)
+		{
+			_col.push_back(ri);
+		}
+
+	}
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
 void CrackDetection::Binary2Noise(const int _matrix_size_out,const int _matrix_size_in,const int _c_step)
 {
 	Gray2NoiseFast(this->mImgBinaryLink);
@@ -574,12 +616,102 @@ void CrackDetection::CopyBinary2Link()
 *
 */
 /*-----------------------------------------*/
-float CrackDetection::GetFeature(const int _matrix_size_out, const int _matrix_size_in)
+std::vector<float> CrackDetection::GetFeature(const int _matrix_size_out, const int _matrix_size_in)
 {
 
 	IplImage* const img_t = this->mImgBinaryLink;
 	
 	return GetFeatureFast(img_t);
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+std::vector<float> CrackDetection::GetCrackImgHoughBlockFeatureBase(IplImage * _img_bin,
+	IplImage * _img_block,
+	std::vector<Line2Point>& _lines,
+	IplImage * _img_output,
+	const CvScalar _color,
+	const int _thickness)
+{
+	std::vector<float> f_b_t;
+	
+	const int hough_thickness = 3;
+	const CvScalar hough_color = CV_RGB(255,255,255);
+	/*--hough--*/
+	_lines = ImageProcess::getHoughLines(_img_bin, _img_block, hough_color, hough_thickness);
+
+	if (_lines.size()==0){
+
+		f_b_t.push_back(0);
+		f_b_t.push_back(0);
+		f_b_t.push_back(0);
+
+	}else{
+		/*--block--*/
+		f_b_t = BlockAnalysis::getFeatureBlock(_img_block, _img_output,_color,_thickness);
+	}
+	
+	return f_b_t;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+int CrackDetection::predict_block(std::vector<float> _f, std::vector<float> _th)
+{
+	const float area = _f.at(0);
+	const  float e = _f.at(1);
+	const float area_all = _f.at(2);
+
+	const float AREA = _th.at(0);
+	const  float E = _th.at(1);
+	const float AREA_ALL = _th.at(2);
+
+
+	if (area_all>AREA_ALL) {
+
+		return POS_CLASS;
+
+	}
+	else {
+
+		if (area>AREA && e>E) {
+			return POS_CLASS;
+		}
+		else {
+			return NEG_CLASS;
+		}
+
+	}
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
+int CrackDetection::predict_in_out_block(std::vector<float> _f, std::string _in_out, std::vector<float> _th)
+{
+	int pos_neg_result = NEG_CLASS;
+
+	if (_in_out.compare(CRACK_IN) == 0)
+	{
+		pos_neg_result = predict_block(_f, _th);
+	}
+	else if (_in_out.compare(CRACK_OUT) == 0)
+	{
+		pos_neg_result = predict_block(_f, _th);
+	}
+	else
+	{
+		assert(0);
+	}
+
+	return pos_neg_result;
 }
 /*-----------------------------------------*/
 /**
@@ -596,24 +728,6 @@ void CrackDetection::Gray2NoiseFast(IplImage * _img)
 	const int border_size = 1;
 	const int border_w_max = Width - border_size - 1;
 	const int border_h_max = Height - border_size - 1;
-
-#if 1
-	for (size_t wi = 0; wi <Width; wi++)
-	{
-		for (size_t hi = 0; hi <Height; hi++)
-		{
-			if (	wi < border_size || 
-					hi< border_size		||
-					wi>  border_w_max ||
-					hi> border_h_max) {
-
-						ImgData[wi + hi*Width] = 0;
-			
-			}
-		}
-
-	}
-#endif // 0
 
 #if 1
 	const int WidthB= Width - border_size;
@@ -675,24 +789,6 @@ void CrackDetection::Binary2Smooth_Line(IplImage * _img)
 	ASSERT(Width==STEP);
 
 #if 1
-	for (size_t wi = 0; wi <Width; wi++)
-	{
-		for (size_t hi = 0; hi <Height; hi++)
-		{
-			if (wi < border_w_min ||
-				hi<  border_h_min ||
-				wi>  border_w_max ||
-				hi> border_h_max) {
-
-				ImgData[wi + hi*STEP] = 0;
-
-			}
-		}
-
-	}
-#endif // 0
-
-#if 1
 	const int WidthB = Width;
 	const int HeightB = Height - border_size;
 	
@@ -736,7 +832,7 @@ void CrackDetection::Binary2Smooth_Line(IplImage * _img)
 *
 */
 /*-----------------------------------------*/
-float CrackDetection::GetFeatureFast(const IplImage*  _img_binary)
+std::vector<float> CrackDetection::GetFeatureFast(const IplImage*  _img_binary)
 {
 	const IplImage* const img_t = _img_binary;
 	const uchar* const ImgData = (uchar *)img_t->imageData;
@@ -756,8 +852,13 @@ float CrackDetection::GetFeatureFast(const IplImage*  _img_binary)
 			
 		}
 	}
+	
+	const float f_t=1.0f*points / (rWIDTH*rHEIGHT);
 
-	return 1.0f*points / (rWIDTH*rHEIGHT);
+	std::vector<float> f_v_t;	
+	f_v_t.push_back(f_t);
+
+	return f_v_t;
 }
 /*-----------------------------------------*/
 /**
@@ -765,24 +866,11 @@ float CrackDetection::GetFeatureFast(const IplImage*  _img_binary)
 *
 */
 /*-----------------------------------------*/
-float CrackDetection::GetFeatureFastEx(IplImage * _img_binary, int _matrix_size_out, const int _matrix_size_in, const int _c_step)
+std::vector<float> CrackDetection::GetFeatureFastEx(IplImage * _img_binary, int _matrix_size_out, const int _matrix_size_in, const int _c_step)
 {
-//	TimeMeasure tm;
-//	tm.start(__func__);
-#if 0
-	 Gray2NoiseFast(_img_binary);
-#endif // 0
-
-#if 0
 	 Binary2Smooth_Line(_img_binary);
-
-#endif // 0
-
-
-	 const float feature_t = GetFeatureFast(_img_binary);
-	
-//	tm.stop();
-	 return feature_t;
+	 	
+	 return   GetFeatureFast(_img_binary);
 }
 /*-----------------------------------------*/
 /**
@@ -850,9 +938,110 @@ void CrackDetection::BinaryOneColumn(IplImage * image, IplImage * ColData, int I
 
 	
 }
-/*-----------------------------------------*/
+/*----------------------------------------------------------------*/
 /**
 *
+*/
+/*----------------------------------------------------------------*/
+std::vector<float> CrackDetection::getThresholdInCircleBlock()
+{
+	std::vector<float> th_t;
+	th_t.push_back(120);
+	th_t.push_back(0.8);
+	th_t.push_back(789);
+	return th_t;
+}
+/*----------------------------------------------------------------*/
+/**
 *
 */
-/*-----------------------------------------*/
+/*----------------------------------------------------------------*/
+std::vector<float> CrackDetection::getThresholdOutCircleBlock()
+{
+	std::vector<float> th_t;
+	th_t.push_back(18);
+	th_t.push_back(0.71);
+	th_t.push_back(45);
+	return th_t;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+std::vector<float> CrackDetection::getThresholdInOutCircleBlock(std::string _in_out)
+{
+	int pos_neg_result = CrackDetection::NEG_CLASS;
+	std::vector<float> f_t;
+
+	if (_in_out.compare(CrackDetection::CRACK_IN) == 0)
+	{
+		f_t = getThresholdInCircleBlock();
+	}
+	else if (_in_out.compare(CrackDetection::CRACK_OUT) == 0)
+	{
+		f_t = getThresholdOutCircleBlock();
+	}
+	else
+	{
+		assert(0);
+	}
+
+	return f_t;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+std::vector<float> CrackDetection::getThresholdInCircleHoughBlock()
+{
+	std::vector<float> th_t;
+	th_t.push_back(312);
+	th_t.push_back(0.77);
+	th_t.push_back(1116);
+	return th_t;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+std::vector<float> CrackDetection::getThresholdOutCircleHoughBlock()
+{
+	std::vector<float> th_t;
+	th_t.push_back(82);
+	th_t.push_back(0.8);
+	th_t.push_back(125);
+	return th_t;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/
+std::vector<float> CrackDetection::getThresholdInOutCircleHoughBlock(std::string _in_out)
+{
+	int pos_neg_result = CrackDetection::NEG_CLASS;
+	std::vector<float> f_t;
+
+	if (_in_out.compare(CrackDetection::CRACK_IN) == 0)
+	{
+		f_t = getThresholdInCircleHoughBlock();
+	}
+	else if (_in_out.compare(CrackDetection::CRACK_OUT) == 0)
+	{
+		f_t = getThresholdOutCircleHoughBlock();
+	}
+	else
+	{
+		assert(0);
+	}
+
+	return f_t;
+}
+/*----------------------------------------------------------------*/
+/**
+*
+*/
+/*----------------------------------------------------------------*/

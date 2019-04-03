@@ -38,7 +38,6 @@ public:
 	void ConfigRecordImg(QSharedPointer<CMD_CTRL> _cmd);
 	void EnqueueImg(QSharedPointer<CMD_CTRL> _cmd);
 public:
-	void start_record(QSharedPointer<CMD_CTRL> _cmd);
 	void stop_record(QSharedPointer<CMD_CTRL> _cmd);
 	void record(QSharedPointer<CMD_CTRL> _cmd);
 	void save_record(int _is_save);

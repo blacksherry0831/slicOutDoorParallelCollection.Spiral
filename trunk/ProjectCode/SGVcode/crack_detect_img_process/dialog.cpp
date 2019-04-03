@@ -247,7 +247,16 @@ void Dialog::SetShowCutArea(int _show)
 /*-------------------------------------*/
 void Dialog::SetShowBinary(int _show_bin)
 {
-	mImgProcess.ShowBinaryImg = _show_bin;
+	mImgProcess.ImgProc_Binary = _show_bin;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void Dialog::SetImgProcChannel(int _ch)
+{
+	this->mImgProcess.CurrentChannel = _ch;
 }
 /*-------------------------------------*/
 /**
@@ -258,6 +267,22 @@ void Dialog::SetImgProc(IMG_PROC _img_proc)
 {
 	this->mImgProcess = _img_proc;
 	this->mVideoProcessData = QSharedPointer<QtThread8VideoProcess>(new  QtThread8VideoProcess(this->mImgProcess.CurrentChannel, false));
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void Dialog::SetCmdCtrlImageBuffer(int _ch, QSharedPointer<CMD_CTRL> _cmd_ctrl_img)
+{
+	if (!_cmd_ctrl_img.isNull())
+	{
+		this->cmd_ctrl_image[_ch] = _cmd_ctrl_img;
+		SetImgProcChannel(_ch);
+		ShowCmdCtrlImage(_ch);
+		this->update();
+	}
+
 }
 /*-------------------------------------*/
 /**
@@ -437,8 +462,7 @@ void Dialog::img_stat_show_ex(int _p_stat, int _channel, int _frames, void* _dat
 	if ((_p_stat >> 8) == CMD_CTRL::CMD_TYPE_02_I::CT_IMG_FRAME) {
 				
 		if ((mImgProcess.CurrentChannel == _channel) && (!cmd_ctrl_image[_channel].isNull())) {
-		
-							QSharedPointer<QImage> qimg = cmd_ctrl_image[_channel]->getQimage();
+									
 							IplImage* img_t = cmd_ctrl_image[_channel]->getIplimage();	
 							if (mImgProcess.ShowCutArea) {
 										mVideoProcessData->SetCurrentCutArea(img_t);
@@ -448,8 +472,8 @@ void Dialog::img_stat_show_ex(int _p_stat, int _channel, int _frames, void* _dat
 							}
 							
 							this->ProcessImage(img_t);
-							MainWindow::ShowImage(ui->labelImg, qimg.data());
-							this->ResizeWindowSize();		
+							ShowCmdCtrlImage(_channel);
+							
 		
 		}
 
@@ -485,7 +509,7 @@ void Dialog::ProcessImage(IplImage* img_t)
 #endif // TRUE
 
 #if TRUE
-	if (mImgProcess.ShowBinaryImg) {
+	if (mImgProcess.ImgProc_Binary) {
 
 		CvRect rect = cvGetImageROI(img_t);
 		cvResetImageROI(img_t); {
@@ -500,3 +524,32 @@ void Dialog::ProcessImage(IplImage* img_t)
 #endif // TRUE
 	
 }
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void Dialog::ShowQImage(QSharedPointer<QImage> _p_qimg)
+{
+	MainWindow::ShowImage(ui->labelImg, _p_qimg.data());
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void Dialog::ShowCmdCtrlImage(int _ch)
+{
+	QSharedPointer<QImage> qimg = cmd_ctrl_image[_ch]->getQimage();
+
+	this->ResizeWindowSize();
+
+	ShowQImage(qimg);
+
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/

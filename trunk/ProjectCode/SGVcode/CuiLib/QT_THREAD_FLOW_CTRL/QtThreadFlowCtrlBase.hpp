@@ -31,12 +31,14 @@ private:
 	int  mWorkFlowDoneClientThreads;
 	int  mWorkFlowDoneClientThreadsResult;
 	int  mClientSessionCount;
+
 protected:
 	void emit_roller_ready();
 	void emit_roller_done();
 	void emit_machine_error(QString _msg);
 	void process_machine_error(QString _msg);
 	QString  CircleSeq();
+
 protected:
 	int sendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP _type);
 public:

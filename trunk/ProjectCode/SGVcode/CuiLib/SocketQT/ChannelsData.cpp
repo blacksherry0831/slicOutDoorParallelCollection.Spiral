@@ -42,7 +42,7 @@ ChannelsData::~ChannelsData()
 *
 */
 /*-------------------------------------*/
-QSharedPointer<exCircleData> ChannelsData::getChannelData(int _ch)
+QSharedPointer<exCircleData> ChannelsData::getChannelData(int _ch) const
 {
 	QSharedPointer<exCircleData> circleData = mChannelsData.at(_ch);
 	return circleData;
@@ -57,21 +57,8 @@ void ChannelsData::EnqueueImgAll(QSharedPointer<CMD_CTRL> _cmd)
 	this->MyImgAssert(_cmd);
 
 	this->EnqueueCmd(_cmd);
-
-	if (_cmd->IsImgStart()) {
-
-		this->mIsReceiving = TRUE;
-
-	}else if (_cmd->IsImgEnd()) {
-
-		this->mIsReceiving = FALSE;
-
-	}else if (_cmd->IsImgFrame()) {
-
-	}else {
-
-		Q_ASSERT(FALSE);
-	}
+		
+	this->ConfigInternalState(_cmd);
 }
 /*-------------------------------------*/
 /**
@@ -130,17 +117,6 @@ ChannelsData* ChannelsData::getInstance()
 int ChannelsData::IsReceiving() const
 {
 	return mIsReceiving;
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void ChannelsData::EnqueueCmd(QSharedPointer<CMD_CTRL> _cmd)
-{
-		const int CHANNEL = _cmd->Channel();
-		mChannelsData.at(CHANNEL)->setImg(_cmd);
-	
 }
 /*-------------------------------------*/
 /**

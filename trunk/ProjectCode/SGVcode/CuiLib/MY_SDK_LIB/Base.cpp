@@ -53,6 +53,18 @@ std::string Base::int2str(int value_t)
 *
 */
 /*-----------------------------------------*/
+std::string Base::float2str(float _f_v)
+{
+	std::ostringstream buffer;
+	buffer << _f_v;
+	return buffer.str();
+}
+/*-----------------------------------------*/
+/**
+*
+*
+*/
+/*-----------------------------------------*/
 char Base::pathSplit()
 {
 	char split_t;
@@ -826,7 +838,7 @@ void Base::FS_getDirsWin(std::string path, std::string flag, std::vector<std::st
 *
 */
 /*-----------------------------------------*/
-std::string Base::FS_getFileName(const std::string& const path)
+std::string Base::FS_getFileName(const std::string&  path)
 {
 	return path.substr(path.find_last_of("/\\") + 1);
 }

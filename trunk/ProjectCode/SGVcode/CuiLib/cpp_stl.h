@@ -7,7 +7,7 @@
 */
 /*-----------------------------------------*/
 //C++
-#include<stdio.h>
+#include <stdio.h>
 #include <iostream>
 #include <stdlib.h>
 #include <fstream>
@@ -25,9 +25,11 @@
 #include <fstream>
 #include <stdexcept>
 #include <cstdio> 
-#include<stdio.h>
-#include<string.h>
-#include<numeric>
+#include <stdio.h>
+#include <string.h>
+#include <numeric>
+#include <time.h>
+
 #if _MSC_VER
 #include <mbctype.h>  
 #include <io.h>
