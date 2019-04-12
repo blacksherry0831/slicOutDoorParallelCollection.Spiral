@@ -61,7 +61,9 @@ public:
 		TIME_OUT=0xFF};
 public:
 	BE_1105_Driver(QObject *parent = nullptr);
-	~BE_1105_Driver(void);	
+	~BE_1105_Driver(void);
+protected:
+	int mCom;
 public:
 
 	int open_auto();

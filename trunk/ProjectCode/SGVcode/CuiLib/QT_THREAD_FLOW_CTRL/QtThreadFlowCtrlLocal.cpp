@@ -47,7 +47,7 @@ void QtThreadFlowCtrlLocal::run_normal()
 
 		this->SleepMy(TIME_INTERVAL);
 
-		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady, CircleSeq());
+		this->emit_roller_ready();
 
 		{
 			this->SleepMy(TIME_INTERVAL);

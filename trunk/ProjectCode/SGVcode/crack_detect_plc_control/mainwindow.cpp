@@ -16,8 +16,15 @@ MainWindow::MainWindow(QWidget *parent) :
 	this->init_connect();
 	this->init_ctrols();
 
-
+#if PLC_CTRL_SYNC
 	mPlcdataServer->startServer();
+#endif
+
+#if PLC_CTRL_ASYNC
+	this->mWorkFlowSocket->startServer();
+	this->mWorkFlowStepMotor->startServer();
+#endif
+
 	mFlowServerServer->startServer();
 }
 /*-------------------------------------*/
@@ -27,12 +34,18 @@ MainWindow::MainWindow(QWidget *parent) :
 /*-------------------------------------*/
 MainWindow::~MainWindow()
 {
+
+#if PLC_CTRL_SYNC
 	mPlcdataServer->closeServerSync();
-	mFlowServerServer->closeServerSync();
-#if 0
-	mPlcdataServer.clear();
-	mFlowServerServer.clear();
 #endif
+
+#if PLC_CTRL_ASYNC
+	this->mWorkFlowSocket->closeServerSync();
+	this->mWorkFlowStepMotor->closeServerSync();
+#endif
+
+	mFlowServerServer->closeServerSync();
+
     delete ui;
 }
 /*-------------------------------------*/
@@ -61,7 +74,16 @@ void MainWindow::update_work_flow_status_ex(QtThreadFlowCtrlBase* _work_flow,
 /*-------------------------------------*/
 void MainWindow::init_connect()
 {
+#if PLC_CTRL_SYNC
 	this->init_connect_work_flow(mPlcdataServer.data());
+#endif
+
+#if PLC_CTRL_ASYNC
+	this->init_connect_work_flow(mWorkFlowSocket.data());
+	this->init_connect_work_flow(mWorkFlowStepMotor.data());
+	this->init_connect_work_flow_async();
+#endif
+
 
 #if  defined(QT_VERSION)
 	this->connect(mFlowServerServer.data(),
@@ -85,7 +107,17 @@ void MainWindow::init_connect()
 *
 */
 /*-------------------------------------*/
-
+void MainWindow::init_connect_work_flow_async()
+{
+#if PLC_CTRL_ASYNC
+	QObject* sender_t=this->mWorkFlowSocket.data();
+	this->connect(sender_t,
+		SIGNAL(status_sjts_roller(int, QString)),
+		this,
+		SLOT(sjts_status_roller(int, QString))
+	);
+#endif
+}
 /*-------------------------------------*/
 /**
 *
@@ -94,7 +126,7 @@ void MainWindow::init_connect()
 void MainWindow::sjts_status(const int _sjts_status_int, QString _msg)
 {
 	const CMD_CTRL::SJTS_MACHINE_STATUS _sjts_status = (CMD_CTRL::SJTS_MACHINE_STATUS) _sjts_status_int;
-
+#if 0
 	if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady) {
 
 		tcpSvrBeforeNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
@@ -103,9 +135,7 @@ void MainWindow::sjts_status(const int _sjts_status_int, QString _msg)
 	}
 	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneQualified ||
 		_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneUnqualified) {
-		// 
-		qDebug() << "roller qualified is done !";
-
+		
 	}
 	else if (_sjts_status == CMD_CTRL::SJTS_MACHINE_STATUS::RollerDone) {
 
@@ -151,15 +181,9 @@ void MainWindow::sjts_status(const int _sjts_status_int, QString _msg)
 	}else {
 		Q_ASSERT(0);
 	}
-
+#endif // 0
 	this->ShowSjtsStatusOnUI(_sjts_status);
 }
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
 /*-------------------------------------*/
 /**
 *
@@ -209,6 +233,24 @@ void MainWindow::ShowSjtsStatusOnUI(CMD_CTRL::SJTS_MACHINE_STATUS _sjts_status)
 *
 */
 /*-------------------------------------*/
+void MainWindow::ShowStatusOnUI_Roller(CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER __sjts_status)
+{
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::ShowStatusOnUI_Motor(CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR __sjts_status)
+{
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void MainWindow::init_ctrols()
 {
 	this->ui->progressBar_sjts_plc_work_flow->setRange(0, CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneQualified);
@@ -225,9 +267,51 @@ void MainWindow::init_members()
 	this->mFlowCtrlTimer = new QTimer(this);
 	this->mFlowCtrlTimer->start(1000);	
 #endif // PLC_CTRL_USE_TIMER
-	
+
+#if PLC_CTRL_SYNC
 	mPlcdataServer = QSharedPointer<QtThreadPLC>(new QtThreadPLC(0));
+#endif
+
+#if PLC_CTRL_ASYNC
+	mWorkFlowSocket = QSharedPointer<QtThreadPlcSocketClient> (new QtThreadPlcSocketClient());
+	mWorkFlowStepMotor = QSharedPointer<QtThreadStepMotorServer>(new QtThreadStepMotorServer()) ;
+#endif	
+
 	mFlowServerServer = QSharedPointer<QtThreadFlowCtrlServer>(new QtThreadFlowCtrlServer(this));
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::sjts_status_roller(int _sjts_status_int, QString _msg)
+{
+	const  CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER sjts_status = (CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER) _sjts_status_int;
+
+	this->dbg_checkRollerStatus(_sjts_status_int,_msg);
+	
+	this->ShowStatusOnUI_Roller(sjts_status);
+
+	this->SetCmdWorkFlow_StepMotor(_sjts_status_int,_msg);
+
+	this->SetCmdWorkFlow_Server_Roller(_sjts_status_int,_msg);
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::sjts_status_motor(int _sjts_status_int, QString _msg)
+{
+	const  CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR sjts_status = (CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR) _sjts_status_int;
+
+	this->dbg_checkMotorStatus(_sjts_status_int,_msg);
+
+	this->ShowStatusOnUI_Motor(sjts_status);
+
+	this->SetCmdWorkFlow_Socket(_sjts_status_int,_msg);
+	this->SetCmdWorkFlow_Server_Motor(_sjts_status_int, _msg);
 }
 /*-------------------------------------*/
 /**
@@ -266,8 +350,6 @@ void MainWindow::update_link_status()
 
 	this->update_work_flow_status();
 
-
-
 }
 /*-------------------------------------*/
 /**
@@ -276,8 +358,14 @@ void MainWindow::update_link_status()
 /*-------------------------------------*/
 void MainWindow::update_work_flow_status()
 {
-	
+
+#if PLC_CTRL_SYNC
 	this->update_work_flow_status_ex( mPlcdataServer.data(),mFlowServerServer.data());
+#endif
+
+#if PLC_CTRL_ASYNC
+	this->update_work_flow_status_ex(mWorkFlowSocket.data(), mFlowServerServer.data());
+#endif
 
 }
 /*-------------------------------------*/
@@ -296,6 +384,172 @@ void MainWindow::check_box_clr()
 	this->ui->checkBox_103->setChecked(check_t);
 
 	this->ui->checkBox_another->setChecked(check_t);
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::dbg_checkRollerStatus(int _sjts_status_int, QString _msg)
+{
+	const  CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER _sjts_status = (CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER) _sjts_status_int;
+
+	if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerReadyStart) {
+
+	}else if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerPosReady) {
+
+	}else if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerIntoInnerReady) {
+
+	}else if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerDoneEnd) {
+		
+		
+
+	}else if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerDoneQ ||		
+		_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerDoneUnQ) {
+
+		this->printf_event("STATUS ROLLER !","roller qualified is done !");
+
+	}else if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::MachineAbort){
+
+
+	}else {
+		Q_ASSERT(FALSE);
+	}
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::dbg_checkMotorStatus(int _sjts_status_int, QString _msg)
+{
+	const  CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR _sjts_status = (CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR) _sjts_status_int;
+
+	if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR::MotorStart00) {
+				
+	}else if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR::MotorStop00) {
+		
+	}else if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR::MotorStart01) {
+		
+	}else if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR::MotorStop01) {
+		
+	}else if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR::SerialPortOpen) {
+
+		printf_event("SIGNAL", "SerialPortIsOpen");
+
+	}else if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR::SerialPortError) {
+
+		printf_event("ClientError", _msg.toStdString());
+
+	}else {
+		Q_ASSERT(FALSE);
+	}
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::SetCmdWorkFlow_StepMotor(int _sjts_status_int, QString _msg)
+{
+	const  CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER sjts_status = (CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER) _sjts_status_int;
+	int cmd01 = 0;
+	unsigned int seq_no = 0;
+	
+	if (sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerReadyStart) {
+		seq_no = _msg.toUInt();
+	}
+
+	if (sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerIntoInnerReady)
+	{
+		cmd01 = _msg.toInt();
+	}
+
+	QSharedPointer<CMD_CTRL> qsp_cc_t = CMD_CTRL::getLocalCmdEx(_sjts_status_int, cmd01, seq_no);
+	this->mWorkFlowStepMotor->SetMsgWhileRunning(qsp_cc_t);
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::SetCmdWorkFlow_Socket(int _sjts_status_int, QString _msg)
+{
+	const  CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR sjts_status = (CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR) _sjts_status_int;
+	int cmd01 = _msg.toInt();
+	unsigned int seq_no = 0;
+		
+	QSharedPointer<CMD_CTRL> qsp_cc_t = CMD_CTRL::getLocalCmdEx(_sjts_status_int, cmd01, seq_no);
+	this->mWorkFlowSocket->SetMsgWhileRunning(qsp_cc_t);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::SetCmdWorkFlow_Server_Roller(int _sjts_status_int, QString _msg)
+{
+	const  CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER _sjts_status = (CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER) _sjts_status_int;
+
+	if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerReadyStart) {
+
+		tcpSvrBeforeNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
+		tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START, _msg.toUInt());
+	}
+	else if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerPosReady) {
+
+	}
+	else if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerIntoInnerReady) {
+
+	}
+	else if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerDoneEnd) {
+
+		tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP);
+
+	}else if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerDoneQ ||
+		_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerDoneUnQ) {
+
+	}else if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::MachineAbort) {
+
+		this->closeServerAsyncM();
+		this->closeDelay();
+
+	}else {
+		
+	}
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::SetCmdWorkFlow_Server_Motor(int _sjts_status_int, QString _msg)
+{
+
+	const  CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR _sjts_status = (CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR) _sjts_status_int;
+
+	if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR::MotorStart00) {
+
+		tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_00);
+
+	}else if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR::MotorStop00) {
+
+		tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00);
+
+	}else if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR::MotorStart01) {
+
+		tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01);
+
+	}else if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR::MotorStop01) {
+
+		tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01);
+
+	}else {
+		
+	}
 
 }
 /*-------------------------------------*/
@@ -324,10 +578,23 @@ void MainWindow::thread_running_state_Auto_equipment(int _status)
 /*-------------------------------------*/
 void  MainWindow::tcp_server_work_flow_dones(int _status, int _quality)
 {
+
 	if (_status) {
 		QBase::printf_event("WORK FLOW", "all client thread work done !");
-		this->mPlcdataServer->setWorkFlowDones(_status,_quality);
 	}
+
+	if (_status) {
+#if PLC_CTRL_SYNC	
+		this->mPlcdataServer->setWorkFlowDones(_status,_quality);
+#endif
+
+#if PLC_CTRL_ASYNC
+		this->mWorkFlowSocket->setWorkFlowDones(_status, _quality);
+#endif
+	}
+
+
+
 }
 /*-------------------------------------*/
 /**
@@ -357,7 +624,14 @@ void MainWindow::tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL _type_c, 
 /*-------------------------------------*/
 void MainWindow::tcp_server_running_client_sessions(int _running_sessions)
 {
+#if PLC_CTRL_SYNC
 	mPlcdataServer->setClientSessionCount(_running_sessions);
+#endif
+
+#if PLC_CTRL_ASYNC
+	mWorkFlowSocket->setClientSessionCount(_running_sessions);
+#endif
+
 }
 /*-------------------------------------*/
 /**
@@ -400,6 +674,18 @@ void MainWindow::init_connect_work_flow(QObject* _sender)
 		);
 
 #endif //  defined(Q_VERSION)
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::closeDelay(int _ms)
+{
+	QTimer *timer = new QTimer(this);
+	connect(timer, SIGNAL(timeout()), this, SLOT(close()));
+	timer->start(_ms);
 }
 /*-------------------------------------*/
 /**
@@ -408,7 +694,16 @@ void MainWindow::init_connect_work_flow(QObject* _sender)
 /*-------------------------------------*/
 void MainWindow::closeServerAsyncM()
 {
+
+#if PLC_CTRL_SYNC
 	mPlcdataServer->closeServerAsync();
+#endif
+
+#if PLC_CTRL_ASYNC
+	mWorkFlowSocket->closeServerAsync();
+	mWorkFlowStepMotor->closeServerAsync();
+#endif
+
 	mFlowServerServer->closeServerAsync();
 }
 /*-------------------------------------*/

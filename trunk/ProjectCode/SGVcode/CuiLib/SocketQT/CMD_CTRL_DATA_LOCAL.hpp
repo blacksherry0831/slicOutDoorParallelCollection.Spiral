@@ -61,12 +61,7 @@ public:
 		CT_FPGA_STOP=6,
 
 	};
-
-	enum CMD_TYPE_LOCAL_02 {
-
-		CT_ROLLER_Q = 0x10
-	};
-
+	
 public:
 	int IsCmdRemote();
 	int IsCmdLocal();

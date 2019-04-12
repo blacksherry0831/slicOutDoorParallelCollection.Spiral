@@ -19,9 +19,19 @@ ENDIF ()
 	
 	if (CBB_BUILDING_CRACK_DETECTION)
 		SET(DIR_SRCS
+				QtSigSjts.cpp
 				
+				IPlcSjts.cpp
+				QtThreadPlcSocket.cpp
 				QtThreadPLC.cpp
+				QtThreadPlcSocketClient.cpp
+				
+				CMD_WORK_FLOW.cpp
+				IStepMotorSjts.cpp
+				StepMotorSjts.cpp
 				QtThreadStepMotor.cpp
+				QtThreadStepMotorServer.cpp
+				
 				QtThreadClientCtrl.cpp
 				
 				QtThread8VideoProcess.cpp

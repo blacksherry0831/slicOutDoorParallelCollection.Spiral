@@ -25,6 +25,7 @@ endif (CBB_BUILDING_AGV_CAR)
 if (CBB_BUILDING_CRACK_DETECTION)
 		SET(DIR_SRCS
 				${DIR_SRCS}  
+				StepMotorBe1105.cpp
 				BE_1105_Dirver.cpp)		
 	
 endif (CBB_BUILDING_CRACK_DETECTION)

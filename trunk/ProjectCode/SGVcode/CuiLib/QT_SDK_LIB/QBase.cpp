@@ -96,10 +96,7 @@ QString QBase::uint2Qstring(uint _num)
 *
 */
 /*-----------------------------------------*/
-void QBase::printf_event(std::string _event, std::string _msg)
-{
-	std::cout << _event << ">>" << _msg << std::endl;
-}
+
 /*-----------------------------------------*/
 /**
 *

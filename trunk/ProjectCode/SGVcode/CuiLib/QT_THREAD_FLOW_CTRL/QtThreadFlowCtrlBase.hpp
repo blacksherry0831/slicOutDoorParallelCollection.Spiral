@@ -8,12 +8,13 @@
 /*-------------------------------------*/
 #include "MY_SDK_LIB/TimeMeasure.hpp"
 /*-------------------------------------*/
-
 #include "SocketQT/QtTcpClient.hpp"
 #include "SocketQT/conf_ip.h"
+/*-------------------------------------*/
 #include "SocketQT/CMD_CTRL_Q.hpp"
 /*-------------------------------------*/
 #include "QtThreadSocketClientSig.hpp"
+#include "QT_THREAD_MODULE/CMD_WORK_FLOW.hpp"
 /*-------------------------------------*/
 /**
 *
@@ -31,23 +32,27 @@ private:
 	int  mWorkFlowDoneClientThreads;
 	int  mWorkFlowDoneClientThreadsResult;
 	int  mClientSessionCount;
-
 protected:
-	void emit_roller_ready();
-	void emit_roller_done();
+	virtual void emit_roller_ready();
+	virtual void emit_roller_pos_ready();
+	virtual void emit_roller_into_inner_ready();
+	virtual void emit_roller_done();
+	virtual void emit_roller_abort();
+protected:
 	void emit_machine_error(QString _msg);
 	void process_machine_error(QString _msg);
 	QString  CircleSeq();
 
 protected:
 	int sendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP _type);
+	int SendPlcIntoInter(int _step);
 public:
 	int   getWorkFlowDones();	
 	int   getWorkFLowResult();
 	CMD_CTRL::BodyRollerQualified   getWorkFLowQualified();
 	void  setWorkFlowDones(int _work_flow, int _result);
 	
-	int  getClientSessionCount();
+	int   getClientSessionCount();
 	void  setClientSessionCount(int _count);
 	
 public:

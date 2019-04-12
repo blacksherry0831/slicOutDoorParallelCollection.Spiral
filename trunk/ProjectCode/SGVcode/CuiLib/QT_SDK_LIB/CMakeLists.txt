@@ -20,6 +20,7 @@ ENDIF ()
 ###############################################################################
 
 SET(QT_SDK_SRCS
+		IPrint.cpp
 		QBase.cpp)
 
 ADD_LIBRARY(QT_SDK_LIB   STATIC    ${QT_SDK_SRCS})

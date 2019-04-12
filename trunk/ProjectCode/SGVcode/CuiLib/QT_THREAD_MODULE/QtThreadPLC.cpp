@@ -40,21 +40,9 @@ IPC send
 *
 */
 /*-------------------------------------*/
-QtThreadPLC::QtThreadPLC(QObject *parent ):QtThreadFlowCtrlBase(parent)
+QtThreadPLC::QtThreadPLC(QObject *parent ):QtThreadPlcSocket(parent)
 {
-	
-#if 1
-	mIpAddr = PLC_ADDR;
-#else
-	mIpAddr = "127.0.0.1";
-#endif // 0
-
-	mPort = 2001;
-
-	mBe1105RunDir = BE_1105_RUN_NEG;
-	
-
-	
+		
 }
 /*-------------------------------------*/
 /**
@@ -63,7 +51,7 @@ QtThreadPLC::QtThreadPLC(QObject *parent ):QtThreadFlowCtrlBase(parent)
 /*-------------------------------------*/
 QtThreadPLC::~QtThreadPLC(void)
 {
-	qDebug() << "QtThreadClient is Release ! ";
+	
 }
 /*-------------------------------------*/
 /**
@@ -76,7 +64,7 @@ QtThreadPLC::~QtThreadPLC(void)
 *
 */
 /*-------------------------------------*/
-void QtThreadPLC::do_run_work(QSharedPointer<BE_1105_Driver>	 _be_1105)
+void QtThreadPLC::do_run_work()
 {
 
 	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
@@ -85,12 +73,11 @@ void QtThreadPLC::do_run_work(QSharedPointer<BE_1105_Driver>	 _be_1105)
 	
 	if (wait4PlcRoolerReady(cmd_t) == TRUE) {
 				//rooler ready		
-
-				
-
-					if (wait4PlcRoolerPosReady(cmd_t,_be_1105) == TRUE) {
+				this->do_StepMotor_sjts_Run_Fast();
+					
+				if (wait4PlcRoolerPosReady(cmd_t) == TRUE) {
 		
-							this->doPlcStepMotorRun(_be_1105);
+							this->doPlcStepMotorRun();
 								
 							CMD_CTRL::BodyRollerQualified qualified_status_t = this->wait4ImgProcessResult();
 
@@ -100,12 +87,9 @@ void QtThreadPLC::do_run_work(QSharedPointer<BE_1105_Driver>	 _be_1105)
 					}
 					else
 					{
-						this->stepMotorRunStop(_be_1105);
+						this->do_StepMotor_sjts_Run_Stop();
 					}
-
-		
-
-				
+									
 	}
 	 
 }
@@ -120,13 +104,13 @@ void QtThreadPLC::do_run_work(QSharedPointer<BE_1105_Driver>	 _be_1105)
 *
 */
 /*-------------------------------------*/
-int QtThreadPLC::MoveSlidingThenRunMotor(QSharedPointer<BE_1105_Driver>	 be_1105,const int _pos, int _isRun)
+int QtThreadPLC::MoveSlidingThenRunMotor(const int _pos, int _isRun)
 {
 	QSharedPointer<CMD_CTRL> cmd_t = QSharedPointer<CMD_CTRL>(new CMD_CTRL());
 	
 #if TRUE
 	//Into Inter
-	m_socket->SendPlcIntoInter(_pos);
+	SendPlcIntoInter(_pos);
 
 	do {
 
@@ -141,13 +125,10 @@ int QtThreadPLC::MoveSlidingThenRunMotor(QSharedPointer<BE_1105_Driver>	 be_1105
 			
 			if (_isRun) {
 
-				this->emit_step_motor_start(_pos-1);
 
-				be_1105->SendCmd4Done(mBe1105RunDir,
-										BE_1105_RUN_SPEED_CRACK_DETECT, 
-										BE_1105_RUN_CIRCLE_CRACK_DETECT);
+				this->do_sjts_roller_run(_pos - 1);
 
-				this->emit_step_motor_stop(_pos-1);
+				
 				
 			}
 			return TRUE;
@@ -180,7 +161,7 @@ int QtThreadPLC::MoveSlidingThenRunMotor(QSharedPointer<BE_1105_Driver>	 be_1105
 *
 */
 /*-------------------------------------*/
-void QtThreadPLC::process_plc_cmd(QSharedPointer<CMD_CTRL> _cmd, QSharedPointer<BE_1105_Driver>	 _be_1105)
+void QtThreadPLC::process_plc_cmd(QSharedPointer<CMD_CTRL> _cmd)
 {
 	do {
 
@@ -192,7 +173,7 @@ void QtThreadPLC::process_plc_cmd(QSharedPointer<CMD_CTRL> _cmd, QSharedPointer<
 
 						this->emit_roller_ready();
 
-						this->stepMotorRun(_be_1105);
+						this->stepMotorRun();
 
 						m_socket->SendPlcRollerQualified(CMD_CTRL::CT_OK);
 
@@ -219,48 +200,9 @@ void QtThreadPLC::process_plc_cmd(QSharedPointer<CMD_CTRL> _cmd, QSharedPointer<
 *
 */
 /*-------------------------------------*/
-int QtThreadPLC::process_plc_cmd_easy(QSharedPointer<CMD_CTRL> _cmd)
-{
-	this->print_cmd(_cmd);
-
-	do {
-
-		if (_cmd->IsRoolerReady()) {
-			//rooler is ready !!!		
-			break;
-
-		}else if (_cmd->IsIntoInnerReady()) {
-			
-		}else if (_cmd->IsResp()) {
-			
-			break;
-
-		}else {
-			
-			return FALSE;
-
-		}
-
-
-	} while (0);
-
-	return TRUE;
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
 int QtThreadPLC::wait4PlcResp(QSharedPointer<CMD_CTRL> _cmd)
 {
 	
-
 	do {
 
 		this->Read_1_plc_cmd_process_hearbeat(_cmd);
@@ -284,8 +226,7 @@ int QtThreadPLC::wait4PlcResp(QSharedPointer<CMD_CTRL> _cmd)
 		}
 
 	} while (this->socket_thread_run_condition());
-
-	
+		
 
 	return FALSE;
 }
@@ -310,8 +251,7 @@ int QtThreadPLC::wait4PlcRoolerReady(QSharedPointer<CMD_CTRL> _cmd)
 		}else if (_cmd->IsRoolerReady()) {
 			
 			//roooler is ready !!!
-			sendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP::CT_OK);
-			this->emit_roller_ready();
+			this->do_sjts_roller_ready();
 			return TRUE;
 
 		}
@@ -342,11 +282,11 @@ int QtThreadPLC::wait4PlcRoolerReady(QSharedPointer<CMD_CTRL> _cmd)
 *
 */
 /*-------------------------------------*/
-int QtThreadPLC::wait4PlcRoolerPosReady(QSharedPointer<CMD_CTRL> _cmd, QSharedPointer<BE_1105_Driver>	 _be_1105)
+int QtThreadPLC::wait4PlcRoolerPosReady(QSharedPointer<CMD_CTRL> _cmd)
 {
 	do {
 		
-		this->stepMotorRunFast(_be_1105);
+		this->do_StepMotor_sjts_Run_Fast();
 
 		this->Read_1_plc_cmd_process_hearbeat(_cmd);
 
@@ -369,18 +309,19 @@ int QtThreadPLC::wait4PlcRoolerPosReady(QSharedPointer<CMD_CTRL> _cmd, QSharedPo
 		}
 		else if (_cmd->IsRoolerReadyError()) {
 			sendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP::CT_OK);
-			this->stepMotorRunStop(_be_1105);
+			this->do_StepMotor_sjts_Run_Stop();
 			return FALSE;
 
 		}else if (_cmd->IsAbortStop()) {
-			this->stepMotorRunStop(_be_1105);
+			this->do_StepMotor_sjts_Run_Stop();
 			return FALSE;
 
 		}else if (_cmd->isHeartbeatCmd()) {
 
 		}else if(_cmd->IsRoolerPosReady()){
-			sendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP::CT_OK);
-			this->stepMotorRunStop(_be_1105);
+			
+			this->do_sjts_roller_pos_ready();
+			
 			return TRUE;
 		}
 		else {
@@ -396,31 +337,29 @@ int QtThreadPLC::wait4PlcRoolerPosReady(QSharedPointer<CMD_CTRL> _cmd, QSharedPo
 *
 */
 /*-------------------------------------*/
-void  QtThreadPLC::init_serial_port(QSharedPointer<BE_1105_Driver>	 _be_1105)
+void QtThreadPLC::do_sjts_roller_ready()
 {
-	do {
-		_be_1105->open_auto();
-
-		if (_be_1105->init() == TRUE) {
-			
-			emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortIsOpen,"");
-			break;
-			
-		}else{
-			this->SleepMy(1000);
-			emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortError,"");
-		}
-
-	} while (_be_1105->init() == FALSE && M_THREAD_RUN);
+	sendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP::CT_OK);
+	this->emit_roller_ready();
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-int QtThreadPLC::doPlcStepMotorRun(QSharedPointer<BE_1105_Driver> _be_1105)
+void QtThreadPLC::do_sjts_roller_pos_ready()
 {
-	int result_t=this->stepMotorRun(_be_1105);
+	sendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP::CT_OK);
+	this->do_StepMotor_sjts_Run_Stop();
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int QtThreadPLC::doPlcStepMotorRun()
+{
+	int result_t=this->stepMotorRun();
 	 	
 	this->emit_roller_done();
 
@@ -432,7 +371,7 @@ int QtThreadPLC::doPlcStepMotorRun(QSharedPointer<BE_1105_Driver> _be_1105)
 *
 */
 /*-------------------------------------*/
-int QtThreadPLC::stepMotorRun(QSharedPointer<BE_1105_Driver>	 _be_1105)
+int QtThreadPLC::stepMotorRun()
 {
 #if TRUE
 
@@ -445,7 +384,7 @@ int QtThreadPLC::stepMotorRun(QSharedPointer<BE_1105_Driver>	 _be_1105)
 		int step_t = i;
 		int run_t = TRUE;	
 		
-		IsOK = this->MoveSlidingThenRunMotor(_be_1105, step_t, run_t);
+		IsOK = this->MoveSlidingThenRunMotor(step_t, run_t);
 
 		if (FALSE==IsOK) {
 			return IsOK;
@@ -463,165 +402,40 @@ int QtThreadPLC::stepMotorRun(QSharedPointer<BE_1105_Driver>	 _be_1105)
 *
 */
 /*-------------------------------------*/
-void QtThreadPLC::emit_step_motor_start(int _circle)
-{
-	if (_circle==0){
-		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart00,"");
-	}
-	else if (_circle==1)
-	{
-		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart01,"");
-	}else
-	{
-		Q_ASSERT(FALSE);
-	}
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtThreadPLC::emit_step_motor_stop(int _circle)
-{
-	if (_circle == 0) {
-		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop00,"");
-	}
-	else if (_circle == 1)
-	{
-		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop01,"");
-	}
-	else
-	{
-		Q_ASSERT(FALSE);
-	}
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
 void QtThreadPLC::run_socket_work()
 {
 
-	QSharedPointer<BE_1105_Driver>	 be_1105 = QSharedPointer<BE_1105_Driver>(new BE_1105_Driver(Q_NULLPTR));
-
-	this->init_serial_port(be_1105);
+	this->do_StepMotor_sjts_Init();
 
 	while (socket_thread_run_condition()){
-		this->do_run_work(be_1105);
+		this->do_run_work();
 	}
 
-	this->stepMotorRunStop(be_1105);
-	be_1105->close();
-
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtThreadPLC::print_undefined_cmd(QSharedPointer<CMD_CTRL> _cmd)
-{
-	printf_event("ERROR", "Error Cmd!");
-	printf_event("ERROR", "this is Error Cmd ! do you know why ????????????????");
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtThreadPLC::process_fatal_error(QSharedPointer<CMD_CTRL> _cmd)
-{
-	if (_cmd->IsRoolerReady()) {
-		
-	}else if (_cmd->IsRoolerPosReady()) {
-	
-	}
-	else if (_cmd->IsOperationMode()) {
-	
-	}else if (_cmd->IsIntoInnerReady()) {
-			
-	}else if (_cmd->isHeartbeatCmd()) {
-		
-	}else if (_cmd->IsResp()) {
-		
-	}else if (_cmd->IsRoolerReadyError()) {
-		this->process_machine_error("IsRoolerReadyError");
-	}else if (_cmd->IsAbortStop()) {
-		this->process_machine_error("IsAbortStop");
-	}else {
-		this->process_machine_error("UnKonw CMD");
-	}
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtThreadPLC::print_cmd(QSharedPointer<CMD_CTRL> _cmd)
-{
-	if (_cmd->IsRoolerReady()) {
-		//rooler is ready !!!
-		printf_event("EVENT", "Rooler is Ready !");
-		
-	}else if (_cmd->IsRoolerPosReady()) {
-		
-		printf_event("EVENT", "Rooler  Pos is Ready !");
-	
-	}else if (_cmd->IsIntoInnerReady()) {
-		
-		printf_event("EVENT", "Now into inter  !");
-	}
-	else if (_cmd->isHeartbeatCmd()) {
-		printf_event("@r", "hb !");
-	}
-	else if (_cmd->IsResp()) {
-		printf_event("EVENT", "RESP");		
-	}else if (_cmd->IsRoolerReadyError()) {
-		printf_event("EVENT", "Rooler is Ready ERROR !");
-	}else if (_cmd->IsAbortStop()){
-		printf_event("EVENT", "Rooler is Abort Stop !");
-	}else if (_cmd->IsOperationMode()) {
-		printf_event("EVENT", "Operation Mode !");
-	}else {
-		print_undefined_cmd(_cmd);
-	}
+	this->do_StepMotor_sjts_Run_Stop();
 
 }
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtThreadPLC::print_socket_connected()
-{
-	if (GetSocketConnected() == 0) {
-		printf_event("EVENT", "Socket Error !");
-	}
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
 
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-int QtThreadPLC::Read_1_plc_cmd_process_hearbeat(QSharedPointer<CMD_CTRL> _cmd)
+void QtThreadPLC::init_serial_port()
 {
 
-	if (Read_1_cmd_process_hearbeat(_cmd)) {
-			this->print_cmd(_cmd);
-			this->process_fatal_error(_cmd);
-	}
-	else {
-			this->print_socket_connected();	
-	}
+	do
+	{
 
-	return this->GetSocketConnected();
+		if (this->init_serial_port_once()) {
+			break;
+		}
+		else
+		{
+			this->SleepMy(1000);
+		}
+
+	} while (M_THREAD_RUN);
+
 }
 /*-------------------------------------*/
 /**
@@ -657,20 +471,13 @@ int QtThreadPLC::sendPlcRollerQualifiedEx(int _qualified)
 *
 */
 /*-------------------------------------*/
-int QtThreadPLC::stepMotorRunFast(QSharedPointer<BE_1105_Driver> _be_1105)
+void QtThreadPLC::do_sjts_roller_run(const int _step)
 {
-	_be_1105->SendAutoCmd(mBe1105RunDir, BE_1105_RUN_SPEED_FASTEST);
-	return 0;
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-int QtThreadPLC::stepMotorRunStop(QSharedPointer<BE_1105_Driver> _be_1105)
-{
-	_be_1105->SendAutoCmd(BE_1105_STOP, BE_1105_RUN_SPEED_FASTEST);
-	return 0;
+	this->emit_step_motor_start(_step);
+
+	do_StepMotor_sjts_Run_Once();
+
+	this->emit_step_motor_stop(_step);
 }
 /*-------------------------------------*/
 /**

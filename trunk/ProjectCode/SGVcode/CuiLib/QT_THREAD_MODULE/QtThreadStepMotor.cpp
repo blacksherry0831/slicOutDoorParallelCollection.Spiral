@@ -20,7 +20,6 @@ QtThreadStepMotor::QtThreadStepMotor()
 {
 	this->mThreadName = "Step Motor Thread ";
 	this->RUN_MODE = 1;
-	this->mBe1105RunDir = BE_1105_RUN_NEG;
 }
 /*-------------------------------------*/
 /**
@@ -42,7 +41,7 @@ void QtThreadStepMotor::StepMotorRun()
 	QTime time;
 	time.start(); //开始计时，以ms为单位
 	{	
-		mBE_1105->SendCmd4Done(BE_1105_RUN_NEG, BE_1105_RUN_SPEED_CRACK_DETECT);
+		this->do_StepMotor_sjts_Run_Once();
 	}
 
 	int time_Diff = time.elapsed(); //返回从上次start()或restart()开始以来的时间差，单位ms
@@ -97,12 +96,6 @@ void QtThreadStepMotor::Wait4ImgProcess(const int _time)
 *
 */
 /*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
 void QtThreadStepMotor::hardware_roller_run()
 {
 	if (this->hardware_init_status()){
@@ -128,18 +121,7 @@ void QtThreadStepMotor::hardware_roller_run()
 void  QtThreadStepMotor::hardware_roller_run_base()
 {
 
-#if 1
-	this->mBE_1105->SendCmd4Done(mBe1105RunDir,
-		BE_1105_RUN_SPEED_15S_BASE,
-		BE_1105_RUN_ONE_CIRCLE_BASE);
-#endif
-
-#if 0
-	this->mBE_1105->SendCmd4Done(mBe1105RunDir,
-		35000,
-		BE_1105_RUN_ONE_CIRCLE_BASE);
-#endif // 0
-
+	this->StepMotorRunOnce_Lab();
 
 }
 /*-------------------------------------*/
@@ -149,9 +131,7 @@ void  QtThreadStepMotor::hardware_roller_run_base()
 /*-------------------------------------*/
 void  QtThreadStepMotor::hardware_roller_run_base_x5()
 {
-	this->mBE_1105->SendCmd4Done(mBe1105RunDir,
-		BE_1105_RUN_SPEED_CRACK_DETECT,
-		BE_1105_RUN_CIRCLE_CRACK_DETECT);
+	this->StepMotorRunOnce_kn();
 }
 /*-------------------------------------*/
 /**
@@ -160,9 +140,8 @@ void  QtThreadStepMotor::hardware_roller_run_base_x5()
 /*-------------------------------------*/
 void QtThreadStepMotor::hardware_init()
 {
-	this->mBE_1105 = QSharedPointer<BE_1105_Driver>(new BE_1105_Driver(Q_NULLPTR));
-
-	if (this->init_serial_port_once(this->mBE_1105) == FALSE) {
+	
+	if (this->init_serial_port_once() == FALSE) {
 		this->printf_event("Serial Port", "open fali");
 	}
 
@@ -174,7 +153,7 @@ void QtThreadStepMotor::hardware_init()
 /*-------------------------------------*/
 int QtThreadStepMotor::hardware_init_status()
 {
-	return this->mBE_1105->init();
+	return  this->StepMotor_IsOpen();
 }
 /*-------------------------------------*/
 /**
@@ -184,9 +163,7 @@ int QtThreadStepMotor::hardware_init_status()
 void QtThreadStepMotor::startServer()
 {
 	QtThreadBase::startServer();
-	if (!mBE_1105.isNull()){
-		mBE_1105->startSerialPortRun();
-	}
+	this->StepMotor_Server_Start();
 }
 /*-------------------------------------*/
 /**
@@ -215,9 +192,7 @@ void QtThreadStepMotor::closeServerSync()
 void QtThreadStepMotor::closeServerAsync()
 {
 	QtThreadBase::closeServer();
-	if (!mBE_1105.isNull()) {
-		mBE_1105->stopSerialPortRun();
-	}
+	this->StepMotor_Server_Stop();
 }
 /*-------------------------------------*/
 /**
@@ -240,11 +215,11 @@ QtThreadStepMotor* QtThreadStepMotor::SetBordIPaddr(QString _ipAddr)
 *
 */
 /*-------------------------------------*/
-void  QtThreadStepMotor::init_serial_port(QSharedPointer<BE_1105_Driver>	 _be_1105)
+void  QtThreadStepMotor::init_serial_port()
 {
 	do {
 		
-			if (init_serial_port_once(_be_1105) == TRUE) {
+			if (init_serial_port_once() == TRUE) {
 
 				break;
 
@@ -260,20 +235,13 @@ void  QtThreadStepMotor::init_serial_port(QSharedPointer<BE_1105_Driver>	 _be_11
 *
 */
 /*-------------------------------------*/
-int QtThreadStepMotor::init_serial_port_once(QSharedPointer<BE_1105_Driver> _be_1105)
+void QtThreadStepMotor::emit_init_serial_status(int _isOpen)
 {
-	_be_1105->open_auto();
-
-	if (_be_1105->init() == TRUE) {
-
+	if (_isOpen) {
 		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortIsOpen, "");
-	
 	}else {
 		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortError, "");
 	}
-
-	return _be_1105->IsOpen();
-
 }
 /*-------------------------------------*/
 /**

@@ -6,13 +6,6 @@
 *
 */
 /*-------------------------------------*/
-
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
 QtThreadFlowCtrlBase::QtThreadFlowCtrlBase(QObject *parent):QtThreadSocketClientSig(parent)
 {
 
@@ -158,17 +151,6 @@ CMD_CTRL::BodyRollerQualified QtThreadFlowCtrlBase::wait4ImgProcessResult()
 *
 */
 /*-------------------------------------*/
-void QtThreadFlowCtrlBase::emit_roller_done()
-{
-	this->setWorkFlowDones(0,CMD_CTRL::CMD_TYPE_02_RESP::CT_ERROR);
-
-	emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RollerDone,"");
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
 int QtThreadFlowCtrlBase::getWorkFLowResult()
 {
 	return this->mWorkFlowDoneClientThreadsResult;
@@ -249,9 +231,60 @@ int QtThreadFlowCtrlBase::sendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP _type)
 *
 */
 /*-------------------------------------*/
+int QtThreadFlowCtrlBase::SendPlcIntoInter(int _step)
+{
+	int result_t = this->m_socket->SendPlcIntoInter(_step);
+
+	return result_t;
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void  QtThreadFlowCtrlBase::emit_roller_ready()
 {
-	emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady, CircleSeq());
+	const QString circle_seq = CircleSeq();
+	emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady,circle_seq );
+	emit status_sjts_roller(CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerReadyStart, circle_seq);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadFlowCtrlBase::emit_roller_pos_ready()
+{
+	emit status_sjts_roller(CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerPosReady, "");
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadFlowCtrlBase::emit_roller_into_inner_ready()
+{
+	emit status_sjts_roller(CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerIntoInnerReady, "");
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadFlowCtrlBase::emit_roller_done()
+{
+	this->setWorkFlowDones(0, CMD_CTRL::CMD_TYPE_02_RESP::CT_ERROR);
+
+	emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RollerDone, "");
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadFlowCtrlBase::emit_roller_abort()
+{
+	emit status_sjts(CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::MachineAbort, "");
 }
 /*-------------------------------------*/
 /**

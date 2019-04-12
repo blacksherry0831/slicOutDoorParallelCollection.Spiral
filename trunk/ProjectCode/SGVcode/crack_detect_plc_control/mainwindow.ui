@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>322</width>
-    <height>317</height>
+    <width>299</width>
+    <height>343</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -113,6 +113,13 @@
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QProgressBar" name="progressBar_sjts_step_motor">
+          <property name="value">
+           <number>24</number>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
      </layout>
@@ -124,7 +131,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>322</width>
+     <width>299</width>
      <height>23</height>
     </rect>
    </property>

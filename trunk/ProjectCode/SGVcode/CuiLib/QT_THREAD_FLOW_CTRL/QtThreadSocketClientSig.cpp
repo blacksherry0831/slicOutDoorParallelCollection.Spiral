@@ -6,10 +6,8 @@
 *
 */
 /*-------------------------------------*/
-QtThreadSocketClientSig::QtThreadSocketClientSig(QObject *parent) :QtThreadSocketClient(parent)
+QtThreadSocketClientSig::QtThreadSocketClientSig(QObject *_parent) :QtThreadSocketClient(_parent)
 {
-
-
 
 }
 /*-------------------------------------*/
@@ -17,3 +15,38 @@ QtThreadSocketClientSig::QtThreadSocketClientSig(QObject *parent) :QtThreadSocke
 *
 */
 /*-------------------------------------*/
+void QtThreadSocketClientSig::emit_roller_pos_ready()
+{
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadSocketClientSig::emit_roller_ready()
+{
+	
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadSocketClientSig::emit_roller_into_inner_ready()
+{
+
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void QtThreadSocketClientSig::emit_roller_done()
+{
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+

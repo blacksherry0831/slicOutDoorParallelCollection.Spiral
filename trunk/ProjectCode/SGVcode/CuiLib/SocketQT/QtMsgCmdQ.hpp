@@ -7,27 +7,26 @@
 *
 */
 /*-------------------------------------*/
-#include "QtThreadBase.hpp"
-#include "QtTcpClient.hpp"
 #include "CMD_CTRL_Q.hpp"
-#include "QtThreadSocketClient.hpp"
-#include "QtMsgCmdQ.hpp"
 /*-------------------------------------*/
 /**
 *
 *
 */
 /*-------------------------------------*/
-class QtThreadSocketClientCmdQ :public QtThreadSocketClient,public QtMsgCmdQ
+class QtMsgCmdQ
 {
-	Q_OBJECT
 public:
-	QtThreadSocketClientCmdQ(qintptr p);
-	explicit QtThreadSocketClientCmdQ(QObject *parent = Q_NULLPTR);
-	~QtThreadSocketClientCmdQ(void);
-
+	QtMsgCmdQ();	
+	~QtMsgCmdQ();
+private:
+	CMD_CTRL_Q mCmdMsgQ;
+public:
+	void SetMsg(QSharedPointer<CMD_CTRL> _msg);
+	QSharedPointer<CMD_CTRL> GetMsg();
+	void ClearMsg();
 public:
 	virtual void SetMsgWhileRunning(QSharedPointer<CMD_CTRL> _msg);
-
-
+	virtual void ProcMsg();
+	virtual void ProcMsgEx(QSharedPointer<CMD_CTRL> _msg);
 };

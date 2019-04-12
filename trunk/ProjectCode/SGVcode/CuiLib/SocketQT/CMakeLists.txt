@@ -19,7 +19,8 @@ ENDIF ()
 	
 	if (CBB_BUILDING_CRACK_DETECTION)
 		SET(DIR_SRCS	
-
+				
+								
 				QtTcpServerClientSession.cpp	
 				QtTcpServer.cpp
 				
@@ -41,7 +42,9 @@ ENDIF ()
 				
 				
 				CMD_CTRL.cpp
-				CMD_CTRL_Q.cpp	
+				CMD_CTRL_Q.cpp
+	
+				QtMsgCmdQ.cpp				
 
 				QtThreadSocketClient.cpp				
 				QtThreadSocketClientCmdQ.cpp

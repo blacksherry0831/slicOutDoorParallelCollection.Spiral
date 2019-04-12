@@ -1,14 +1,18 @@
 #pragma once
 
 #include "cpp_stl.h"
-
+/*-------------------------------------*/
 #include <QString> 
 #include <QDateTime> 
+/*-------------------------------------*/
+#include "IPrint.hpp"
+/*-------------------------------------*/
 /**
 *
 *
 */
-class QBase
+/*-------------------------------------*/
+class QBase: public IPrint
 {
 public:
 	QBase(void);
@@ -21,6 +25,6 @@ public:
  
 public:
 	static QString AesEncode(QString _key, QByteArray _body, int _mode);
-	static void printf_event(std::string _event, std::string _msg = "");
+	
 };
 

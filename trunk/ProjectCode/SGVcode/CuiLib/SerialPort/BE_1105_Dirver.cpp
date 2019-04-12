@@ -16,7 +16,7 @@ BE_1105_Driver* BE_1105_Driver::_instance = new BE_1105_Driver(Q_NULLPTR);
 BE_1105_Driver::BE_1105_Driver(QObject *parent):SerialPortBase(parent)
 {
 	this->m_baudrate = 9600;
-	
+	mCom = 4;
 	
 	m_be_1105_addr = 0;
 	m_circle = 5;
@@ -45,7 +45,7 @@ int BE_1105_Driver::open_auto()
 	this->open_ttyUSB();
 #endif
 #if  defined(_WIN32) || defined(_WIN64)
-	result_t=this->open(4);
+	result_t=this->open(mCom);
 #endif	
 	return result_t;
 }

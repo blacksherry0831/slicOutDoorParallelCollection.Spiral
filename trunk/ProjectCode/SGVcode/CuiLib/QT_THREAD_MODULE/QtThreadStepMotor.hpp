@@ -10,7 +10,8 @@
 #include "SocketQT/CMD_CTRL.hpp"
 #include "SocketQT/QtThreadSocketClient.hpp"
 /*-------------------------------------*/
-#include "QT_THREAD_MODULE/QtThreadClientCtrl.hpp"
+#include "QtThreadClientCtrl.hpp"
+#include "StepMotorSjts.hpp"
 /*-------------------------------------*/
 #include "SerialPort/BE_1105_Dirver.hpp"
 /*-------------------------------------*/
@@ -21,7 +22,7 @@
 *
 */
 /*-------------------------------------*/
-class QtThreadStepMotor :public QtThreadFlowCtrlLocal
+class QtThreadStepMotor :public QtThreadFlowCtrlLocal,public StepMotorSjts
 {
 
 public:
@@ -29,12 +30,12 @@ public:
 	~QtThreadStepMotor(void);
 protected:
 	std::string mCurrentBord;
-	QSharedPointer<BE_1105_Driver>	 mBE_1105;
+	
 private:
 	static const int TIME_GAP;
 	static const int TIME_15S;
 	int RUN_MODE;
-	int mBe1105RunDir;
+	
 protected:
 	void StepMotorRun();
 public:
@@ -46,8 +47,8 @@ public:
 	void hardware_roller_run_base();
 	void hardware_roller_run_base_x5();
 public:
-	void  init_serial_port(QSharedPointer<BE_1105_Driver>	 _be_1105);
-	int  init_serial_port_once(QSharedPointer<BE_1105_Driver>	 _be_1105);
+	void  init_serial_port();
+	void  emit_init_serial_status(int _isOpen);
 public:
 	void startServer();
 	void closeServer();
