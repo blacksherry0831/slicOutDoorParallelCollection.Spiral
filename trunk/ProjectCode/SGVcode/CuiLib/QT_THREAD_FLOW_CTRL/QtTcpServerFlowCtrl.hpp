@@ -1,20 +1,16 @@
 #pragma once
 
 #include "cpp_stl.h"
-
-#if defined(QT_VERSION)
+/*-------------------------------------*/
 #include <QObject>
 #include <QtCore>
 #include <QtNetwork>
 #include <QSharedPointer>
-#endif
-
+/*-------------------------------------*/
 #include "SocketQT/QtTcpServer.hpp"
 #include "socketQT/conf_ip_crack_detect.h"
-
+/*-------------------------------------*/
 #include "QT_THREAD_MODULE/QtThreadClientCtrl.hpp"
-
-
 /*-------------------------------------*/
 /**
 *
@@ -42,8 +38,8 @@ public:
 	void beforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c);
 signals:
 	void work_flow_done(int,int);
-	void running_client_sessions(int);
+	void client_sessions_status(QString, int, int);
 public slots:
 	void client_session_work_state_work_flow(int _client, int _status, int _quality);
-	void running_client_sessions_change();
+	void running_client_sessions_change(QString _ip, int _run, int _s);
 };

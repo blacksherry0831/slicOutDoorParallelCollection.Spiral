@@ -5,7 +5,6 @@
 #include "cpp_stl.h"
 #include "opencv_stl.h"
 /*-------------------------------------*/
-#include "QT_THREAD_MODULE/QtThreadPLC.hpp"
 #include "QT_THREAD_FLOW_CTRL/QtThreadFlowCtrlServer.hpp"
 /*-------------------------------------*/
 #include <singleapplication.h>
@@ -26,10 +25,9 @@ int plcServer(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
 
-	QSharedPointer<QtThreadPLC> plcdataServer = QSharedPointer<QtThreadPLC>(new QtThreadPLC(0));
+
 	QSharedPointer<QtThreadFlowCtrlServer> flowServerServer = QSharedPointer<QtThreadFlowCtrlServer>(new QtThreadFlowCtrlServer(0));
 
-	plcdataServer->startServer();
 	flowServerServer->startServer();
 
 	return a.exec();

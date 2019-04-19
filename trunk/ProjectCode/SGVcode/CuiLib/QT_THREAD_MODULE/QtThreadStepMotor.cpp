@@ -199,22 +199,6 @@ void QtThreadStepMotor::closeServerAsync()
 *
 */
 /*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-QtThreadStepMotor* QtThreadStepMotor::SetBordIPaddr(QString _ipAddr)
-{
-	this->mCurrentBord = _ipAddr.toStdString();
-	return this;
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
 void  QtThreadStepMotor::init_serial_port()
 {
 	do {
@@ -238,9 +222,9 @@ void  QtThreadStepMotor::init_serial_port()
 void QtThreadStepMotor::emit_init_serial_status(int _isOpen)
 {
 	if (_isOpen) {
-		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortIsOpen, "");
+		emit status_sjts_motor(CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR::SerialPortOpen, "");
 	}else {
-		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortError, "");
+		emit status_sjts_motor(CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR::SerialPortError, "");
 	}
 }
 /*-------------------------------------*/

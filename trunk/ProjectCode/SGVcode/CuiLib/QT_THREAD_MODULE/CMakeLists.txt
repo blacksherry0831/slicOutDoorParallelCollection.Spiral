@@ -22,13 +22,15 @@ ENDIF ()
 				QtSigSjts.cpp
 				
 				IPlcSjts.cpp
+				
 				QtThreadPlcSocket.cpp
-				QtThreadPLC.cpp
 				QtThreadPlcSocketClient.cpp
+				QtThreadPlcSimulatorClient.cpp
 				
 				CMD_WORK_FLOW.cpp
 				IStepMotorSjts.cpp
 				StepMotorSjts.cpp
+
 				QtThreadStepMotor.cpp
 				QtThreadStepMotorServer.cpp
 				

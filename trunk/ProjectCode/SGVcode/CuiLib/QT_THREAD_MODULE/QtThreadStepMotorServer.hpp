@@ -15,7 +15,7 @@
 #include "QT_THREAD_MODULE/StepMotorSjts.hpp"
 #include "QT_THREAD_MODULE/CMD_WORK_FLOW.hpp"
 /*-------------------------------------*/
-#include "QT_THREAD_FLOW_CTRL/QtThreadFlowCtrlLocal.hpp"
+#include "QT_THREAD_FLOW_CTRL/QtThreadFlowCtrlBase.hpp"
 /*-------------------------------------*/
 /**
 *
@@ -26,19 +26,25 @@ class QtThreadStepMotorServer:public QtThreadBase, public StepMotorSjts,public Q
 {
 	Q_OBJECT
 public:
-	QtThreadStepMotorServer();
+	QtThreadStepMotorServer(QObject *parent = Q_NULLPTR);
 	~QtThreadStepMotorServer(void);
 signals:
 	void status_sjts_motor(int, QString);
+private:
+	const unsigned int mOneCircleTime=15000;
 protected:
 	void emit_step_motor_start(int _circle);
 	void emit_step_motor_stop(int _circle);
+protected:
+	int motor_run_faset();
+	int motor_run_stop();
+	int motor_run_once();
 protected:
 	virtual void  emit_init_serial_status(int _isOpen);
 public:	
 	virtual void ProcMsgEx(QSharedPointer<CMD_CTRL> _msg);
 public:
-	virtual void run();
+	virtual void run_thread_work();
 public:
 	virtual void SetMsgWhileRunning(QSharedPointer<CMD_CTRL> _msg);
 	

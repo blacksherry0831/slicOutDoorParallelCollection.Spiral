@@ -27,6 +27,7 @@ protected:
 protected:
 	QString mStatusMessage;
 	QString mThreadName;
+	std::string mEvent;
 	void emit_status_message(const QString& _msg);
 	
 public:
@@ -36,14 +37,22 @@ public:
 	void closeServerAsync();
 	void closeServerSync();
 	void wait4ServerClose();
-	
-private:
+protected:
+	virtual void emit_thread_starting();
+	virtual void emit_thread_stopping();
+protected:
+	virtual void before_enter_thread();
+	virtual void after_exit_thread();
+	virtual void enter_thread();
+	virtual void exit_thread();
+protected:
 
-signals:
-	void status_message(const QString& _msg);
 public: 
 	virtual void run();
+	virtual void run_thread_work();	
 
-
+signals:
+		void status_message(const QString& _msg);
+		void thread_running_state(int);
 
 };

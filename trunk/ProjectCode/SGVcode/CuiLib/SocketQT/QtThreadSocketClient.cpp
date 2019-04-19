@@ -79,15 +79,14 @@ void QtThreadSocketClient::init_socket()
 			if (ptr_sd >= 0) {
 				m_socket->setSocketDescriptor(ptr_sd);
 				mSocketConnected = TRUE;//client is connected
-				mIpAddr = m_socket->peerAddress().toString().toStdString();
+				
+				this->mIpAddrLocal  = m_socket->localAddress().toString().toStdString();
+				this->mIpAddrRemote = mIpAddr = m_socket->peerAddress().toString().toStdString();
 
 			}else if (ptr_sd==-1){
-				m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());
-								
-			}else {
-				
-				Q_ASSERT(FALSE);
-			
+				m_socket = QSharedPointer<QtTcpClient>(new QtTcpClient());								
+			}else {				
+				Q_ASSERT(FALSE);			
 			}
 		
 
@@ -338,8 +337,6 @@ void QtThreadSocketClient::emit_status_message(const QString & _msg)
 		.append("Port:").append(QString::number(mPort))
 		.append(_msg).append(" ");
 		
-	qDebug() << msg_t;
-
 	emit status_message(msg_t);
 }
 /*-------------------------------------*/
@@ -602,7 +599,7 @@ void QtThreadSocketClient::emit_thread_starting()
 {
 	emit thread_running_state(TRUE);
 	this->emit_status_message(mStatusMessage = "Thread>> Ctrl Thread Start");
-	emit running_client_sessions_change();
+	
 }
 /*-------------------------------------*/
 /**
@@ -613,7 +610,7 @@ void QtThreadSocketClient::emit_thread_stopping()
 {
 	emit thread_running_state(FALSE);
 	this->emit_status_message(mStatusMessage = "Thread>>  shutdown");
-	emit running_client_sessions_change();
+	
 }
 /*-------------------------------------*/
 /**
@@ -665,24 +662,6 @@ void QtThreadSocketClient::destory_socket_in_thread()
 *
 */
 /*-------------------------------------*/
-void QtThreadSocketClient::before_enter_thread()
-{
-
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtThreadSocketClient::after_exit_thread()
-{
-
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
 void QtThreadSocketClient::close_destory_socket_4_server()
 {
 
@@ -708,6 +687,15 @@ void QtThreadSocketClient::close_destory_socket_4_server()
 QString QtThreadSocketClient::GetIpAddr()
 {
 	return   QString::fromStdString(mIpAddr);
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+QString QtThreadSocketClient::GetClientSessionIpAddr()
+{
+	return   QString::fromStdString(this->mIpAddrRemote);
 }
 /*-------------------------------------*/
 /**

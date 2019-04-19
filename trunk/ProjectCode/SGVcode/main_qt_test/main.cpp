@@ -46,13 +46,6 @@ int plcTest(int argc, char *argv[])
 
 
 
-	QSharedPointer<QtThreadPLC> plcdataServer = QSharedPointer<QtThreadPLC>(new QtThreadPLC(0));
-
-
-	//dataServer->start();
-
-	plcdataServer->start();
-
 	return a.exec();
 }
 

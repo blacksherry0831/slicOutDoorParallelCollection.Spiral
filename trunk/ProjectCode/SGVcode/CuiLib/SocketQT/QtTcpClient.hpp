@@ -17,7 +17,7 @@
 *
 */
 /*-------------------------------------*/
-
+#define USE_PLC_SOCKET (1)
 /*-------------------------------------*/
 /**
 *
@@ -52,9 +52,13 @@ public:
 	int Send_Start_CMD(CMD_CTRL::CMD_TYPE_02_C _type_c, CMD_CTRL::WorkMode _wm,uint _circle_seq);
 	int SendHearbeatCmd(int _need_resp);
 public:
+
+#if USE_PLC_SOCKET
 	int SendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP _type);
 	int SendPlcIntoInter(int _step);
 	int SendPlcRollerQualified(int _qualified);
+#endif
+
 public:
 
 };

@@ -35,10 +35,11 @@ class QtThreadFlowCtrlServer:public QtThreadBase
 public:
 	explicit QtThreadFlowCtrlServer(QObject *parent);
 	~QtThreadFlowCtrlServer(void);
+
 signals:
 	void work_flow_done(int,int);
-	void running_client_sessions(int);
-	
+	void client_sessions_status(QString, int, int);
+	/**<session (name,run/stop,status)*/
 private:
 	QSharedPointer<QtTcpServerFlowCtrl>	 mQtTcpServer;
 protected:
@@ -51,7 +52,7 @@ public:
 public:
 	void NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _event, int _cmd_idx=0);
 	void beforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _event);
-	QVector<QString> getRunningSessionIpAddr();
+	QVector<QString> getThreadRunningSessionIpAddr();
 private:
 
 };

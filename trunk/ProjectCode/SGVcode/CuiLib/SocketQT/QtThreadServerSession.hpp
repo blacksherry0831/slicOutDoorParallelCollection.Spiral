@@ -14,42 +14,33 @@
 *
 */
 /*-------------------------------------*/
-#include "SocketQT/QtThreadSocketClient.hpp"
+#include "SocketQT/QtThreadSocketClientCmdQ.hpp"
 #include "SocketQT/QtTcpClient.hpp"
 #include "SocketQT/conf_ip.h"
 #include "SocketQT/CMD_CTRL_Q.hpp"
 /*-------------------------------------*/
-#include "QT_THREAD_FLOW_CTRL/QtThreadFlowCtrlBase.hpp"
+#include "MY_SDK_LIB/TimeMeasure.hpp"
 /*-------------------------------------*/
 /**
 *
 *
 */
 /*-------------------------------------*/
-class QtThreadFlowCtrlLocal :public QtThreadFlowCtrlBase
+class QtThreadServerSession :public QtThreadSocketClientCmdQ
 {
 	Q_OBJECT
 public:
+	QtThreadServerSession(qintptr _socket);
+	~QtThreadServerSession(void);
 
-	explicit QtThreadFlowCtrlLocal(QObject *parent = Q_NULLPTR);
-	~QtThreadFlowCtrlLocal(void);
-protected:
-	bool mBlock;
-public:
-	void SetBlock(bool _block);
-public:
-	virtual void hardware_init();
-	virtual int  hardware_init_status();
-	virtual void hardware_roller_run();
-public:
-	void run_normal();
+signals:
+	void client_sessions_status(QString,int,int);/**<session (name,run/stop,status)*/
+protected: 	
+	virtual void enter_thread();
+	virtual void exit_thread();
 	virtual void run();
-	virtual int socket_thread_run_condition();
-public:
+	virtual void run_socket_work();	
+protected:
 
-
-
-
-	
 
 };

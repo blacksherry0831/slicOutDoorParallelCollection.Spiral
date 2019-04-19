@@ -14,7 +14,7 @@
 *
 */
 /*-------------------------------------*/
-#include "../SocketQT/QtThreadSocketClientCmdQ.hpp"
+#include "../SocketQT/QtThreadServerSession.hpp"
 #include "../SocketQT/QtTcpClient.hpp"
 #include "../SocketQT/conf_ip.h"
 #include "SocketQT/CMD_CTRL_Q.hpp"
@@ -26,17 +26,15 @@
 *
 */
 /*-------------------------------------*/
-class QtThreadFlowCtrlServerSession :public QtThreadSocketClientCmdQ
+class QtThreadFlowCtrlServerSession :public QtThreadServerSession
 {
-
+	Q_OBJECT
 public:
 	QtThreadFlowCtrlServerSession(qintptr _socket);
 	~QtThreadFlowCtrlServerSession(void);
-protected:
 
 private:
 	int mWorkFlowStep;
-	
 private:
 	void emit_client_session_work_state(int _port,int _done, int _quality);
 public:
@@ -44,10 +42,9 @@ public:
 	void init_work_flow(QSharedPointer<CMD_CTRL> _cmd);
 	void record_work_flow(QSharedPointer<CMD_CTRL> _cmd, QSharedPointer<CMD_CTRL> _cmd_resp);
 protected: 
-	virtual void run();
-	void RecordCmd(QSharedPointer<CMD_CTRL> _cmd);
-protected:
 	virtual void run_socket_work();
 	virtual void before_enter_thread();
 	virtual void after_exit_thread();
+protected:
+
 };

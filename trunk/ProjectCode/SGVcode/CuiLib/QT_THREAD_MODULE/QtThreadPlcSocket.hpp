@@ -43,10 +43,6 @@ protected:
 	void print_socket_connected();
 protected:
 	virtual void process_fatal_error_msg(QString _msg);
-protected:
-	void emit_step_motor_start(int _circle);
-	void emit_step_motor_stop(int _circle);
-	void emit_init_serial_status(int _isOpen);
 public:
 	virtual int  Read_1_plc_cmd_process_hearbeat(QSharedPointer<CMD_CTRL> _cmd);
 	virtual void process_plc_cmd(QSharedPointer<CMD_CTRL> _cmd);

@@ -21,12 +21,12 @@ ENDIF ()
 	
 		SET(DIR_SRCS
 				QtThreadFlowCtrlBase.cpp	
-				QtThreadFlowCtrlLocal.cpp				
+						
 				
 				QtTcpServerFlowCtrl.cpp
 				
-				QtThreadSocketClientSig.cpp
-				
+				QtThreadSocketClientRoller.cpp
+
 				QtThreadFlowCtrlClient.cpp
 				QtThreadFlowCtrlServer.cpp
 				QtThreadFlowCtrlServerSession.cpp)		

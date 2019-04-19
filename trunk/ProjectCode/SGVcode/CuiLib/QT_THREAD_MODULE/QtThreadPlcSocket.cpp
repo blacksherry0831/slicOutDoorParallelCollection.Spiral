@@ -51,7 +51,7 @@ QtThreadPlcSocket::QtThreadPlcSocket(QObject *parent ):QtThreadFlowCtrlBase(pare
 
 	mPort = 2001;
 	
-	mCurrentStep = 0;
+	this->InitIntoStep();
 }
 /*-------------------------------------*/
 /**
@@ -61,43 +61,6 @@ QtThreadPlcSocket::QtThreadPlcSocket(QObject *parent ):QtThreadFlowCtrlBase(pare
 QtThreadPlcSocket::~QtThreadPlcSocket(void)
 {
 	qDebug() << this->objectName()<< "is Release ! ";
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtThreadPlcSocket::emit_step_motor_start(int _circle)
-{
-	if (_circle==0){
-		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart00,"");
-	}
-	else if (_circle==1)
-	{
-		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStart01,"");
-	}else
-	{
-		Q_ASSERT(FALSE);
-	}
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtThreadPlcSocket::emit_step_motor_stop(int _circle)
-{
-	if (_circle == 0) {
-		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop00,"");
-	}
-	else if (_circle == 1)
-	{
-		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::StepMotorStop01,"");
-	}
-	else
-	{
-		Q_ASSERT(FALSE);
-	}
 }
 /*-------------------------------------*/
 /**
@@ -116,19 +79,6 @@ int QtThreadPlcSocket::Read_1_plc_cmd_process_hearbeat(QSharedPointer<CMD_CTRL> 
 	}
 
 	return this->GetSocketConnected();
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtThreadPlcSocket::emit_init_serial_status(int _isOpen)
-{
-	if (_isOpen) {
-		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortIsOpen, "");
-	}else {
-		emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::SerialPortError, "");
-	}
 }
 /*-------------------------------------*/
 /**
@@ -157,7 +107,19 @@ QString QtThreadPlcSocket::GetIntoStepStr()
 /*-------------------------------------*/
 int     QtThreadPlcSocket::GetIntoStep()
 {
-	return this->mCurrentStep%2;
+	Q_ASSERT(this->mCurrentStep == 1 || this->mCurrentStep == 2);
+
+	if (this->mCurrentStep>2)
+	{
+		this->mCurrentStep = 2;
+	}
+
+	if (this->mCurrentStep<0)
+	{
+		this->mCurrentStep = 0;
+	}
+	
+	return this->mCurrentStep;
 }
 /*-------------------------------------*/
 /**
@@ -175,7 +137,7 @@ void    QtThreadPlcSocket::IncIntoStep()
 /*-------------------------------------*/
 void QtThreadPlcSocket::InitIntoStep()
 {
-	this->mCurrentStep=0;
+	this->mCurrentStep=1;
 }
 /*-------------------------------------*/
 /**

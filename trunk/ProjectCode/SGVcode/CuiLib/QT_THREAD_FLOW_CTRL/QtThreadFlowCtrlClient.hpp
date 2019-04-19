@@ -20,30 +20,33 @@
 /*-------------------------------------*/
 #include "QT_THREAD_MODULE/QtThreadClientCtrl.hpp"
 /*-------------------------------------*/
-#include "QtThreadSocketClientSig.hpp"
+#include "QtThreadSocketClientRoller.hpp"
 /*-------------------------------------*/
 /**
 *
 *
 */
 /*-------------------------------------*/
-class QtThreadFlowCtrlClient :public  QtThreadSocketClientSig
+class QtThreadFlowCtrlClient :public  QtThreadSocketClient
 {
 	Q_OBJECT
 public:
 	QtThreadFlowCtrlClient();
 	~QtThreadFlowCtrlClient(void);
+
+signals:
+	void status_sjts_fpga(int, QString);
+
 protected:
+	int Is_work_flow_status_fpga(QSharedPointer<CMD_CTRL> _cmd);
 	int emit_work_flow_status_sjts(QSharedPointer<CMD_CTRL> _cmd);
 public:
 
 	void setRemoteServer();
 	void setLocalServer();
 public:
-	void run_socket_work();
-#if _DEBUG
-	virtual void run();
-#endif
+	virtual void run_socket_work();
+public:
 	int wait_4_inner_done();
 
 	int IsImgProcDone();

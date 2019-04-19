@@ -34,9 +34,9 @@ void  QtThreadFlowCtrlServer::connecTcp2Thread()
 		SIGNAL(work_flow_done(int,int)));
 
 	this->connect(sender_t,
-		SIGNAL(running_client_sessions(int)),
+		SIGNAL(client_sessions_status(QString, int, int)),
 		this,
-		SIGNAL(running_client_sessions(int)));
+		SIGNAL(client_sessions_status(QString, int, int)));
 
 }
 /*-------------------------------------*/
@@ -126,7 +126,7 @@ void QtThreadFlowCtrlServer::beforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCA
 *
 */
 /*-------------------------------------*/
-QVector<QString> QtThreadFlowCtrlServer::getRunningSessionIpAddr()
+QVector<QString> QtThreadFlowCtrlServer::getThreadRunningSessionIpAddr()
 {
 
 	if (!this->mQtTcpServer.isNull()){

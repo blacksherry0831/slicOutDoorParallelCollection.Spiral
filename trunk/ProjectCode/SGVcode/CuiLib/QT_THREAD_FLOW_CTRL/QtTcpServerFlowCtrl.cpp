@@ -30,8 +30,15 @@ QtTcpServerFlowCtrl::~QtTcpServerFlowCtrl()
 /*-------------------------------------*/
 void QtTcpServerFlowCtrl::connectClient2Server(const QObject * _sender)
 {
-	this->connect(_sender, SIGNAL(client_session_work_state(int, int,int)), this, SLOT(client_session_work_state_work_flow(int, int,int)));
-	this->connect(_sender, SIGNAL(running_client_sessions_change()), this, SLOT(running_client_sessions_change()));
+	this->connect(_sender, 
+		SIGNAL(client_session_work_state(int, int,int)),
+		this,
+		SLOT(client_session_work_state_work_flow(int, int,int)));
+	
+	this->connect(_sender,
+		SIGNAL(client_sessions_status(QString, int, int)),
+		this,
+		SLOT(running_client_sessions_change(QString, int, int)));
 }
 /*-------------------------------------*/
 /**
@@ -123,11 +130,9 @@ void QtTcpServerFlowCtrl::client_session_work_state_work_flow(int _client, int _
 *
 */
 /*-------------------------------------*/
-void QtTcpServerFlowCtrl::running_client_sessions_change()
+void QtTcpServerFlowCtrl::running_client_sessions_change(QString _ip, int _run, int _s)
 {
-	const int sessions_t = this->getRunningSessionIpAddr().size();
-
-	emit running_client_sessions(sessions_t);
+	emit client_sessions_status(_ip,_run,_s);
 }
 /*-------------------------------------*/
 /**

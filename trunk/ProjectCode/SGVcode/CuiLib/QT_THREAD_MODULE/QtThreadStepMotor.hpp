@@ -15,19 +15,21 @@
 /*-------------------------------------*/
 #include "SerialPort/BE_1105_Dirver.hpp"
 /*-------------------------------------*/
-#include "QT_THREAD_FLOW_CTRL/QtThreadFlowCtrlLocal.hpp"
+#include "QT_THREAD_FLOW_CTRL/QtThreadFlowCtrlBase.hpp"
 /*-------------------------------------*/
 /**
 *
 *
 */
 /*-------------------------------------*/
-class QtThreadStepMotor :public QtThreadFlowCtrlLocal,public StepMotorSjts
+class QtThreadStepMotor :public QtThreadFlowCtrlBase,public StepMotorSjts
 {
-
+	Q_OBJECT
 public:
 	QtThreadStepMotor();
 	~QtThreadStepMotor(void);
+signals:
+	void status_sjts_motor(int, QString);
 protected:
 	std::string mCurrentBord;
 	
@@ -35,7 +37,7 @@ private:
 	static const int TIME_GAP;
 	static const int TIME_15S;
 	int RUN_MODE;
-	
+
 protected:
 	void StepMotorRun();
 public:
@@ -55,6 +57,4 @@ public:
 	void closeServerAsync();
 	void closeServerSync();
 public:
-	QtThreadStepMotor* SetBordIPaddr(QString _ipAddr);
-
 };

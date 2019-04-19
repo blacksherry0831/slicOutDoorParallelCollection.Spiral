@@ -79,6 +79,7 @@ int QtTcpClient::SendHearbeatCmd(int _need_resp)
 *
 */
 /*-------------------------------------*/
+#if USE_PLC_SOCKET
 int QtTcpClient::SendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP _type)
 {
 	CMD_CTRL cmd;
@@ -87,18 +88,21 @@ int QtTcpClient::SendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP _type)
 
 	std::cout << "Client:" << "Send Resp";
 	
-	if (_type) {
+	if (_type== CMD_CTRL::CMD_TYPE_02_RESP::CT_OK) {
 		std::cout <<" OK  " << std::endl;
 	}else {
 		std::cout << " Error " << std::endl;
 	}
+
 	return this->Send_1_cmd(&cmd);
 }
+#endif
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
+#if USE_PLC_SOCKET
 int QtTcpClient::SendPlcIntoInter(int _step)
 {
 	CMD_CTRL cmd;
@@ -107,11 +111,13 @@ int QtTcpClient::SendPlcIntoInter(int _step)
 	std::cout << "Client:" << "Send Into the internal!"<<_step << std::endl;
 	return this->Send_1_cmd(&cmd);
 }
+#endif
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
+#if USE_PLC_SOCKET
 int QtTcpClient::SendPlcRollerQualified(int _qualified)
 {
 	CMD_CTRL cmd;
@@ -124,6 +130,7 @@ int QtTcpClient::SendPlcRollerQualified(int _qualified)
 
 	return this->Send_1_cmd(&cmd);
 }
+#endif
 /*-------------------------------------*/
 /**
 *

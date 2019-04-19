@@ -20,6 +20,7 @@ public:
 	
 	enum SJTS_MACHINE_STATUS_ROLLER
 	{
+		RollerInit=0,
 		RollerReadyStart = 1,
 		RollerPosReady,
 		RollerIntoInnerReady,
@@ -38,6 +39,11 @@ public:
 
 		SerialPortOpen = 20,
 		SerialPortError ,
+	};
+
+	enum SJTS_MACHINE_STATUS_SERVER
+	{
+		NoClient = 30,		
 	};
 
 };

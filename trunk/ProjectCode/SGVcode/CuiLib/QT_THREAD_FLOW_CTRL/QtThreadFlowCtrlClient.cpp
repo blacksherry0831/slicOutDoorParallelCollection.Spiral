@@ -12,7 +12,7 @@
 *
 */
 /*-------------------------------------*/
-QtThreadFlowCtrlClient::QtThreadFlowCtrlClient():QtThreadSocketClientSig()
+QtThreadFlowCtrlClient::QtThreadFlowCtrlClient():QtThreadSocketClient()
 {
 	
 #if 1
@@ -115,13 +115,8 @@ void QtThreadFlowCtrlClient::run_socket_work()
 *
 */
 /*-------------------------------------*/
-int QtThreadFlowCtrlClient::emit_work_flow_status_sjts(QSharedPointer<CMD_CTRL> _cmd)
+int QtThreadFlowCtrlClient::Is_work_flow_status_fpga(QSharedPointer<CMD_CTRL> _cmd)
 {
-	const int sig_t = _cmd->GetCmd00();
-	const QString seq_t = _cmd->GetCmdFrameSeqStr();
-	emit status_sjts(sig_t,seq_t);
-
-
 	if (_cmd->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START)) {
 		printf_event("---------------------------------------------");
 		printf_event("@ CMD_CTRL::CMD_TYPE_LOCAL::", "CT_FPGA_START");
@@ -171,34 +166,14 @@ int QtThreadFlowCtrlClient::emit_work_flow_status_sjts(QSharedPointer<CMD_CTRL> 
 *
 */
 /*-------------------------------------*/
-#if _DEBUG
-void QtThreadFlowCtrlClient::run()
+int QtThreadFlowCtrlClient::emit_work_flow_status_sjts(QSharedPointer<CMD_CTRL> _cmd)
 {
-	this->before_enter_thread();
-	this->enter_thread();
-
-	this->init_socket_in_thread();
-
-	while (M_THREAD_RUN) {
-
-		this->connect2ServerIfNoConnected();
-
-		while (socket_thread_run_condition()) {
-
-			this->run_socket_work();
-
-		}
-
-		this->close_destory_socket_4_server();
-
-	}
-
-	this->destory_socket_in_thread();
-
-	this->exit_thread();
-	this->after_exit_thread();
+	const int sig_t = _cmd->GetCmd00();
+	const QString seq_t = _cmd->GetCmdFrameSeqStr();
+	emit status_sjts_fpga(sig_t,seq_t);
+	
+	return this->Is_work_flow_status_fpga(_cmd);
 }
-#endif
 /*-------------------------------------*/
 /**
 *

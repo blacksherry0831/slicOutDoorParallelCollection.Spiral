@@ -6,10 +6,10 @@
 *
 */
 /*-------------------------------------*/
-QtThreadFlowCtrlBase::QtThreadFlowCtrlBase(QObject *parent):QtThreadSocketClientSig(parent)
+QtThreadFlowCtrlBase::QtThreadFlowCtrlBase(QObject *parent):QtThreadSocketClientRoller(parent)
 {
 
-
+	this->mWorkFlowDoneClientThreadsResult =  CMD_CTRL::BodyRollerQualified::UnQualified;
 	
 }
 /*-------------------------------------*/
@@ -41,24 +41,6 @@ void QtThreadFlowCtrlBase::setWorkFlowDones(int _work_flow,int _result)
 	this->mWorkFlowDoneClientThreads = _work_flow;
 	this->mWorkFlowDoneClientThreadsResult = _result;
 
-#if _DEBUG
-
-	if (this->mWorkFlowDoneClientThreads) {
-		
-				printf_event("WORK FLOW","mWorkFlowDones==TRUE");
-
-				if (this->mWorkFlowDoneClientThreadsResult == CMD_CTRL::BodyRollerQualified::Qualified) {
-					printf_event("WORK FLOW RESULT", "==Qualified");
-				}
-				else
-				{
-					printf_event("WORK FLOW RESULT", "==Unqualified");
-				}
-
-	}
-
-#endif // _DEBUG
-
 }
 /*-------------------------------------*/
 /**
@@ -86,7 +68,7 @@ int QtThreadFlowCtrlBase::wait4WorkFlowStart()
 		}
 		else {
 			this->SleepMy(1000);
-			emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::ClientError,"NoClient");
+			emit status_sjts_client_session(CMD_WORK_FLOW::SJTS_MACHINE_STATUS_SERVER::NoClient,"NoClient");
 		}
 
 	} while (socket_thread_run_condition());
@@ -102,12 +84,6 @@ int QtThreadFlowCtrlBase::getClientSessionCount()
 {
 	return this->mClientSessionCount;
 }
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
 /*-------------------------------------*/
 /**
 *
@@ -173,16 +149,16 @@ CMD_CTRL::BodyRollerQualified QtThreadFlowCtrlBase::getWorkFLowQualified()
 *
 */
 /*-------------------------------------*/
-CMD_CTRL::SJTS_MACHINE_STATUS QtThreadFlowCtrlBase::BodyRollerQualified_2_SJTS_MACHINE_STATUS(CMD_CTRL::BodyRollerQualified _qualified)
+CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER QtThreadFlowCtrlBase::BodyRollerQualified_2_SJTS_MACHINE_STATUS(CMD_CTRL::BodyRollerQualified _qualified)
 {
 
-	CMD_CTRL::SJTS_MACHINE_STATUS sjts_status_t;
+	CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER sjts_status_t;
 
 	if (_qualified == CMD_CTRL::BodyRollerQualified::Qualified) {
-		sjts_status_t = CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneQualified;
+		sjts_status_t = CMD_WORK_FLOW::RollerDoneQ;
 	}
 	else if (_qualified == CMD_CTRL::BodyRollerQualified::UnQualified) {
-		sjts_status_t = CMD_CTRL::SJTS_MACHINE_STATUS::RollerDoneUnqualified;
+		sjts_status_t = CMD_WORK_FLOW::RollerDoneUnQ;
 	}
 	else
 	{
@@ -198,11 +174,8 @@ CMD_CTRL::SJTS_MACHINE_STATUS QtThreadFlowCtrlBase::BodyRollerQualified_2_SJTS_M
 /*-------------------------------------*/
 void  QtThreadFlowCtrlBase::emit_roller_done_qualified(CMD_CTRL::BodyRollerQualified _qualified)
 {
-
-	CMD_CTRL::SJTS_MACHINE_STATUS sjts_status_t = this->BodyRollerQualified_2_SJTS_MACHINE_STATUS(_qualified);
-	
-	emit status_sjts(sjts_status_t,"");
-	
+	this->mRollerStatus = this->BodyRollerQualified_2_SJTS_MACHINE_STATUS(_qualified);
+	this->emit_status_sjts_roller();
 }
 /*-------------------------------------*/
 /**
@@ -245,8 +218,8 @@ int QtThreadFlowCtrlBase::SendPlcIntoInter(int _step)
 void  QtThreadFlowCtrlBase::emit_roller_ready()
 {
 	const QString circle_seq = CircleSeq();
-	emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RoolerReady,circle_seq );
-	emit status_sjts_roller(CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerReadyStart, circle_seq);
+	this->mRollerStatus = CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerReadyStart;
+	this->emit_status_sjts_roller(circle_seq);
 }
 /*-------------------------------------*/
 /**
@@ -255,7 +228,8 @@ void  QtThreadFlowCtrlBase::emit_roller_ready()
 /*-------------------------------------*/
 void QtThreadFlowCtrlBase::emit_roller_pos_ready()
 {
-	emit status_sjts_roller(CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerPosReady, "");
+	this->mRollerStatus = CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerPosReady;
+	this->emit_status_sjts_roller();
 }
 /*-------------------------------------*/
 /**
@@ -264,7 +238,8 @@ void QtThreadFlowCtrlBase::emit_roller_pos_ready()
 /*-------------------------------------*/
 void QtThreadFlowCtrlBase::emit_roller_into_inner_ready()
 {
-	emit status_sjts_roller(CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerIntoInnerReady, "");
+	this->mRollerStatus = CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerIntoInnerReady;
+	this->emit_status_sjts_roller();
 }
 /*-------------------------------------*/
 /**
@@ -274,8 +249,8 @@ void QtThreadFlowCtrlBase::emit_roller_into_inner_ready()
 void QtThreadFlowCtrlBase::emit_roller_done()
 {
 	this->setWorkFlowDones(0, CMD_CTRL::CMD_TYPE_02_RESP::CT_ERROR);
-
-	emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::RollerDone, "");
+	this->mRollerStatus = CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerDoneEnd;
+	this->emit_status_sjts_roller();
 }
 /*-------------------------------------*/
 /**
@@ -284,7 +259,9 @@ void QtThreadFlowCtrlBase::emit_roller_done()
 /*-------------------------------------*/
 void QtThreadFlowCtrlBase::emit_roller_abort()
 {
-	emit status_sjts(CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::MachineAbort, "");
+	this->mRollerStatus = CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::MachineAbort;
+	this->emit_status_sjts_roller();
+	this->M_THREAD_RUN = FALSE;
 }
 /*-------------------------------------*/
 /**
@@ -303,7 +280,7 @@ void  QtThreadFlowCtrlBase::process_machine_error(QString _msg)
 /*-------------------------------------*/
 void  QtThreadFlowCtrlBase::emit_machine_error(QString _msg)
 {
-	emit status_sjts(CMD_CTRL::SJTS_MACHINE_STATUS::SjtsMachineInnerError,_msg);
+	this->emit_roller_abort();
 }
 /*-------------------------------------*/
 /**

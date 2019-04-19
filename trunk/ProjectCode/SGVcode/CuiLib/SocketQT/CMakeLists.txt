@@ -20,7 +20,7 @@ ENDIF ()
 	if (CBB_BUILDING_CRACK_DETECTION)
 		SET(DIR_SRCS	
 				
-								
+						
 				QtTcpServerClientSession.cpp	
 				QtTcpServer.cpp
 				
@@ -30,6 +30,8 @@ ENDIF ()
 				QtThreadServer.cpp
 				QtThreadBase.cpp
 				
+				QtThreadServerSession.cpp	
+
 				QtThreadClientLifeCycle.cpp	
 				QtThreadClientCtrlTest.cpp
 

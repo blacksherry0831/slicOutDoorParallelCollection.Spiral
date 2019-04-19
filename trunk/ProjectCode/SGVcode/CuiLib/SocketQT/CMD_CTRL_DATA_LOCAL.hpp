@@ -23,31 +23,7 @@ public:
 	CMD_CTRL_DATA_LOCAL();
 	~CMD_CTRL_DATA_LOCAL();
 public:
-	enum SJTS_MACHINE_STATUS
-	{
-		RoolerReady = 1,
-
-		StepMotorStart00 = 2,
-		StepMotorStop00 = 3,
-
-		StepMotorStart01 = 4,
-		StepMotorStop01 = 5,
-
-		RollerDone = 6,
-
-
-		RollerDoneUnqualified = 7,
-		RollerDoneQualified = 8,
-
-		SerialPortIsOpen = 10,
-		SerialPortError = 11,
-
-		ClientError = 12,
-
-		SjtsMachineInnerError = 13,
-
-	};
-
+	
 	enum CMD_TYPE_LOCAL {
 
 		CT_FPGA_START=1,

@@ -939,7 +939,7 @@ void  MainWindow::SetFpgaArmLinuxIpAddr(QString _str)
 	mFpgaArmLinuxIpAddr = _str;
 	mCtrlServer->SetIpAddr(mFpgaArmLinuxIpAddr);
 	mVideoDataServer->SetIpAddr(mFpgaArmLinuxIpAddr);
-	mStepMotor->SetBordIPaddr(mFpgaArmLinuxIpAddr);
+
 }
 /*-------------------------------------*/
 /**

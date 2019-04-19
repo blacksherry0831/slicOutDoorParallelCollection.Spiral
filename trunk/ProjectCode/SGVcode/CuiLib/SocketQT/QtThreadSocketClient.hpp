@@ -23,6 +23,11 @@ public:
 	QtThreadSocketClient(qintptr p);
 	explicit QtThreadSocketClient(QObject *parent = Q_NULLPTR);
 	~QtThreadSocketClient(void);
+
+signals:
+	void socket_connect_state(int);
+	void client_session_work_state(int, int, int);
+
 protected:
 	QSharedPointer<QtTcpClient>  m_socket;//客户端的定义
 protected:	
@@ -30,6 +35,8 @@ protected:
 	qintptr ptr_sd;	
 
 	std::string mIpAddr;
+	std::string mIpAddrLocal;
+	std::string mIpAddrRemote;
 	int mPort;
 private:
 	int mSocketConnected;
@@ -45,15 +52,14 @@ public:
 	int   IsSocketAliveEx();
 	int   IsSocketConnectedEx();
 	void emit_status_message(const QString& _msg);
+protected:
+	virtual void emit_thread_starting();
+	virtual void emit_thread_stopping();
+protected:
+	virtual void enter_thread();
+	virtual void exit_thread();
+protected:
 
-	void emit_thread_starting();
-	void emit_thread_stopping();
-protected:
-	virtual void before_enter_thread();
-	virtual void after_exit_thread();
-protected:
-	void enter_thread();
-	void exit_thread();
 	virtual int  socket_thread_run_condition();
 	void init_socket_in_thread();
 	void destory_socket_in_thread();
@@ -64,6 +70,7 @@ public:
 	void init_param();
 	void SetIpAddr(QString _ipAddr);
 	QString GetIpAddr();
+	QString GetClientSessionIpAddr();
 public:
 	void startServer();
 	void closeServer();
@@ -91,11 +98,7 @@ public:
 	int getByteTcpRead();;
 public:
 	
-signals:
-void socket_connect_state(int);
-void thread_running_state(int);
-void running_client_sessions_change();
-void client_session_work_state(int ,int,int);
+
 
 public slots:
 

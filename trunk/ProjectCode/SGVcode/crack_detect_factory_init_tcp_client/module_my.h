@@ -3,7 +3,7 @@
 
 #include "../SocketQT/QtThreadServer.hpp"
 
-#include "../QT_THREAD_MODULE/QtThreadPLC.hpp"
+
 #include "../QT_THREAD_MODULE/QtThreadStepMotor.hpp"
 
 #include "../SocketQT/QtTcpServerTest.hpp"

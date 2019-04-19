@@ -8,6 +8,7 @@ StepMotorSjts::StepMotorSjts()
 {
 	mStepMotor = QSharedPointer<StepMotorBe1105>(new StepMotorBe1105(nullptr));
 	this->mBe1105RunDir = BE_1105_RUN_NEG;
+	this->mEvent = "StepMotor";
 }
 /*-------------------------------------*/
 /**
@@ -23,22 +24,38 @@ StepMotorSjts::~StepMotorSjts()
 *
 */
 /*-------------------------------------*/
-void  StepMotorSjts::StepMotorRunOnce_Lab()
+int  StepMotorSjts::StepMotorRunOnce_Lab()
 {
-	this->mStepMotor->SendCmd4Done(mBe1105RunDir,
-		BE_1105_RUN_SPEED_15S_BASE,
-		BE_1105_RUN_ONE_CIRCLE_BASE);
+	const int open_status_t = this->StepMotor_IsOpen();
+	this->emit_init_serial_status(open_status_t);
+
+	if (open_status_t) {
+
+			this->mStepMotor->SendCmd4Done(mBe1105RunDir,
+											BE_1105_RUN_SPEED_15S_BASE,
+											BE_1105_RUN_ONE_CIRCLE_BASE);
+		
+	}
+
+	return open_status_t;
+
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void  StepMotorSjts::StepMotorRunOnce_kn()
+int  StepMotorSjts::StepMotorRunOnce_kn()
 {
-	this->mStepMotor->SendCmd4Done(mBe1105RunDir,
-		BE_1105_RUN_SPEED_CRACK_DETECT,
-		BE_1105_RUN_CIRCLE_CRACK_DETECT);
+	const int open_status_t = this->StepMotor_IsOpen();
+	this->emit_init_serial_status(open_status_t);
+	if (open_status_t) {
+			this->mStepMotor->SendCmd4Done(mBe1105RunDir,
+											BE_1105_RUN_SPEED_CRACK_DETECT,
+											BE_1105_RUN_CIRCLE_CRACK_DETECT);
+
+	}
+	return open_status_t;
 }
 /*-------------------------------------*/
 /**
@@ -129,6 +146,7 @@ void StepMotorSjts::StepMotor_Server_Stop()
 /*-------------------------------------*/
 int StepMotorSjts::do_StepMotor_sjts_Init()
 {
+	this->printf_event(mEvent, "init");
 	return this->init_serial_port_once();
 }
 /*-------------------------------------*/
@@ -136,29 +154,43 @@ int StepMotorSjts::do_StepMotor_sjts_Init()
 *
 */
 /*-------------------------------------*/
-void StepMotorSjts::do_StepMotor_sjts_Run_Once()
+int StepMotorSjts::do_StepMotor_sjts_Run_Once()
 {
-	StepMotorRunOnce_kn();
+	this->printf_event(mEvent, "run 1 circle");
+	return StepMotorRunOnce_kn();
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void StepMotorSjts::do_StepMotor_sjts_Run_Stop()
+int StepMotorSjts::do_StepMotor_sjts_Run_Stop()
 {
-	this->mStepMotor->SendAutoCmd(BE_1105_STOP,
-		BE_1105_RUN_SPEED_FASTEST);
+	this->printf_event(mEvent, "stop");
+	const int open_status_t = this->StepMotor_IsOpen();
+	this->emit_init_serial_status(open_status_t);
+	if (open_status_t) {
+			this->mStepMotor->SendAutoCmd(BE_1105_STOP,
+											BE_1105_RUN_SPEED_FASTEST);
+	}
+	return open_status_t;
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void StepMotorSjts::do_StepMotor_sjts_Run_Fast()
+int StepMotorSjts::do_StepMotor_sjts_Run_Fast()
 {
-	this->mStepMotor->SendAutoCmd(mBe1105RunDir,
-		BE_1105_RUN_SPEED_FASTEST);
+	this->printf_event(mEvent, "run fast");
+	const int open_status_t = this->StepMotor_IsOpen();
+	this->emit_init_serial_status(open_status_t);
+	if (open_status_t) {
+			this->mStepMotor->SendAutoCmd(mBe1105RunDir,
+											BE_1105_RUN_SPEED_FASTEST);
+	}	
+
+	return open_status_t;
 }
 /*-------------------------------------*/
 /**

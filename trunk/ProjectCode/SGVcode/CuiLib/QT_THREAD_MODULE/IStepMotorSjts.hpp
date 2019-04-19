@@ -22,9 +22,9 @@ class IStepMotorSjts
 	/*---------------------------------------*/
 public:
 	virtual int     do_StepMotor_sjts_Init();
-	virtual void    do_StepMotor_sjts_Run_Once();
-	virtual void	do_StepMotor_sjts_Run_Stop();
-	virtual void    do_StepMotor_sjts_Run_Fast();
+	virtual int		do_StepMotor_sjts_Run_Once();
+	virtual int		do_StepMotor_sjts_Run_Stop();
+	virtual int     do_StepMotor_sjts_Run_Fast();
 public:
 	virtual void  emit_init_serial_status(int _isOpen);
 public:

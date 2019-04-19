@@ -73,12 +73,6 @@ int  IStepMotorSjts::StepMotor_IsOpen()
 *
 */
 /*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
 int IStepMotorSjts::do_StepMotor_sjts_Init()
 {
 	return this->init_serial_port_once();
@@ -88,24 +82,27 @@ int IStepMotorSjts::do_StepMotor_sjts_Init()
 *
 */
 /*-------------------------------------*/
-void IStepMotorSjts::do_StepMotor_sjts_Run_Once()
+int IStepMotorSjts::do_StepMotor_sjts_Run_Once()
 {
+	return 0;
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void IStepMotorSjts::do_StepMotor_sjts_Run_Stop()
+int IStepMotorSjts::do_StepMotor_sjts_Run_Stop()
 {
+	return 0;
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void IStepMotorSjts::do_StepMotor_sjts_Run_Fast()
+int IStepMotorSjts::do_StepMotor_sjts_Run_Fast()
 {
+	return 0;
 }
 /*-------------------------------------*/
 /**

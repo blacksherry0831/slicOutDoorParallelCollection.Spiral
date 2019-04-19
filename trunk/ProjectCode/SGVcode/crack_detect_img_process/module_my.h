@@ -5,7 +5,6 @@
 
 #include "../SocketQT/QtThreadServer.hpp"
 
-#include "../QT_THREAD_MODULE/QtThreadPLC.hpp"
 #include "../QT_THREAD_MODULE/QtThreadStepMotor.hpp"
 
 
@@ -17,14 +16,6 @@
 
 
 #endif
-
-#if 0
-
-#include "../MY_SDK_LIB/CrackDetection.hpp"
-
-#endif 
-
-
 
 
 

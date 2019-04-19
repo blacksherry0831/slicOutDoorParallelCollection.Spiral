@@ -1,25 +1,38 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
+/*-------------------------------------*/
+#define PLC_CTRL_ASYNC					(1)
+#define FLOW_CTRL_USE_LOCAL_SERVER		(1)
+#define NETWORK_TEST					(1)
+#define FLOW_CTRL_ARM_LINUX				(1)
+/*-------------------------------------*/
 #include <QMainWindow>
-
+#include <QtCore/QVariant>
+#include <QtWidgets/QLabel>
+#include <QTimer>
+#include <QSerialPort>  
+#include <QSerialPortInfo>
+#include <QThread>
+#include <QMessageBox>
+/*-------------------------------------*/
 #include "module_my.h"
-
+/*-------------------------------------*/
 #if defined(QT_VERSION)
-
 #include "QT_THREAD_FLOW_CTRL/QtThreadFlowCtrlClient.hpp"
 #include "QT_THREAD_FLOW_CTRL/QtThreadFlowCtrlServer.hpp"
-#include "QT_THREAD_FLOW_CTRL/QtThreadFlowCtrlLocal.hpp"
-
-
 #endif
-
+/*-------------------------------------*/
 #if defined(QT_VERSION)
-
 #include "QT_THREAD_MODULE/QtThread8ImgProcess.hpp"
 #include "QT_THREAD_MODULE/QtThread8Video.hpp"
-
 #endif
-
+/*-------------------------------------*/
+#if PLC_CTRL_ASYNC
+#include "QT_THREAD_MODULE/QtThreadPlcSimulatorClient.hpp"
+#include "QT_THREAD_MODULE/QtThreadStepMotorServer.hpp"
+#include "QT_THREAD_MODULE/CMD_WORK_FLOW.hpp"
+#endif // PLC_CTRL_ASYNC
+/*-------------------------------------*/
 #if _MSC_VER
 	#ifndef _X86_
 		#define _X86_
@@ -28,24 +41,10 @@
 	#include <minwinbase.h>
 	#include <WinBase.h>
 #endif
-
-#if TRUE
-	#include "cpp_stl.h"
-	
-#endif
-
-#if  defined(QT_VERSION)
-
-#include <QtCore/QVariant>
-#include <QtWidgets/QLabel>
-#include <QTimer>
-
-#endif // QT_VERSION
-
-#if TRUE
+/*-------------------------------------*/
+#include "cpp_stl.h"
+/*-------------------------------------*/
 #include "dialog.h"
-#endif // TRUE
-
 /*-------------------------------------*/
 /**
 *
@@ -60,14 +59,7 @@ class MainWindow;
 *
 */
 /*-------------------------------------*/
-#define IMG_PROCESS_USE_STEP_MOTOR (1)
-#define FLOW_CTRL_USE_LOCAL_SERVER (1)
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-class MainWindow : public QMainWindow
+class MainWindow : public QMainWindow, public IPrint
 {
     Q_OBJECT
 
@@ -105,20 +97,23 @@ public:
 
 	QSharedPointer<QtThread8ImgProcess>		mImg8Process;
 
-	QSharedPointer<QtThreadFlowCtrlLocal>	mFlowCtrlLocal;
-
-
 #if FLOW_CTRL_USE_LOCAL_SERVER 
-	QSharedPointer<QtThreadFlowCtrlServer> mFlowServerServerLocal;
+	QSharedPointer<QtThreadFlowCtrlServer> mFlowServerServer;
+
+#if PLC_CTRL_ASYNC
+	QSharedPointer<QtThreadPlcSimulatorClient> mWorkFlowPlc;
+	QSharedPointer<QtThreadStepMotorServer> mWorkFlowStepMotor;
+#endif // PLC_CTRL_ASYNC
+
 #endif
 	
 public:
+	QSharedPointer<QtThreadFlowCtrlClient>		mFlowCtrlClient;/**<image ctrl*/
 
-	QSharedPointer<QtThreadFlowCtrlClient> mFlowCtrlClient;
-
-	QSharedPointer<QtThreadClientCtrl>		mCtrlServer;
-
-	QSharedPointer<QtThread8Video>			mVideoDataServer;
+#if FLOW_CTRL_ARM_LINUX	
+	QSharedPointer<QtThreadClientCtrl>			mCtrlServer;/**<rcv server ctrl*/
+	QSharedPointer<QtThread8Video>				mVideoDataServer;/**<image data*/
+#endif 
 
 	QSharedPointer<QThread>					mthread;
 
@@ -130,10 +125,13 @@ private:
 	void init_class_member_ptr();
 	void init_class_member_base();
 	void init_ping_ssh();
-
-#if FLOW_CTRL_USE_LOCAL_SERVER 
-	void init_connect_work_flow();
+private:
+	void init_connect();
+#if PLC_CTRL_ASYNC
+	void init_connect_work_flow_plc();
+	void init_connect_work_flow_setp_motor();
 #endif
+	void init_connect_work_flow_server();
 private:
 	std::string GetInOut();
 	std::string GetIpAddrProperty(QString _ipAddr);
@@ -151,6 +149,25 @@ public:
 	void SetFpgaArmLinuxIpAddr(QString _str);
 	void ShowImageChGray(int _ch);
 	void ShowImageCh(int _ch, QImage *_p_qimg);
+	void closeDelay(int _ms=1000);
+	void closeServerAsyncM();
+public:
+	
+public:
+	int GetServerClientSessions();
+private:
+	void SetCmdWorkFlow_Socket_Q(int _quality);
+	void SetCmdWorkFlow_Socket(int _sjts_status_int, QString _msg);
+	void SetCmdWorkFlow_StepMotor(int _sjts_status_int, QString _msg);
+	void SetCmdWorkFlow_Server_Roller(int _sjts_status_int, QString _msg);
+	void SetCmdWorkFlow_Server_Motor(int _sjts_status_int, QString _msg);
+private:
+	void ShowStatusOnUI_Roller(CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER __sjts_status);
+	void ShowStatusOnUI_Motor(CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR __sjts_status);
+public:
+	void dbg_checkRollerStatus(int _sjts_status_int, QString _msg);
+	void dbg_checkMotorStatus(int _sjts_status_int, QString _msg);
+	void dbg_checkFpgaStatus(int _sjts_status_int, QString _msg);
 public:
 	static void DrawUnqualified(QSharedPointer<CMD_CTRL> _cmd);
 	static void ShowImage(QLabel* _qlab, QImage *_p_qimg);
@@ -173,22 +190,18 @@ public slots:
 		void stopVideoBasic();
 		void stopVideoBasicForce();
 		void ConnectVideo();
-
-		void NotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL _type_c, int _cmd_idx=0);
-		void beforeNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL _type_c, QString _msg="");
-
+		
+#if FLOW_CTRL_USE_LOCAL_SERVER 
+		void tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL _type_c, int _cmd_idx=0);
+		void tcpSvrBeforeNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL _type_c, QString _msg="");
+#endif // FLOW_CTRL_USE_LOCAL_SERVER 
+		
 #if TRUE
 		void img_stat_show_ex(int  _p_stat, int _channel, int _frames, void* _data);
 		void start_ping_ssh();
 #endif // TRUE
 				
 public slots:
-
-#if TRUE
-	void main_test();
-	void ClickButton_Test();
-#endif // TRUE
-	
 	void ClickButton_SetSerialPort();
 	void ClickButton_CameraStart();
 	void ClickButton_MotorRun();
@@ -235,22 +248,31 @@ public slots:
 	void toggleBlockStep02(bool _block);
 
 #endif // TRUE
+	
+	void SetCutRectMethod();
+	int openImageShowQDialog(QLabel* _qabel);
+	void statusBarshowMessage(QString _msg);
 
 #if TRUE
 	void workflow_local();
 	void workflow_remote();
+	void sjts_fpga_work_flow_status_rcv(const int _arm_linux_fpga_work_flow_int, QString _seq);
+#endif // TRUE
+	
+#if FLOW_CTRL_USE_LOCAL_SERVER
 	void tcp_server_work_flow_dones(int _status,int _quality);
 	void tcp_server_running_client_sessions(int _running_sessions);
-#endif // TRUE
-
-	void SetCutRectMethod();
-	int openImageShowQDialog(QLabel* _qabel);
+#endif // FLOW_CTRL_USE_LOCAL_SERVER
 	
-	void statusBarshowMessage(QString _msg);
-
-	void sjts_status(const int _sjts_status_int, QString _msg);
-	void sjts_fpga_work_flow_status_rcv(const int _arm_linux_fpga_work_flow_int, QString _seq);
-
+#if PLC_CTRL_ASYNC		
+	void sjts_status_roller(int _sjts_status_int, QString _msg);
+	void sjts_status_motor(int _sjts_status_int, QString _msg);
+	/*--------------------------------------------------------*/
+	void thread_running_state_step_motor(int _status);
+	void socket_connect_state_Auto_equipment(int _status);
+	void thread_running_state_Auto_equipment(int _status);
+#endif // PLC_CTRL_ASYNC	
+	
 };
 
 #endif // MAINWINDOW_H
