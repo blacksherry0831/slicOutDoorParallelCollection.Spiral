@@ -6,11 +6,21 @@ PROJECT(SGV_cmake)
 option (CBB_BUILDING_AGV_CAR
         "视觉导航 Automatic Guiding Vehicle" ON) 
 
+option (CBB_BUILDING_SVG
+        "天空立面地面 " ON) 
+
 option (CBB_BUILDING_HOT_FORGING
         "热锻工件定位" ON)
 
 option (CBB_BUILDING_CRACK_DETECTION
         "工业视觉探伤" ON)
+#########################################
+option (BUILDING_OPENCV_LIB
+        "" ON)
+#########################################
+if(BUILDING_OPENCV_LIB)
+	SET(NEED_OPENCV		ON)
+endif()
 #########################################
 if (CBB_BUILDING_AGV_CAR)
 
@@ -37,6 +47,13 @@ if (CBB_BUILDING_CRACK_DETECTION)
 	SET(NEED_QT		ON)
 
 endif (CBB_BUILDING_CRACK_DETECTION)
+##############################
+if (CBB_BUILDING_SVG)
+
+	SET(NEED_OPENCV		ON)
+	SET(NEED_CUDA		ON)
+
+endif (CBB_BUILDING_SVG)
 ###############################################################################
 if(NEED_WEBSOCKETPP)
 SET(NEED_BOOST  ON)
