@@ -89,40 +89,6 @@ void QtThread8Video::before_enter_thread()
 *
 */
 /*-------------------------------------*/
-#if _DEBUG
-void QtThread8Video::run()
-{	
-	this->before_enter_thread();
-	this->enter_thread();
-
-	this->init_socket_in_thread();
-
-	while (M_THREAD_RUN) {
-
-		this->connect2ServerIfNoConnected();
-
-		while (socket_thread_run_condition()) {
-
-			this->run_socket_work();
-
-		}
-
-		this->close_destory_socket_4_server();
-
-	}
-
-	this->destory_socket_in_thread();
-
-	this->exit_thread();
-	this->after_exit_thread();
-
-}
-#endif
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
 void QtThread8Video::ProcessCmd(QSharedPointer<CMD_CTRL> _cmd)
 {
 

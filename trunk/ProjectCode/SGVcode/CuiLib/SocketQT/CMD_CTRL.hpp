@@ -73,8 +73,6 @@ public:
 public:
 	static void adjRect44(CvRect* rect);
 public:
-	int getQualified();
-public:
 	void Parse(char* _data,int _size);
 public:
 	int IsOperationMode();

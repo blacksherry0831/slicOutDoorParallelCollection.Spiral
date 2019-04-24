@@ -1,11 +1,10 @@
-//#include "stdafx.h"
-#include "QtThreadServerSession.hpp"
+#include "QtThreadSession.hpp"
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-QtThreadServerSession::QtThreadServerSession(qintptr _socket):QtThreadSocketClientCmdQ(_socket)
+QtThreadSession::QtThreadSession(qintptr _socket):QtThreadSocketClient(_socket)
 {
 	
 }
@@ -14,7 +13,7 @@ QtThreadServerSession::QtThreadServerSession(qintptr _socket):QtThreadSocketClie
 *
 */
 /*-------------------------------------*/
-QtThreadServerSession::~QtThreadServerSession(void)
+QtThreadSession::~QtThreadSession(void)
 {
 	qDebug() << __func__;
 }
@@ -23,7 +22,7 @@ QtThreadServerSession::~QtThreadServerSession(void)
 *
 */
 /*-------------------------------------*/
-void QtThreadServerSession::run()
+void QtThreadSession::run()
 {
 	this->before_enter_thread();
 
@@ -50,7 +49,7 @@ void QtThreadServerSession::run()
 *
 */
 /*-------------------------------------*/
-void QtThreadServerSession::run_socket_work()
+void QtThreadSession::run_socket_work()
 {
 
 
@@ -60,7 +59,7 @@ void QtThreadServerSession::run_socket_work()
 *
 */
 /*-------------------------------------*/
-void QtThreadServerSession::enter_thread()
+void QtThreadSession::enter_thread()
 {
 	this->emit_thread_starting();
 	emit client_sessions_status(this->GetClientSessionIpAddr(),1,0);
@@ -70,7 +69,7 @@ void QtThreadServerSession::enter_thread()
 *
 */
 /*-------------------------------------*/
-void QtThreadServerSession::exit_thread()
+void QtThreadSession::exit_thread()
 {
 	this->emit_thread_stopping();
 	emit client_sessions_status(this->GetClientSessionIpAddr(),0,0);

@@ -13,7 +13,7 @@
 *
 */
 /*-------------------------------------*/
-QtThreadSocketClient::QtThreadSocketClient(QObject *parent): QtThreadBase(parent)
+QtThreadSocketClient::QtThreadSocketClient(QObject *parent): QtThreadBaseCmdQ(parent)
 {
 	this->init_param();
 #if 1
@@ -416,15 +416,6 @@ int QtThreadSocketClient::send_and_read_cmd(QSharedPointer<CMD_CTRL> _cmd_send, 
 *
 */
 /*-------------------------------------*/
-void QtThreadSocketClient::beforeSendMsg()
-{
-
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
 int  QtThreadSocketClient::Send_1_cmd(QSharedPointer<CMD_CTRL> _cmd)
 {
 	mSocketConnected = this->m_socket->Send_1_cmd(_cmd.data());
@@ -711,18 +702,3 @@ int QtThreadSocketClient::GetSocketConnected()
 *
 */
 /*-------------------------------------*/
-int QtThreadSocketClient::IsWorkFlowDone()
-{
-
-	return (mWorkFlowStart == TRUE) && (mWorkFlowEnd == TRUE);
-
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-int QtThreadSocketClient::getWorkFlowResult()
-{
-	return mWorkFlowResult;
-}

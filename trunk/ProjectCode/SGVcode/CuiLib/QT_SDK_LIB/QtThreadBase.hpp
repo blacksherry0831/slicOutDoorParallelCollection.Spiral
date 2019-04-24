@@ -1,11 +1,12 @@
 #pragma once
-
+/*-------------------------------------*/
 #include "cpp_stl.h"
-
-#include "qt_all.h"
-
+/*-------------------------------------*/
+#include <QObject>
+#include <QtCore>
+#include <QThread>
+/*-------------------------------------*/
 #include "QT_SDK_LIB/QBase.h"
-
 /*-------------------------------------*/
 /**
 *

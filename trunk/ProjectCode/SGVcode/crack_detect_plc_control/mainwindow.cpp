@@ -197,6 +197,15 @@ void MainWindow::ShowStatusOnUI_ClientSessions_CheckBox(QString _ip, int _run, i
 *
 */
 /*-------------------------------------*/
+void MainWindow::ShowStatusOnUI_ClientSessions_Label_Ex()
+{
+	ShowStatusOnUI_ClientSessions_Label(this->GetServerClientSessions());
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 void MainWindow::ShowStatusOnUI_ClientSessions_Label(int _clients)
 {
 	QString ch_info = "Running session : " + QString::number(_clients);
@@ -306,7 +315,7 @@ void MainWindow::init_members()
 #endif
 
 #if PLC_CTRL_ASYNC
-	mWorkFlowPlc = QSharedPointer<QtThreadPlcSocketClient> (new QtThreadPlcSocketClient(this));
+	mWorkFlowPlc = QSharedPointer<QtThreadPlcNetClient> (new QtThreadPlcNetClient(this));
 	mWorkFlowStepMotor = QSharedPointer<QtThreadStepMotorServer>(new QtThreadStepMotorServer(this)) ;
 #endif	
 
@@ -321,10 +330,12 @@ void MainWindow::init_members()
 void MainWindow::sjts_status_roller(int _sjts_status_int, QString _msg)
 {
 	const  CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER sjts_status = (CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER) _sjts_status_int;
-# if _DEBUG
+
 	this->dbg_checkRollerStatus(_sjts_status_int,_msg);
-#endif
+
 	this->ShowStatusOnUI_Roller(sjts_status);
+
+	this->ShowStatusOnUI_ClientSessions_Label_Ex();
 
 	this->SetCmdWorkFlow_StepMotor(_sjts_status_int,_msg);
 	this->SetCmdWorkFlow_Server_Roller(_sjts_status_int,_msg);
@@ -339,13 +350,12 @@ void MainWindow::sjts_status_motor(int _sjts_status_int, QString _msg)
 {
 	const  CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR sjts_status = (CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR) _sjts_status_int;
 
-#if _DEBUG
+
 	this->dbg_checkMotorStatus(_sjts_status_int,_msg);
-#endif
 
 	this->ShowStatusOnUI_Motor(sjts_status);
 
-	this->SetCmdWorkFlow_Socket(_sjts_status_int,_msg);
+	this->SetCmdWorkFlow_Motor2PLcNet(_sjts_status_int,_msg);
 	this->SetCmdWorkFlow_Server_Motor(_sjts_status_int, _msg);
 }
 /*-------------------------------------*/
@@ -383,12 +393,6 @@ void MainWindow::dbg_checkRollerStatus(int _sjts_status_int, QString _msg)
 
 	}else if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerDoneEnd) {
 		
-		if (0==this->GetServerClientSessions())
-		{
-			this->SetCmdWorkFlow_Socket_Q(CMD_WORK_FLOW::RollerDoneUnQ);
-
-		}
-
 	}else if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerDoneQ ||		
 		_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerDoneUnQ) {
 
@@ -460,7 +464,7 @@ void MainWindow::SetCmdWorkFlow_StepMotor(int _sjts_status_int, QString _msg)
 *
 */
 /*-------------------------------------*/
-void MainWindow::SetCmdWorkFlow_Socket(int _sjts_status_int, QString _msg)
+void MainWindow::SetCmdWorkFlow_Motor2PLcNet(int _sjts_status_int, QString _msg)
 {
 	int cmd01 = _msg.toInt();
 	unsigned int seq_no = 0;
@@ -473,32 +477,15 @@ void MainWindow::SetCmdWorkFlow_Socket(int _sjts_status_int, QString _msg)
 *
 */
 /*-------------------------------------*/
-void MainWindow::SetCmdWorkFlow_Socket_Q(int _quality)
-{
-	Q_ASSERT(0);
-
-	if (_quality){
-		SetCmdWorkFlow_Socket(CMD_WORK_FLOW::RollerDoneQ,"");
-	}
-	else
-	{
-		SetCmdWorkFlow_Socket(CMD_WORK_FLOW::RollerDoneUnQ,"");
-	}
-
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
 void MainWindow::SetCmdWorkFlow_Server_Roller(int _sjts_status_int, QString _msg)
 {
 	const  CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER _sjts_status = (CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER) _sjts_status_int;
 
 	if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerReadyStart) {
 
-		tcpSvrBeforeNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
-		tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START, _msg.toUInt());
+		tcpSvrBeforeNotifiedClientSessionM(CMD_WORK_FLOW::WF_FPGA_INNER::CT_FPGA_START);
+		tcpSvrNotifiedClientSessionM(CMD_WORK_FLOW::WF_FPGA_INNER::CT_FPGA_START, _msg.toUInt());
+
 	}
 	else if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerPosReady) {
 
@@ -508,7 +495,7 @@ void MainWindow::SetCmdWorkFlow_Server_Roller(int _sjts_status_int, QString _msg
 	}
 	else if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerDoneEnd) {
 
-		tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP);
+		tcpSvrNotifiedClientSessionM(CMD_WORK_FLOW::WF_FPGA_INNER::CT_FPGA_STOP);
 
 	}else if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerDoneQ ||
 		_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerDoneUnQ) {
@@ -533,20 +520,22 @@ void MainWindow::SetCmdWorkFlow_Server_Motor(int _sjts_status_int, QString _msg)
 	const  CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR _sjts_status = (CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR) _sjts_status_int;
 
 	if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR::MotorStart00) {
-
-		tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_00);
+		
+		this->SetSessionStatus2PlcNet();
+		tcpSvrNotifiedClientSessionM(CMD_WORK_FLOW::WF_FPGA_INNER::CT_FPGA_START_00);
 
 	}else if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR::MotorStop00) {
 
-		tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00);
+		tcpSvrNotifiedClientSessionM(CMD_WORK_FLOW::WF_FPGA_INNER::CT_FPGA_STOP_00);
 
 	}else if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR::MotorStart01) {
 
-		tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01);
+		tcpSvrNotifiedClientSessionM(CMD_WORK_FLOW::WF_FPGA_INNER::CT_FPGA_START_01);
 
 	}else if (_sjts_status == CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR::MotorStop01) {
-
-		tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01);
+		
+		this->SetSessionStatus2PlcNet();
+		tcpSvrNotifiedClientSessionM(CMD_WORK_FLOW::WF_FPGA_INNER::CT_FPGA_STOP_01);
 
 	}else {
 		
@@ -615,7 +604,7 @@ void MainWindow::init_class_member_base()
 *
 */
 /*-------------------------------------*/
-void MainWindow::tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL _type_c, int _cmd_idx)
+void MainWindow::tcpSvrNotifiedClientSessionM(CMD_WORK_FLOW::WF_FPGA_INNER _type_c, int _cmd_idx)
 {
 	mFlowServerServer->NotifiedClientSession(_type_c, _cmd_idx);
 }
@@ -627,18 +616,17 @@ void MainWindow::tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL _type_c, 
 void MainWindow::work_flow_server_client_sessions(QString _ip_addr, int _run, int _s)
 {
 	ShowStatusOnUI_ClientSessions_CheckBox(_ip_addr, _run, _s);
-
-	const int clients_t = this->GetServerClientSessions();
-
-	this->ShowStatusOnUI_ClientSessions_Label(clients_t);
+	this->ShowStatusOnUI_ClientSessions_Label_Ex();
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void MainWindow::tcpSvrBeforeNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL _type_c, QString _msg)
+void MainWindow::tcpSvrBeforeNotifiedClientSessionM(CMD_WORK_FLOW::WF_FPGA_INNER _type_c, QString _msg)
 {
+
+	
 
 	mFlowServerServer->beforeNotifiedClientSession(_type_c);
 
@@ -686,6 +674,15 @@ void  MainWindow::keyPressEvent(QKeyEvent *e)
 		}
 	}
 #endif
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+void MainWindow::SetSessionStatus2PlcNet()
+{
+	mWorkFlowPlc->set_external_session(this->GetServerClientSessions());
 }
 /*-------------------------------------*/
 /**

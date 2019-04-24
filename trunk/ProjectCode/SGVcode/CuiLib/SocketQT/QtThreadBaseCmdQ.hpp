@@ -2,15 +2,9 @@
 /*-------------------------------------*/
 #include "cpp_stl.h"
 /*-------------------------------------*/
-/**
-*
-*
-*/
+#include "QT_SDK_LIB/QBase.h"
+#include "QT_SDK_LIB/QtThreadBase.hpp"
 /*-------------------------------------*/
-#include "QtThreadBase.hpp"
-#include "QtTcpClient.hpp"
-#include "CMD_CTRL_Q.hpp"
-#include "QtThreadSocketClient.hpp"
 #include "QtMsgCmdQ.hpp"
 /*-------------------------------------*/
 /**
@@ -18,16 +12,14 @@
 *
 */
 /*-------------------------------------*/
-class QtThreadSocketClientCmdQ :public QtThreadSocketClient,public QtMsgCmdQ
+class QtThreadBaseCmdQ :public QtThreadBase,public QtMsgCmdQ
 {
 	Q_OBJECT
 public:
-	QtThreadSocketClientCmdQ(qintptr p);
-	explicit QtThreadSocketClientCmdQ(QObject *parent = Q_NULLPTR);
-	~QtThreadSocketClientCmdQ(void);
-
+	explicit QtThreadBaseCmdQ(QObject *parent = Q_NULLPTR);
+	~QtThreadBaseCmdQ(void);
+protected:
 public:
 	virtual void SetMsgWhileRunning(QSharedPointer<CMD_CTRL> _msg);
-
 
 };

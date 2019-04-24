@@ -73,15 +73,6 @@ void IPlcSjts::print_undefined_cmd(QSharedPointer<CMD_CTRL> _cmd)
 *
 */
 /*-------------------------------------*/
-void IPlcSjts::print_socket_connected()
-{
-
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
 int IPlcSjts::Read_1_plc_cmd_process_hearbeat(QSharedPointer<CMD_CTRL> _cmd)
 {
 	return 0;

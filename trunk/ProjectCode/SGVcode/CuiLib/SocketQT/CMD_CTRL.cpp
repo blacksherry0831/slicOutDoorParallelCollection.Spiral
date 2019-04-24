@@ -897,26 +897,6 @@ void CMD_CTRL::adjRect44(CvRect * rect)
 *
 */
 /*-------------------------------------*/
-int CMD_CTRL::getQualified()
-{
-	
-	int Q_classify = BodyRollerQualified::Qualified;
-	
-	if (this->IsImgFrame()) {
-
-		
-		Q_classify = (mClassify == 1) ? BodyRollerQualified::Qualified : BodyRollerQualified::UnQualified;//0== Q 1==unQ
-			
-
-	}
-
-	return Q_classify;
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
 std::string CMD_CTRL::SetCurrentCircleTime()
 {
 	return 	this->mCurrentCircleTime=this->GetCmdFrameSeqStr().toStdString();

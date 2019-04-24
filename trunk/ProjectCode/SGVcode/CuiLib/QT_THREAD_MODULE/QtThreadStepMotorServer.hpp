@@ -6,7 +6,8 @@
 /*-------------------------------------*/
 #include "SocketQT/conf_ip.h"
 /*-------------------------------------*/
-#include "SocketQT/QtThreadBase.hpp"
+#include "QT_SDK_LIB/QtThreadBase.hpp"
+/*-------------------------------------*/
 #include "SocketQT/CMD_CTRL.hpp"
 #include "SocketQT/QtThreadSocketClient.hpp"
 #include "SocketQT/QtMsgCmdQ.hpp"

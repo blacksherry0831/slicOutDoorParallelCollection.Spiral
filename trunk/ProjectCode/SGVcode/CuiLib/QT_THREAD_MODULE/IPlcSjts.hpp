@@ -24,7 +24,6 @@ public:
 public:
 	void			print_cmd(QSharedPointer<CMD_CTRL> _cmd);
 	void			print_undefined_cmd(QSharedPointer<CMD_CTRL> _cmd);
-	virtual void	print_socket_connected();
 public:
 	virtual int		Read_1_plc_cmd_process_hearbeat(QSharedPointer<CMD_CTRL> _cmd);
 public:

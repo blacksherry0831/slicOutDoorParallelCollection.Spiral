@@ -9,7 +9,7 @@
 
 
 
-#include "../SocketQT/QtTcpServerTest.hpp"
+
 #include "../SocketQT/QtLink.hpp"
 
 

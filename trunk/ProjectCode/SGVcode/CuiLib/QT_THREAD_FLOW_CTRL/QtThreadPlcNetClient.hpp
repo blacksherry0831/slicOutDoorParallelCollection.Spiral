@@ -19,39 +19,37 @@
 /*-------------------------------------*/
 #include "QT_THREAD_MODULE/IPlcSjts.hpp"
 #include "QT_THREAD_MODULE/IStepMotorSjts.hpp"
-#include "QT_THREAD_MODULE/QtThreadPlcSocket.hpp"
 /*-------------------------------------*/
 /**
 *
 *
 */
 /*-------------------------------------*/
-class QtThreadPlcSocketClient :public QtThreadPlcSocket,public QtMsgCmdQ
+class QtThreadPlcNetClient :public QtThreadFlowCtrlBase
 {
 	Q_OBJECT
 public:
-	explicit QtThreadPlcSocketClient(QObject *parent = Q_NULLPTR);
-	~QtThreadPlcSocketClient(void);
+	explicit QtThreadPlcNetClient(QObject *parent = Q_NULLPTR);
+	~QtThreadPlcNetClient(void);
 private:
-	boolean mExternalError;
+	int		mMotor[3];
+	int		mSessions[3];
+	const int SESSIONS = 1;
+protected:
+	void init_external_status();
+	int is_external_valid();
+public:
+	void set_external_status(int _idx,int _m,int _s);
+	void set_external_motor(int _m);
+	void set_external_session(int _s);
+public:
+	virtual void	do_sjts_roller_ready();
 public:
 	void SetBlock(int _block);
 	void process_roller_done_end();
-	int sendPlcRollerQualifiedEx(CMD_CTRL::BodyRollerQualified _qualified);
-public:
-	virtual void SetMsgWhileRunning(QSharedPointer<CMD_CTRL> _msg);
+	int  process_plc_cmd_async(QSharedPointer<CMD_CTRL> _cmd);
 protected:
-	virtual int process_plc_cmd_async(QSharedPointer<CMD_CTRL> _cmd);
-protected:
-    virtual  void emit_roller_abort();
-	virtual  void emit_roller_pos_ready();
-	virtual  void emit_roller_into_inner_ready();
-	virtual  void emit_roller_done();
-protected:
-	virtual void	do_sjts_roller_ready();
-	virtual void    do_sjts_roller_pos_ready();
-protected:
-	virtual void	do_run_work();
+	virtual void	run_socket_work();
 public:
 	virtual void	ProcMsgEx(QSharedPointer<CMD_CTRL> _msg);
 		

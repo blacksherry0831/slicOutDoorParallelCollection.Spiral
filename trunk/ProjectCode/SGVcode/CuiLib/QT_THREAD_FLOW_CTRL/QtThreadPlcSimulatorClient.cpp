@@ -108,7 +108,7 @@ void QtThreadPlcSimulatorClient::run_normal()
 /*-------------------------------------*/
 void QtThreadPlcSimulatorClient::run_thread_work()
 {
-	this->wait4WorkFlowStart();
+	
 	this->run_normal();
 
 	while (M_THREAD_RUN)

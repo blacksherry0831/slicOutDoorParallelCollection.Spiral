@@ -550,15 +550,16 @@ void CrackDetection::Init_RemoveBorder(const int WIDTH,const int HEIGHT, std::ve
 
 	_col.push_back(0);
 	_col.push_back(WIDTH - 1);
-
+#if 1
 	if (WIDTH == 960 && HEIGHT == 544) {
 
 		for (size_t ri = HEIGHT - 4; ri < HEIGHT - 1; ri++)
 		{
-			_col.push_back(ri);
+			_row.push_back(ri);
 		}
 
 	}
+#endif
 }
 /*-----------------------------------------*/
 /**

@@ -28,9 +28,9 @@
 #endif
 /*-------------------------------------*/
 #if PLC_CTRL_ASYNC
+#include "QT_THREAD_MODULE/CMD_WORK_FLOW.hpp"
 #include "QT_THREAD_MODULE/QtThreadPlcSimulatorClient.hpp"
 #include "QT_THREAD_MODULE/QtThreadStepMotorServer.hpp"
-#include "QT_THREAD_MODULE/CMD_WORK_FLOW.hpp"
 #endif // PLC_CTRL_ASYNC
 /*-------------------------------------*/
 #if _MSC_VER
@@ -152,24 +152,27 @@ public:
 	void closeDelay(int _ms=1000);
 	void closeServerAsyncM();
 public:
-	
-public:
-	int GetServerClientSessions();
+	int  GetServerClientSessions();
+	void SetSessionStatus2PlcNet();
 private:
-	void SetCmdWorkFlow_Socket_Q(int _quality);
-	void SetCmdWorkFlow_Socket(int _sjts_status_int, QString _msg);
+	
+	void SetCmdWorkFlow_Motor2PLcNet(int _sjts_status_int, QString _msg);
 	void SetCmdWorkFlow_StepMotor(int _sjts_status_int, QString _msg);
 	void SetCmdWorkFlow_Server_Roller(int _sjts_status_int, QString _msg);
 	void SetCmdWorkFlow_Server_Motor(int _sjts_status_int, QString _msg);
 private:
 	void ShowStatusOnUI_Roller(CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER __sjts_status);
 	void ShowStatusOnUI_Motor(CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR __sjts_status);
+	void ShowStatusOnUI_ClientSessions(QString _ip, int _run, int _s);
 public:
 	void dbg_checkRollerStatus(int _sjts_status_int, QString _msg);
 	void dbg_checkMotorStatus(int _sjts_status_int, QString _msg);
 	void dbg_checkFpgaStatus(int _sjts_status_int, QString _msg);
 public:
-	static void DrawUnqualified(QSharedPointer<CMD_CTRL> _cmd);
+	static void DrawClassify(QSharedPointer<CMD_CTRL> _cmd,int _ch);
+	static void DrawCross(IplImage* _img,float _s);
+	static void DrawCircle(IplImage* _img, float _s);
+	static void DrawChannel(IplImage* _img, float _s,int _ch);
 	static void ShowImage(QLabel* _qlab, QImage *_p_qimg);
 	static void ShowImageFast(QLabel* _qlab, QImage* const _p_qimg);
 public:
@@ -192,8 +195,8 @@ public slots:
 		void ConnectVideo();
 		
 #if FLOW_CTRL_USE_LOCAL_SERVER 
-		void tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL _type_c, int _cmd_idx=0);
-		void tcpSvrBeforeNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL _type_c, QString _msg="");
+		void tcpSvrNotifiedClientSessionM(CMD_WORK_FLOW::WF_FPGA_INNER _type_c, int _cmd_idx=0);
+		void tcpSvrBeforeNotifiedClientSessionM(CMD_WORK_FLOW::WF_FPGA_INNER _type_c, QString _msg="");
 #endif // FLOW_CTRL_USE_LOCAL_SERVER 
 		
 #if TRUE
@@ -261,7 +264,7 @@ public slots:
 	
 #if FLOW_CTRL_USE_LOCAL_SERVER
 	void tcp_server_work_flow_dones(int _status,int _quality);
-	void tcp_server_running_client_sessions(int _running_sessions);
+	void work_flow_server_client_sessions(QString _ip_addr, int _run, int _s);
 #endif // FLOW_CTRL_USE_LOCAL_SERVER
 	
 #if PLC_CTRL_ASYNC		

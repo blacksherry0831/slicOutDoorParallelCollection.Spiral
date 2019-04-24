@@ -1,5 +1,5 @@
 #pragma once
-
+/*-------------------------------------*/
 #include "cpp_stl.h"
 /*-------------------------------------*/
 /**
@@ -14,7 +14,8 @@
 *
 */
 /*-------------------------------------*/
-#include "SocketQT/QtThreadSocketClientCmdQ.hpp"
+#include "SocketQT/QtThreadSocketClient.hpp"
+/*-------------------------------------*/
 #include "SocketQT/QtTcpClient.hpp"
 #include "SocketQT/conf_ip.h"
 #include "SocketQT/CMD_CTRL_Q.hpp"
@@ -26,12 +27,12 @@
 *
 */
 /*-------------------------------------*/
-class QtThreadServerSession :public QtThreadSocketClientCmdQ
+class QtThreadSession :public QtThreadSocketClient
 {
 	Q_OBJECT
 public:
-	QtThreadServerSession(qintptr _socket);
-	~QtThreadServerSession(void);
+	QtThreadSession(qintptr _socket);
+	~QtThreadSession(void);
 
 signals:
 	void client_sessions_status(QString,int,int);/**<session (name,run/stop,status)*/

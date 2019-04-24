@@ -59,9 +59,6 @@ signals:
 	void img_stat(int _p_stat,int _channel,int _frames);
 protected: 
 	virtual void before_enter_thread();
-#if _DEBUG
-	virtual void run();
-#endif
 	virtual void run_socket_work();
 
 };

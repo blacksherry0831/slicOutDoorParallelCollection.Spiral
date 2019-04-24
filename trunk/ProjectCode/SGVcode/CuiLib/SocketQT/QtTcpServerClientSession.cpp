@@ -6,26 +6,9 @@
 *
 */
 /*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*
-*/
-/*-------------------------------------*/
 QtTcpServerClientSession::QtTcpServerClientSession(QObject *parent) :QTcpServer(parent)
 {
 
-}
-/*-------------------------------------*/
-/**
-*
-*
-*/
-/*-------------------------------------*/
-QtTcpServerClientSession::QtTcpServerClientSession(QObject *parent, QSharedPointer<QtThreadSocketClientCmdQ> _clientThread) :QTcpServer(parent)
-{
-	
 }
 /*-------------------------------------*/
 /**
@@ -35,17 +18,8 @@ QtTcpServerClientSession::QtTcpServerClientSession(QObject *parent, QSharedPoint
 
 QtTcpServerClientSession::~QtTcpServerClientSession()
 {
-	this->RemoveDoneThread();
-	m_clientThreads.clear();
-	
+	this->RemoveDoneThread();		
 }
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
 /*-------------------------------------*/
 /**
 *
@@ -55,22 +29,18 @@ void QtTcpServerClientSession::RemoveDoneThread()
 {	
 	QMutexLocker locker(&m_clients_mutex);
 	
-	for (QList<QSharedPointer<QtThreadSocketClientCmdQ>>::iterator item = m_clientThreads.begin(); item != m_clientThreads.end(); item++){
-
-		if ((*item)->isFinished()) {
-
-			m_clientThreads.removeOne(*item);
+	for (const auto& session_t : m_clientThreads){
+		if (session_t->isFinished()) {
+			m_clientThreads.removeOne(session_t);
 		}
-
-	}		
-	
+	}	
 }
 /*-------------------------------------*/
 /**
 *
 */
 /*-------------------------------------*/
-void QtTcpServerClientSession::SaveRunningThread(QSharedPointer<QtThreadSocketClientCmdQ> _client)
+void QtTcpServerClientSession::SaveRunningThread(QSharedPointer<QtThreadSessionWorkFlow> _client)
 {
 	QMutexLocker locker(&m_clients_mutex);
 	m_clientThreads.push_back(_client);
@@ -80,7 +50,7 @@ void QtTcpServerClientSession::SaveRunningThread(QSharedPointer<QtThreadSocketCl
 *
 */
 /*-------------------------------------*/
-void QtTcpServerClientSession::ProcessRunningThread(QSharedPointer<QtThreadSocketClientCmdQ> _client)
+void QtTcpServerClientSession::ProcessRunningThread(QSharedPointer<QtThreadSessionWorkFlow> _client)
 {
 	this->SaveRunningThread(_client);
 	this->RemoveDoneThread();
@@ -103,15 +73,10 @@ void  QtTcpServerClientSession::SendMsg2ClientSession(QSharedPointer<CMD_CTRL> _
 {
 	QMutexLocker locker(&m_clients_mutex);
 	
-	for (QList<QSharedPointer<QtThreadSocketClientCmdQ>>::iterator item = m_clientThreads.begin();item != m_clientThreads.end();item++)
-	{
-
-		if ((*item)->isRunning()) {
-
-			(*item)->SetMsg(_msg);
-			
+	for (auto& session_t: m_clientThreads){
+		if (session_t->isRunning()) {
+				session_t->SetMsg(_msg);
 		}
-
 	}
 
 }
@@ -124,20 +89,15 @@ void QtTcpServerClientSession::BeforeSendMsg2ClientSession(QSharedPointer<CMD_CT
 {
 	QMutexLocker locker(&m_clients_mutex);
 
-	for (QList<QSharedPointer<QtThreadSocketClientCmdQ>>::iterator item = m_clientThreads.begin(); item != m_clientThreads.end(); item++)
-	{
-
-		if ((*item)->isRunning()) {
-
-			Q_ASSERT(_msg->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START));
-			if (_msg->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START)) {
-				(*item)->beforeSendMsg();
+	for (auto& session_t : m_clientThreads) {
+		if (session_t->isRunning()) {
+			Q_ASSERT(_msg->IsThisCmd00(CMD_WORK_FLOW::WF_FPGA_INNER::CT_FPGA_START));
+			if (_msg->IsThisCmd00(CMD_WORK_FLOW::WF_FPGA_INNER::CT_FPGA_START)) {
+				session_t->beforeSendMsg();
 			}
-		
-
 		}
-
 	}
+
 }
 /*-------------------------------------*/
 /**
@@ -146,22 +106,17 @@ void QtTcpServerClientSession::BeforeSendMsg2ClientSession(QSharedPointer<CMD_CT
 /*-------------------------------------*/
 QVector<QString>  QtTcpServerClientSession::getRunningSessionIpAddr()
 {
+	QVector<QString> list_t;
+
 	QMutexLocker locker(&m_clients_mutex);
 
-	QVector<QString> list_t;
-	
-	for (QList<QSharedPointer<QtThreadSocketClientCmdQ>>::iterator item = m_clientThreads.begin(); item != m_clientThreads.end(); item++)
-	{
-
-		if ((*item)->isRunning()) {
-
-			  QString ip_str_t=(*item)->GetIpAddr();
-			  list_t.push_back(ip_str_t);
-
+	for (auto& session_t : m_clientThreads) {
+		if (session_t->isRunning()) {
+			QString ip_str_t = session_t->GetIpAddr();
+			list_t.push_back(ip_str_t);
 		}
-
 	}
-
+	
 	return list_t;
 	
 }
@@ -172,22 +127,16 @@ QVector<QString>  QtTcpServerClientSession::getRunningSessionIpAddr()
 /*-------------------------------------*/
 void  QtTcpServerClientSession::StopRunningThread()
 {
-	
 	QMutexLocker locker(&m_clients_mutex);
 
-
-
-	for (QList<QSharedPointer<QtThreadSocketClientCmdQ>>::iterator item = m_clientThreads.begin(); item != m_clientThreads.end(); item++)
-	{
-		QSharedPointer<QtThreadSocketClient>  thread_socket_session_t = (*item);
-		if (thread_socket_session_t->isRunning()) {
-			thread_socket_session_t->closeServerAsync();
+	for (auto& session_t : m_clientThreads) {
+		if (session_t->isRunning()) {
+			session_t->closeServerAsync();
 		}
-
 	}
-
-	
+		
 } 
+#if 1
 /*-------------------------------------*/
 /**
 *
@@ -195,23 +144,22 @@ void  QtTcpServerClientSession::StopRunningThread()
 /*-------------------------------------*/
 int QtTcpServerClientSession::IsWorkFlowDoneAllThread()
 {
-	QMutexLocker locker(&m_clients_mutex);
 
 	int work_flow_done = 0;
 
-	for (QList<QSharedPointer<QtThreadSocketClientCmdQ>>::iterator item = m_clientThreads.begin(); item != m_clientThreads.end(); item++)
-	{
-		QSharedPointer<QtThreadSocketClient>  thread_socket_session_t = (*item);
-		if (thread_socket_session_t->isRunning()) {
-				if (thread_socket_session_t->IsWorkFlowDone()) {
-					work_flow_done++;
-				}
-				else
-				{
-					return FALSE;
-				}
-		}
+	QMutexLocker locker(&m_clients_mutex);
+
+	for (auto& session_t : m_clientThreads) {		
 		
+		if (session_t->isRunning()) {
+			if (session_t->IsWorkFlowDone()) {
+				work_flow_done++;
+			}
+			else
+			{
+				return FALSE;
+			}
+		}
 	}
 
 	return work_flow_done;
@@ -225,27 +173,24 @@ int QtTcpServerClientSession::IsWorkFlowDoneAllThread()
 int QtTcpServerClientSession::WorkFlowDoneQuality()
 {
 	QMutexLocker locker(&m_clients_mutex);
-
 #if 1
 	if (m_clientThreads.size() == 0) {
 		return CMD_CTRL::BodyRollerQualified::UnQualified;
 	}
-#endif
-#if 1
-	for (auto item = m_clientThreads.begin(); item != m_clientThreads.end(); item++)
-	{
-			QSharedPointer<QtThreadSocketClient>  thread_socket_session_t = (*item);
-				if (thread_socket_session_t->isRunning()) {
-						const int work_done_result_t = thread_socket_session_t->getWorkFlowResult();
-							if (work_done_result_t == CMD_CTRL::BodyRollerQualified::UnQualified){
-								return CMD_CTRL::BodyRollerQualified::UnQualified;
-							}
-				}
+#endif	
+	for (auto& session_t : m_clientThreads) {
 
+		if (session_t->isRunning()) {
+			const int work_done_result_t = session_t->getWorkFlowResult();
+			if (work_done_result_t == CMD_CTRL::BodyRollerQualified::UnQualified) {
+				return CMD_CTRL::BodyRollerQualified::UnQualified;
+			}
+		}
 	}
-#endif
+
 	return CMD_CTRL::BodyRollerQualified::Qualified;
 }
+#endif
 /*-------------------------------------*/
 /**
 *
@@ -258,6 +203,8 @@ void  QtTcpServerClientSession::client_session_status(int _client, int _status)
 	{
 		//all done
 	}
+
+	Q_ASSERT(0);
 
 }
 /*-------------------------------------*/

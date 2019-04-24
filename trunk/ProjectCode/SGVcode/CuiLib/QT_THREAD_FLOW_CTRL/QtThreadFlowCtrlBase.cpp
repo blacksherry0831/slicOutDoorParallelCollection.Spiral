@@ -9,7 +9,7 @@
 QtThreadFlowCtrlBase::QtThreadFlowCtrlBase(QObject *parent):QtThreadSocketClientRoller(parent)
 {
 
-	this->mWorkFlowDoneClientThreadsResult =  CMD_CTRL::BodyRollerQualified::UnQualified;
+	this->initWorkFlow();
 	
 }
 /*-------------------------------------*/
@@ -32,7 +32,7 @@ int QtThreadFlowCtrlBase::getWorkFlowDones()
 }
 /*-------------------------------------*/
 /**
-*
+*this->setWorkFlowDones(0, CMD_CTRL::CMD_TYPE_02_RESP::CT_ERROR);
 */
 /*-------------------------------------*/
 void QtThreadFlowCtrlBase::setWorkFlowDones(int _work_flow,int _result)
@@ -56,24 +56,9 @@ void QtThreadFlowCtrlBase::setClientSessionCount(int _count)
 *
 */
 /*-------------------------------------*/
-int QtThreadFlowCtrlBase::wait4WorkFlowStart()
+void QtThreadFlowCtrlBase::initWorkFlow()
 {
-	this->setWorkFlowDones(0,CMD_CTRL::CMD_TYPE_02_RESP::CT_ERROR);
-
-	do
-	{
-		if (this->getClientSessionCount() >= CLIENT_SESSION_TOTAL)
-		{
-			return TRUE;
-		}
-		else {
-			this->SleepMy(1000);
-			emit status_sjts_client_session(CMD_WORK_FLOW::SJTS_MACHINE_STATUS_SERVER::NoClient,"NoClient");
-		}
-
-	} while (socket_thread_run_condition());
-
-	return FALSE;
+	this->setWorkFlowDones(0, CMD_CTRL::CMD_TYPE_02_RESP::CT_ERROR);
 }
 /*-------------------------------------*/
 /**
@@ -176,92 +161,6 @@ void  QtThreadFlowCtrlBase::emit_roller_done_qualified(CMD_CTRL::BodyRollerQuali
 {
 	this->mRollerStatus = this->BodyRollerQualified_2_SJTS_MACHINE_STATUS(_qualified);
 	this->emit_status_sjts_roller();
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-QString  QtThreadFlowCtrlBase::CircleSeq()
-{
-	const uint time_t = QDateTime::currentDateTime().toTime_t();
-		
-	return QString::number(time_t);
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-int QtThreadFlowCtrlBase::sendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP _type)
-{
-	int result_t = this->m_socket->SendPlcResp(CMD_CTRL::CMD_TYPE_02_RESP::CT_OK);
-
-	return result_t;
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-int QtThreadFlowCtrlBase::SendPlcIntoInter(int _step)
-{
-	int result_t = this->m_socket->SendPlcIntoInter(_step);
-
-	return result_t;
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void  QtThreadFlowCtrlBase::emit_roller_ready()
-{
-	const QString circle_seq = CircleSeq();
-	this->mRollerStatus = CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerReadyStart;
-	this->emit_status_sjts_roller(circle_seq);
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtThreadFlowCtrlBase::emit_roller_pos_ready()
-{
-	this->mRollerStatus = CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerPosReady;
-	this->emit_status_sjts_roller();
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtThreadFlowCtrlBase::emit_roller_into_inner_ready()
-{
-	this->mRollerStatus = CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerIntoInnerReady;
-	this->emit_status_sjts_roller();
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtThreadFlowCtrlBase::emit_roller_done()
-{
-	this->setWorkFlowDones(0, CMD_CTRL::CMD_TYPE_02_RESP::CT_ERROR);
-	this->mRollerStatus = CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::RollerDoneEnd;
-	this->emit_status_sjts_roller();
-}
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-void QtThreadFlowCtrlBase::emit_roller_abort()
-{
-	this->mRollerStatus = CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER::MachineAbort;
-	this->emit_status_sjts_roller();
-	this->M_THREAD_RUN = FALSE;
 }
 /*-------------------------------------*/
 /**

@@ -2,12 +2,9 @@
 /*-------------------------------------*/
 #include "cpp_stl.h"
 /*-------------------------------------*/
-/**
-*
-*
-*/
+#include "QtThreadBaseCmdQ.hpp"
 /*-------------------------------------*/
-#include "QtThreadBase.hpp"
+
 #include "QtTcpClient.hpp"
 #include "CMD_CTRL_Q.hpp"
 /*-------------------------------------*/
@@ -16,7 +13,7 @@
 *
 */
 /*-------------------------------------*/
-class QtThreadSocketClient :public QtThreadBase
+class QtThreadSocketClient :public QtThreadBaseCmdQ
 {
 	Q_OBJECT
 public:
@@ -33,11 +30,11 @@ protected:
 protected:	
 	//定义自己需要的方法或变量  
 	qintptr ptr_sd;	
-
 	std::string mIpAddr;
+	int mPort;
+
 	std::string mIpAddrLocal;
 	std::string mIpAddrRemote;
-	int mPort;
 private:
 	int mSocketConnected;
 	
@@ -51,7 +48,7 @@ public:
 	void  close_destory_socket_4_server();
 	int   IsSocketAliveEx();
 	int   IsSocketConnectedEx();
-	void emit_status_message(const QString& _msg);
+	void  emit_status_message(const QString& _msg);
 protected:
 	virtual void emit_thread_starting();
 	virtual void emit_thread_stopping();
@@ -96,27 +93,12 @@ public:
 	ResultMy read_n_byte(int _n);
 	ResultMy write_n_byte(const char * const _data, const int _size);
 	int getByteTcpRead();;
-public:
-	
-
-
-public slots:
-
 protected: 
 	virtual void run();
 	virtual void run_socket_work();
-
 private:
-	int SendHearbeatCmd(int _need_resp);
-	int SendHeartBeatCmdReadResp();
-	void SendHearbeatResp(QSharedPointer<CMD_CTRL> _cmd);
-public:
-	virtual void beforeSendMsg();
-protected:
-	int mWorkFlowStart;
-	int mWorkFlowEnd;
-	int mWorkFlowResult;
-public:
-	int IsWorkFlowDone();
-	int getWorkFlowResult();
+	int		SendHearbeatCmd(int _need_resp);
+	int		SendHeartBeatCmdReadResp();
+	void	SendHearbeatResp(QSharedPointer<CMD_CTRL> _cmd);
+
 };

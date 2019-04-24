@@ -46,4 +46,18 @@ public:
 		NoClient = 30,		
 	};
 
+	enum WF_FPGA_INNER {
+
+		CT_FPGA_START = 1,
+
+		CT_FPGA_START_00 = 2,
+		CT_FPGA_START_01 = 3,
+
+		CT_FPGA_STOP_00 = 4,
+		CT_FPGA_STOP_01 = 5,
+
+		CT_FPGA_STOP = 6,
+
+	};
+
 };

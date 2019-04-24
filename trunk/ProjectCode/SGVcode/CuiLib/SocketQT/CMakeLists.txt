@@ -19,8 +19,7 @@ ENDIF ()
 	
 	if (CBB_BUILDING_CRACK_DETECTION)
 		SET(DIR_SRCS	
-				
-						
+				QtThreadBaseCmdQ.cpp			
 				QtTcpServerClientSession.cpp	
 				QtTcpServer.cpp
 				
@@ -28,9 +27,9 @@ ENDIF ()
 				QtTcpClient.cpp
 				
 				QtThreadServer.cpp
-				QtThreadBase.cpp
-				
-				QtThreadServerSession.cpp	
+								
+				QtThreadSession.cpp
+				QtThreadSessionWorkFlow.cpp	
 
 				QtThreadClientLifeCycle.cpp	
 				QtThreadClientCtrlTest.cpp
@@ -48,8 +47,8 @@ ENDIF ()
 	
 				QtMsgCmdQ.cpp				
 
-				QtThreadSocketClient.cpp				
-				QtThreadSocketClientCmdQ.cpp
+				QtThreadSocketClient.cpp
+				QtThreadSocketClientPlc.cpp
 
 				exCircleData.cpp
 				
@@ -57,7 +56,6 @@ ENDIF ()
 				ChannelsData.cpp
 				ChannelsData4Show.cpp
 				
-				QtTcpServerTest.cpp
 				QtLink.cpp
 				Saveframe.cpp)		
 	

@@ -90,6 +90,21 @@ std::vector<float> QtImgProcess::ImgProcessIpl(IplImage * _img,const IMG_PROC _i
 *
 */
 /*-------------------------------------*/
+void QtImgProcess::ImgProcessCMD_CTRL_Not(QSharedPointer<CMD_CTRL> _cmd, const IMG_PROC _img_proc)
+{
+	if (_cmd->IsImgFrame()) {
+		Q_ASSERT(_img_proc.CurrentChannel >= 0 && _img_proc.CurrentChannel<8);
+		IplImage* img_t = _cmd->getIplimage();
+		ImgProcessIpl_RemoveBorder(img_t, _img_proc);
+		ImgProcessIpl_Base(img_t, _img_proc);
+		ImgProcessIpl_Draw(img_t, _img_proc);
+	}		
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
 std::vector<float> QtImgProcess::ImgProcessCMD_CTRL(QSharedPointer<CMD_CTRL> _cmd,const IMG_PROC _img_proc)
 {
 	std::vector< float> feature_t;
@@ -179,28 +194,32 @@ int QtImgProcess::ImgProcessCMD_CTRL_AttachResult(
 /*-------------------------------------*/
 void QtImgProcess::processImgCmd()
 {
-	ChannelsData*    channels_data_t = ChannelsData::getInstance();
-	QSharedPointer<exCircleData> circleData = channels_data_t->getChannelData(mImgProc.CurrentChannel);
+	QSharedPointer<exCircleData> circleData =ChannelsData::getInstance() ->getChannelData(mImgProc.CurrentChannel);
+	QSharedPointer<exCircleData> circleData4Show = ChannelsData4Show::getInstance()->getChannelData(mImgProc.CurrentChannel);
 
 	if (circleData->QueueSize()) {
 			
-			QSharedPointer<CMD_CTRL> cmd_t = circleData->getImg();
-			
+			QSharedPointer<CMD_CTRL> cmd_t = circleData->getImg();			
 			QSharedPointer<CMD_CTRL> cmd_4_show_t =QSharedPointer<CMD_CTRL>(new CMD_CTRL());
 
 			cmd_4_show_t->Init2BgrBuffer(cmd_t.data());
 			
 			IMG_PROC_record_work_flow(cmd_t);
 			
-			std::vector<float> feature_t= ImgProcessCMD_CTRL(cmd_t, mImgProc);
-			
-			const int classify_t = predictFeature(feature_t,mImgProc);
-			
-			this->ImgProcessCMD_CTRL_AttachResult(cmd_t, mImgProc, feature_t,classify_t);
-			
-			ChannelsData4Show::getInstance()->ConfigRecordImg(cmd_t);	
+			std::vector<float> feature_t;
+			int classify_t;
+			const int POS_MAX= 15 * 8 / 4;
+			if (circleData4Show->Pos()<POS_MAX) {						
+					feature_t = ImgProcessCMD_CTRL(cmd_t, mImgProc);
+					classify_t = predictFeature(feature_t,mImgProc);
+			}else{
+					ImgProcessCMD_CTRL_Not(cmd_t, mImgProc);
+					classify_t = 0;
+			}
 
-			this->EnqueueImg4ShowUI(cmd_t);	
+			this->ImgProcessCMD_CTRL_AttachResult(cmd_t, mImgProc, feature_t, classify_t);
+			ChannelsData4Show::getInstance()->ConfigRecordImg(cmd_t);
+			this->EnqueueImg4ShowUI(cmd_t);
 
 	}else {
 		this->SleepMy();
@@ -354,10 +373,6 @@ void QtImgProcess::run()
 {
 	
 	this->setPriorityMy();
-
-#if _DEBUG
-	const ChannelsData*    channels_data_t = ChannelsData::getInstance();
-#endif // _DEBUG
 		
 	while (M_THREAD_RUN){	
 
@@ -374,9 +389,6 @@ void QtImgProcess::run()
 			this->processImgCmd();
 
 #endif // 0
-	
-
-
 		
 	}
 

@@ -64,6 +64,9 @@ void exCircleData::init()
 	this->initFrameState_FPS();
 	mIsSaveFrame = FALSE;
 	mResult.clear();
+	this->mResultPos=0;
+	this->mResultNeg=0;
+	this->mResultUnDo=0;
 }
 /*-------------------------------------*/
 /**
@@ -201,12 +204,37 @@ void exCircleData::assert_channel(QSharedPointer<CMD_CTRL> _cmd_ctrl)
 /*-------------------------------------*/
 void exCircleData::setResult(QSharedPointer<CMD_CTRL> _cmd_ctrl)
 {
-	
+
+	const int   CLSAAIFY = _cmd_ctrl->mClassify;
+
 	if (_cmd_ctrl->IsImgFrame()) {
-			const int   CLSAAIFY = _cmd_ctrl->mClassify;
 			this->mResult.push_back(CLSAAIFY);
+#if 1
+			if (CLSAAIFY == 1) {
+				mResultPos++;
+			}
+			else if (CLSAAIFY == 1) {
+				mResultNeg++;
+			}
+			else if (CLSAAIFY == 0) {
+				mResultUnDo++;
+			}
+			else {
+				Q_ASSERT(0);
+			}
+#endif
+
 	}
 
+}
+/*-------------------------------------*/
+/**
+*
+*/
+/*-------------------------------------*/
+int exCircleData::Pos()
+{
+	return this->mResultPos;
 }
 /*-------------------------------------*/
 /**
@@ -217,26 +245,35 @@ int exCircleData::IsCrack()
 {
 	int pos_count = 0;
 	int neg_count = 0;
-	double  BLANK = 0.05;
+	int undo_count = 0;
+	const double  BLANK = 0.05;
 	const int TOTAL = mResult.size();
 	const int START = TOTAL*BLANK;
 	const int END = TOTAL*(1-BLANK);
 
-	for (int i = START;i< END; i++){
+			for (int i = START;i< END; i++){
+						const int reslut_classify_t = mResult.at(i);
+						if (reslut_classify_t == 1) {
+							pos_count++;
+						}else if (reslut_classify_t == -1){
+							neg_count++;
+						}else if (reslut_classify_t == 0){
+							undo_count++; 
+						}else{
+							Q_ASSERT(0);
+						}		
+				}
 
-			int reslut_classify_t = mResult.at(i);
-			if (reslut_classify_t == 1) {
-				pos_count++;
+			
+
+			if (undo_count==0){
+				printf("P:%d , N: %d \n",pos_count,neg_count);
+				return pos_count;
+			}else {			
+				printf("UNDO: %d \n", undo_count);
+				return TRUE;//спик╨ш
 			}
-			else
-			{
-				neg_count++;
-			}
-		
-	}
-
-	return pos_count;
-
+			
 }
 /*-------------------------------------*/
 /**

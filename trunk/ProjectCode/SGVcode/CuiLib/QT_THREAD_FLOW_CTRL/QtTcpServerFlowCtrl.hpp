@@ -11,6 +11,7 @@
 #include "socketQT/conf_ip_crack_detect.h"
 /*-------------------------------------*/
 #include "QT_THREAD_MODULE/QtThreadClientCtrl.hpp"
+#include "QT_THREAD_MODULE/CMD_WORK_FLOW.hpp"
 /*-------------------------------------*/
 /**
 *
@@ -34,8 +35,8 @@ protected:
 private:
 	int mWorkFlowDone;
 public:
-	void NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c,int _cmd_idx=0);
-	void beforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c);
+	void NotifiedClientSession(CMD_WORK_FLOW::WF_FPGA_INNER _type_c,int _cmd_idx=0);
+	void beforeNotifiedClientSession(CMD_WORK_FLOW::WF_FPGA_INNER _type_c);
 signals:
 	void work_flow_done(int,int);
 	void client_sessions_status(QString, int, int);

@@ -1,6 +1,6 @@
 //#include "stdafx.h"
 #include "QtTcpServerFlowCtrl.hpp"
-#include "QtThreadFlowCtrlServerSession.hpp"
+#include "QtThreadFlowCtrlSession.hpp"
 /*-------------------------------------*/
 /**
 *
@@ -49,7 +49,7 @@ void QtTcpServerFlowCtrl::incomingConnection(qintptr socketDescriptor)
 {
 	qDebug() << "New Connect is connect" << socketDescriptor;
 
-	QSharedPointer<QtThreadFlowCtrlServerSession> client_thread = QSharedPointer<QtThreadFlowCtrlServerSession>(new QtThreadFlowCtrlServerSession(socketDescriptor));
+	QSharedPointer<QtThreadFlowCtrlSession> client_thread = QSharedPointer<QtThreadFlowCtrlSession>(new QtThreadFlowCtrlSession(socketDescriptor));
 
 	this->connectClient2Server(client_thread.data());
 
@@ -62,7 +62,7 @@ void QtTcpServerFlowCtrl::incomingConnection(qintptr socketDescriptor)
 *
 */
 /*-------------------------------------*/
-void QtTcpServerFlowCtrl::NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c,int _cmd_idx)
+void QtTcpServerFlowCtrl::NotifiedClientSession(CMD_WORK_FLOW::WF_FPGA_INNER _type_c,int _cmd_idx)
 {
 	
 	QSharedPointer<CMD_CTRL> qsp_cc_t = CMD_CTRL::getLocalCmdEx(_type_c,0,_cmd_idx);
@@ -75,11 +75,11 @@ void QtTcpServerFlowCtrl::NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c
 *
 */
 /*-------------------------------------*/
-void QtTcpServerFlowCtrl::beforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _type_c)
+void QtTcpServerFlowCtrl::beforeNotifiedClientSession(CMD_WORK_FLOW::WF_FPGA_INNER _type_c)
 {
-	Q_ASSERT(_type_c==CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START);
+	Q_ASSERT(_type_c==CMD_WORK_FLOW::WF_FPGA_INNER::CT_FPGA_START);
 
-	if (_type_c == CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START) {
+	if (_type_c == CMD_WORK_FLOW::WF_FPGA_INNER::CT_FPGA_START) {
 		this->mWorkFlowDone = 0;
 	}
 

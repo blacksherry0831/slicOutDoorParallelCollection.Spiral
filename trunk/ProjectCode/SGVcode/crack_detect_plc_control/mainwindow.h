@@ -8,18 +8,16 @@
 #include "QT_SDK_LIB/QBase.h"
 /*-------------------------------------*/
 #if PLC_CTRL_ASYNC
-	#include "QT_THREAD_MODULE/QtThreadPlcSocketClient.hpp"
 	#include "QT_THREAD_MODULE/QtThreadStepMotorServer.hpp"
 	#include "QT_THREAD_MODULE/CMD_WORK_FLOW.hpp"
 #endif // PLC_CTRL_ASYNC
 /*-------------------------------------*/
 #include "QT_THREAD_FLOW_CTRL/QtThreadFlowCtrlServer.hpp"
+#include "QT_THREAD_FLOW_CTRL/QtThreadPlcNetClient.hpp"
 /*-------------------------------------*/
 namespace Ui {
 class MainWindow;
 }
-/*-------------------------------------*/
-
 /*-------------------------------------*/
 /**
 *
@@ -37,15 +35,15 @@ private:
     Ui::MainWindow *ui;
 
 #if PLC_CTRL_ASYNC	
-	QSharedPointer<QtThreadPlcSocketClient> mWorkFlowPlc;
+	QSharedPointer<QtThreadPlcNetClient> mWorkFlowPlc;
 	QSharedPointer<QtThreadStepMotorServer> mWorkFlowStepMotor;
 #endif // PLC_CTRL_ASYNC
 
 	QSharedPointer<QtThreadFlowCtrlServer> mFlowServerServer;
 	QString   mCheckBoxRunStatus[2];
 public:
-	void tcpSvrNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL _type_c, int _cmd_idx = 0);
-	void tcpSvrBeforeNotifiedClientSessionM(CMD_CTRL::CMD_TYPE_LOCAL _type_c, QString _msg="");
+	void tcpSvrNotifiedClientSessionM(CMD_WORK_FLOW::WF_FPGA_INNER _type_c, int _cmd_idx = 0);
+	void tcpSvrBeforeNotifiedClientSessionM(CMD_WORK_FLOW::WF_FPGA_INNER _type_c, QString _msg="");
 
 public:
 	void closeDelay(int _ms=1000);
@@ -67,19 +65,20 @@ private:
 	QString GetWorkFlowRollerMsg(CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER _sjts_s);
 	QString GetWorkFlowMotorMsg(CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR _sjts_s);
 	int		GetServerClientSessions();
+	void    SetSessionStatus2PlcNet();
 private:
 	void ShowStatusOnUI_Roller(CMD_WORK_FLOW::SJTS_MACHINE_STATUS_ROLLER __sjts_status);
 	void ShowStatusOnUI_Motor(CMD_WORK_FLOW::SJTS_MACHINE_STATUS_MOTOR __sjts_status);
 	
 	void ShowStatusOnUI_ClientSessions_CheckBox(QString _ip,int _run,int _s);
 	void ShowStatusOnUI_ClientSessions_Label(int _clients);
+	void ShowStatusOnUI_ClientSessions_Label_Ex();
 private:
 	void dbg_checkRollerStatus(int _sjts_status_int, QString _msg);
 	void dbg_checkMotorStatus(int _sjts_status_int, QString _msg);
 private:
 	void  SetCmdWorkFlow_StepMotor(int _sjts_status_int, QString _msg);
-	void  SetCmdWorkFlow_Socket(int _sjts_status_int, QString _msg);
-	void  SetCmdWorkFlow_Socket_Q(int _quality);
+	void  SetCmdWorkFlow_Motor2PLcNet(int _sjts_status_int, QString _msg);
 	void  SetCmdWorkFlow_Server_Roller(int _sjts_status_int, QString _msg);
 	
 	void  SetCmdWorkFlow_Server_Motor(int _sjts_status_int, QString _msg);

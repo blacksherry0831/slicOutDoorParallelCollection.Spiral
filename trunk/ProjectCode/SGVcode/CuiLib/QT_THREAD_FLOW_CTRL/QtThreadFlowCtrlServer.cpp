@@ -91,7 +91,7 @@ void QtThreadFlowCtrlServer::closeServerAsync()
 *
 */
 /*-------------------------------------*/
-void QtThreadFlowCtrlServer::NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _event, int _cmd_idx)
+void QtThreadFlowCtrlServer::NotifiedClientSession(CMD_WORK_FLOW::WF_FPGA_INNER _event, int _cmd_idx)
 {	
 	if (	this->isRunning() &&
 			M_THREAD_RUN &&
@@ -106,7 +106,7 @@ void QtThreadFlowCtrlServer::NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _eve
 *
 */
 /*-------------------------------------*/
-void QtThreadFlowCtrlServer::beforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _event)
+void QtThreadFlowCtrlServer::beforeNotifiedClientSession(CMD_WORK_FLOW::WF_FPGA_INNER _event)
 {
 	if (this->isRunning() &&
 		M_THREAD_RUN &&
@@ -115,12 +115,6 @@ void QtThreadFlowCtrlServer::beforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCA
 		this->mQtTcpServer->beforeNotifiedClientSession(_event);
 	}
 }
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
 /*-------------------------------------*/
 /**
 *
@@ -136,24 +130,6 @@ QVector<QString> QtThreadFlowCtrlServer::getThreadRunningSessionIpAddr()
 	return QVector<QString>();
 
 }
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
-
 /*-------------------------------------*/
 /**
 *

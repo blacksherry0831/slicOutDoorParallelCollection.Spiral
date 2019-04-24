@@ -5,25 +5,24 @@
 #if defined(QT_VERSION)
 #include "qt_all.h"
 #endif
-
+/*-------------------------------------*/
 #include "SocketQT/QtThreadSocketClient.hpp"
-#include "SocketQT/QtThreadSocketClientCmdQ.hpp"
-
+/*-------------------------------------*/
 #include "SocketQT/QtTcpClient.hpp"
 #include "SocketQT/CMD_CTRL_Q.hpp"
-
+/*-------------------------------------*/
 #include "SocketQT/conf_ip.h"
+/*-------------------------------------*/
+#include "QT_THREAD_MODULE/CMD_WORK_FLOW.hpp"
 /*-------------------------------------*/
 /**
 *
 *
 */
 /*-------------------------------------*/
-class QtThreadClientCtrl :public QtThreadSocketClientCmdQ
+class QtThreadClientCtrl :public QtThreadSocketClient
 {
 	Q_OBJECT
-public:
-	
 public:
 	QtThreadClientCtrl();
 	QtThreadClientCtrl(qintptr p);

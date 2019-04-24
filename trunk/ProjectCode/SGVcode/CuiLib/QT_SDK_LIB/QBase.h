@@ -2,8 +2,12 @@
 
 #include "cpp_stl.h"
 /*-------------------------------------*/
-#include <QString> 
+#include <QString>
+#include <QSharedPointer>
+/*-------------------------------------*/
 #include <QDateTime> 
+#include <QtNetwork>
+#include <QThread>
 /*-------------------------------------*/
 #include "IPrint.hpp"
 /*-------------------------------------*/

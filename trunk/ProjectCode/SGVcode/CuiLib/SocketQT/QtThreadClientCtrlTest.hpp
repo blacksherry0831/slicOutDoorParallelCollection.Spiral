@@ -1,9 +1,8 @@
 #pragma once
-
+/*-------------------------------------*/
 #include "cpp_stl.h"
-
-
-#include "QtThreadSocketClientCmdQ.hpp"
+/*-------------------------------------*/
+#include "QtThreadSocketClient.hpp"
 #include "QtTcpClient.hpp"
 /*-------------------------------------*/
 /**
@@ -11,7 +10,7 @@
 *
 */
 /*-------------------------------------*/
-class QtThreadClientCtrlTest :public QtThreadSocketClientCmdQ
+class QtThreadClientCtrlTest :public QtThreadSocketClient
 {
 
 public:

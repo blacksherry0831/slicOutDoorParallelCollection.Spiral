@@ -21,15 +21,17 @@ ENDIF ()
 	
 		SET(DIR_SRCS
 				QtThreadFlowCtrlBase.cpp	
-						
 				
+				QtThreadPlcNetClient.cpp	
+				QtThreadPlcSimulatorClient.cpp
+
 				QtTcpServerFlowCtrl.cpp
 				
 				QtThreadSocketClientRoller.cpp
 
 				QtThreadFlowCtrlClient.cpp
 				QtThreadFlowCtrlServer.cpp
-				QtThreadFlowCtrlServerSession.cpp)		
+				QtThreadFlowCtrlSession.cpp)		
 	
 	endif (CBB_BUILDING_CRACK_DETECTION)
  

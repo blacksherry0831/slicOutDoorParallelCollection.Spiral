@@ -3,13 +3,6 @@
 /*-------------------------------------*/
 /**
 *
-*
-*/
-/*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
 */
 /*-------------------------------------*/
 QtThreadFlowCtrlClient::QtThreadFlowCtrlClient():QtThreadSocketClient()
@@ -81,7 +74,7 @@ void QtThreadFlowCtrlClient::run_socket_work()
 					
 					QtThreadClientCtrl::SetCmd(cmd_t);//set work flow 2 
 
-					if (cmd_t->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP)) {					
+					if (cmd_t->IsThisCmd00(CMD_WORK_FLOW::WF_FPGA_INNER::CT_FPGA_STOP)) {					
 							
 							this->wait_4_inner_done();	
 							
@@ -117,39 +110,39 @@ void QtThreadFlowCtrlClient::run_socket_work()
 /*-------------------------------------*/
 int QtThreadFlowCtrlClient::Is_work_flow_status_fpga(QSharedPointer<CMD_CTRL> _cmd)
 {
-	if (_cmd->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START)) {
+	if (_cmd->IsThisCmd00(CMD_WORK_FLOW::WF_FPGA_INNER::CT_FPGA_START)) {
 		printf_event("---------------------------------------------");
-		printf_event("@ CMD_CTRL::CMD_TYPE_LOCAL::", "CT_FPGA_START");
+		printf_event("@ CMD_WORK_FLOW::WF_FPGA_INNER::", "CT_FPGA_START");
 		return TRUE;
 
 	}
-	else if (_cmd->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_00)) {
+	else if (_cmd->IsThisCmd00(CMD_WORK_FLOW::WF_FPGA_INNER::CT_FPGA_START_00)) {
 
-		printf_event("@ CMD_CTRL::CMD_TYPE_LOCAL::", "CT_FPGA_START_00");
+		printf_event("@ CMD_WORK_FLOW::WF_FPGA_INNER::", "CT_FPGA_START_00");
 		return TRUE;
 
 	}
-	else if (_cmd->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_00)) {
+	else if (_cmd->IsThisCmd00(CMD_WORK_FLOW::WF_FPGA_INNER::CT_FPGA_STOP_00)) {
 
-		printf_event("@ CMD_CTRL::CMD_TYPE_LOCAL::", "CT_FPGA_STOP_00");
+		printf_event("@ CMD_WORK_FLOW::WF_FPGA_INNER::", "CT_FPGA_STOP_00");
 		return TRUE;
 
 	}
-	else if (_cmd->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_START_01)) {
+	else if (_cmd->IsThisCmd00(CMD_WORK_FLOW::WF_FPGA_INNER::CT_FPGA_START_01)) {
 
-		printf_event("@ CMD_CTRL::CMD_TYPE_LOCAL::", "CT_FPGA_START_01");
+		printf_event("@ CMD_WORK_FLOW::WF_FPGA_INNER::", "CT_FPGA_START_01");
 		return TRUE;
 
 	}
-	else if (_cmd->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP_01)) {
+	else if (_cmd->IsThisCmd00(CMD_WORK_FLOW::WF_FPGA_INNER::CT_FPGA_STOP_01)) {
 
-		printf_event("@ CMD_CTRL::CMD_TYPE_LOCAL::", "CT_FPGA_STOP_01");
+		printf_event("@ CMD_WORK_FLOW::WF_FPGA_INNER::", "CT_FPGA_STOP_01");
 		return TRUE;
 
 	}
-	else if (_cmd->IsThisCmd00(CMD_CTRL::CMD_TYPE_LOCAL::CT_FPGA_STOP)) {
+	else if (_cmd->IsThisCmd00(CMD_WORK_FLOW::WF_FPGA_INNER::CT_FPGA_STOP)) {
 
-		printf_event("@ CMD_CTRL::CMD_TYPE_LOCAL::", "CT_FPGA_STOP");
+		printf_event("@ CMD_WORK_FLOW::WF_FPGA_INNER::", "CT_FPGA_STOP");
 		printf_event("---------------------------------------------");
 		return TRUE;
 

@@ -47,6 +47,7 @@ public:
 public:
 	void processImgCmd();
 	std::vector<float> ImgProcessCMD_CTRL(QSharedPointer<CMD_CTRL> _cmd,const IMG_PROC _img_proc);
+	void			   ImgProcessCMD_CTRL_Not(QSharedPointer<CMD_CTRL> _cmd, const IMG_PROC _img_proc);
 	void			   ImgProcessIpl_RemoveBorder(IplImage * _img, const IMG_PROC _img_proc);
 	void			   ImgProcessIpl_Draw(IplImage * _img, const IMG_PROC _img_proc);
 	void			   ImgProcessIpl_Base(IplImage * _img, const IMG_PROC _img_proc);
@@ -83,7 +84,7 @@ public:
 public:
 	void DrawFPS(IplImage * _img,const int _ch);
 public:
-	void SetClassifyThicklyThreshold(float _threshold);
+	void  SetClassifyThicklyThreshold(float _threshold);
 	float GetClassifyThicklyThreshold();
 public:
 	void startServer();

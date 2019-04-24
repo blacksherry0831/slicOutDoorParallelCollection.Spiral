@@ -4,9 +4,9 @@
 /*-------------------------------------*/
 #include "qt_all.h"
 /*-------------------------------------*/
-#include "SocketQT/conf_ip.h"
+#include "QT_SDK_LIB/QtThreadBase.hpp"
 /*-------------------------------------*/
-#include "SocketQT/QtThreadBase.hpp"
+#include "SocketQT/conf_ip.h"
 #include "SocketQT/CMD_CTRL.hpp"
 #include "SocketQT/QtThreadSocketClient.hpp"
 /*-------------------------------------*/

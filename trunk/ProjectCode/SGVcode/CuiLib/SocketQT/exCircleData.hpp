@@ -23,12 +23,6 @@
 *
 */
 /*-------------------------------------*/
-
-/*-------------------------------------*/
-/**
-*
-*/
-/*-------------------------------------*/
 class exCircleData : public CMD_CTRL_Q
 {
 	
@@ -43,7 +37,13 @@ private:
 	int mIsSaveFrame;
 	const int START_FRAME_COUNT=3;
 	Saveframe mSaveFrame;
+private:
 	QVector<int> mResult;
+	int mResultPos;
+	int mResultUnDo;
+	int mResultNeg;
+public:
+	int Pos();
 private:
 	void clear();
 	void assert_channel(QSharedPointer<CMD_CTRL> _cmd_ctrl);
@@ -60,8 +60,7 @@ private:
 public:
 	QSharedPointer<CMD_CTRL> mAverage;
 	QSharedPointer<CMD_CTRL> mSigma;
-private:
-	
+private:	
 	void IncFrameCount();
 public:
 	QSharedPointer<CMD_CTRL> getImg();

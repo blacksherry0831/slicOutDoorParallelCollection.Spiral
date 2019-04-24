@@ -6,13 +6,13 @@
 /*-------------------------------------*/
 #include "SocketQT/conf_ip.h"
 /*-------------------------------------*/
-#include "SocketQT/QtThreadBase.hpp"
+#include "QT_SDK_LIB/IPrint.hpp"
+#include "QT_SDK_LIB/QtThreadBase.hpp"
+/*-------------------------------------*/
 #include "SocketQT/CMD_CTRL.hpp"
 #include "SocketQT/QtThreadSocketClient.hpp"
 /*-------------------------------------*/
 #include "SerialPort/StepMotorBe1105.hpp"
-/*-------------------------------------*/
-#include "QT_SDK_LIB/IPrint.hpp"
 /*-------------------------------------*/
 #include "QT_THREAD_MODULE/IStepMotorSjts.hpp"
 /*-------------------------------------*/

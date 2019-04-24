@@ -1,5 +1,5 @@
 #pragma once
-
+/*-------------------------------------*/
 #include "cpp_stl.h"
 /*-------------------------------------*/
 /**
@@ -14,13 +14,14 @@
 *
 */
 /*-------------------------------------*/
-#include "QtThreadFlowCtrlServerSession.hpp"
+#include "QtThreadFlowCtrlSession.hpp"
 /*-------------------------------------*/
 #include "SocketQT/QtThreadSocketClient.hpp"
 #include "SocketQT/QtTcpClient.hpp"
 #include "SocketQT/QtTcpServer.hpp"
 #include "SocketQT/conf_ip.h"
-#include "socketQT/QtThreadBase.hpp"
+/*-------------------------------------*/
+#include "QT_SDK_LIB/QtThreadBase.hpp"
 /*-------------------------------------*/
 #include "QT_THREAD_FLOW_CTRL/QtTcpServerFlowCtrl.hpp"
 /*-------------------------------------*/
@@ -50,8 +51,8 @@ private:
 public:	
 	void closeServerAsync();
 public:
-	void NotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _event, int _cmd_idx=0);
-	void beforeNotifiedClientSession(CMD_CTRL::CMD_TYPE_LOCAL _event);
+	void NotifiedClientSession(CMD_WORK_FLOW::WF_FPGA_INNER _event, int _cmd_idx=0);
+	void beforeNotifiedClientSession(CMD_WORK_FLOW::WF_FPGA_INNER _event);
 	QVector<QString> getThreadRunningSessionIpAddr();
 private:
 
